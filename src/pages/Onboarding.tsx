@@ -65,7 +65,7 @@ export default function Onboarding() {
   };
 
   const canNext =
-    step.type === "text"
+    step.type === "text" || step.type === "city-autocomplete"
       ? !!(value as string)?.trim()
       : step.type === "select-one"
       ? !!value
