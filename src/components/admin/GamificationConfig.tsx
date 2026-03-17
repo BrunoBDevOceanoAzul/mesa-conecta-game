@@ -40,8 +40,8 @@ export function GamificationConfig() {
       supabase.from("admin_settings").select("value").eq("key", "xp_actions").maybeSingle(),
     ]);
 
-    const tierData = tiersRes.data?.value as EditableTier[] | null;
-    const actionData = actionsRes.data?.value as EditableAction[] | null;
+    const tierData = tiersRes.data?.value as unknown as EditableTier[] | null;
+    const actionData = actionsRes.data?.value as unknown as EditableAction[] | null;
 
     setTiers(
       tierData && Array.isArray(tierData)
