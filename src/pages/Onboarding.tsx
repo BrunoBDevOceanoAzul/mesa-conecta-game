@@ -229,8 +229,8 @@ export default function Onboarding() {
         {phase === "transition-start" && (
           <TransitionScreen
             key="transition-start"
-            headline="Vamos entender seu estilo"
-            subtext="Em poucos passos, a Hivium ajusta a experiência ao seu ritmo e ao tipo de mesa que faz sentido para você."
+            headline="Vamos calibrar seu perfil"
+            subtext="Em poucos passos, a HIVIUM ajusta a experiência ao seu ritmo e ao tipo de mesa que faz sentido para você."
             onComplete={() => setPhase("steps")}
             duration={2400}
           />

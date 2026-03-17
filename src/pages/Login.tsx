@@ -5,7 +5,7 @@ import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
-import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import logoImg from "@/assets/hivium-logo.png";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -86,8 +86,8 @@ export default function Login() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
-            <span className="font-display font-bold text-base text-foreground">Sócio do <span className="text-primary">Tabuleiro</span></span>
+            <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
+            <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">Bem-vindo de volta</h1>
           <p className="mt-2 text-sm text-muted-foreground">Entre na sua conta para continuar</p>

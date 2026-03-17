@@ -28,7 +28,7 @@ export function TransitionScreen({ headline, subtext, onComplete, duration = 220
           animate={{ scale: 1, opacity: 0.06 }}
           transition={{ duration: 1.2 }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, hsl(270 55% 50%), transparent 70%)" }}
         />
       </div>
 
