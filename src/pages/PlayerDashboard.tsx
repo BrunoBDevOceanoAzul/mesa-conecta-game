@@ -49,8 +49,6 @@ export default function PlayerDashboard() {
   const isPremium = sub.isActive;
   const reservationLimit = isPremium ? ((sub.featureFlags.reservation_limit as number) || 2) : 0;
   const planLabel = sub.plan?.name || null;
-  const navigate = useNavigate();
-  const { preferences } = useUserPreferences();
   const [profile, setProfile] = useState<{ name?: string; city?: string; lat?: number; lng?: number } | null>(null);
   const [mesas, setMesas] = useState<Mesa[]>([]);
 
