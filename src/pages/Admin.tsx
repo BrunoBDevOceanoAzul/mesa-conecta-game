@@ -193,7 +193,69 @@ export default function Admin() {
     });
     setAllCampaigns(campaignOverviews);
 
+    // XP Ranking
+    const xpProfiles = xpRes.data || [];
+    const allBadges = (masterBadgesRes.data || []) as any[];
+    const defs = badgeDefsRes.data || [];
+    setBadgeDefs(defs as any[]);
+    const ranking: XpRanking[] = (xpProfiles as any[]).map((xp) => {
+      const profile = profiles.find((p) => p.user_id === xp.user_id);
+      const userBadges = allBadges.filter((b) => b.user_id === xp.user_id);
+      return {
+        user_id: xp.user_id,
+        total_xp: xp.total_xp,
+        current_level: xp.current_level,
+        current_title: xp.current_title,
+        name: profile?.name || null,
+        email: profile?.email || null,
+        badge_count: userBadges.length,
+      };
+    });
+    setXpRanking(ranking);
+
     setLoading(false);
+  }
+
+  async function awardBadgeManually() {
+    if (!awardUserId || !awardBadgeId) return;
+    const { error } = await supabase.from("master_badges").insert({
+      user_id: awardUserId,
+      badge_definition_id: awardBadgeId,
+      awarded_reason: "Concedido manualmente pelo admin",
+      source_type: "admin",
+    });
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Badge concedido!", description: "Badge atribuído com sucesso." });
+      setAwardUserId("");
+      setAwardBadgeId("");
+      fetchAdminData();
+    }
+  }
+
+  async function adjustXp(userId: string, amount: number) {
+    const profile = xpRanking.find((x) => x.user_id === userId);
+    if (!profile) return;
+    const newTotal = Math.max(0, profile.total_xp + amount);
+    const tier = XP_TIERS.find((t) => newTotal >= t.minXp && newTotal <= (t.maxXp === Infinity ? 999999 : t.maxXp)) || XP_TIERS[0];
+    
+    await supabase.from("master_xp_profiles").update({
+      total_xp: newTotal,
+      current_level: tier.level,
+      current_title: tier.title,
+    }).eq("user_id", userId);
+
+    if (amount > 0) {
+      await supabase.from("xp_events").insert({
+        user_id: userId,
+        action_type: "admin_grant",
+        xp_amount: amount,
+      });
+    }
+
+    toast({ title: "XP ajustado", description: `${amount > 0 ? "+" : ""}${amount} XP aplicado.` });
+    fetchAdminData();
   }
 
   async function toggleFounderStatus(userId: string, currentlyFounder: boolean) {
