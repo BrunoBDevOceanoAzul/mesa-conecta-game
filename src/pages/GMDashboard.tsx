@@ -180,13 +180,21 @@ export default function GMDashboard() {
         {/* ─── OVERVIEW ─── */}
         {tab === "overview" && (
           <div className="space-y-6">
+            {/* Subscription banner for non-subscribers */}
+            {!sub.loading && !isPremium && (
+              <PremiumBanner
+                message="Ative seu plano para desbloquear CRM, analytics avançados e destaque."
+                ctaLabel="Ver planos"
+              />
+            )}
+
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
               <StatCard icon={<Calendar className="h-5 w-5" />} label="Mesas Ativas" value={String(activeMesas.length)} />
               <StatCard icon={<UserCheck className="h-5 w-5" />} label="Reservas" value={String(filledSeats)} />
               <StatCard icon={<PieChart className="h-5 w-5" />} label="Ocupação" value={`${occupancyRate}%`} />
-              <StatCard icon={<Eye className="h-5 w-5" />} label="Impressões (7d)" value="—" />
-              <StatCard icon={<MousePointerClick className="h-5 w-5" />} label="Cliques (7d)" value="—" />
-              <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={`R$${estimatedRevenue.toFixed(0)}`} />
+              <StatCard icon={<Eye className="h-5 w-5" />} label="Impressões (7d)" value={isPremium ? "—" : "🔒"} />
+              <StatCard icon={<MousePointerClick className="h-5 w-5" />} label="Cliques (7d)" value={isPremium ? "—" : "🔒"} />
+              <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={isPremium ? `R$${estimatedRevenue.toFixed(0)}` : "🔒"} />
             </div>
 
             {/* Quick mesas list */}

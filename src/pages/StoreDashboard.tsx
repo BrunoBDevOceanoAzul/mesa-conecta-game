@@ -359,6 +359,20 @@ export default function StoreDashboard() {
         {/* ─── AGENDA ─── */}
         {tab === "agenda" && (
           <div className="space-y-5">
+            {/* Gate agenda behind active plan */}
+            {!sub.loading && !sub.isActive && (
+              <div className="rounded-2xl border border-border bg-card p-8 text-center">
+                <Calendar className="mx-auto h-10 w-10 text-muted-foreground/40 mb-3" />
+                <h3 className="text-base font-display font-bold text-foreground mb-2">Agenda operacional</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
+                  A gestão completa de agenda está disponível para luderias com plano ativo. Ative seu plano para organizar mesas e eventos.
+                </p>
+                <Button variant="gradient" size="sm" className="gap-2" onClick={() => navigate("/billing")}>
+                  <Sparkles className="h-4 w-4" /> Ver planos
+                </Button>
+              </div>
+            )}
+            {sub.isActive && (<>
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-base font-display font-semibold text-foreground">Agenda de Mesas</h2>
