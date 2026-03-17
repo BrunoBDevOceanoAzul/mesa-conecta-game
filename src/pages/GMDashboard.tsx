@@ -19,6 +19,7 @@ import { PricingCalculator } from "@/components/gm/PricingCalculator";
 import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
 import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
 import { ShareButton } from "@/components/shared/ShareModal";
+import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 
 type Mesa = Tables<"mesas">;
 
