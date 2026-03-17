@@ -44,29 +44,29 @@ export function ShareAnalyticsPanel() {
 
     const loadStats = async () => {
       // Get share links
-      const { data: links } = await supabase
+      const { data: links } = await (supabase as any)
         .from("share_links")
         .select("id, channel")
-        .eq("owner_user_id", user.id);
+        .eq("owner_user_id", user.id) as { data: any[] | null };
 
       if (!links || links.length === 0) {
         setLoading(false);
         return;
       }
 
-      const linkIds = links.map((l) => l.id);
+      const linkIds = links.map((l: any) => l.id);
 
       // Get clicks
-      const { data: clicks } = await supabase
+      const { data: clicks } = await (supabase as any)
         .from("share_link_clicks")
         .select("share_link_id")
-        .in("share_link_id", linkIds);
+        .in("share_link_id", linkIds) as { data: any[] | null };
 
       // Get attribution events
-      const { data: events } = await supabase
+      const { data: events } = await (supabase as any)
         .from("attribution_events")
         .select("share_link_id, event_type, revenue_amount")
-        .in("share_link_id", linkIds);
+        .in("share_link_id", linkIds) as { data: any[] | null };
 
       // Aggregate by channel
       const channelMap: Record<string, ChannelStat> = {};

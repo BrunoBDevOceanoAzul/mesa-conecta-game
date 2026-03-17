@@ -51,7 +51,7 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
     const trackedUrl = buildTrackedUrl(channel);
     const shortCode = generateShortCode();
 
-    const { data } = await supabase.from("share_links").insert({
+    const { data } = await (supabase as any).from("share_links").insert({
       owner_user_id: user.id,
       entity_type: entityType,
       entity_id: entityId,
