@@ -1,5 +1,6 @@
 import { useMasterProgression } from "@/hooks/use-master-progression";
-import { XP_TIERS, RARITY_CONFIG, CATEGORY_LABELS } from "@/lib/xp-config";
+import { RARITY_CONFIG, CATEGORY_LABELS } from "@/lib/xp-config";
+import { useXpConfig } from "@/hooks/use-xp-config";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
