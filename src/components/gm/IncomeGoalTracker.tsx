@@ -25,16 +25,16 @@ export function IncomeGoalTracker() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
+    (supabase as any)
       .from("income_goals")
       .select("*")
       .eq("user_id", user.id)
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .limit(1)
-      .then(({ data }) => {
+      .then(({ data }: any) => {
         if (data && data.length > 0) {
-          const g = data[0];
+          const g = data[0] as any;
           setGoal({
             id: g.id,
             goal_amount: Number(g.goal_amount),
