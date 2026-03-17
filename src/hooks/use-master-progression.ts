@@ -51,6 +51,7 @@ export interface MasterProgressionState {
 
 export function useMasterProgression(): MasterProgressionState {
   const { user } = useAuth();
+  const { getTierForXp, getXpProgress, getXpActionAmount, loading: configLoading } = useXpConfig();
   const [loading, setLoading] = useState(true);
   const [totalXp, setTotalXp] = useState(0);
   const [level, setLevel] = useState(1);
