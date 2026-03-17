@@ -69,11 +69,11 @@ export function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.6 }}
         >
-          {[
-            { value: "600+", label: "Sistemas" },
-            { value: "200+", label: "Mesas curadas" },
-            { value: "1.2k", label: "Membros" },
-            { value: "50+", label: "Luderias" },
+        {[
+            { value: "RPG", label: "Curadoria de mesas" },
+            { value: "100%", label: "Match inteligente" },
+            { value: "CRM", label: "Para mestres" },
+            { value: "Boost", label: "Para luderias" },
           ].map((s) => (
             <div key={s.label} className="text-center">
               <div className="font-display text-3xl font-bold text-foreground md:text-4xl">{s.value}</div>
