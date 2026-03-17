@@ -250,7 +250,7 @@ export default function StoreDashboard() {
                 </div>
                 <span className="text-xs font-medium text-muted-foreground">{Math.round((mesasUsedOfPlan / planMesasPerMonth) * 100)}%</span>
               </div>
-              {currentPlan === "base" && (
+              {!isGrowth && (
                 <div className="mt-4 flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3">
                   <Zap className="h-4 w-4 text-secondary shrink-0" />
                   <p className="text-xs text-muted-foreground flex-1">Faça upgrade para <span className="font-semibold text-secondary">Loja Growth</span> e tenha até 12 mesas/mês + destaque no feed.</p>
