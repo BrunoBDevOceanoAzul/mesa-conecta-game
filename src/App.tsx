@@ -19,6 +19,7 @@ import TableDetail from "./pages/TableDetail";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
 import BoostDashboard from "./pages/BoostDashboard";
+import OAuthCallback from "./pages/OAuthCallback";
 
 const queryClient = new QueryClient();
 
