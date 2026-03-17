@@ -14,6 +14,153 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_settings: {
+        Row: {
+          key: string
+          updated_at: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          value?: Json
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      boost_campaigns: {
+        Row: {
+          budget_credits: number
+          clicks: number
+          cpc_rate: number
+          created_at: string
+          ends_at: string
+          id: string
+          impressions: number
+          is_founder_benefit: boolean
+          reservations: number
+          segment_city: string | null
+          segment_interests: string[] | null
+          segment_systems: string[] | null
+          spent_credits: number
+          starts_at: string
+          status: string
+          target_id: string
+          target_title: string
+          target_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_credits?: number
+          clicks?: number
+          cpc_rate?: number
+          created_at?: string
+          ends_at?: string
+          id?: string
+          impressions?: number
+          is_founder_benefit?: boolean
+          reservations?: number
+          segment_city?: string | null
+          segment_interests?: string[] | null
+          segment_systems?: string[] | null
+          spent_credits?: number
+          starts_at?: string
+          status?: string
+          target_id: string
+          target_title: string
+          target_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_credits?: number
+          clicks?: number
+          cpc_rate?: number
+          created_at?: string
+          ends_at?: string
+          id?: string
+          impressions?: number
+          is_founder_benefit?: boolean
+          reservations?: number
+          segment_city?: string | null
+          segment_interests?: string[] | null
+          segment_systems?: string[] | null
+          spent_credits?: number
+          starts_at?: string
+          status?: string
+          target_id?: string
+          target_title?: string
+          target_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string | null
+          id: string
+          reference_id: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          reference_id?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      credit_wallets: {
+        Row: {
+          balance: number
+          created_at: string
+          founder_grants_used: number
+          id: string
+          is_founder: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          created_at?: string
+          founder_grants_used?: number
+          id?: string
+          is_founder?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          created_at?: string
+          founder_grants_used?: number
+          id?: string
+          is_founder?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       mesas: {
         Row: {
           city: string | null
