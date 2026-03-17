@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTierForXp, getXpProgress, getXpActionAmount, type XpTier } from "@/lib/xp-config";
+import { useXpConfig } from "@/hooks/use-xp-config";
+import type { XpTier } from "@/lib/xp-config";
 
 export interface BadgeDefinition {
   id: string;
