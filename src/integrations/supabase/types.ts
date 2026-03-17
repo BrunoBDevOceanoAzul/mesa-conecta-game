@@ -68,6 +68,45 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          actor_email: string | null
+          actor_id: string | null
+          created_at: string
+          details_json: Json | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          source: string
+          target_id: string | null
+          target_type: string | null
+        }
+        Insert: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details_json?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          source?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Update: {
+          actor_email?: string | null
+          actor_id?: string | null
+          created_at?: string
+          details_json?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          source?: string
+          target_id?: string | null
+          target_type?: string | null
+        }
+        Relationships: []
+      }
       badge_definitions: {
         Row: {
           category: string
@@ -2516,6 +2555,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           wallet_type?: string | null
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          error_message: string | null
+          event_type: string
+          id: string
+          payload_json: Json | null
+          processed_at: string
+          status: string
+        }
+        Insert: {
+          error_message?: string | null
+          event_type: string
+          id: string
+          payload_json?: Json | null
+          processed_at?: string
+          status?: string
+        }
+        Update: {
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload_json?: Json | null
+          processed_at?: string
+          status?: string
         }
         Relationships: []
       }
