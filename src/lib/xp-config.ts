@@ -34,13 +34,13 @@ export interface XpTier {
 }
 
 export const XP_TIERS: XpTier[] = [
-  { level: 1, title: "Iniciante", minXp: 0, maxXp: 99, description: "Primeiros passos no mundo HIVIUM" },
-  { level: 2, title: "Condutor", minXp: 100, maxXp: 299, description: "Guiando aventureiros com confiança" },
-  { level: 3, title: "Curador", minXp: 300, maxXp: 599, description: "Curadoria de experiências memoráveis" },
-  { level: 4, title: "Estrategista", minXp: 600, maxXp: 999, description: "Planejamento tático e visão de longo prazo" },
-  { level: 5, title: "Arquiteto de Mesas", minXp: 1000, maxXp: 1599, description: "Construindo mundos que jogadores não esquecem" },
-  { level: 6, title: "Mestre de Círculo", minXp: 1600, maxXp: 2499, description: "Líder reconhecido pela comunidade HIVIUM" },
-  { level: 7, title: "Lendário", minXp: 2500, maxXp: Infinity, description: "Uma lenda viva da plataforma" },
+  { level: 1, title: "Iniciado", minXp: 0, maxXp: 99, description: "Primeiros passos no mundo HIVIUM" },
+  { level: 2, title: "Condutor", minXp: 100, maxXp: 249, description: "Guiando aventureiros com confiança" },
+  { level: 3, title: "Curador", minXp: 250, maxXp: 449, description: "Curadoria de experiências memoráveis" },
+  { level: 4, title: "Estrategista", minXp: 450, maxXp: 699, description: "Planejamento tático e visão de longo prazo" },
+  { level: 5, title: "Arquiteto de Mesas", minXp: 700, maxXp: 999, description: "Construindo mundos que jogadores não esquecem" },
+  { level: 6, title: "Mestre de Círculo", minXp: 1000, maxXp: 1399, description: "Líder reconhecido pela comunidade HIVIUM" },
+  { level: 7, title: "Lendário", minXp: 1400, maxXp: Infinity, description: "Uma lenda viva da plataforma" },
 ];
 
 export function getTierForXp(xp: number): XpTier {
