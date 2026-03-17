@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -11,7 +12,6 @@ export default function Login() {
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // MVP: simulate login
     localStorage.setItem("hivium_user", JSON.stringify({ email, role: "player" }));
     navigate("/dashboard/jogador");
   };
@@ -21,8 +21,8 @@ export default function Login() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 mb-6">
-            <div className="h-8 w-8 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-sm" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>H</div>
-            <span className="font-display font-bold text-lg text-foreground">Hiv<span className="text-primary">ium</span></span>
+            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
+            <span className="font-display font-bold text-lg text-foreground">Sócio do <span className="text-primary">Tabuleiro</span></span>
           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">Entrar na sua conta</h1>
           <p className="mt-2 text-sm text-muted-foreground">Bem-vindo de volta, aventureiro.</p>

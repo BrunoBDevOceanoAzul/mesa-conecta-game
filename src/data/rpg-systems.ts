@@ -1,4 +1,4 @@
-// Complete list of RPG systems for Hivium
+// Complete list of RPG systems for Sócio do Tabuleiro
 // This will be synced to the database with vector embeddings for semantic search
 
 export const RPG_SYSTEMS: string[] = [

@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
+import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 interface NavItem {
   label: string;
@@ -39,8 +40,8 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center justify-between px-4 border-b border-border">
           <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-xs" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>H</div>
-            <span className="font-display font-semibold text-foreground">Hiv<span className="text-primary">ium</span></span>
+            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-8 w-8 object-contain" />
+            <span className="font-display font-semibold text-foreground text-sm">Sócio do <span className="text-primary">Tabuleiro</span></span>
           </button>
           <button className="lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
@@ -49,7 +50,7 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
 
         <div className="p-4">
           <div className="flex items-center gap-3 rounded-lg bg-muted/50 p-3 mb-4">
-            <div className="h-9 w-9 rounded-full bg-primary/20 flex items-center justify-center text-sm font-bold text-primary">
+            <div className="h-9 w-9 rounded-full bg-primary/15 flex items-center justify-center text-sm font-bold text-primary">
               {userName.charAt(0)}
             </div>
             <div className="min-w-0">

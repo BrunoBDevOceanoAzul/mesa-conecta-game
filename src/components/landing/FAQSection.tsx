@@ -4,15 +4,15 @@ import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
-    q: "O que é o Hivium?",
-    a: "Hivium é a plataforma que conecta jogadores, mestres e luderias de RPG de mesa com matchmaking inteligente, CRM nativo e ferramentas de crescimento. Não somos um diretório — somos um ecossistema completo.",
+    q: "O que é o Sócio do Tabuleiro?",
+    a: "Sócio do Tabuleiro é a plataforma que conecta jogadores, mestres e luderias de RPG de mesa com matchmaking inteligente, CRM nativo e ferramentas de crescimento. Não somos um diretório — somos um ecossistema completo.",
   },
   {
     q: "Como funciona o matchmaking?",
     a: "Ao criar sua conta, você responde uma anamnese sobre seus gostos, estilo de jogo, cidade e disponibilidade. Nosso sistema cruza essas informações e exibe um score de compatibilidade em cada mesa, mestre ou luderia.",
   },
   {
-    q: "Qual a diferença do Hivium para MesaQuest ou Mestres da Lorota?",
+    q: "Qual a diferença do Sócio do Tabuleiro para MesaQuest ou Mestres da Lorota?",
     a: "Eles listam mesas. Nós criamos conexões. Temos matchmaking inteligente, CRM nativo para mestres, agenda integrada para luderias, impulsionamento por créditos e anamnese que personaliza toda a experiência.",
   },
   {

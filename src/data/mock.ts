@@ -107,10 +107,10 @@ export const mockTables: MockTable[] = [
 
 export const mockPosts: MockPost[] = [
   { id: 'p1', authorId: 'gm1', authorName: 'Rafael "Arkanos" Silva', authorRole: 'gm', authorAvatar: '', content: '🎲 Novas vagas abertas para a Maldição de Strahd! Sessão presencial na Taverna do Dragão, São Paulo. Quem topa enfrentar o Conde?', sponsored: false, createdAt: '2026-03-16T10:00:00', likes: 24 },
-  { id: 'p2', authorId: 'store1', authorName: 'Taverna do Dragão', authorRole: 'store', authorAvatar: '', content: '🐉 Programação de março: 12 mesas confirmadas! RPG todo sábado e board games às quartas. Reservem pelo Hivium!', imageUrl: '', sponsored: false, createdAt: '2026-03-15T14:00:00', likes: 42 },
-  { id: 'p3', authorId: 'brand1', authorName: 'Galápagos Jogos', authorRole: 'brand', authorAvatar: '', content: '📦 Lançamento exclusivo: Tormenta 20 — Edição do Mestre! Disponível nas luderias parceiras do Hivium. Garanta o seu com desconto de lançamento.', sponsored: true, createdAt: '2026-03-14T09:00:00', likes: 89 },
+  { id: 'p2', authorId: 'store1', authorName: 'Taverna do Dragão', authorRole: 'store', authorAvatar: '', content: '🐉 Programação de março: 12 mesas confirmadas! RPG todo sábado e board games às quartas. Reservem pelo Sócio do Tabuleiro!', imageUrl: '', sponsored: false, createdAt: '2026-03-15T14:00:00', likes: 42 },
+  { id: 'p3', authorId: 'brand1', authorName: 'Galápagos Jogos', authorRole: 'brand', authorAvatar: '', content: '📦 Lançamento exclusivo: Tormenta 20 — Edição do Mestre! Disponível nas luderias parceiras do Sócio do Tabuleiro. Garanta o seu com desconto de lançamento.', sponsored: true, createdAt: '2026-03-14T09:00:00', likes: 89 },
   { id: 'p4', authorId: 'gm4', authorName: 'Juliana Nightweaver', authorRole: 'gm', authorAvatar: '', content: '✨ Dica para mestres iniciantes: a primeira sessão não precisa ser perfeita, precisa ser divertida. O resto vem com a prática. Quem concorda?', sponsored: false, createdAt: '2026-03-13T18:00:00', likes: 67 },
-  { id: 'p5', authorId: 'store2', authorName: 'Luderia Nexus', authorRole: 'store', authorAvatar: '', content: '🎯 Evento especial: Noite de One-Shots toda sexta de abril! 5 mesas simultâneas, 5 sistemas diferentes. Ingressos pelo Hivium.', sponsored: true, createdAt: '2026-03-12T11:00:00', likes: 35 },
+  { id: 'p5', authorId: 'store2', authorName: 'Luderia Nexus', authorRole: 'store', authorAvatar: '', content: '🎯 Evento especial: Noite de One-Shots toda sexta de abril! 5 mesas simultâneas, 5 sistemas diferentes. Ingressos pelo Sócio do Tabuleiro.', sponsored: true, createdAt: '2026-03-12T11:00:00', likes: 35 },
 ];
 
 export const mockCRMLeads: CRMLead[] = [

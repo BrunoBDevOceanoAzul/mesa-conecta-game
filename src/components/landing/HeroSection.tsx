@@ -8,13 +8,13 @@ export function HeroSection() {
 
   return (
     <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16">
-      {/* BG effects */}
+      {/* BG effects — warm & subtle */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/3 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/8 blur-[150px]" />
+        <div className="absolute top-1/3 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/5 blur-[150px]" />
         <div className="absolute bottom-1/4 right-1/5 h-[400px] w-[400px] rounded-full bg-secondary/8 blur-[120px]" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full bg-primary/3 blur-[200px]" />
-        {/* Grid pattern overlay */}
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(139,92,246,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(139,92,246,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-[700px] w-[700px] rounded-full bg-secondary/3 blur-[200px]" />
+        {/* Subtle grid */}
+        <div className="absolute inset-0 bg-[linear-gradient(hsl(280_52%_42%/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(280_52%_42%/0.03)_1px,transparent_1px)] bg-[size:60px_60px]" />
       </div>
 
       <div className="container relative mx-auto px-4 text-center">
@@ -50,7 +50,7 @@ export function HeroSection() {
         >
           Não vendemos só vagas. Vendemos encaixe.{" "}
           <span className="text-foreground/80">
-            Hivium cruza perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
+            Sócio do Tabuleiro cruza perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
           </span>
         </motion.p>
 

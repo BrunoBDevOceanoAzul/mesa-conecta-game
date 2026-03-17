@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        display: ["Sora", "system-ui", "sans-serif"],
-        body: ["Inter", "system-ui", "sans-serif"],
+        display: ["Playfair Display", "Georgia", "serif"],
+        body: ["DM Sans", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -86,8 +86,8 @@ export default {
           to: { opacity: "1", transform: "translateX(0)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(258 90% 66% / 0.2)" },
-          "50%": { boxShadow: "0 0 40px hsl(258 90% 66% / 0.4)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(280 52% 42% / 0.15)" },
+          "50%": { boxShadow: "0 0 40px hsl(280 52% 42% / 0.25)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
