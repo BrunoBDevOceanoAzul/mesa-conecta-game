@@ -254,6 +254,13 @@ export default function TableDetail() {
               <p className="text-[11px] text-muted-foreground text-center">
                 Pagamento simulado para MVP
               </p>
+
+              {/* Share button */}
+              <ShareButton
+                entityType="mesa"
+                entityId={mesa.id}
+                entityTitle={mesa.title}
+              />
             </div>
           </div>
         </div>
