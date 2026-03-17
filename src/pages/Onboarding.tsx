@@ -262,8 +262,8 @@ export default function Onboarding() {
         {phase === "transition-review" && (
           <TransitionScreen
             key="transition-review"
-            headline="Estamos quase lá"
-            subtext="Quanto melhor o mapeamento, melhores as recomendações."
+            headline="Quase lá"
+            subtext="Quanto melhor a calibração, melhores as recomendações da HIVIUM."
             onComplete={() => setPhase("review")}
             duration={2000}
           />
@@ -284,7 +284,7 @@ export default function Onboarding() {
           <TransitionScreen
             key="transition-mapped"
             headline="Seu perfil está tomando forma"
-            subtext="Revise os principais pontos antes de concluir."
+            subtext="A HIVIUM já pode personalizar tudo para você."
             onComplete={() => setPhase("mapped")}
             duration={2200}
           />

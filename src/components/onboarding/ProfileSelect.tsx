@@ -37,10 +37,10 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
         >
           <span className="section-label">Perfil</span>
           <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-tight">
-            Como você usa a Hivium?
+            Como você usa a HIVIUM?
           </h2>
           <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed">
-            Escolha o perfil que mais combina com você
+            Escolha o perfil que define sua experiência
           </p>
         </motion.div>
 

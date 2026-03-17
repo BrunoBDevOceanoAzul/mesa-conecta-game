@@ -9,11 +9,11 @@ const faqs = [
   },
   {
     q: "Como funciona o matchmaking?",
-    a: "Você responde uma calibração sobre gostos, estilo, cidade e disponibilidade. O sistema cruza tudo e exibe um score de aderência em cada mesa.",
+    a: "Você responde uma calibração sobre gostos, estilo, cidade e disponibilidade. A HIVIUM cruza tudo e exibe um score de aderência em cada mesa.",
   },
   {
     q: "Preciso pagar para jogar?",
-    a: "Criar conta e navegar é grátis. Planos dão acesso a reservas, prioridade e ferramentas avançadas. O preço da sessão é do mestre.",
+    a: "Criar conta e navegar é grátis. Planos dão acesso a reservas, prioridade e ferramentas avançadas. O preço da sessão é definido pelo mestre.",
   },
   {
     q: "Sou mestre. Como ganho com a plataforma?",
@@ -29,7 +29,7 @@ const faqs = [
   },
   {
     q: "O que é a calibração de perfil?",
-    a: "Questionário que mapeia seu perfil: sistemas, estilo, disponibilidade, orçamento e preferências. Alimenta matchmaking e CRM.",
+    a: "Questionário inteligente que mapeia seu perfil: sistemas, estilo, disponibilidade, orçamento e preferências. Alimenta matchmaking, CRM e curadoria.",
   },
 ];
 

@@ -98,15 +98,15 @@ export default function PlayerDashboard() {
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName}! 🎲</h1>
-          <p className="text-muted-foreground mt-1">Aqui estão suas recomendações de hoje.</p>
+          <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
+          <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
         </div>
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           {[
             { label: "Mesas disponíveis", value: mesas.length.toString(), icon: <MapPin className="h-5 w-5 text-primary" /> },
-            { label: "Recomendadas", value: topRecs.length.toString(), icon: <Sparkles className="h-5 w-5 text-secondary" /> },
+            { label: "Curadas para você", value: topRecs.length.toString(), icon: <Sparkles className="h-5 w-5 text-secondary" /> },
             { label: "Match médio", value: topRecs.length > 0 ? `${Math.round(topRecs.reduce((a, b) => a + b.matchScore, 0) / topRecs.length)}%` : "—", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-5 flex items-center gap-4">
