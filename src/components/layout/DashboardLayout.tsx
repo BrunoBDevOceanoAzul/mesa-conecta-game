@@ -29,7 +29,7 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
   const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.removeItem("mesanexo_user");
+    localStorage.removeItem("hivium_user");
     navigate("/");
   };
 
@@ -39,8 +39,8 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
       <aside className={`fixed inset-y-0 left-0 z-50 w-64 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-16 items-center justify-between px-4 border-b border-border">
           <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <div className="h-7 w-7 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-xs" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>M</div>
-            <span className="font-display font-semibold text-foreground">Mesa<span className="text-primary">Nexo</span></span>
+            <div className="h-7 w-7 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-xs" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>H</div>
+            <span className="font-display font-semibold text-foreground">Hiv<span className="text-primary">ium</span></span>
           </button>
           <button className="lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />
