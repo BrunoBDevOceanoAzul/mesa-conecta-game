@@ -15,6 +15,10 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PremiumGate, PremiumBanner } from "@/components/shared/PremiumGate";
 import { ProgressionPanel } from "@/components/gm/ProgressionPanel";
+import { PricingCalculator } from "@/components/gm/PricingCalculator";
+import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
+import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
+import { ShareButton } from "@/components/shared/ShareModal";
 
 type Mesa = Tables<"mesas">;
 
