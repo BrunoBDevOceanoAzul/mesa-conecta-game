@@ -111,12 +111,34 @@ export default function PlayerDashboard() {
           <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
         </div>
 
+        {/* Plan badge */}
+        {isPremium && planLabel && (
+          <div className="self-start flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/5 px-3 py-1.5">
+            <Crown className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-display font-bold text-primary">{planLabel}</span>
+            <span className="text-[10px] text-muted-foreground">até {reservationLimit} reservas/mês</span>
+          </div>
+        )}
+
+        {/* Upgrade banner for free users */}
+        {!sub.loading && !isPremium && (
+          <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 flex items-center gap-3">
+            <Sparkles className="h-5 w-5 text-primary shrink-0" />
+            <p className="text-sm text-muted-foreground flex-1">
+              Desbloqueie mais reservas, favoritos expandidos e vantagens premium.
+            </p>
+            <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
+              Ver planos
+            </Button>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           {[
             { label: "Mesas disponíveis", value: mesas.length.toString(), icon: <MapPin className="h-5 w-5 text-primary" /> },
             { label: "Curadas para você", value: topRecs.length.toString(), icon: <Sparkles className="h-5 w-5 text-secondary" /> },
-            { label: "Match médio", value: topRecs.length > 0 ? `${Math.round(topRecs.reduce((a, b) => a + b.matchScore, 0) / topRecs.length)}%` : "—", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
+            { label: "Reservas do mês", value: isPremium ? `0/${reservationLimit}` : <span className="flex items-center gap-1"><Lock className="h-4 w-4" /> Premium</span>, icon: <Calendar className="h-5 w-5 text-accent" /> },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-5 flex items-center gap-4">
               <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-muted/50">{s.icon}</div>
