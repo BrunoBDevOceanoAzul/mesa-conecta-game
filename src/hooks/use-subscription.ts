@@ -19,7 +19,7 @@ export interface Plan {
   name: string;
   description: string | null;
   price_monthly: number;
-  feature_flags: Record<string, unknown>;
+  feature_flags: Record<string, unknown> | string | number | boolean | null;
   sort_order: number;
 }
 
