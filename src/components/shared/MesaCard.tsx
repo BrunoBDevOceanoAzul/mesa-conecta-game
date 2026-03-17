@@ -51,8 +51,21 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
   return (
     <div
       onClick={() => navigate(`/mesa/${mesa.id}`)}
-      className="group relative rounded-2xl border border-border bg-card overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_hsl(280_52%_42%/0.12)]"
+      className={`group relative rounded-2xl border bg-card overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_hsl(280_52%_42%/0.12)] ${
+        sponsored ? "border-secondary/40 sponsored-glow" : "border-border"
+      }`}
     >
+      {/* Sponsored / Founder badges */}
+      {sponsored && (
+        <div className="absolute top-0 left-0 z-10">
+          <div className="bg-gradient-to-r from-secondary to-secondary/80 px-3 py-1 rounded-br-xl flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3 text-secondary-foreground" />
+            <span className="text-[10px] font-bold text-secondary-foreground uppercase tracking-wider">
+              {founderBenefit ? "Founder Benefit" : "Patrocinado"}
+            </span>
+          </div>
+        </div>
+      )}
       {/* Match score ribbon */}
       {matchScore !== undefined && matchScore > 0 && (
         <div className={`absolute top-0 right-0 z-10`}>
