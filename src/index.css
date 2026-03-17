@@ -241,13 +241,19 @@
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
   }
   .role-badge-player {
-    @apply role-badge bg-primary/12 text-primary border border-primary/20;
+    @apply role-badge text-primary border;
+    background-color: hsl(var(--primary) / 0.12);
+    border-color: hsl(var(--primary) / 0.2);
   }
   .role-badge-gm {
-    @apply role-badge bg-secondary/12 text-secondary border border-secondary/20;
+    @apply role-badge text-secondary border;
+    background-color: hsl(var(--secondary) / 0.12);
+    border-color: hsl(var(--secondary) / 0.2);
   }
   .role-badge-store {
-    @apply role-badge bg-accent/12 text-accent border border-accent/20;
+    @apply role-badge text-accent border;
+    background-color: hsl(var(--accent) / 0.12);
+    border-color: hsl(var(--accent) / 0.2);
   }
   .role-badge-brand {
     @apply role-badge;
@@ -264,7 +270,10 @@
     background: var(--gradient-primary);
   }
   .role-badge-sponsored {
-    @apply role-badge bg-secondary/10 text-secondary border border-secondary/25;
+    @apply role-badge text-secondary border;
+    background-color: hsl(var(--secondary) / 0.1);
+    border-color: hsl(var(--secondary) / 0.25);
+  }
   }
 
   /* Empty states */
