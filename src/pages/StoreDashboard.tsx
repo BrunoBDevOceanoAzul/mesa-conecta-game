@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/use-subscription";
 import type { Tables } from "@/integrations/supabase/types";
 import {
   Store, Calendar, BarChart3, TrendingUp, Settings, Plus, Users,
@@ -28,10 +29,8 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <FileText className="h-4 w-4" /> },
 ];
 
-const PLAN_LIMITS = {
-  base: { label: "Loja Base", mesasPerMonth: 4, feedHighlight: false, price: "R$79,90/mês" },
-  growth: { label: "Loja Growth", mesasPerMonth: 12, feedHighlight: true, price: "R$149,90/mês" },
-};
+const DEFAULT_LIMITS = { mesasPerMonth: 4, feedHighlight: false };
+
 
 function StatCard({ icon, label, value, sub, accent }: { icon: React.ReactNode; label: string; value: string; sub?: string; accent?: boolean }) {
   return (
@@ -68,6 +67,7 @@ export default function StoreDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const sub = useSubscription();
   const displayName = user?.user_metadata?.name || "Luderia";
   const [tab, setTab] = useState<Tab>("overview");
 
@@ -87,9 +87,13 @@ export default function StoreDashboard() {
   const [storeSimTables, setStoreSimTables] = useState(4);
   const [storeOpenDays, setStoreOpenDays] = useState<string[]>([]);
 
-  // Current plan (simulated — would be from subscription table)
-  const [currentPlan] = useState<"base" | "growth">("base");
-  const plan = PLAN_LIMITS[currentPlan];
+  // Real plan data from subscription
+  const flags = sub.featureFlags || {};
+  const planMesasPerMonth = (flags.mesas_per_month as number) || DEFAULT_LIMITS.mesasPerMonth;
+  const planLabel = sub.plan?.name || "Sem plano";
+  const planPrice = sub.plan ? `R$${(sub.plan.price_monthly / 100).toFixed(2).replace(".", ",")}/mês` : "";
+  const isGrowth = sub.plan?.code === "store_growth";
+  const hasFeedHighlight = !!flags.feed_highlight;
 
   useEffect(() => {
     if (!user) return;
@@ -172,7 +176,7 @@ export default function StoreDashboard() {
   const occupancyRate = totalSeats > 0 ? Math.round((filledSeats / totalSeats) * 100) : 0;
   const uniqueSystems = new Set(mesas.map((m) => m.system));
   const mesasUsedOfPlan = mesasThisMonth.length;
-  const mesasRemaining = Math.max(0, plan.mesasPerMonth - mesasUsedOfPlan);
+  const mesasRemaining = Math.max(0, planMesasPerMonth - mesasUsedOfPlan);
 
   const WEEKDAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
@@ -195,11 +199,11 @@ export default function StoreDashboard() {
             <p className="text-sm text-muted-foreground mt-1">Organize mesas, eventos e acompanhe sua operação.</p>
           </div>
           {/* Plan badge */}
-          <div className={`self-start flex items-center gap-2 rounded-xl border px-4 py-2.5 ${currentPlan === "growth" ? "border-secondary/30 bg-secondary/5" : "border-border bg-card"}`}>
-            {currentPlan === "growth" ? <Star className="h-4 w-4 text-secondary" /> : <Store className="h-4 w-4 text-muted-foreground" />}
+          <div className={`self-start flex items-center gap-2 rounded-xl border px-4 py-2.5 ${isGrowth ? "border-secondary/30 bg-secondary/5" : "border-border bg-card"}`}>
+            {isGrowth ? <Star className="h-4 w-4 text-secondary" /> : <Store className="h-4 w-4 text-muted-foreground" />}
             <div>
-              <span className={`text-sm font-display font-bold ${currentPlan === "growth" ? "text-secondary" : "text-foreground"}`}>{plan.label}</span>
-              <span className="text-[10px] text-muted-foreground ml-2">{plan.price}</span>
+              <span className={`text-sm font-display font-bold ${isGrowth ? "text-secondary" : "text-foreground"}`}>{planLabel}</span>
+              <span className="text-[10px] text-muted-foreground ml-2">{planPrice}</span>
             </div>
           </div>
         </div>
@@ -228,7 +232,7 @@ export default function StoreDashboard() {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-sm font-display font-semibold text-foreground">Uso do plano — {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(now)}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{mesasUsedOfPlan} de {plan.mesasPerMonth} mesas utilizadas</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{mesasUsedOfPlan} de {planMesasPerMonth} mesas utilizadas</p>
                 </div>
                 {mesasRemaining <= 1 && mesasUsedOfPlan > 0 && (
                   <Badge variant="destructive" className="text-[10px]">
@@ -240,17 +244,17 @@ export default function StoreDashboard() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${mesasUsedOfPlan >= plan.mesasPerMonth ? "bg-destructive" : "bg-primary"}`}
-                    style={{ width: `${Math.min(100, (mesasUsedOfPlan / plan.mesasPerMonth) * 100)}%` }}
+                    className={`h-full rounded-full transition-all ${mesasUsedOfPlan >= planMesasPerMonth ? "bg-destructive" : "bg-primary"}`}
+                    style={{ width: `${Math.min(100, (mesasUsedOfPlan / planMesasPerMonth) * 100)}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">{Math.round((mesasUsedOfPlan / plan.mesasPerMonth) * 100)}%</span>
+                <span className="text-xs font-medium text-muted-foreground">{Math.round((mesasUsedOfPlan / planMesasPerMonth) * 100)}%</span>
               </div>
-              {currentPlan === "base" && (
+              {!isGrowth && (
                 <div className="mt-4 flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3">
                   <Zap className="h-4 w-4 text-secondary shrink-0" />
-                  <p className="text-xs text-muted-foreground flex-1">Faça upgrade para <span className="font-semibold text-secondary">Loja Growth</span> e tenha até 12 mesas/mês + destaque no feed.</p>
-                  <Button variant="outline" size="sm" className="shrink-0 text-xs border-secondary/30 text-secondary hover:bg-secondary/10">
+                  <p className="text-xs text-muted-foreground flex-1">Faça upgrade para <span className="font-semibold text-secondary">Luderia Growth</span> e tenha até 12 mesas/mês + destaque no feed.</p>
+                  <Button variant="outline" size="sm" className="shrink-0 text-xs border-secondary/30 text-secondary hover:bg-secondary/10" onClick={() => navigate("/billing")}>
                     Upgrade
                   </Button>
                 </div>
@@ -259,7 +263,7 @@ export default function StoreDashboard() {
 
             {/* Stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <StatCard icon={<CalendarDays className="h-5 w-5" />} label="Mesas no mês" value={String(mesasThisMonth.length)} sub={`de ${plan.mesasPerMonth} disponíveis`} />
+              <StatCard icon={<CalendarDays className="h-5 w-5" />} label="Mesas no mês" value={String(mesasThisMonth.length)} sub={`de ${planMesasPerMonth} disponíveis`} />
               <StatCard icon={<Calendar className="h-5 w-5" />} label="Próximas" value={String(upcomingMesas.length)} />
               <StatCard icon={<PieChart className="h-5 w-5" />} label="Ocupação" value={`${occupancyRate}%`} />
               <StatCard icon={<BookOpen className="h-5 w-5" />} label="Sistemas" value={String(uniqueSystems.size)} />
@@ -538,7 +542,7 @@ export default function StoreDashboard() {
               </Button>
             </div>
 
-            {currentPlan === "growth" && (
+            {hasFeedHighlight && (
               <div className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 flex items-center gap-3">
                 <Star className="h-5 w-5 text-secondary shrink-0" />
                 <div>
