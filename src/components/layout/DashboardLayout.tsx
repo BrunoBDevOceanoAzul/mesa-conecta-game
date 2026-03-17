@@ -29,7 +29,7 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
   const location = useLocation();
 
   const handleLogout = () => {
-    localStorage.removeItem("mesanexo_user");
+    localStorage.removeItem("hivium_user");
     navigate("/");
   };
 
