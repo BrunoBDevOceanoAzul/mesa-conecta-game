@@ -32,12 +32,7 @@ const navItems = [
 
 type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics";
 
-// Calculator presets
-const calcPresets = [
-  { label: "One-Shot", prepHours: 2, sessionHours: 4, hourlyRate: 30, players: 5 },
-  { label: "Campanha", prepHours: 3, sessionHours: 4, hourlyRate: 40, players: 5 },
-  { label: "Evento", prepHours: 4, sessionHours: 6, hourlyRate: 50, players: 6 },
-];
+// Calculator presets (legacy - now using PricingCalculator component)
 
 // CRM lead stages
 const stageConfig: Record<string, { label: string; color: string }> = {
