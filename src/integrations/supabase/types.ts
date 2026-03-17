@@ -14,40 +14,138 @@ export type Database = {
   }
   public: {
     Tables: {
+      mesas: {
+        Row: {
+          city: string | null
+          created_at: string
+          description: string | null
+          format: string
+          gm_id: string
+          gm_name: string
+          id: string
+          image_url: string | null
+          max_price: number | null
+          min_price: number | null
+          play_styles: string[] | null
+          seats_available: number
+          seats_total: number
+          session_type: string
+          start_at: string
+          status: string
+          store_id: string | null
+          system: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          venue: string | null
+        }
+        Insert: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          format: string
+          gm_id: string
+          gm_name: string
+          id?: string
+          image_url?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          play_styles?: string[] | null
+          seats_available?: number
+          seats_total?: number
+          session_type: string
+          start_at: string
+          status?: string
+          store_id?: string | null
+          system: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Update: {
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          format?: string
+          gm_id?: string
+          gm_name?: string
+          id?: string
+          image_url?: string | null
+          max_price?: number | null
+          min_price?: number | null
+          play_styles?: string[] | null
+          seats_available?: number
+          seats_total?: number
+          session_type?: string
+          start_at?: string
+          status?: string
+          store_id?: string | null
+          system?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesas_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          budget_range: string | null
           city: string | null
           created_at: string
           email: string | null
+          experience_level: string | null
           id: string
           lat: number | null
           lng: number | null
           name: string | null
+          play_styles: string[] | null
+          preferred_format: string | null
+          preferred_systems: string[] | null
           updated_at: string
           user_id: string
         }
         Insert: {
           avatar_url?: string | null
+          budget_range?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
+          experience_level?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name?: string | null
+          play_styles?: string[] | null
+          preferred_format?: string | null
+          preferred_systems?: string[] | null
           updated_at?: string
           user_id: string
         }
         Update: {
           avatar_url?: string | null
+          budget_range?: string | null
           city?: string | null
           created_at?: string
           email?: string | null
+          experience_level?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
           name?: string | null
+          play_styles?: string[] | null
+          preferred_format?: string | null
+          preferred_systems?: string[] | null
           updated_at?: string
           user_id?: string
         }
