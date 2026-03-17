@@ -224,7 +224,6 @@ export default function GMDashboard() {
                 )}
               </div>
             </div>
-            </div>
           </div>
         )}
 
