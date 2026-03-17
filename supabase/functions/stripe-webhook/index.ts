@@ -121,6 +121,15 @@ async function upsertSubscription(sub: Stripe.Subscription) {
     const { data: created } = await supabase.from("subscriptions").insert(payload).select("id").single();
     logStep("Subscription created", { id: created?.id });
     await auditLog("subscription_created", "subscription", created?.id || "", { stripe_sub_id: sub.id, status: payload.status });
+
+    // Increment founder slot counter if applicable
+    if (plan?.is_founder_plan) {
+      await supabase
+        .from("plans")
+        .update({ founder_slots_used: (plan.founder_slots_used || 0) + 1 })
+        .eq("id", plan.id);
+      logStep("Founder slot incremented", { plan_code: plan.code, used: (plan.founder_slots_used || 0) + 1 });
+    }
   }
 }
 
