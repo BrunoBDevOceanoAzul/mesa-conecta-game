@@ -232,7 +232,7 @@ export default function StoreDashboard() {
               <div className="flex items-center justify-between mb-3">
                 <div>
                   <p className="text-sm font-display font-semibold text-foreground">Uso do plano — {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(now)}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{mesasUsedOfPlan} de {plan.mesasPerMonth} mesas utilizadas</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{mesasUsedOfPlan} de {planMesasPerMonth} mesas utilizadas</p>
                 </div>
                 {mesasRemaining <= 1 && mesasUsedOfPlan > 0 && (
                   <Badge variant="destructive" className="text-[10px]">
