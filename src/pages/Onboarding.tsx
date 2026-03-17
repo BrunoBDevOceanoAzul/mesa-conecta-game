@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PLAY_STYLES } from "@/data/mock";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
+import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 
 interface StepConfig {
