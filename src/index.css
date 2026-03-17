@@ -270,7 +270,10 @@
     background: var(--gradient-primary);
   }
   .role-badge-sponsored {
-    @apply role-badge bg-secondary/10 text-secondary border border-secondary/25;
+    @apply role-badge text-secondary border;
+    background-color: hsl(var(--secondary) / 0.1);
+    border-color: hsl(var(--secondary) / 0.25);
+  }
   }
 
   /* Empty states */
