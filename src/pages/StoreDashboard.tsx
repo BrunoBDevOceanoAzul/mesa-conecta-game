@@ -176,7 +176,7 @@ export default function StoreDashboard() {
   const occupancyRate = totalSeats > 0 ? Math.round((filledSeats / totalSeats) * 100) : 0;
   const uniqueSystems = new Set(mesas.map((m) => m.system));
   const mesasUsedOfPlan = mesasThisMonth.length;
-  const mesasRemaining = Math.max(0, plan.mesasPerMonth - mesasUsedOfPlan);
+  const mesasRemaining = Math.max(0, planMesasPerMonth - mesasUsedOfPlan);
 
   const WEEKDAYS = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sáb", "Dom"];
 
