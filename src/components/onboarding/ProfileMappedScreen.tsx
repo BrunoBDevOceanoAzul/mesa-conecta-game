@@ -60,7 +60,6 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           >
             <CheckCircle2 className="h-10 w-10 text-primary-foreground" />
           </div>
-          {/* Subtle pulse ring */}
           <motion.div
             initial={{ scale: 0.8, opacity: 0.5 }}
             animate={{ scale: 1.6, opacity: 0 }}
@@ -75,7 +74,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           transition={{ delay: 0.35 }}
           className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight"
         >
-          Perfil mapeado
+          Perfil calibrado
         </motion.h1>
 
         <motion.p
@@ -84,7 +83,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           transition={{ delay: 0.5 }}
           className="mt-4 text-muted-foreground text-[15px] leading-relaxed max-w-sm mx-auto"
         >
-          Agora a Hivium já pode recomendar mesas, conexões e oportunidades com muito mais aderência.
+          Agora a HIVIUM pode recomendar mesas, conexões e oportunidades com muito mais aderência ao seu perfil.
         </motion.p>
 
         {/* Summary card */}

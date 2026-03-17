@@ -27,21 +27,21 @@ export function CTASection() {
             </h2>
 
             <p className="mt-6 text-muted-foreground max-w-md mx-auto">
-              RPG é comunidade, profissão e mercado. HIVIUM organiza o jogo social.
+              RPG é comunidade, profissão e mercado. A HIVIUM organiza o jogo social.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="gradient" size="xl" onClick={() => navigate("/cadastro")}>
-                Começar agora — é grátis
+                Entrar no ecossistema
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button variant="hero-outline" size="lg" onClick={() => navigate("/buscar")}>
+              <Button variant="hero-outline" size="lg" onClick={() => navigate("/explorar")}>
                 Explorar mesas
               </Button>
             </div>
 
             <p className="mt-8 text-xs text-muted-foreground/40">
-              Sem cartão. Sem compromisso.
+              Sem cartão. Sem compromisso. Comece agora.
             </p>
           </div>
         </motion.div>

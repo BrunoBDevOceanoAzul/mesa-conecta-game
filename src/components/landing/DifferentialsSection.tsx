@@ -17,8 +17,8 @@ const differentials = [
   {
     icon: BarChart3,
     title: "CRM nativo para mestres",
-    desc: "Leads, tags, histórico de reservas e analytics. Tudo num só lugar.",
-    emphasis: "De hobby a negócio.",
+    desc: "Leads, tags, histórico de reservas e analytics. Tudo integrado.",
+    emphasis: "De hobby a operação.",
   },
   {
     icon: Layers,
@@ -57,7 +57,7 @@ export function DifferentialsSection() {
           <span className="section-label">Diferenciais</span>
           <h2 className="section-heading">
             Outros listam mesas.{" "}
-            <span className="gradient-text">Nós criamos conexões.</span>
+            <span className="gradient-text">A HIVIUM cria conexões.</span>
           </h2>
         </motion.div>
 

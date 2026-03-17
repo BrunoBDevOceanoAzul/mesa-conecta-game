@@ -21,7 +21,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="section-label">Curadoria · Conexão · Presença</span>
+          <span className="section-label">Curadoria · Conexão · Prestígio</span>
         </motion.div>
 
         <motion.h1
@@ -43,7 +43,7 @@ export function HeroSection() {
         >
           Menos ruído. Mais aderência.{" "}
           <span className="text-foreground/70">
-            HIVIUM cruza perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
+            A HIVIUM cruza perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
           </span>
         </motion.p>
 
@@ -54,10 +54,10 @@ export function HeroSection() {
           transition={{ duration: 0.5, delay: 0.4 }}
         >
           <Button variant="gradient" size="xl" onClick={() => navigate("/cadastro")}>
-            Começar agora — é grátis
+            Entrar no ecossistema
             <ArrowRight className="h-5 w-5" />
           </Button>
-          <Button variant="hero-outline" size="xl" onClick={() => navigate("/buscar")}>
+          <Button variant="hero-outline" size="xl" onClick={() => navigate("/explorar")}>
             Explorar mesas
           </Button>
         </motion.div>

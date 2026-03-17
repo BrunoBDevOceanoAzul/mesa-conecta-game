@@ -63,10 +63,10 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
         >
           <span className="section-label">Revisão</span>
           <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-tight">
-            Seu perfil está tomando forma
+            Revise antes de calibrar
           </h2>
           <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed">
-            Revise os principais pontos antes de concluir
+            Quanto melhor o mapeamento, melhores as recomendações da HIVIUM
           </p>
         </motion.div>
 
@@ -81,7 +81,7 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
             <div className="flex items-center gap-2 mb-3">
               <Sparkles className="h-3.5 w-3.5 text-secondary" />
               <span className="text-[11px] font-semibold text-secondary uppercase tracking-[0.15em]">
-                Suas badges
+                Suas insígnias
               </span>
             </div>
             <div className="flex flex-wrap gap-2">
@@ -168,10 +168,10 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
             {saving ? (
               <span className="flex items-center gap-2">
                 <span className="h-4 w-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                Mapeando...
+                Calibrando...
               </span>
             ) : (
-              "Mapear meu perfil"
+              "Calibrar meu perfil"
             )}
           </Button>
         </motion.div>
