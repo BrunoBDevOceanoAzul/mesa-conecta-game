@@ -165,7 +165,7 @@ export function PricingSection() {
                 )}
 
                 {plan.is_founder_plan && (
-                  <p className="text-xs text-amber-500 font-medium mt-1">
+                  <p className="text-xs text-primary/80 font-medium mt-1">
                     {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
                   </p>
                 )}
