@@ -84,10 +84,21 @@ export default function Admin() {
     ]);
 
     const profiles = profilesRes.data || [];
+    const allSubs = subsRes.data || [];
     const activeMesas = (mesasRes.data || []).filter((m) => m.status === "aberta");
-    const activeSubs = (subsRes.data || []).filter((s) => s.status === "active" && new Date(s.current_period_end) > new Date());
+    const activeSubs = allSubs.filter((s) => s.status === "active" && new Date(s.current_period_end) > new Date());
+    const canceledSubs = allSubs.filter((s) => s.status === "canceled").length;
+    const pastDueSubs = allSubs.filter((s) => s.status === "past_due").length;
     const campaigns = campaignsRes.data || [];
     const activeCampaigns = campaigns.filter((c) => c.status === "active");
+
+    // MRR calculation
+    const mrr = activeSubs.reduce((sum, s) => sum + (s.price_cents || 0), 0);
+    const mrrByRole: Record<string, number> = {};
+    activeSubs.forEach((s) => {
+      const role = s.plan_role || "unknown";
+      mrrByRole[role] = (mrrByRole[role] || 0) + (s.price_cents || 0);
+    });
 
     setStats({
       members: profiles.length,
@@ -96,6 +107,10 @@ export default function Admin() {
       stores: profiles.filter((p) => p.role === "store").length,
       activeSubs: activeSubs.length,
       activeCampaigns: activeCampaigns.length,
+      mrr,
+      mrrByRole,
+      canceledSubs,
+      pastDueSubs,
     });
 
     // Founders
