@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/contexts/AuthContext";
+import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Login from "./pages/Login";
@@ -21,27 +23,29 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/cadastro" element={<Signup />} />
-          <Route path="/onboarding/:role" element={<Onboarding />} />
-          <Route path="/dashboard/jogador" element={<PlayerDashboard />} />
-          <Route path="/dashboard/mestre" element={<GMDashboard />} />
-          <Route path="/dashboard/loja" element={<StoreDashboard />} />
-          <Route path="/feed" element={<Feed />} />
-          <Route path="/buscar" element={<TableSearch />} />
-          <Route path="/mesa/:id" element={<TableDetail />} />
-          <Route path="/checkout/:id" element={<Checkout />} />
-          <Route path="/admin" element={<Admin />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/cadastro" element={<Signup />} />
+            <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+            <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
+            <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
+            <Route path="/feed" element={<Feed />} />
+            <Route path="/buscar" element={<TableSearch />} />
+            <Route path="/mesa/:id" element={<TableDetail />} />
+            <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
