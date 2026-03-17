@@ -26,7 +26,7 @@ export default function Signup() {
 
   const handleRoleSelect = (role: UserRole) => {
     setSelectedRole(role);
-    localStorage.setItem("mesanexo_user", JSON.stringify({ name, email, role }));
+    localStorage.setItem("hivium_user", JSON.stringify({ name, email, role }));
     const dashMap: Record<UserRole, string> = {
       player: "/onboarding/jogador",
       gm: "/onboarding/mestre",
