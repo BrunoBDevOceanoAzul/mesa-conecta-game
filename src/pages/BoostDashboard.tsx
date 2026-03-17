@@ -5,10 +5,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { useBoostEligibility } from "@/hooks/use-boost-eligibility";
+import { BoostGateCard } from "@/components/boost/BoostGateCard";
 import {
   Rocket, Wallet, History, PlusCircle, BarChart3, TrendingUp,
   Eye, MousePointerClick, Zap, Crown, Gift, Target, Pause, Play,
-  CreditCard, ArrowUpRight, Sparkles, Clock, ChevronRight, Shield
+  CreditCard, ArrowUpRight, Sparkles, Clock, ChevronRight, Shield,
+  Store, Lock
 } from "lucide-react";
 import { creditPackages } from "@/data/mock";
 
@@ -43,21 +46,9 @@ interface Transaction {
   created_at: string;
 }
 
-interface WalletData {
-  balance: number;
-  is_founder: boolean;
-  founder_grants_used: number;
-}
-
-const navItems = [
-  { label: "Início", path: "/dashboard/mestre", icon: <Crown className="h-4 w-4" /> },
-  { label: "Impulsionar", path: "/boost", icon: <Rocket className="h-4 w-4" /> },
-  { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
-];
-
 const typeLabels: Record<string, { label: string; className: string }> = {
   purchase: { label: "Compra", className: "text-green-500" },
-  spend: { label: "Gasto", className: "text-accent" },
+  spend: { label: "Destaque", className: "text-accent" },
   founder_grant: { label: "Founder", className: "text-secondary" },
   refund: { label: "Reembolso", className: "text-primary" },
 };
@@ -65,10 +56,11 @@ const typeLabels: Record<string, { label: string; className: string }> = {
 export default function BoostDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const eligibility = useBoostEligibility();
   const [tab, setTab] = useState<Tab>("wallet");
-  const displayName = user?.user_metadata?.name || "Mestre";
+  const displayName = user?.user_metadata?.name || "Usuário";
 
-  const [wallet, setWallet] = useState<WalletData | null>(null);
+  const [walletBalance, setWalletBalance] = useState(0);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [mesas, setMesas] = useState<{ id: string; title: string }[]>([]);
@@ -79,30 +71,34 @@ export default function BoostDashboard() {
   const [campaignBudget, setCampaignBudget] = useState(10);
   const [segmentCity, setSegmentCity] = useState("");
 
+  const isGm = eligibility.userRole === "gm";
+  const isStore = eligibility.userRole === "store";
+
+  const navItems = [
+    { label: "Início", path: isStore ? "/dashboard/loja" : "/dashboard/mestre", icon: isStore ? <Store className="h-4 w-4" /> : <Crown className="h-4 w-4" /> },
+    { label: "Destaque", path: "/boost", icon: <Sparkles className="h-4 w-4" /> },
+    { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
+  ];
+
   useEffect(() => {
-    if (!user) return;
+    if (!user || !eligibility.canBoost) return;
     fetchData();
-  }, [user]);
+  }, [user, eligibility.canBoost]);
 
   async function fetchData() {
     if (!user) return;
     setLoading(true);
 
     const [walletRes, txRes, campRes, mesasRes] = await Promise.all([
-      supabase.from("credit_wallets").select("*").eq("user_id", user.id).maybeSingle(),
+      supabase.from("credit_wallets").select("balance").eq("user_id", user.id).maybeSingle(),
       supabase.from("credit_transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("boost_campaigns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      supabase.from("mesas").select("id, title").eq("gm_id", user.id).eq("status", "aberta"),
+      isGm
+        ? supabase.from("mesas").select("id, title").eq("gm_id", user.id).eq("status", "aberta")
+        : supabase.from("mesas").select("id, title").eq("store_id", user.id).eq("status", "aberta"),
     ]);
 
-    if (walletRes.data) {
-      setWallet({ balance: walletRes.data.balance, is_founder: walletRes.data.is_founder, founder_grants_used: walletRes.data.founder_grants_used });
-    } else {
-      // Create wallet if it doesn't exist
-      const { data } = await supabase.from("credit_wallets").insert({ user_id: user.id, balance: 0 }).select().single();
-      if (data) setWallet({ balance: 0, is_founder: false, founder_grants_used: 0 });
-    }
-
+    setWalletBalance(walletRes.data?.balance || 0);
     setTransactions((txRes.data as Transaction[]) || []);
     setCampaigns((campRes.data as Campaign[]) || []);
     setMesas(mesasRes.data || []);
@@ -111,7 +107,6 @@ export default function BoostDashboard() {
 
   async function handleBuyCredits(credits: number, price: number) {
     if (!user) return;
-    // In real app, this would go through Stripe first
     const { error: txError } = await supabase.from("credit_transactions").insert({
       user_id: user.id,
       amount: credits,
@@ -119,51 +114,64 @@ export default function BoostDashboard() {
       description: `Compra de ${credits} créditos — R$${price}`,
     });
     if (!txError) {
-      await supabase.from("credit_wallets").update({ balance: (wallet?.balance || 0) + credits }).eq("user_id", user.id);
+      await supabase.from("credit_wallets").update({ balance: walletBalance + credits }).eq("user_id", user.id);
       toast({ title: "Créditos adicionados!", description: `+${credits} créditos na sua carteira.` });
       fetchData();
+      eligibility.refresh();
     }
   }
 
   async function handleCreateCampaign() {
-    if (!user || !selectedMesa || campaignBudget <= 0) return;
+    if (!user || !selectedMesa || !eligibility.canBoost) return;
     const mesa = mesas.find((m) => m.id === selectedMesa);
     if (!mesa) return;
-    if ((wallet?.balance || 0) < campaignBudget) {
-      toast({ title: "Saldo insuficiente", description: "Compre mais créditos para impulsionar.", variant: "destructive" });
+
+    const useFounderFree = eligibility.status === "eligible_founder_free";
+
+    if (!useFounderFree && walletBalance < campaignBudget) {
+      toast({ title: "Saldo insuficiente", description: "Adquira mais créditos para destacar.", variant: "destructive" });
       return;
     }
-
-    const isFounderFree = wallet?.is_founder && (wallet.founder_grants_used || 0) < 3;
 
     const { error: campError } = await supabase.from("boost_campaigns").insert({
       user_id: user.id,
       target_type: "mesa",
       target_id: selectedMesa,
       target_title: mesa.title,
-      budget_credits: isFounderFree ? 0 : campaignBudget,
-      is_founder_benefit: isFounderFree || false,
+      budget_credits: useFounderFree ? 0 : campaignBudget,
+      is_founder_benefit: useFounderFree,
       segment_city: segmentCity || null,
     });
 
     if (!campError) {
-      if (!isFounderFree) {
-        await supabase.from("credit_wallets").update({ balance: (wallet?.balance || 0) - campaignBudget }).eq("user_id", user.id);
+      if (useFounderFree) {
+        // Increment founder usage
+        const currentUsed = await supabase.from("credit_wallets").select("free_boosts_used_current_month").eq("user_id", user.id).maybeSingle();
+        await supabase.from("credit_wallets").update({
+          free_boosts_used_current_month: (currentUsed.data?.free_boosts_used_current_month || 0) + 1,
+        }).eq("user_id", user.id);
+        await supabase.from("credit_transactions").insert({
+          user_id: user.id,
+          amount: 0,
+          type: "founder_grant",
+          description: `Destaque Founder: ${mesa.title}`,
+        });
+      } else {
+        await supabase.from("credit_wallets").update({ balance: walletBalance - campaignBudget }).eq("user_id", user.id);
         await supabase.from("credit_transactions").insert({
           user_id: user.id,
           amount: -campaignBudget,
           type: "spend",
-          description: `Impulsionamento: ${mesa.title}`,
+          description: `Destaque: ${mesa.title}`,
         });
-      } else {
-        await supabase.from("credit_wallets").update({ founder_grants_used: (wallet?.founder_grants_used || 0) + 1 }).eq("user_id", user.id);
       }
-      toast({ title: "Campanha criada! 🚀", description: isFounderFree ? "Founder Benefit aplicado!" : `${campaignBudget} créditos investidos.` });
+      toast({ title: "Destaque ativado! ✨", description: useFounderFree ? "Founder Benefit aplicado!" : `${campaignBudget} créditos investidos.` });
       setSelectedMesa("");
       setCampaignBudget(10);
       setSegmentCity("");
       setTab("campaigns");
       fetchData();
+      eligibility.refresh();
     }
   }
 
@@ -172,33 +180,70 @@ export default function BoostDashboard() {
   const totalClicks = campaigns.reduce((s, c) => s + c.clicks, 0);
   const totalReservations = campaigns.reduce((s, c) => s + c.reservations, 0);
   const avgCTR = totalImpressions > 0 ? ((totalClicks / totalImpressions) * 100).toFixed(1) : "0.0";
-  const activeCampaigns = campaigns.filter((c) => c.status === "active");
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "wallet", label: "Carteira", icon: <Wallet className="h-4 w-4" /> },
-    { key: "campaigns", label: "Campanhas", icon: <Rocket className="h-4 w-4" /> },
-    { key: "create", label: "Impulsionar", icon: <PlusCircle className="h-4 w-4" /> },
+    { key: "campaigns", label: "Campanhas", icon: <Sparkles className="h-4 w-4" /> },
+    { key: "create", label: "Dar destaque", icon: <PlusCircle className="h-4 w-4" /> },
     { key: "metrics", label: "Métricas", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
+  // ─── NOT ELIGIBLE ───
+  if (!eligibility.loading && eligibility.status === "not_eligible") {
+    return (
+      <DashboardLayout role="player" navItems={[]} userName={displayName}>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="text-center max-w-md">
+            <Lock className="mx-auto h-12 w-12 text-muted-foreground/40 mb-4" />
+            <h2 className="text-xl font-display font-bold text-foreground mb-2">Recurso restrito</h2>
+            <p className="text-sm text-muted-foreground">
+              O destaque de conteúdo está disponível exclusivamente para Mestres e Luderias com plano ativo.
+            </p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // ─── NO PLAN ───
+  if (!eligibility.loading && eligibility.status === "no_plan") {
+    return (
+      <DashboardLayout role={isStore ? "store" : "gm"} navItems={navItems} userName={displayName}>
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
+              Destaque <Sparkles className="h-5 w-5 text-accent" />
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Ganhe visibilidade para suas mesas e publicações.</p>
+          </div>
+          <BoostGateCard
+            status={eligibility.status}
+            userRole={eligibility.userRole}
+          />
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  // ─── MAIN DASHBOARD (eligible) ───
   return (
-    <DashboardLayout role="gm" navItems={navItems} userName={displayName}>
+    <DashboardLayout role={isStore ? "store" : "gm"} navItems={navItems} userName={displayName}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-              Impulsionamento <Rocket className="h-5 w-5 text-accent" />
+              Destaque <Sparkles className="h-5 w-5 text-accent" />
             </h1>
-            <p className="text-sm text-muted-foreground mt-1">Destaque suas mesas. Pague por clique. Transparência total.</p>
+            <p className="text-sm text-muted-foreground mt-1">Dê visibilidade às suas mesas. Pague por clique. Transparência total.</p>
           </div>
           <div className="flex items-center gap-3 self-start">
             <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-4 py-2.5">
               <Wallet className="h-4 w-4 text-secondary" />
-              <span className="text-sm font-display font-bold text-foreground">{wallet?.balance || 0}</span>
+              <span className="text-sm font-display font-bold text-foreground">{walletBalance}</span>
               <span className="text-xs text-muted-foreground">créditos</span>
             </div>
-            {wallet?.is_founder && (
+            {eligibility.isFounder && (
               <div className="flex items-center gap-1.5 rounded-xl border border-secondary/30 bg-secondary/5 px-3 py-2.5">
                 <Gift className="h-4 w-4 text-secondary" />
                 <span className="text-xs font-semibold text-secondary">Founder</span>
@@ -206,6 +251,15 @@ export default function BoostDashboard() {
             )}
           </div>
         </div>
+
+        {/* Eligibility status card */}
+        <BoostGateCard
+          status={eligibility.status}
+          userRole={eligibility.userRole}
+          founderFreeRemaining={eligibility.founderFreeRemaining}
+          founderExpiresAt={eligibility.founderExpiresAt}
+          planName={eligibility.planName}
+        />
 
         {/* Tabs */}
         <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
@@ -226,32 +280,23 @@ export default function BoostDashboard() {
         {/* ─── WALLET ─── */}
         {tab === "wallet" && (
           <div className="space-y-6">
-            {/* Balance card */}
             <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-6">
               <div className="absolute top-0 right-0 w-48 h-48 opacity-5">
                 <Sparkles className="w-full h-full text-secondary" />
               </div>
               <div className="relative">
                 <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Saldo disponível</p>
-                <p className="mt-2 text-4xl font-display font-bold text-foreground">{wallet?.balance || 0} <span className="text-lg text-muted-foreground font-normal">créditos</span></p>
-                {wallet?.is_founder && (
-                  <div className="mt-3 inline-flex items-center gap-2 rounded-lg bg-secondary/10 border border-secondary/20 px-3 py-1.5">
-                    <Gift className="h-4 w-4 text-secondary" />
-                    <span className="text-xs font-medium text-secondary">
-                      Founder: {3 - (wallet.founder_grants_used || 0)} impulsos grátis restantes este mês
-                    </span>
-                  </div>
-                )}
+                <p className="mt-2 text-4xl font-display font-bold text-foreground">{walletBalance} <span className="text-lg text-muted-foreground font-normal">créditos</span></p>
               </div>
             </div>
 
             {/* How it works */}
             <div className="rounded-xl border border-border bg-card/50 p-5">
-              <h3 className="text-sm font-display font-semibold text-foreground mb-3">Como funciona o impulsionamento?</h3>
+              <h3 className="text-sm font-display font-semibold text-foreground mb-3">Como funciona o destaque?</h3>
               <div className="grid sm:grid-cols-3 gap-4">
                 {[
-                  { icon: <CreditCard className="h-5 w-5 text-primary" />, title: "Compre créditos", desc: "Escolha um pacote e adicione créditos à sua carteira." },
-                  { icon: <Target className="h-5 w-5 text-accent" />, title: "Impulsione sua mesa", desc: "Campanha de 7 dias com cobrança por clique (CPC)." },
+                  { icon: <CreditCard className="h-5 w-5 text-primary" />, title: "Adquira créditos", desc: "Escolha um pacote e adicione créditos à sua carteira." },
+                  { icon: <Target className="h-5 w-5 text-accent" />, title: "Destaque sua mesa", desc: "Campanha de 7 dias com cobrança por clique (CPC)." },
                   { icon: <BarChart3 className="h-5 w-5 text-secondary" />, title: "Acompanhe resultados", desc: "Impressões, cliques, CTR e reservas em tempo real." },
                 ].map((item) => (
                   <div key={item.title} className="flex gap-3">
@@ -267,7 +312,7 @@ export default function BoostDashboard() {
 
             {/* Credit packages */}
             <div>
-              <h3 className="text-base font-display font-semibold text-foreground mb-3">Comprar créditos</h3>
+              <h3 className="text-base font-display font-semibold text-foreground mb-3">Adquirir créditos</h3>
               <div className="grid sm:grid-cols-3 gap-4">
                 {creditPackages.map((pkg, i) => (
                   <div
@@ -294,7 +339,7 @@ export default function BoostDashboard() {
                       className="w-full"
                       onClick={() => handleBuyCredits(pkg.credits, pkg.price)}
                     >
-                      Comprar
+                      Adquirir
                     </Button>
                   </div>
                 ))}
@@ -319,8 +364,8 @@ export default function BoostDashboard() {
                       return (
                         <div key={tx.id} className="flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors">
                           <div className="flex items-center gap-3 min-w-0">
-                            <div className={`flex items-center justify-center h-8 w-8 rounded-lg ${tx.amount > 0 ? "bg-green-500/10" : "bg-accent/10"}`}>
-                              {tx.amount > 0 ? <ArrowUpRight className="h-4 w-4 text-green-500" /> : <Rocket className="h-4 w-4 text-accent" />}
+                            <div className={`flex items-center justify-center h-8 w-8 rounded-lg ${tx.amount > 0 ? "bg-green-500/10" : tx.type === "founder_grant" ? "bg-secondary/10" : "bg-accent/10"}`}>
+                              {tx.type === "founder_grant" ? <Gift className="h-4 w-4 text-secondary" /> : tx.amount > 0 ? <ArrowUpRight className="h-4 w-4 text-green-500" /> : <Sparkles className="h-4 w-4 text-accent" />}
                             </div>
                             <div className="min-w-0">
                               <p className="text-sm font-medium text-foreground truncate">{tx.description || cfg.label}</p>
@@ -330,7 +375,7 @@ export default function BoostDashboard() {
                             </div>
                           </div>
                           <span className={`text-sm font-display font-bold ${cfg.className}`}>
-                            {tx.amount > 0 ? "+" : ""}{tx.amount}
+                            {tx.amount > 0 ? "+" : ""}{tx.amount === 0 ? "Grátis" : tx.amount}
                           </span>
                         </div>
                       );
@@ -346,19 +391,19 @@ export default function BoostDashboard() {
         {tab === "campaigns" && (
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-base font-display font-semibold text-foreground">Suas Campanhas</h2>
+              <h2 className="text-base font-display font-semibold text-foreground">Seus Destaques</h2>
               <Button variant="default" size="sm" className="gap-2" onClick={() => setTab("create")}>
-                <PlusCircle className="h-4 w-4" /> Nova campanha
+                <PlusCircle className="h-4 w-4" /> Novo destaque
               </Button>
             </div>
 
             {campaigns.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border bg-card/50 p-12 text-center">
-                <Rocket className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
-                <p className="text-sm font-medium text-muted-foreground">Nenhuma campanha criada.</p>
-                <p className="text-xs text-muted-foreground/70 mt-1">Impulsione uma mesa para aparecer em destaque.</p>
+                <Sparkles className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+                <p className="text-sm font-medium text-muted-foreground">Nenhum destaque ativo.</p>
+                <p className="text-xs text-muted-foreground/70 mt-1">Destaque uma mesa para ganhar visibilidade.</p>
                 <Button variant="outline" size="sm" className="mt-4" onClick={() => setTab("create")}>
-                  Criar primeira campanha
+                  Criar primeiro destaque
                 </Button>
               </div>
             ) : (
@@ -375,24 +420,13 @@ export default function BoostDashboard() {
         {tab === "create" && (
           <div className="max-w-xl space-y-6">
             <div>
-              <h2 className="text-base font-display font-semibold text-foreground">Impulsionar uma Mesa</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Sua mesa aparecerá com selo "Patrocinado" por 7 dias. Cobrança por clique.</p>
+              <h2 className="text-base font-display font-semibold text-foreground">Destacar uma Mesa</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Sua mesa aparecerá com selo "Destaque" por 7 dias. Cobrança por clique.</p>
             </div>
 
-            {wallet?.is_founder && (wallet.founder_grants_used || 0) < 3 && (
-              <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4 flex items-start gap-3">
-                <Gift className="h-5 w-5 text-secondary shrink-0 mt-0.5" />
-                <div>
-                  <p className="text-sm font-semibold text-secondary">Founder Benefit disponível!</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">Você tem {3 - (wallet.founder_grants_used || 0)} impulsos grátis restantes este mês. Essa campanha será gratuita.</p>
-                </div>
-              </div>
-            )}
-
             <div className="rounded-xl border border-border bg-card p-6 space-y-5">
-              {/* Select mesa */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Mesa para impulsionar</label>
+                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Mesa para destacar</label>
                 {mesas.length === 0 ? (
                   <p className="text-sm text-muted-foreground">Nenhuma mesa ativa. Crie uma mesa primeiro.</p>
                 ) : (
@@ -409,21 +443,21 @@ export default function BoostDashboard() {
                 )}
               </div>
 
-              {/* Budget */}
-              <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Orçamento (créditos)</label>
-                <input
-                  type="number"
-                  min={1}
-                  max={wallet?.balance || 0}
-                  value={campaignBudget}
-                  onChange={(e) => setCampaignBudget(Number(e.target.value))}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-                <p className="text-[10px] text-muted-foreground mt-1">Saldo atual: {wallet?.balance || 0} créditos</p>
-              </div>
+              {eligibility.status !== "eligible_founder_free" && (
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Orçamento (créditos)</label>
+                  <input
+                    type="number"
+                    min={1}
+                    max={walletBalance}
+                    value={campaignBudget}
+                    onChange={(e) => setCampaignBudget(Number(e.target.value))}
+                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <p className="text-[10px] text-muted-foreground mt-1">Saldo atual: {walletBalance} créditos</p>
+                </div>
+              )}
 
-              {/* Segment */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Segmentar por cidade (opcional)</label>
                 <input
@@ -446,29 +480,25 @@ export default function BoostDashboard() {
                   <span className="font-medium text-foreground">CPC (por clique)</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Orçamento</span>
+                  <span className="text-muted-foreground">Investimento</span>
                   <span className="font-display font-bold text-foreground">
-                    {wallet?.is_founder && (wallet.founder_grants_used || 0) < 3 ? (
-                      <span className="text-secondary">Grátis (Founder)</span>
+                    {eligibility.status === "eligible_founder_free" ? (
+                      <span className="text-secondary">Gratuito (Founder)</span>
                     ) : (
                       `${campaignBudget} créditos`
                     )}
                   </span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Destaques</span>
-                  <span className="text-xs text-foreground">Selo "Patrocinado" no feed e busca</span>
                 </div>
               </div>
 
               <Button
                 variant="default"
                 className="w-full gap-2"
-                disabled={!selectedMesa || (!wallet?.is_founder && (wallet?.balance || 0) < campaignBudget)}
+                disabled={!selectedMesa || (eligibility.status !== "eligible_founder_free" && walletBalance < campaignBudget)}
                 onClick={handleCreateCampaign}
               >
-                <Rocket className="h-4 w-4" />
-                {wallet?.is_founder && (wallet.founder_grants_used || 0) < 3 ? "Impulsionar Grátis (Founder)" : "Impulsionar Mesa"}
+                <Sparkles className="h-4 w-4" />
+                {eligibility.status === "eligible_founder_free" ? "Destacar Grátis (Founder)" : "Ativar Destaque"}
               </Button>
             </div>
           </div>
@@ -485,11 +515,11 @@ export default function BoostDashboard() {
             </div>
 
             <div>
-              <h3 className="text-base font-display font-semibold text-foreground mb-3">Performance por campanha</h3>
+              <h3 className="text-base font-display font-semibold text-foreground mb-3">Performance por destaque</h3>
               {campaigns.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
                   <BarChart3 className="mx-auto h-8 w-8 text-muted-foreground/50 mb-2" />
-                  <p className="text-sm text-muted-foreground">Sem dados. Crie uma campanha para começar.</p>
+                  <p className="text-sm text-muted-foreground">Sem dados. Crie um destaque para começar.</p>
                 </div>
               ) : (
                 <div className="rounded-xl border border-border overflow-hidden">
@@ -613,9 +643,9 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
 
 function CampaignStatusBadge({ status }: { status: string }) {
   const cfg: Record<string, { label: string; className: string }> = {
-    active: { label: "Ativa", className: "bg-green-500/10 text-green-500 border-green-500/20" },
-    paused: { label: "Pausada", className: "bg-secondary/10 text-secondary border-secondary/20" },
-    ended: { label: "Encerrada", className: "bg-muted text-muted-foreground border-border" },
+    active: { label: "Ativo", className: "bg-green-500/10 text-green-500 border-green-500/20" },
+    paused: { label: "Pausado", className: "bg-secondary/10 text-secondary border-secondary/20" },
+    ended: { label: "Encerrado", className: "bg-muted text-muted-foreground border-border" },
     draft: { label: "Rascunho", className: "bg-muted text-muted-foreground border-border" },
   };
   const c = cfg[status] || cfg.draft;
