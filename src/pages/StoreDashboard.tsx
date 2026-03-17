@@ -29,10 +29,8 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <FileText className="h-4 w-4" /> },
 ];
 
-const PLAN_LIMITS = {
-  base: { label: "Loja Base", mesasPerMonth: 4, feedHighlight: false, price: "R$79,90/mês" },
-  growth: { label: "Loja Growth", mesasPerMonth: 12, feedHighlight: true, price: "R$149,90/mês" },
-};
+const DEFAULT_LIMITS = { mesasPerMonth: 4, feedHighlight: false };
+
 
 function StatCard({ icon, label, value, sub, accent }: { icon: React.ReactNode; label: string; value: string; sub?: string; accent?: boolean }) {
   return (
