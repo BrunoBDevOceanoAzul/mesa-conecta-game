@@ -274,7 +274,6 @@
     background-color: hsl(var(--secondary) / 0.1);
     border-color: hsl(var(--secondary) / 0.25);
   }
-  }
 
   /* Empty states */
   .empty-state {
