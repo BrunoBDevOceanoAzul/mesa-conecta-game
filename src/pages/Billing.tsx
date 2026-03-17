@@ -112,32 +112,39 @@ export default function Billing() {
     setActionLoading(true);
     const ok = await sub.subscribe(plan.code);
     setActionLoading(false);
-    if (ok) toast({ title: "Plano ativado! 🎉", description: `${plan.name} está ativo na sua conta.` });
-    else toast({ title: "Erro ao ativar plano", variant: "destructive" });
+    if (ok) toast({ title: "Redirecionando para checkout… 🔒", description: `Finalize a assinatura do ${plan.name} com segurança.` });
+    else toast({ title: "Erro ao iniciar checkout", description: "Tente novamente em instantes.", variant: "destructive" });
   }
 
   async function handleCancel() {
     setActionLoading(true);
-    const ok = await sub.cancelSubscription(false);
+    const ok = await sub.cancelSubscription();
     setActionLoading(false);
-    if (ok) toast({ title: "Cancelamento agendado", description: "Seu plano segue ativo até o fim do ciclo atual." });
-    else toast({ title: "Erro ao cancelar", variant: "destructive" });
+    if (ok) toast({ title: "Portal de gerenciamento aberto", description: "Gerencie seu cancelamento pelo portal seguro." });
+    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
   }
 
   async function handleReactivate() {
     setActionLoading(true);
     const ok = await sub.reactivateSubscription();
     setActionLoading(false);
-    if (ok) toast({ title: "Plano reativado! ✨", description: "Seus recursos premium foram restaurados." });
-    else toast({ title: "Erro ao reativar", variant: "destructive" });
+    if (ok) toast({ title: "Portal de gerenciamento aberto", description: "Reative seu plano pelo portal seguro." });
+    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
   }
 
-  async function handleChangePlan(plan: Plan) {
+  async function handleChangePlan(_plan: Plan) {
     setActionLoading(true);
-    const ok = await sub.changePlan(plan.code);
+    const ok = await sub.openCustomerPortal();
     setActionLoading(false);
-    if (ok) toast({ title: "Plano alterado!", description: `Agora você está no ${plan.name}.` });
-    else toast({ title: "Erro ao alterar plano", variant: "destructive" });
+    if (ok) toast({ title: "Portal aberto", description: "Altere seu plano pelo portal seguro." });
+    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
+  }
+
+  async function handleManageSubscription() {
+    setActionLoading(true);
+    const ok = await sub.openCustomerPortal();
+    setActionLoading(false);
+    if (!ok) toast({ title: "Erro ao abrir portal", variant: "destructive" });
   }
 
   if (sub.loading) {

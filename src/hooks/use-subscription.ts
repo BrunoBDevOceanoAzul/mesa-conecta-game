@@ -19,6 +19,7 @@ export interface Plan {
   name: string;
   description: string | null;
   price_monthly: number;
+  stripe_price_id: string | null;
   feature_flags: Record<string, unknown> | string | number | boolean | null;
   sort_order: number;
 }
@@ -35,6 +36,7 @@ export interface Subscription {
   cancel_at_period_end: boolean;
   canceled_at: string | null;
   created_at: string;
+  stripe_subscription_id: string | null;
 }
 
 export interface Payment {
@@ -60,8 +62,9 @@ export interface SubscriptionState {
   featureFlags: Record<string, unknown>;
   daysRemaining: number;
   refresh: () => Promise<void>;
-  subscribe: (planCode: string) => Promise<boolean>;
-  cancelSubscription: (immediate?: boolean) => Promise<boolean>;
+  subscribe: (planCode: string, couponCode?: string) => Promise<boolean>;
+  openCustomerPortal: () => Promise<boolean>;
+  cancelSubscription: () => Promise<boolean>;
   reactivateSubscription: () => Promise<boolean>;
   changePlan: (planCode: string) => Promise<boolean>;
 }
@@ -138,110 +141,62 @@ export function useSubscription(): SubscriptionState {
 
   const featureFlags = (plan?.feature_flags as Record<string, unknown>) || {};
 
-  // ─── Actions (stub for MVP, Stripe-ready structure) ───
-
-  const subscribe = useCallback(async (planCode: string): Promise<boolean> => {
+  // ─── Subscribe via Stripe Checkout ───
+  const subscribe = useCallback(async (planCode: string, couponCode?: string): Promise<boolean> => {
     if (!user) return false;
-    const targetPlan = allPlans.find((p) => p.code === planCode);
-    if (!targetPlan) return false;
 
-    const periodStart = new Date();
-    const periodEnd = new Date();
-    periodEnd.setDate(periodEnd.getDate() + 30);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-checkout", {
+        body: { plan_code: planCode, coupon_code: couponCode },
+      });
 
-    const { data: subData, error: subError } = await supabase.from("subscriptions").insert({
-      user_id: user.id,
-      plan_id: targetPlan.id,
-      plan_name: targetPlan.name,
-      plan_role: targetPlan.role,
-      price_cents: targetPlan.price_monthly,
-      status: "active",
-      current_period_start: periodStart.toISOString(),
-      current_period_end: periodEnd.toISOString(),
-      provider: "manual",
-    }).select("id").single();
-
-    if (subError) return false;
-
-    // Record payment
-    await supabase.from("payments").insert({
-      user_id: user.id,
-      subscription_id: subData.id,
-      amount: targetPlan.price_monthly,
-      status: "paid",
-      payment_type: "subscription",
-      description: `Assinatura: ${targetPlan.name}`,
-      paid_at: new Date().toISOString(),
-    });
-
-    await fetchData();
-    return true;
-  }, [user, allPlans, fetchData]);
-
-  const cancelSubscription = useCallback(async (immediate = false): Promise<boolean> => {
-    if (!user || !subscription) return false;
-
-    if (immediate) {
-      const { error } = await supabase.from("subscriptions").update({
-        status: "canceled",
-        canceled_at: new Date().toISOString(),
-        cancel_at_period_end: false,
-      }).eq("id", subscription.id);
-      if (error) return false;
-    } else {
-      const { error } = await supabase.from("subscriptions").update({
-        cancel_at_period_end: true,
-        canceled_at: new Date().toISOString(),
-      }).eq("id", subscription.id);
-      if (error) return false;
-    }
-
-    await fetchData();
-    return true;
-  }, [user, subscription, fetchData]);
-
-  const reactivateSubscription = useCallback(async (): Promise<boolean> => {
-    if (!user || !subscription) return false;
-
-    const periodEnd = new Date(subscription.current_period_end);
-    const now = new Date();
-
-    if (periodEnd > now) {
-      // Still within period, just remove cancel flag
-      const { error } = await supabase.from("subscriptions").update({
-        cancel_at_period_end: false,
-        canceled_at: null,
-        status: "active",
-      }).eq("id", subscription.id);
-      if (error) return false;
-    } else {
-      // Expired — create new subscription
-      if (plan) {
-        return subscribe(plan.code);
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        return true;
       }
       return false;
+    } catch (err) {
+      console.error("Checkout error:", err);
+      return false;
     }
+  }, [user]);
 
-    await fetchData();
-    return true;
-  }, [user, subscription, plan, subscribe, fetchData]);
+  // ─── Open Stripe Customer Portal ───
+  const openCustomerPortal = useCallback(async (): Promise<boolean> => {
+    if (!user) return false;
 
-  const changePlan = useCallback(async (planCode: string): Promise<boolean> => {
-    if (!user || !subscription) return false;
-    const targetPlan = allPlans.find((p) => p.code === planCode);
-    if (!targetPlan) return false;
+    try {
+      const { data, error } = await supabase.functions.invoke("customer-portal", {
+        body: {},
+      });
 
-    const { error } = await supabase.from("subscriptions").update({
-      plan_id: targetPlan.id,
-      plan_name: targetPlan.name,
-      plan_role: targetPlan.role,
-      price_cents: targetPlan.price_monthly,
-    }).eq("id", subscription.id);
+      if (error) throw error;
+      if (data?.url) {
+        window.open(data.url, "_blank");
+        return true;
+      }
+      return false;
+    } catch (err) {
+      console.error("Customer portal error:", err);
+      return false;
+    }
+  }, [user]);
 
-    if (error) return false;
-    await fetchData();
-    return true;
-  }, [user, subscription, allPlans, fetchData]);
+  // ─── Cancel via Customer Portal ───
+  const cancelSubscription = useCallback(async (): Promise<boolean> => {
+    return openCustomerPortal();
+  }, [openCustomerPortal]);
+
+  // ─── Reactivate via Customer Portal ───
+  const reactivateSubscription = useCallback(async (): Promise<boolean> => {
+    return openCustomerPortal();
+  }, [openCustomerPortal]);
+
+  // ─── Change plan via Customer Portal ───
+  const changePlan = useCallback(async (_planCode: string): Promise<boolean> => {
+    return openCustomerPortal();
+  }, [openCustomerPortal]);
 
   return {
     loading,
@@ -256,6 +211,7 @@ export function useSubscription(): SubscriptionState {
     daysRemaining,
     refresh: fetchData,
     subscribe,
+    openCustomerPortal,
     cancelSubscription,
     reactivateSubscription,
     changePlan,
