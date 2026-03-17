@@ -425,6 +425,128 @@ export default function Admin() {
           </div>
         )}
 
+        {/* ─── GAMIFICATION ─── */}
+        {tab === "gamification" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-base font-display font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Trophy className="h-4 w-4 text-secondary" /> Ranking de Mestres por XP
+              </h2>
+              {xpRanking.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
+                  <Trophy className="mx-auto h-10 w-10 text-muted-foreground/50 mb-3" />
+                  <p className="text-sm text-muted-foreground">Nenhum perfil de XP registrado.</p>
+                </div>
+              ) : (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground w-12">#</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Mestre</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Nível</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Título</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">XP</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Badges</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {xpRanking.map((r, idx) => (
+                        <tr key={r.user_id} className="hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3 text-center font-display font-bold text-secondary">{idx + 1}</td>
+                          <td className="px-4 py-3">
+                            <p className="font-medium text-foreground">{r.name || "—"}</p>
+                            <p className="text-[10px] text-muted-foreground">{r.email}</p>
+                          </td>
+                          <td className="px-4 py-3 text-center font-bold text-foreground">{r.current_level}</td>
+                          <td className="px-4 py-3 text-center">
+                            <Badge variant="outline" className="text-[10px]">{r.current_title}</Badge>
+                          </td>
+                          <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_xp}</td>
+                          <td className="px-4 py-3 text-center text-muted-foreground">{r.badge_count}</td>
+                          <td className="px-4 py-3 text-center">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2" onClick={() => adjustXp(r.user_id, 50)}>
+                                <Plus className="h-3 w-3" /> 50
+                              </Button>
+                              <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 text-destructive" onClick={() => adjustXp(r.user_id, -50)}>
+                                -50
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+
+            {/* Manual Badge Award */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+                <Star className="h-4 w-4 text-secondary" /> Conceder Badge Manualmente
+              </h3>
+              <div className="flex flex-wrap gap-3 items-end">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">User ID</label>
+                  <input
+                    value={awardUserId}
+                    onChange={(e) => setAwardUserId(e.target.value)}
+                    className="mt-1 block w-64 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                    placeholder="UUID do usuário"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground">Badge</label>
+                  <select
+                    value={awardBadgeId}
+                    onChange={(e) => setAwardBadgeId(e.target.value)}
+                    className="mt-1 block w-64 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                  >
+                    <option value="">Selecionar badge...</option>
+                    {badgeDefs.map((d: any) => (
+                      <option key={d.id} value={d.id}>{d.name} ({d.rarity})</option>
+                    ))}
+                  </select>
+                </div>
+                <Button variant="hero" size="sm" onClick={awardBadgeManually} disabled={!awardUserId || !awardBadgeId}>
+                  <Gift className="h-4 w-4" /> Conceder
+                </Button>
+              </div>
+            </div>
+
+            {/* Badge Catalog */}
+            <div>
+              <h3 className="text-sm font-display font-semibold text-foreground mb-3 flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" /> Catálogo de Badges
+              </h3>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {badgeDefs.map((d: any) => {
+                  const rarity = RARITY_CONFIG[d.rarity] || RARITY_CONFIG.common;
+                  return (
+                    <div key={d.id} className={`rounded-xl border p-4 bg-gradient-to-br ${rarity.gradient}`}>
+                      <div className="flex items-start justify-between">
+                        <div>
+                          <p className="text-sm font-display font-semibold text-foreground">{d.name}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">{d.description}</p>
+                        </div>
+                        <Badge variant="outline" className={`text-[9px] ${rarity.className}`}>{rarity.label}</Badge>
+                      </div>
+                      {d.flavor_text && <p className="text-[10px] italic text-muted-foreground/70 mt-2">"{d.flavor_text}"</p>}
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-[10px] text-muted-foreground">{CATEGORY_LABELS[d.category] || d.category}</span>
+                        {d.xp_reward > 0 && <span className="text-[10px] font-bold text-secondary">+{d.xp_reward} XP</span>}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ─── FOUNDERS ─── */}
         {tab === "founders" && (
           <div className="space-y-5">
