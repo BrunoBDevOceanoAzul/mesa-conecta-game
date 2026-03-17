@@ -83,6 +83,55 @@ export default function Login() {
     setGoogleLoading(false);
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) {
+      toast({ title: "Digite seu email", description: "Informe o email da sua conta.", variant: "destructive" });
+      return;
+    }
+    setForgotLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotLoading(false);
+    if (error) {
+      toast({ title: "Erro", description: error.message, variant: "destructive" });
+    } else {
+      toast({ title: "Email enviado!", description: "Verifique sua caixa de entrada para redefinir a senha." });
+      setForgotMode(false);
+    }
+  };
+
+  if (forgotMode) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <div className="w-full max-w-sm">
+          <div className="text-center mb-10">
+            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
+              <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
+              <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+            </button>
+            <h1 className="text-2xl font-display font-bold text-foreground">Esqueci minha senha</h1>
+            <p className="mt-2 text-sm text-muted-foreground">Digite seu email para receber um link de redefinição.</p>
+          </div>
+          <form onSubmit={handleForgotPassword} className="space-y-4">
+            <div>
+              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="seu@email.com" required />
+            </div>
+            <Button className="w-full h-11" type="submit" disabled={forgotLoading}>
+              {forgotLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+              Enviar link de redefinição
+            </Button>
+          </form>
+          <button onClick={() => setForgotMode(false)} className="mt-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mx-auto">
+            <ArrowLeft className="h-3.5 w-3.5" /> Voltar ao login
+          </button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
