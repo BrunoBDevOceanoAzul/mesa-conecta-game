@@ -5,25 +5,25 @@ import { Rocket, TrendingUp, Eye, MousePointerClick } from "lucide-react";
 
 export function BoostSection() {
   return (
-    <section id="impulsionamento" className="py-28 border-t border-border">
+    <section id="impulsionamento" className="py-28 md:py-36 border-t border-border/50">
       <div className="container mx-auto px-4">
-        <div className="grid gap-12 lg:grid-cols-2 items-center">
-          {/* Left: explanation */}
+        <div className="grid gap-14 lg:grid-cols-2 items-center">
+          {/* Left */}
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <p className="text-sm font-medium text-accent mb-3 tracking-wide uppercase">Impulsionamento</p>
-            <h2 className="text-3xl font-display font-bold md:text-4xl leading-tight mb-4">
+            <span className="section-label">Impulsionamento</span>
+            <h2 className="text-3xl font-display font-bold md:text-4xl leading-tight mb-5">
               Destaque sua mesa.{" "}
               <span className="gradient-text">Pague por clique.</span>
             </h2>
-            <p className="text-muted-foreground leading-relaxed mb-8 text-lg">
-              Sem algoritmo obscuro. Sem orçamento mínimo absurdo. Compre créditos, impulsione sua mesa ou post no feed, e pague apenas por clique real. CPC configurável pelo admin, transparência total.
+            <p className="text-muted-foreground leading-relaxed mb-8">
+              Sem algoritmo obscuro. Compre créditos, impulsione no feed, pague por clique real. CPC configurável, transparência total.
             </p>
 
-            <div className="grid grid-cols-2 gap-4 mb-8">
+            <div className="grid grid-cols-2 gap-3 mb-8">
               {[
                 { icon: Eye, label: "Impressões reais", desc: "Veja quem está vendo" },
                 { icon: MousePointerClick, label: "CPC transparente", desc: "Pague por clique" },
@@ -38,13 +38,13 @@ export function BoostSection() {
               ))}
             </div>
 
-            <div className="rounded-xl bg-accent/5 border border-accent/20 p-4">
-              <p className="text-sm text-accent font-medium mb-1">🎁 Programa Founders</p>
-              <p className="text-xs text-muted-foreground">Os 20 primeiros mestres cadastrados ganham 3 impulsionamentos grátis por mês durante 6 meses.</p>
+            <div className="rounded-xl bg-secondary/5 border border-secondary/15 p-4">
+              <p className="text-sm text-secondary font-medium mb-1">🎁 Programa Founders</p>
+              <p className="text-xs text-muted-foreground">Os 20 primeiros mestres ganham 3 impulsos grátis/mês por 6 meses.</p>
             </div>
           </motion.div>
 
-          {/* Right: credit packages */}
+          {/* Right */}
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -56,7 +56,7 @@ export function BoostSection() {
                   key={pkg.price}
                   className={`relative rounded-2xl border p-6 transition-all ${
                     i === 1
-                      ? "border-accent/40 bg-card shadow-lg shadow-accent/5"
+                      ? "border-accent/30 bg-card shadow-lg shadow-accent/5"
                       : "border-border bg-card/50"
                   }`}
                 >

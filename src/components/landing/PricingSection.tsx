@@ -17,7 +17,7 @@ export function PricingSection() {
   const filtered = pricingPlans.filter((p) => p.role === activeRole);
 
   return (
-    <section id="planos" className="py-28 border-t border-border">
+    <section id="planos" className="py-28 md:py-36 border-t border-border/50">
       <div className="container mx-auto px-4">
         <motion.div
           className="text-center mb-16"
@@ -25,17 +25,17 @@ export function PricingSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
         >
-          <p className="text-sm font-medium text-primary mb-3 tracking-wide uppercase">Planos</p>
-          <h2 className="text-3xl font-display font-bold md:text-5xl">
+          <span className="section-label">Planos</span>
+          <h2 className="section-heading">
             Invista no que <span className="gradient-text">funciona</span>
           </h2>
-          <p className="mt-4 text-muted-foreground max-w-xl mx-auto text-lg">
-            Planos pensados para cada perfil. Comece grátis, escale quando fizer sentido.
+          <p className="section-subheading mt-5">
+            Comece grátis. Escale quando fizer sentido.
           </p>
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-1.5 mb-14 bg-muted/30 rounded-xl p-1.5 max-w-md mx-auto">
+        <div className="flex justify-center gap-1 mb-14 bg-muted/30 rounded-xl p-1 max-w-sm mx-auto">
           {tabs.map((t) => (
             <button
               key={t.role}
@@ -52,13 +52,13 @@ export function PricingSection() {
         </div>
 
         {/* Plans */}
-        <div className={`mx-auto grid gap-6 ${filtered.length === 1 ? "max-w-sm" : "max-w-3xl md:grid-cols-2"}`}>
+        <div className={`mx-auto grid gap-5 ${filtered.length === 1 ? "max-w-sm" : "max-w-3xl md:grid-cols-2"}`}>
           {filtered.map((plan, i) => (
             <motion.div
               key={plan.name}
-              className={`relative rounded-2xl border p-8 ${
+              className={`relative rounded-2xl border p-8 transition-all ${
                 plan.highlight
-                  ? "border-primary/40 bg-card shadow-xl shadow-primary/5"
+                  ? "border-primary/30 bg-card shadow-xl shadow-primary/5"
                   : "border-border bg-card/50"
               }`}
               initial={{ opacity: 0, y: 20 }}
@@ -71,9 +71,9 @@ export function PricingSection() {
                   {plan.badge}
                 </span>
               )}
-              <h3 className="font-display font-semibold text-xl text-foreground">{plan.name}</h3>
+              <h3 className="font-display font-semibold text-lg text-foreground">{plan.name}</h3>
               <div className="mt-4 flex items-baseline gap-1">
-                <span className="font-display text-5xl font-bold text-foreground">
+                <span className="font-display text-4xl font-bold text-foreground">
                   R${plan.price.toFixed(2).replace(".", ",")}
                 </span>
                 <span className="text-sm text-muted-foreground">{plan.period}</span>
