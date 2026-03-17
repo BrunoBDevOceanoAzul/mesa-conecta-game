@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
+import { useAuth } from "@/contexts/AuthContext";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 interface NavItem {
