@@ -54,6 +54,7 @@ export default function Onboarding() {
   const steps = stepsMap[role] || playerSteps;
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
 
   const step = steps[current];
   const value = answers[step.field];
