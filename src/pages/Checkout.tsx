@@ -16,8 +16,8 @@ export default function Checkout() {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
         <div className="text-center max-w-sm">
-          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-green-500/10 flex items-center justify-center">
-            <Check className="h-8 w-8 text-green-400" />
+          <div className="mx-auto mb-4 h-16 w-16 rounded-full bg-secondary/10 flex items-center justify-center">
+            <Check className="h-8 w-8 text-secondary" />
           </div>
           <h1 className="text-2xl font-display font-bold text-foreground mb-2">Reserva confirmada! 🎉</h1>
           <p className="text-muted-foreground mb-6">Sua vaga em <strong className="text-foreground">{table.title}</strong> está garantida.</p>
