@@ -14,6 +14,7 @@ import {
 import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
+import { GoLiveChecklist } from "@/components/admin/GoLiveChecklist";
 
 type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons";
 
