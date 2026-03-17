@@ -1,117 +1,193 @@
-import { useState } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { PLAY_STYLES } from "@/data/mock";
-import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
-import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
-import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
-import { ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { motion, AnimatePresence } from "framer-motion";
+import { stepsMap, type RoleKey } from "@/lib/onboarding-steps";
+import { generateBadges } from "@/lib/badge-generator";
+import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
+import { ProfileSelect } from "@/components/onboarding/ProfileSelect";
+import { OnboardingStepView } from "@/components/onboarding/OnboardingStep";
+import { ReviewScreen } from "@/components/onboarding/ReviewScreen";
+import { ProfileMappedScreen } from "@/components/onboarding/ProfileMappedScreen";
 
-interface StepConfig {
-  title: string;
-  subtitle: string;
-  type: "text" | "select-multi" | "select-one" | "systems-search" | "city-autocomplete";
-  options?: string[];
-  field: string;
-}
-
-const playerSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "city-autocomplete", field: "city" },
-  { title: "Sistemas preferidos", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
-  { title: "Estilos de mesa", subtitle: "Como você gosta de jogar?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
-  { title: "Nível de experiência", subtitle: "Não existe resposta errada", type: "select-one", options: ["Nunca joguei", "Iniciante", "Intermediário", "Experiente", "Veterano"], field: "experience" },
-  { title: "Formato preferido", subtitle: "Como você prefere jogar?", type: "select-one", options: ["Presencial", "Online", "Híbrido", "Tanto faz"], field: "format" },
-  { title: "Faixa de investimento", subtitle: "Quanto investe por sessão?", type: "select-one", options: ["Até R$20", "R$20–40", "R$40–60", "R$60+", "Flexível"], field: "budget" },
-];
-
-const gmSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "city-autocomplete", field: "city" },
-  { title: "Sistemas que domina", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
-  { title: "Estilo narrativo", subtitle: "Como você conduz?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
-  { title: "Foco em quem?", subtitle: "Seu público principal", type: "select-one", options: ["Iniciantes", "Intermediários", "Avançados", "Todos os níveis"], field: "focus" },
-  { title: "Formato das sessões", subtitle: "Como você narra?", type: "select-one", options: ["Presencial", "Online", "Híbrido"], field: "format" },
-  { title: "Ticket médio", subtitle: "Quanto cobra em média?", type: "select-one", options: ["Até R$25", "R$25–40", "R$40–60", "R$60–100", "R$100+"], field: "ticket" },
-];
-
-const storeSteps: StepConfig[] = [
-  { title: "Cidade da luderia", subtitle: "Localização do espaço", type: "city-autocomplete", field: "city" },
-  { title: "Sistemas disponíveis", subtitle: "Quais vocês oferecem?", type: "systems-search", field: "systems" },
-  { title: "Capacidade", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
-  { title: "Mesas simultâneas", subtitle: "Quantas ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
-  { title: "Dias disponíveis", subtitle: "Quando funciona?", type: "select-multi", options: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"], field: "days" },
-  { title: "Público", subtitle: "Quem frequenta?", type: "select-multi", options: ["Famílias", "Jovens (18-25)", "Adultos (25-40)", "Gamers", "Corporativo", "Iniciantes"], field: "audience" },
-];
-
-const stepsMap: Record<string, StepConfig[]> = {
-  jogador: playerSteps,
-  mestre: gmSteps,
-  loja: storeSteps,
-};
+type Phase = "welcome" | "profile" | "steps" | "review" | "mapped";
 
 export default function Onboarding() {
-  const { role = "jogador" } = useParams<{ role: string }>();
+  const { role: paramRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { toast } = useToast();
-  const steps = stepsMap[role] || playerSteps;
+
+  const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
+  const [role, setRole] = useState<RoleKey>((paramRole as RoleKey) || "jogador");
   const [current, setCurrent] = useState(0);
-  const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
-  const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
-  const [saving, setSaving] = useState(false);
   const [direction, setDirection] = useState(1);
+  const [answers, setAnswers] = useState<Record<string, unknown>>({});
+  const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
+  const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
+  const [avoidedNotes, setAvoidedNotes] = useState("");
+  const [saving, setSaving] = useState(false);
 
-  const step = steps[current];
-  const value = answers[step.field];
+  // Load existing profile data on mount
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("*")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          const loaded: Record<string, unknown> = {};
+          if (data.city) loaded.city = data.city;
+          if (data.preferred_systems?.length) loaded.preferred_systems = data.preferred_systems;
+          if (data.play_styles?.length) loaded.play_styles = data.play_styles;
+          if (data.experience_level) loaded.experience_level = data.experience_level;
+          if (data.preferred_format) loaded.preferred_format = data.preferred_format;
+          if (data.budget_range) loaded.budget_range = data.budget_range;
+          if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
+          if (Object.keys(loaded).length > 0) setAnswers(loaded);
+          if (data.role) setRole(data.role as RoleKey);
+          // Resume step if saved
+          const step = (data as any).onboarding_step;
+          if (typeof step === "number" && step > 0) setCurrent(step);
+        }
+      });
+  }, [user]);
 
-  const toggleMulti = (opt: string) => {
-    const arr = (value as string[]) || [];
-    setAnswers({ ...answers, [step.field]: arr.includes(opt) ? arr.filter((v) => v !== opt) : [...arr, opt] });
+  const steps = stepsMap[role];
+
+  const handleChange = useCallback((field: string, value: unknown) => {
+    setAnswers((prev) => ({ ...prev, [field]: value }));
+  }, []);
+
+  const handleSelectRole = (r: RoleKey) => {
+    setRole(r);
+    setCurrent(0);
+    setPhase("steps");
   };
 
-  const canNext =
-    step.type === "text" || step.type === "city-autocomplete"
-      ? !!(value as string)?.trim()
-      : step.type === "select-one"
-      ? !!value
-      : ((value as string[]) || []).length > 0;
+  const goNext = () => {
+    setDirection(1);
+    // Save progress
+    saveProgress(current + 1);
+    setCurrent((c) => c + 1);
+  };
 
-  const goNext = () => { setDirection(1); setCurrent(current + 1); };
-  const goPrev = () => { setDirection(-1); current > 0 ? setCurrent(current - 1) : navigate(-1); };
+  const goPrev = () => {
+    setDirection(-1);
+    if (current === 0) {
+      setPhase("profile");
+    } else {
+      setCurrent((c) => c - 1);
+    }
+  };
 
-  const finish = async () => {
+  const goToReview = () => {
+    setPhase("review");
+  };
+
+  const goToStep = (idx: number) => {
+    setCurrent(idx);
+    setPhase("steps");
+  };
+
+  // Save progress silently
+  const saveProgress = async (stepNum: number) => {
+    if (!user) return;
+    try {
+      await supabase
+        .from("profiles")
+        .update({
+          onboarding_step: stepNum,
+          role,
+        } as any)
+        .eq("user_id", user.id);
+    } catch {
+      // Silent
+    }
+  };
+
+  // Final save
+  const finishOnboarding = async () => {
     if (!user) return;
     setSaving(true);
 
     try {
-      const updateData: Record<string, unknown> = {
-        city: answers.city as string,
-        lat: coords.lat,
-        lng: coords.lng,
-      };
+      const badges = generateBadges(role, { ...answers, availability_days: availability.days, availability_times: availability.times });
+      const badgeLabels = badges.map((b) => b.label);
 
-      if (answers.systems) updateData.preferred_systems = answers.systems;
-      if (answers.styles) updateData.play_styles = answers.styles;
-      if (answers.experience) updateData.experience_level = answers.experience;
-      if (answers.format) updateData.preferred_format = answers.format;
-      if (answers.budget) updateData.budget_range = answers.budget;
+      const profileData: Record<string, unknown> = {
+        role,
+        city: answers.city || null,
+        lat: coords.lat || null,
+        lng: coords.lng || null,
+        preferred_systems: answers.preferred_systems || [],
+        play_styles: answers.play_styles || [],
+        experience_level: answers.experience_level || null,
+        preferred_format: answers.preferred_format || null,
+        budget_range: answers.budget_range || null,
+        session_format_pref: answers.session_format_pref || null,
+        availability_days: availability.days,
+        availability_times: availability.times,
+        themes_liked: answers.themes_liked || [],
+        themes_avoided: answers.themes_avoided || [],
+        avoided_notes: avoidedNotes || null,
+        narrative_styles: answers.narrative_styles || [],
+        years_mastering: answers.years_mastering || null,
+        max_players: answers.max_players || null,
+        target_audience: answers.target_audience || null,
+        mesa_formats: answers.mesa_formats || [],
+        special_services: answers.special_services || [],
+        brand_category: answers.brand_category || null,
+        brand_objective: answers.brand_objective || null,
+        brand_audience: answers.brand_audience || [],
+        brand_budget: answers.brand_budget || null,
+        badges: badgeLabels,
+        onboarding_completed: true,
+        onboarding_step: steps.length,
+      };
 
       const { error } = await supabase
         .from("profiles")
-        .update(updateData)
+        .update(profileData as any)
         .eq("user_id", user.id);
 
       if (error) throw error;
 
-      const dashMap: Record<string, string> = {
-        jogador: "/dashboard/jogador",
-        mestre: "/dashboard/mestre",
-        loja: "/dashboard/loja",
-      };
-      navigate(dashMap[role] || "/dashboard/jogador");
+      // If store role, also create/update store
+      if (role === "loja") {
+        const storeData: Record<string, unknown> = {
+          owner_id: user.id,
+          name: (answers.city as string) || "Minha Luderia",
+          city: answers.city || null,
+          lat: coords.lat || null,
+          lng: coords.lng || null,
+          capacity: answers.capacity || null,
+          simultaneous_tables: answers.simultaneous_tables || null,
+          opening_days: availability.days,
+          ticket_avg: answers.ticket_avg || null,
+          amenities: answers.amenities || [],
+          game_catalog: answers.game_catalog || [],
+        };
+
+        // Upsert store
+        const { data: existing } = await supabase
+          .from("stores")
+          .select("id")
+          .eq("owner_id", user.id)
+          .single();
+
+        if (existing) {
+          await supabase.from("stores").update(storeData as any).eq("id", existing.id);
+        } else {
+          await supabase.from("stores").insert(storeData as any);
+        }
+      }
+
+      setPhase("mapped");
     } catch (err: any) {
       toast({
         title: "Erro ao salvar perfil",
@@ -123,124 +199,72 @@ export default function Onboarding() {
     }
   };
 
-  const progress = ((current + 1) / steps.length) * 100;
+  const handleContinueToDashboard = () => {
+    const dashMap: Record<RoleKey, string> = {
+      jogador: "/dashboard/jogador",
+      mestre: "/dashboard/mestre",
+      loja: "/dashboard/loja",
+      marca: "/boost",
+    };
+    navigate(dashMap[role] || "/dashboard/jogador");
+  };
+
+  const step = steps[current];
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
-      <div className="w-full max-w-lg">
-        {/* Progress */}
-        <div className="mb-10">
-          <div className="flex justify-between text-[11px] text-muted-foreground mb-2 font-medium">
-            <span>Passo {current + 1} de {steps.length}</span>
-            <span>{Math.round(progress)}%</span>
-          </div>
-          <div className="h-1 rounded-full bg-muted overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-500 ease-out"
-              style={{ width: `${progress}%`, backgroundImage: "var(--gradient-primary)" }}
-            />
-          </div>
-        </div>
+    <div className="min-h-[100dvh] bg-background relative overflow-hidden">
+      <AnimatePresence mode="wait">
+        {phase === "welcome" && (
+          <WelcomeScreen key="welcome" onStart={() => setPhase("profile")} />
+        )}
 
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={current}
-            custom={direction}
-            initial={{ opacity: 0, x: direction * 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: direction * -20 }}
-            transition={{ duration: 0.2 }}
-          >
-            <h2 className="text-2xl font-display font-bold text-foreground">{step.title}</h2>
-            <p className="mt-1.5 text-sm text-muted-foreground mb-7">{step.subtitle}</p>
+        {phase === "profile" && (
+          <ProfileSelect key="profile" onSelect={handleSelectRole} />
+        )}
 
-            {step.type === "text" && (
-              <input
-                type="text"
-                value={(value as string) || ""}
-                onChange={(e) => setAnswers({ ...answers, [step.field]: e.target.value })}
-                className="w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
-                placeholder="Digite aqui..."
-                autoFocus
-              />
-            )}
+        {phase === "steps" && step && (
+          <OnboardingStepView
+            key={`step-${step.id}`}
+            step={step}
+            value={answers[step.field]}
+            onChange={handleChange}
+            onNext={goNext}
+            onPrev={goPrev}
+            current={current}
+            total={steps.length}
+            direction={direction}
+            isLast={current === steps.length - 1}
+            saving={saving}
+            onFinish={goToReview}
+            coords={coords}
+            onCoordsChange={setCoords}
+            availabilityValue={step.type === "days-times" ? availability : undefined}
+            onAvailabilityChange={step.type === "days-times" ? setAvailability : undefined}
+            textValue={step.field === "themes_avoided" ? avoidedNotes : undefined}
+            onTextChange={step.field === "themes_avoided" ? setAvoidedNotes : undefined}
+          />
+        )}
 
-            {step.type === "city-autocomplete" && (
-              <CityAutocomplete
-                value={(value as string) || ""}
-                onChange={(city, lat, lng) => {
-                  setAnswers({ ...answers, [step.field]: city });
-                  if (lat && lng) setCoords({ lat, lng });
-                }}
-                placeholder="Buscar cidade..."
-              />
-            )}
-            {step.type === "systems-search" && (
-              <SearchableSystemSelect
-                systems={RPG_SYSTEMS}
-                popularSystems={POPULAR_SYSTEMS}
-                selected={(value as string[]) || []}
-                onChange={(sel) => setAnswers({ ...answers, [step.field]: sel })}
-                placeholder="Buscar entre 600+ sistemas..."
-              />
-            )}
+        {phase === "review" && (
+          <ReviewScreen
+            key="review"
+            role={role}
+            answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
+            onEdit={goToStep}
+            onConfirm={finishOnboarding}
+            saving={saving}
+          />
+        )}
 
-            {step.type === "select-one" && (
-              <div className="grid gap-2">
-                {step.options?.map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => setAnswers({ ...answers, [step.field]: opt })}
-                    className={`flex items-center gap-3 rounded-lg border p-3.5 text-left text-sm transition-all ${
-                      value === opt ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/20"
-                    }`}
-                  >
-                    <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${value === opt ? "border-primary bg-primary" : "border-muted"}`}>
-                      {value === opt && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
-                    </div>
-                    {opt}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            {step.type === "select-multi" && (
-              <div className="flex flex-wrap gap-2">
-                {step.options?.map((opt) => {
-                  const selected = ((value as string[]) || []).includes(opt);
-                  return (
-                    <button
-                      key={opt}
-                      onClick={() => toggleMulti(opt)}
-                      className={`rounded-lg border px-4 py-2.5 text-sm transition-all ${
-                        selected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/20"
-                      }`}
-                    >
-                      {opt}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </motion.div>
-        </AnimatePresence>
-
-        <div className="mt-10 flex justify-between">
-          <Button variant="ghost" onClick={goPrev} disabled={current === 0} className="text-muted-foreground">
-            <ChevronLeft className="h-4 w-4" /> Voltar
-          </Button>
-          {current < steps.length - 1 ? (
-            <Button variant="default" onClick={goNext} disabled={!canNext}>
-              Próximo <ChevronRight className="h-4 w-4" />
-            </Button>
-          ) : (
-            <Button variant="gradient" onClick={finish} disabled={!canNext || saving}>
-              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Finalizar
-            </Button>
-          )}
-        </div>
-      </div>
+        {phase === "mapped" && (
+          <ProfileMappedScreen
+            key="mapped"
+            role={role}
+            answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
+            onContinue={handleContinueToDashboard}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
