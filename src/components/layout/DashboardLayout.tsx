@@ -29,9 +29,10 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem("hivium_user");
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
 
