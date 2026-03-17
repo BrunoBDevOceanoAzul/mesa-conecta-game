@@ -1,19 +1,54 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPw, setShowPw] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    localStorage.setItem("hivium_user", JSON.stringify({ email, role: "player" }));
-    navigate("/dashboard/jogador");
+    setLoading(true);
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      toast({
+        title: "Erro ao entrar",
+        description: error.message === "Invalid login credentials"
+          ? "Email ou senha incorretos."
+          : error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
+    // Fetch profile to determine redirect
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("city")
+        .eq("user_id", user.id)
+        .single();
+
+      // If no city set, go to onboarding
+      if (!profile?.city) {
+        navigate("/onboarding/jogador");
+      } else {
+        navigate("/dashboard/jogador");
+      }
+    }
+    setLoading(false);
   };
 
   return (
@@ -38,6 +73,7 @@ export default function Login() {
               className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
               placeholder="seu@email.com"
               required
+              disabled={loading}
             />
           </div>
           <div>
@@ -50,13 +86,17 @@ export default function Login() {
                 className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary pr-10"
                 placeholder="••••••••"
                 required
+                disabled={loading}
               />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
           </div>
-          <Button variant="hero" className="w-full" type="submit">Entrar</Button>
+          <Button variant="hero" className="w-full" type="submit" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Entrar
+          </Button>
         </form>
 
         <p className="mt-6 text-center text-sm text-muted-foreground">

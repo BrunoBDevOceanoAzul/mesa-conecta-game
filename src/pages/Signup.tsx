@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Crown, Store, Megaphone } from "lucide-react";
+import { Gamepad2, Crown, Store, Megaphone, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/data/mock";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
@@ -12,12 +14,21 @@ const roles: { role: UserRole; icon: typeof Gamepad2; label: string; desc: strin
   { role: "brand", icon: Megaphone, label: "Marca", desc: "Quero anunciar para a comunidade" },
 ];
 
+const roleToDash: Record<UserRole, string> = {
+  player: "/onboarding/jogador",
+  gm: "/onboarding/mestre",
+  store: "/onboarding/loja",
+  brand: "/dashboard/marca",
+};
+
 export default function Signup() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [step, setStep] = useState<"info" | "role">("info");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -25,16 +36,46 @@ export default function Signup() {
     setStep("role");
   };
 
-  const handleRoleSelect = (role: UserRole) => {
+  const handleRoleSelect = async (role: UserRole) => {
     setSelectedRole(role);
-    localStorage.setItem("hivium_user", JSON.stringify({ name, email, role }));
-    const dashMap: Record<UserRole, string> = {
-      player: "/onboarding/jogador",
-      gm: "/onboarding/mestre",
-      store: "/onboarding/loja",
-      brand: "/dashboard/marca",
-    };
-    navigate(dashMap[role]);
+    setLoading(true);
+
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name },
+        emailRedirectTo: window.location.origin,
+      },
+    });
+
+    if (error) {
+      toast({
+        title: "Erro ao criar conta",
+        description: error.message,
+        variant: "destructive",
+      });
+      setLoading(false);
+      setSelectedRole(null);
+      return;
+    }
+
+    // Check if email confirmation is required
+    if (data.user && !data.session) {
+      toast({
+        title: "Verifique seu email ✉️",
+        description: "Enviamos um link de confirmação para " + email,
+      });
+      setLoading(false);
+      return;
+    }
+
+    // If auto-confirmed (session exists), navigate to onboarding
+    if (data.session) {
+      navigate(roleToDash[role]);
+    }
+
+    setLoading(false);
   };
 
   return (
@@ -65,7 +106,7 @@ export default function Signup() {
             </div>
             <div>
               <label className="text-sm font-medium text-foreground">Senha</label>
-              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Mínimo 8 caracteres" required minLength={8} />
+              <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Mínimo 6 caracteres" required minLength={6} />
             </div>
             <Button variant="hero" className="w-full" type="submit">Continuar</Button>
           </form>
@@ -75,12 +116,17 @@ export default function Signup() {
               <button
                 key={r.role}
                 onClick={() => handleRoleSelect(r.role)}
+                disabled={loading}
                 className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all hover:scale-[1.02] ${
                   selectedRole === r.role ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
-                }`}
+                } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
               >
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  <r.icon className="h-6 w-6 text-primary" />
+                  {loading && selectedRole === r.role ? (
+                    <Loader2 className="h-6 w-6 text-primary animate-spin" />
+                  ) : (
+                    <r.icon className="h-6 w-6 text-primary" />
+                  )}
                 </div>
                 <div>
                   <div className="font-display font-semibold text-foreground">{r.label}</div>
