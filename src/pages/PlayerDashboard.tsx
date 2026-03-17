@@ -1,7 +1,10 @@
+import { useEffect, useState } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { mockTables } from "@/data/mock";
 import { TableCard } from "@/components/shared/TableCard";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart } from "lucide-react";
 
 const navItems = [
@@ -16,11 +19,28 @@ const topMatches = mockTables.filter((t) => t.matchScore >= 85).slice(0, 3);
 const upcoming = mockTables.slice(0, 2);
 
 export default function PlayerDashboard() {
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<{ name?: string; city?: string; lat?: number; lng?: number } | null>(null);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("profiles")
+      .select("name, city, lat, lng")
+      .eq("user_id", user.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setProfile(data);
+      });
+  }, [user]);
+
+  const displayName = profile?.name || user?.user_metadata?.name || "Aventureiro";
+
   return (
-    <DashboardLayout role="player" navItems={navItems} userName="Jogador Demo">
+    <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Olá, Aventureiro! 🎲</h1>
+          <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName}! 🎲</h1>
           <p className="text-muted-foreground mt-1">Aqui estão suas melhores recomendações de hoje.</p>
         </div>
 
@@ -68,7 +88,7 @@ export default function PlayerDashboard() {
         </div>
 
         {/* Nearby Stores */}
-        <NearbyStoresMap />
+        <NearbyStoresMap userLat={profile?.lat} userLng={profile?.lng} />
       </div>
     </DashboardLayout>
   );

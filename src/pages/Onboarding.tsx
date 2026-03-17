@@ -5,7 +5,10 @@ import { PLAY_STYLES } from "@/data/mock";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
 import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
-import { ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface StepConfig {
   title: string;
@@ -51,10 +54,13 @@ const stepsMap: Record<string, StepConfig[]> = {
 export default function Onboarding() {
   const { role = "jogador" } = useParams<{ role: string }>();
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const { toast } = useToast();
   const steps = stepsMap[role] || playerSteps;
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
+  const [saving, setSaving] = useState(false);
 
   const step = steps[current];
   const value = answers[step.field];
@@ -71,9 +77,38 @@ export default function Onboarding() {
       ? !!value
       : ((value as string[]) || []).length > 0;
 
-  const finish = () => {
-    const dashMap: Record<string, string> = { jogador: "/dashboard/jogador", mestre: "/dashboard/mestre", loja: "/dashboard/loja" };
-    navigate(dashMap[role] || "/dashboard/jogador");
+  const finish = async () => {
+    if (!user) return;
+    setSaving(true);
+
+    try {
+      // Update profile with city and coordinates
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          city: answers.city as string,
+          lat: coords.lat,
+          lng: coords.lng,
+        })
+        .eq("user_id", user.id);
+
+      if (error) throw error;
+
+      const dashMap: Record<string, string> = {
+        jogador: "/dashboard/jogador",
+        mestre: "/dashboard/mestre",
+        loja: "/dashboard/loja",
+      };
+      navigate(dashMap[role] || "/dashboard/jogador");
+    } catch (err: any) {
+      toast({
+        title: "Erro ao salvar",
+        description: err.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -171,7 +206,8 @@ export default function Onboarding() {
               Próximo <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button variant="gradient" onClick={finish} disabled={!canNext}>
+            <Button variant="gradient" onClick={finish} disabled={!canNext || saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Finalizar 🎉
             </Button>
           )}
