@@ -297,6 +297,52 @@ export default function Admin() {
           </div>
         )}
 
+        {/* ─── BILLING / REVENUE ─── */}
+        {tab === "billing" && (
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {[
+                { label: "MRR Total", value: `R$${(stats.mrr / 100).toFixed(2).replace(".", ",")}`, icon: <CreditCard className="h-5 w-5 text-primary" /> },
+                { label: "Assinaturas Ativas", value: String(stats.activeSubs), icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> },
+                { label: "Canceladas", value: String(stats.canceledSubs), icon: <XCircle className="h-5 w-5 text-orange-500" /> },
+                { label: "Inadimplentes", value: String(stats.pastDueSubs), icon: <Clock className="h-5 w-5 text-red-500" /> },
+              ].map((s) => (
+                <div key={s.label} className="rounded-xl border border-border bg-card p-5">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                      <div className="text-2xl font-display font-bold text-foreground mt-2">{s.value}</div>
+                    </div>
+                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">{s.icon}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* MRR by role */}
+            <div className="rounded-xl border border-border bg-card p-5">
+              <h3 className="text-sm font-display font-semibold text-foreground mb-4">MRR por perfil</h3>
+              <div className="grid sm:grid-cols-3 gap-4">
+                {[
+                  { role: "gm", label: "Mestres", icon: <Crown className="h-4 w-4 text-secondary" /> },
+                  { role: "store", label: "Luderias", icon: <Store className="h-4 w-4 text-accent" /> },
+                  { role: "player", label: "Jogadores", icon: <Users className="h-4 w-4 text-primary" /> },
+                ].map((r) => (
+                  <div key={r.role} className="rounded-lg border border-border p-4 flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted">{r.icon}</div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">{r.label}</p>
+                      <p className="text-lg font-display font-bold text-foreground">
+                        R${((stats.mrrByRole[r.role] || 0) / 100).toFixed(2).replace(".", ",")}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* ─── FOUNDERS ─── */}
         {tab === "founders" && (
           <div className="space-y-5">
