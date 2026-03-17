@@ -109,29 +109,7 @@ export default function GMDashboard() {
     return s + filled * (m.min_price || 0);
   }, 0);
 
-  // Calculator state
-  const [prepHours, setPrepHours] = useState(2);
-  const [sessionHours, setSessionHours] = useState(4);
-  const [hourlyRate, setHourlyRate] = useState(30);
-  const [platformFee] = useState(15);
-  const [players, setPlayers] = useState(5);
-  const [activePreset, setActivePreset] = useState<number | null>(null);
-
-  const totalHours = prepHours + sessionHours;
-  const baseCost = totalHours * hourlyRate;
-  const withFee = baseCost * (1 + platformFee / 100);
-  const perPlayer4 = withFee / 4;
-  const perPlayer5 = withFee / 5;
-  const perPlayerCustom = withFee / (players || 1);
-
-  function applyPreset(idx: number) {
-    const p = calcPresets[idx];
-    setPrepHours(p.prepHours);
-    setSessionHours(p.sessionHours);
-    setHourlyRate(p.hourlyRate);
-    setPlayers(p.players);
-    setActivePreset(idx);
-  }
+  // (Old calculator state removed — now using PricingCalculator component)
 
   // Mock CRM leads (will be real when reservations exist)
   const [leads] = useState<CRMLead[]>([]);
