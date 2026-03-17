@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import { useSubscription } from "@/hooks/use-subscription";
 import type { Tables } from "@/integrations/supabase/types";
 import {
   Store, Calendar, BarChart3, TrendingUp, Settings, Plus, Users,
