@@ -4,7 +4,7 @@ import {
   Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
   Megaphone, Plus, Eye, MousePointerClick, DollarSign,
   PieChart, Edit2, Trash2, ChevronDown, Calculator,
-  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy
+  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,10 @@ import type { Tables } from "@/integrations/supabase/types";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PremiumGate, PremiumBanner } from "@/components/shared/PremiumGate";
 import { ProgressionPanel } from "@/components/gm/ProgressionPanel";
+import { PricingCalculator } from "@/components/gm/PricingCalculator";
+import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
+import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
+import { ShareButton } from "@/components/shared/ShareModal";
 
 type Mesa = Tables<"mesas">;
 
@@ -26,14 +30,9 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc" | "progression";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics";
 
-// Calculator presets
-const calcPresets = [
-  { label: "One-Shot", prepHours: 2, sessionHours: 4, hourlyRate: 30, players: 5 },
-  { label: "Campanha", prepHours: 3, sessionHours: 4, hourlyRate: 40, players: 5 },
-  { label: "Evento", prepHours: 4, sessionHours: 6, hourlyRate: 50, players: 6 },
-];
+// Calculator presets (legacy - now using PricingCalculator component)
 
 // CRM lead stages
 const stageConfig: Record<string, { label: string; color: string }> = {
@@ -110,29 +109,7 @@ export default function GMDashboard() {
     return s + filled * (m.min_price || 0);
   }, 0);
 
-  // Calculator state
-  const [prepHours, setPrepHours] = useState(2);
-  const [sessionHours, setSessionHours] = useState(4);
-  const [hourlyRate, setHourlyRate] = useState(30);
-  const [platformFee] = useState(15);
-  const [players, setPlayers] = useState(5);
-  const [activePreset, setActivePreset] = useState<number | null>(null);
-
-  const totalHours = prepHours + sessionHours;
-  const baseCost = totalHours * hourlyRate;
-  const withFee = baseCost * (1 + platformFee / 100);
-  const perPlayer4 = withFee / 4;
-  const perPlayer5 = withFee / 5;
-  const perPlayerCustom = withFee / (players || 1);
-
-  function applyPreset(idx: number) {
-    const p = calcPresets[idx];
-    setPrepHours(p.prepHours);
-    setSessionHours(p.sessionHours);
-    setHourlyRate(p.hourlyRate);
-    setPlayers(p.players);
-    setActivePreset(idx);
-  }
+  // (Old calculator state removed — now using PricingCalculator component)
 
   // Mock CRM leads (will be real when reservations exist)
   const [leads] = useState<CRMLead[]>([]);
@@ -143,6 +120,7 @@ export default function GMDashboard() {
     { key: "mesas", label: "Minhas Mesas", icon: <Calendar className="h-4 w-4" /> },
     { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
+    { key: "analytics", label: "Atribuição", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
   return (
@@ -199,22 +177,25 @@ export default function GMDashboard() {
               <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={isPremium ? `R$${estimatedRevenue.toFixed(0)}` : "🔒"} />
             </div>
 
-            {/* Quick mesas list */}
-            <div>
-              <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
-              {mesas.length === 0 ? (
-                <EmptyBlock
-                  icon={<Calendar className="h-10 w-10" />}
-                  text="Nenhuma mesa criada ainda."
-                  sub="Crie sua primeira mesa e comece a receber jogadores."
-                />
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {mesas.slice(0, 6).map((m) => (
-                    <MesaMiniCard key={m.id} mesa={m} />
-                  ))}
-                </div>
-              )}
+            {/* Income Goal + Quick mesas list */}
+            <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+              <IncomeGoalTracker />
+              <div>
+                <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
+                {mesas.length === 0 ? (
+                  <EmptyBlock
+                    icon={<Calendar className="h-10 w-10" />}
+                    text="Nenhuma mesa criada ainda."
+                    sub="Crie sua primeira mesa e comece a receber jogadores."
+                  />
+                ) : (
+                  <div className="grid gap-3">
+                    {mesas.slice(0, 4).map((m) => (
+                      <MesaMiniCard key={m.id} mesa={m} />
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
@@ -336,64 +317,21 @@ export default function GMDashboard() {
 
         {/* ─── CALCULATOR ─── */}
         {tab === "calc" && (
-          <div className="max-w-2xl space-y-5">
-            <div>
-              <h2 className="text-base font-display font-semibold text-foreground">Calculadora de Valor Mínimo</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Descubra quanto cobrar por sessão para que seu trabalho seja valorizado.</p>
-            </div>
-
-            {/* Presets */}
-            <div className="flex gap-2">
-              {calcPresets.map((p, idx) => (
-                <button
-                  key={p.label}
-                  onClick={() => applyPreset(idx)}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                    activePreset === idx
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }`}
-                >
-                  <Zap className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
-                  {p.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
-              {/* Inputs */}
-              <div className="p-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <CalcInput label="Horas de preparação" value={prepHours} onChange={(v) => { setPrepHours(v); setActivePreset(null); }} min={0} max={20} suffix="h" />
-                  <CalcInput label="Duração da sessão" value={sessionHours} onChange={(v) => { setSessionHours(v); setActivePreset(null); }} min={1} max={12} suffix="h" />
-                  <CalcInput label="Valor-hora desejado" value={hourlyRate} onChange={(v) => { setHourlyRate(v); setActivePreset(null); }} min={10} max={500} prefix="R$" />
-                  <CalcInput label="Jogadores esperados" value={players} onChange={(v) => { setPlayers(v); setActivePreset(null); }} min={2} max={12} />
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
-                  <span className="text-xs text-muted-foreground">Margem da plataforma</span>
-                  <span className="text-sm font-semibold text-foreground">{platformFee}%</span>
-                </div>
-              </div>
-
-              {/* Results */}
-              <div className="border-t border-border bg-muted/20 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Valor mínimo da sessão</span>
-                  <span className="text-2xl font-display font-bold text-primary">
-                    R${withFee.toFixed(2).replace(".", ",")}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <ResultPill label="4 jogadores" value={`R$${perPlayer4.toFixed(2).replace(".", ",")}`} />
-                  <ResultPill label="5 jogadores" value={`R$${perPlayer5.toFixed(2).replace(".", ",")}`} />
-                  <ResultPill label={`${players} jogadores`} value={`R$${perPlayerCustom.toFixed(2).replace(".", ",")}`} highlight />
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Fórmula: (prep + sessão) × valor/h × (1 + margem). Valores sugeridos — ajuste conforme sua experiência e mercado local.
-                </p>
-              </div>
-            </div>
+          <div className="max-w-4xl">
+            <PricingCalculator />
           </div>
+        )}
+
+        {/* ─── ANALYTICS ─── */}
+        {tab === "analytics" && (
+          <PremiumGate
+            feature="Atribuição por Canal"
+            description="Veja de onde vêm suas visitas e reservas. Recurso para assinantes."
+            allowed={isPremium}
+            loading={sub.loading}
+          >
+            <ShareAnalyticsPanel />
+          </PremiumGate>
         )}
       </div>
     </DashboardLayout>

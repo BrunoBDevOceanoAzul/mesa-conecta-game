@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import { ShareButton } from "@/components/shared/ShareModal";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
   Loader2, User, Monitor, Home, RefreshCw
@@ -253,6 +254,13 @@ export default function TableDetail() {
               <p className="text-[11px] text-muted-foreground text-center">
                 Pagamento simulado para MVP
               </p>
+
+              {/* Share button */}
+              <ShareButton
+                entityType="mesa"
+                entityId={mesa.id}
+                entityTitle={mesa.title}
+              />
             </div>
           </div>
         </div>

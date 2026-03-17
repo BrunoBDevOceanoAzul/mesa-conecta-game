@@ -101,6 +101,7 @@ export default {
         "glow-primary": "var(--glow-primary)",
         "glow-gold": "var(--glow-gold)",
         "glow-primary-strong": "var(--glow-primary-strong)",
+        "glow-cta": "var(--glow-cta)",
       },
       spacing: {
         "18": "4.5rem",

@@ -73,9 +73,13 @@
     --surface-hover: 260 14% 12%;
     --surface-elevated: 260 14% 11%;
 
-    /* ─── Gradients ─── */
-    --gradient-primary: linear-gradient(135deg, hsl(270 52% 48%), hsl(42 78% 50%));
-    --gradient-gold: linear-gradient(135deg, hsl(42 78% 50%), hsl(32 82% 52%));
+    /* ─── Gradients — Premium HIVIUM Palette ─── */
+    --gradient-primary: linear-gradient(135deg, hsl(272 48% 42%) 0%, hsl(280 44% 52%) 40%, hsl(310 36% 48%) 70%, hsl(38 62% 56%) 100%);
+    --gradient-primary-subtle: linear-gradient(135deg, hsl(272 42% 38%) 0%, hsl(285 38% 46%) 50%, hsl(42 50% 50%) 100%);
+    --gradient-premium: linear-gradient(135deg, hsl(265 50% 36%) 0%, hsl(280 48% 48%) 35%, hsl(320 32% 44%) 65%, hsl(40 70% 58%) 100%);
+    --gradient-founder: linear-gradient(135deg, hsl(42 72% 48%) 0%, hsl(32 78% 50%) 40%, hsl(280 42% 48%) 80%, hsl(265 48% 42%) 100%);
+    --gradient-badge: linear-gradient(135deg, hsl(280 42% 44%) 0%, hsl(310 34% 46%) 50%, hsl(340 40% 50%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(42 68% 48%), hsl(32 72% 52%));
     --gradient-surface: linear-gradient(180deg, hsl(260 16% 9%), hsl(260 20% 5%));
 
     /* ─── Elevation / Shadows ─── */
@@ -83,9 +87,10 @@
     --shadow-md: 0 4px 12px hsl(0 0% 0% / 0.3), 0 2px 4px hsl(0 0% 0% / 0.2);
     --shadow-lg: 0 10px 30px hsl(0 0% 0% / 0.35), 0 4px 8px hsl(0 0% 0% / 0.2);
     --shadow-xl: 0 20px 50px hsl(0 0% 0% / 0.4), 0 8px 16px hsl(0 0% 0% / 0.25);
-    --glow-primary: 0 4px 30px hsl(270 52% 48% / 0.18);
-    --glow-gold: 0 4px 20px hsl(42 78% 50% / 0.14);
-    --glow-primary-strong: 0 0 40px hsl(270 52% 48% / 0.25), 0 0 80px hsl(270 52% 48% / 0.08);
+    --glow-primary: 0 4px 24px hsl(272 48% 42% / 0.16), 0 1px 3px hsl(0 0% 0% / 0.2);
+    --glow-gold: 0 4px 20px hsl(42 68% 48% / 0.12);
+    --glow-primary-strong: 0 0 32px hsl(272 48% 42% / 0.22), 0 0 64px hsl(280 44% 52% / 0.06);
+    --glow-cta: 0 4px 20px hsl(272 48% 42% / 0.2), 0 8px 40px hsl(280 44% 52% / 0.08);
   }
 }
 
@@ -136,6 +141,15 @@
   }
   .text-caption {
     @apply text-xs font-body leading-normal text-muted-foreground;
+  }
+
+  /* Pulse glow for CTA buttons */
+  .cta-glow {
+    box-shadow: var(--glow-cta);
+  }
+  .cta-glow:hover {
+    box-shadow: 0 6px 28px hsl(272 48% 42% / 0.28), 0 12px 52px hsl(280 44% 52% / 0.12);
+  }
   }
   .text-label {
     @apply text-sm font-medium font-body leading-none;
