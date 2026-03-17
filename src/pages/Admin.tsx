@@ -8,10 +8,12 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Shield, Users, Settings, BarChart3, Crown, Store, Gift,
   Sparkles, Calendar, Eye, CreditCard, ChevronDown, CheckCircle2,
-  XCircle, Clock, TrendingUp, ToggleLeft, ToggleRight, MousePointerClick
+  XCircle, Clock, TrendingUp, ToggleLeft, ToggleRight, MousePointerClick,
+  Trophy, Star, Zap, Plus
 } from "lucide-react";
+import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
