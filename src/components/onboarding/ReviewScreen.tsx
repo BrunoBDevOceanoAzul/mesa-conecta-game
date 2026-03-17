@@ -33,7 +33,6 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
     return val as string;
   };
 
-  // Group availability display
   const availDays = answers.availability_days as string[] | undefined;
   const availTimes = answers.availability_times as string[] | undefined;
   const hasAvail = (availDays?.length || 0) > 0 || (availTimes?.length || 0) > 0;
@@ -45,13 +44,21 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
       exit={{ opacity: 0 }}
       className="min-h-[100dvh] flex flex-col items-center px-6 py-10 md:py-16"
     >
-      <div className="w-full max-w-lg">
-        <div className="text-center mb-8">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-0 left-1/2 -translate-x-1/2 w-[500px] h-[400px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+        />
+      </div>
+
+      <div className="w-full max-w-lg relative z-10">
+        <div className="text-center mb-10">
           <span className="section-label">Revisão</span>
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground">
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-tight">
             Tudo certo por aqui?
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed">
             Revise suas respostas antes de mapear seu perfil
           </p>
         </div>
@@ -59,12 +66,12 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
         {/* Badges preview */}
         {badges.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="mb-8 p-5 rounded-2xl border border-border bg-card"
+            className="mb-8 p-6 rounded-2xl border border-border/60 bg-card/50"
           >
-            <p className="text-xs font-medium text-muted-foreground mb-3 uppercase tracking-wider">
+            <p className="text-xs font-semibold text-muted-foreground/60 mb-3 uppercase tracking-[0.15em]">
               Suas badges
             </p>
             <div className="flex flex-wrap gap-2">
@@ -72,7 +79,7 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
                 <span
                   key={b.label}
                   className={cn(
-                    "rounded-lg border px-3 py-1 text-xs font-medium",
+                    "rounded-full border px-3.5 py-1.5 text-xs font-semibold",
                     badgeColors[b.color]
                   )}
                 >
@@ -84,9 +91,8 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
         )}
 
         {/* Answers */}
-        <div className="space-y-3">
+        <div className="space-y-2.5">
           {steps.map((step, i) => {
-            // Skip availability steps (show separately)
             if (step.type === "days-times") return null;
             const display = formatValue(step);
             if (display === "—" && !step.required) return null;
@@ -96,16 +102,16 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
                 key={step.id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 + i * 0.04 }}
-                className="group flex items-start justify-between rounded-xl border border-border bg-card p-4"
+                transition={{ delay: 0.1 + i * 0.03 }}
+                className="group flex items-start justify-between rounded-2xl border border-border/60 bg-card/50 p-4"
               >
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs text-muted-foreground mb-1">{step.title}</p>
-                  <p className="text-sm text-foreground font-medium truncate">{display}</p>
+                  <p className="text-xs text-muted-foreground/60 mb-1 font-medium">{step.title}</p>
+                  <p className="text-sm text-foreground font-semibold truncate">{display}</p>
                 </div>
                 <button
                   onClick={() => onEdit(i)}
-                  className="ml-3 shrink-0 p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100"
+                  className="ml-3 shrink-0 p-2 rounded-xl text-muted-foreground/40 hover:text-primary hover:bg-primary/5 transition-all opacity-0 group-hover:opacity-100"
                 >
                   <Edit3 className="h-3.5 w-3.5" />
                 </button>
@@ -118,11 +124,11 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="group flex items-start justify-between rounded-xl border border-border bg-card p-4"
+              className="flex items-start justify-between rounded-2xl border border-border/60 bg-card/50 p-4"
             >
               <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground mb-1">Disponibilidade</p>
-                <p className="text-sm text-foreground font-medium">
+                <p className="text-xs text-muted-foreground/60 mb-1 font-medium">Disponibilidade</p>
+                <p className="text-sm text-foreground font-semibold">
                   {availDays?.join(", ") || "Flexível"} · {availTimes?.join(", ") || "—"}
                 </p>
               </div>
@@ -130,13 +136,13 @@ export function ReviewScreen({ role, answers, onEdit, onConfirm, saving }: Revie
           )}
         </div>
 
-        <div className="mt-10 flex justify-center">
+        <div className="mt-12 flex justify-center">
           <Button
             variant="gradient"
             size="lg"
             onClick={onConfirm}
             disabled={saving}
-            className="px-10"
+            className="px-10 h-13"
           >
             {saving ? (
               <span className="flex items-center gap-2">

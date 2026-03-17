@@ -28,10 +28,16 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
       animate={{ opacity: 1 }}
       className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12"
     >
-      {/* Background glow */}
+      {/* Ambient glow */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full opacity-[0.06]" style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }} />
-        <div className="absolute bottom-1/3 left-1/3 w-[400px] h-[400px] rounded-full opacity-[0.04]" style={{ background: "radial-gradient(circle, hsl(38 88% 55%), transparent 70%)" }} />
+        <div
+          className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full opacity-[0.06]"
+          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+        />
+        <div
+          className="absolute bottom-1/3 left-1/3 w-[400px] h-[400px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, hsl(38 88% 55%), transparent 70%)" }}
+        />
       </div>
 
       <div className="relative z-10 text-center max-w-md">
@@ -39,29 +45,29 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="mx-auto mb-8 w-20 h-20 rounded-full flex items-center justify-center"
+          transition={{ delay: 0.2, type: "spring", stiffness: 180, damping: 15 }}
+          className="mx-auto mb-10 w-20 h-20 rounded-3xl flex items-center justify-center"
           style={{ backgroundImage: "var(--gradient-primary)" }}
         >
           <CheckCircle2 className="h-10 w-10 text-primary-foreground" />
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.35 }}
-          className="text-3xl md:text-4xl font-display font-bold text-foreground"
+          className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight"
         >
           Perfil mapeado
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="mt-4 text-muted-foreground text-base leading-relaxed"
+          className="mt-4 text-muted-foreground text-[15px] leading-relaxed"
         >
-          A MesaNexo já pode mostrar experiências, mesas e oportunidades mais aderentes ao seu perfil.
+          A Hivium já pode mostrar experiências, mesas e oportunidades mais aderentes ao seu perfil.
         </motion.p>
 
         {/* Summary */}
@@ -69,9 +75,9 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.65 }}
-          className="mt-8 p-5 rounded-2xl border border-border bg-card text-left"
+          className="mt-8 p-6 rounded-2xl border border-border/60 bg-card/50 text-left"
         >
-          <p className="text-sm text-foreground/90 leading-relaxed italic">
+          <p className="text-sm text-foreground/80 leading-relaxed italic">
             "{summary}"
           </p>
         </motion.div>
@@ -89,9 +95,9 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
                 key={b.label}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.9 + i * 0.06 }}
+                transition={{ delay: 0.9 + i * 0.05 }}
                 className={cn(
-                  "rounded-lg border px-3 py-1.5 text-xs font-medium",
+                  "rounded-full border px-3.5 py-1.5 text-xs font-semibold",
                   badgeColors[b.color]
                 )}
               >
@@ -105,15 +111,15 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
-          className="mt-10"
+          className="mt-12"
         >
           <Button
             variant="gradient"
             size="lg"
             onClick={onContinue}
-            className="px-10 text-base"
+            className="px-10 text-base h-13 gap-2"
           >
-            Entrar no dashboard <ArrowRight className="h-4 w-4 ml-1" />
+            Entrar no dashboard <ArrowRight className="h-4 w-4" />
           </Button>
         </motion.div>
       </div>
