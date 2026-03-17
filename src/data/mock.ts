@@ -56,20 +56,66 @@ export interface PricingPlan {
   features: string[];
   highlight?: boolean;
   badge?: string;
+  boostNote?: string; // Subtle mention of boost eligibility
 }
 
 export const SYSTEMS = ['D&D 5e', 'Tormenta 20', 'Call of Cthulhu', 'Pathfinder 2e', 'Vampiro: A Máscara', 'GURPS', 'Ordem Paranormal', 'Savage Worlds', 'Blades in the Dark', 'Mork Borg'];
 
 export const PLAY_STYLES = ['Narrativo', 'Tático', 'Sandbox', 'Investigativo', 'Horror', 'Comédia', 'Hack & Slash', 'Roleplay Pesado'];
 
+// Public pricing — only player, gm, store plans (no brand, no ads)
 export const pricingPlans: PricingPlan[] = [
-  { name: 'Passe Aventureiro', role: 'player', price: 24.90, period: '/mês', features: ['Até 2 reservas/mês', 'Matchmaking inteligente', 'Histórico de mesas', 'Perfil de aderência'] },
-  { name: 'Passe Guilda', role: 'player', price: 39.90, period: '/mês', features: ['Até 5 reservas/mês', 'Matchmaking inteligente', 'Prioridade em mesas lotadas', 'Badge exclusiva', 'Acesso antecipado a eventos'], highlight: true },
-  { name: 'Mestre Pro', role: 'gm', price: 29.90, period: '/mês', features: ['Perfil profissional', 'Mini CRM integrado', 'Agenda e reservas', 'Analytics básico', 'Até 3 mesas ativas'] },
-  { name: 'Mestre Pro+', role: 'gm', price: 59.90, period: '/mês', features: ['Tudo do Pro', 'Mesas ilimitadas', 'CRM avançado com tags', 'Analytics completo', '2 destaques/mês', 'Suporte prioritário'], highlight: true, badge: 'Popular' },
-  { name: 'Luderia Base', role: 'store', price: 79.90, period: '/mês', features: ['Até 4 mesas/mês', 'Perfil da luderia', 'Agenda pública', 'Gestão de reservas'] },
-  { name: 'Luderia Growth', role: 'store', price: 149.90, period: '/mês', features: ['Até 12 mesas/mês', 'Feed destacado', 'Analytics avançado', 'Suporte dedicado', '3 destaques/mês'], highlight: true, badge: 'Recomendado' },
-  { name: 'Brand Slot', role: 'brand', price: 199.90, period: '/mês', features: ['Posts patrocinados no feed', 'Segmentação por perfil', 'Dashboard de campanha', 'Relatório mensal', 'Gerente de conta'] },
+  {
+    name: 'Passe Aventureiro',
+    role: 'player',
+    price: 24.90,
+    period: '/mês',
+    features: ['Até 2 reservas/mês', 'Matchmaking inteligente', 'Histórico de mesas', 'Perfil de aderência'],
+  },
+  {
+    name: 'Passe Guilda',
+    role: 'player',
+    price: 39.90,
+    period: '/mês',
+    features: ['Até 5 reservas/mês', 'Matchmaking inteligente', 'Prioridade em mesas lotadas', 'Insígnia exclusiva', 'Acesso antecipado a eventos'],
+    highlight: true,
+  },
+  {
+    name: 'Mestre Pro',
+    role: 'gm',
+    price: 29.90,
+    period: '/mês',
+    features: ['Perfil profissional', 'Mini CRM integrado', 'Agenda e reservas', 'Analytics básico', 'Até 3 mesas ativas'],
+    boostNote: 'Ferramentas de crescimento desbloqueadas',
+  },
+  {
+    name: 'Mestre Pro+',
+    role: 'gm',
+    price: 59.90,
+    period: '/mês',
+    features: ['Tudo do Pro', 'Mesas ilimitadas', 'CRM avançado com tags', 'Analytics completo', 'Suporte prioritário'],
+    highlight: true,
+    badge: 'Popular',
+    boostNote: 'Inclui ferramentas de destaque e visibilidade',
+  },
+  {
+    name: 'Luderia Base',
+    role: 'store',
+    price: 79.90,
+    period: '/mês',
+    features: ['Até 4 mesas/mês', 'Perfil da luderia', 'Agenda pública', 'Gestão de reservas'],
+    boostNote: 'Acesso a ferramentas de destaque',
+  },
+  {
+    name: 'Luderia Growth',
+    role: 'store',
+    price: 149.90,
+    period: '/mês',
+    features: ['Até 12 mesas/mês', 'Feed destacado', 'Analytics avançado', 'Suporte dedicado'],
+    highlight: true,
+    badge: 'Recomendado',
+    boostNote: 'Ferramentas de crescimento e visibilidade avançadas',
+  },
 ];
 
 export const creditPackages = [

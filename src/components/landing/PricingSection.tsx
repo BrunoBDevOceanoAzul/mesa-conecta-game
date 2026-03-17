@@ -1,15 +1,15 @@
 import { motion } from "framer-motion";
 import { pricingPlans } from "@/data/mock";
 import { Button } from "@/components/ui/button";
-import { Check, ArrowRight } from "lucide-react";
+import { Check, ArrowRight, Sparkles } from "lucide-react";
 import { useState } from "react";
 import type { UserRole } from "@/data/mock";
 
+// No brand tab — brands don't have public pricing now
 const tabs: { label: string; role: UserRole }[] = [
   { label: "Jogador", role: "player" },
   { label: "Mestre", role: "gm" },
-  { label: "Loja", role: "store" },
-  { label: "Marca", role: "brand" },
+  { label: "Luderia", role: "store" },
 ];
 
 export function PricingSection() {
@@ -35,7 +35,7 @@ export function PricingSection() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-1 mb-14 bg-muted/30 rounded-xl p-1 max-w-sm mx-auto">
+        <div className="flex justify-center gap-1 mb-14 bg-muted/30 rounded-xl p-1 max-w-xs mx-auto">
           {tabs.map((t) => (
             <button
               key={t.role}
@@ -86,6 +86,15 @@ export function PricingSection() {
                   </li>
                 ))}
               </ul>
+
+              {/* Subtle boost mention for eligible plans */}
+              {plan.boostNote && (
+                <div className="mt-5 flex items-center gap-2 rounded-lg border border-primary/10 bg-primary/5 px-3 py-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-[11px] text-primary/80">{plan.boostNote}</span>
+                </div>
+              )}
+
               <Button
                 variant={plan.highlight ? "gradient" : "outline"}
                 className="mt-8 w-full"
