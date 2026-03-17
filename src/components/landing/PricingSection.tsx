@@ -60,8 +60,12 @@ const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?
   player_guild: { highlight: true },
   gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Inclui ferramentas de destaque e visibilidade" },
   gm_pro: { boostNote: "Ferramentas de crescimento desbloqueadas" },
+  gm_pro_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
+  gm_pro_plus_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
   store_growth: { highlight: true, badge: "Recomendado", boostNote: "Ferramentas de crescimento e visibilidade avançadas" },
   store_base: { boostNote: "Acesso a ferramentas de destaque" },
+  store_base_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
+  store_growth_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
 };
 
 export function PricingSection() {
