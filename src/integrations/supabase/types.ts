@@ -32,6 +32,54 @@ export type Database = {
         }
         Relationships: []
       }
+      badge_definitions: {
+        Row: {
+          category: string
+          code: string
+          created_at: string
+          description: string | null
+          flavor_text: string | null
+          icon_key: string | null
+          id: string
+          name: string
+          rarity: string
+          slug: string
+          updated_at: string
+          visual_theme: Json | null
+          xp_reward: number
+        }
+        Insert: {
+          category?: string
+          code: string
+          created_at?: string
+          description?: string | null
+          flavor_text?: string | null
+          icon_key?: string | null
+          id?: string
+          name: string
+          rarity?: string
+          slug: string
+          updated_at?: string
+          visual_theme?: Json | null
+          xp_reward?: number
+        }
+        Update: {
+          category?: string
+          code?: string
+          created_at?: string
+          description?: string | null
+          flavor_text?: string | null
+          icon_key?: string | null
+          id?: string
+          name?: string
+          rarity?: string
+          slug?: string
+          updated_at?: string
+          visual_theme?: Json | null
+          xp_reward?: number
+        }
+        Relationships: []
+      }
       boost_campaigns: {
         Row: {
           boosted_entity_type: string | null
@@ -319,6 +367,74 @@ export type Database = {
           id?: string
           token?: string
           used_at?: string | null
+        }
+        Relationships: []
+      }
+      master_badges: {
+        Row: {
+          awarded_at: string
+          awarded_reason: string | null
+          badge_definition_id: string
+          id: string
+          is_founder_badge: boolean
+          source_type: string | null
+          user_id: string
+        }
+        Insert: {
+          awarded_at?: string
+          awarded_reason?: string | null
+          badge_definition_id: string
+          id?: string
+          is_founder_badge?: boolean
+          source_type?: string | null
+          user_id: string
+        }
+        Update: {
+          awarded_at?: string
+          awarded_reason?: string | null
+          badge_definition_id?: string
+          id?: string
+          is_founder_badge?: boolean
+          source_type?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_badges_badge_definition_id_fkey"
+            columns: ["badge_definition_id"]
+            isOneToOne: false
+            referencedRelation: "badge_definitions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      master_xp_profiles: {
+        Row: {
+          created_at: string
+          current_level: number
+          current_title: string
+          id: string
+          total_xp: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_level?: number
+          current_title?: string
+          id?: string
+          total_xp?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_level?: number
+          current_title?: string
+          id?: string
+          total_xp?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -787,6 +903,36 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      xp_events: {
+        Row: {
+          action_type: string
+          created_at: string
+          id: string
+          reference_id: string | null
+          reference_type: string | null
+          user_id: string
+          xp_amount: number
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id: string
+          xp_amount: number
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          id?: string
+          reference_id?: string | null
+          reference_type?: string | null
+          user_id?: string
+          xp_amount?: number
         }
         Relationships: []
       }

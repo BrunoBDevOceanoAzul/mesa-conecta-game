@@ -3,6 +3,8 @@ project_id = "kcehwcqdoxvkqakdvhsb"
 [functions]
   [functions.auth-email-hook]
     verify_jwt = false
+  [functions.generate-badge]
+    verify_jwt = false
   [functions.google-maps-proxy]
     verify_jwt = false
   [functions.process-email-queue]
