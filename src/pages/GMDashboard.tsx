@@ -4,7 +4,7 @@ import {
   Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
   Megaphone, Plus, Eye, MousePointerClick, DollarSign,
   PieChart, Edit2, Trash2, ChevronDown, Calculator,
-  UserCheck, MessageSquare, Tag, Clock, Zap
+  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import type { Tables } from "@/integrations/supabase/types";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PremiumGate, PremiumBanner } from "@/components/shared/PremiumGate";
+import { ProgressionPanel } from "@/components/gm/ProgressionPanel";
 
 type Mesa = Tables<"mesas">;
 
@@ -25,7 +26,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression";
 
 // Calculator presets
 const calcPresets = [
