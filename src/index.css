@@ -6,52 +6,53 @@
 
 @layer base {
   :root {
-    --background: 240 6% 7%;
-    --foreground: 40 15% 93%;
+    /* HIVIUM — Imperial Dark Premium */
+    --background: 260 18% 6%;
+    --foreground: 45 20% 93%;
 
-    --card: 240 5% 10%;
-    --card-foreground: 40 15% 93%;
+    --card: 260 15% 9%;
+    --card-foreground: 45 20% 93%;
 
-    --popover: 240 5% 10%;
-    --popover-foreground: 40 15% 93%;
+    --popover: 260 15% 9%;
+    --popover-foreground: 45 20% 93%;
 
-    --primary: 272 60% 58%;
+    --primary: 270 55% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 38 88% 55%;
-    --secondary-foreground: 240 6% 7%;
+    --secondary: 42 80% 52%;
+    --secondary-foreground: 260 18% 6%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 260 12% 14%;
+    --muted-foreground: 260 8% 50%;
 
-    --accent: 15 82% 56%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 42 80% 52%;
+    --accent-foreground: 260 18% 6%;
 
     --destructive: 0 72% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 272 60% 58%;
+    --border: 260 12% 14%;
+    --input: 260 12% 14%;
+    --ring: 270 55% 50%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 240 5% 9%;
-    --sidebar-foreground: 40 15% 93%;
-    --sidebar-primary: 272 60% 58%;
+    --sidebar-background: 260 16% 7%;
+    --sidebar-foreground: 45 20% 93%;
+    --sidebar-primary: 270 55% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 14%;
-    --sidebar-accent-foreground: 40 15% 93%;
-    --sidebar-border: 240 4% 14%;
-    --sidebar-ring: 272 60% 58%;
+    --sidebar-accent: 260 12% 12%;
+    --sidebar-accent-foreground: 45 20% 93%;
+    --sidebar-border: 260 12% 12%;
+    --sidebar-ring: 270 55% 50%;
 
     /* Custom tokens */
-    --surface: 240 4% 12%;
-    --surface-hover: 240 4% 15%;
-    --gradient-primary: linear-gradient(135deg, hsl(272 60% 58%), hsl(38 88% 55%));
-    --gradient-gold: linear-gradient(135deg, hsl(38 88% 55%), hsl(28 90% 60%));
-    --glow-primary: 0 4px 30px hsl(272 60% 58% / 0.18);
-    --glow-gold: 0 4px 20px hsl(38 88% 55% / 0.15);
+    --surface: 260 14% 10%;
+    --surface-hover: 260 14% 13%;
+    --gradient-primary: linear-gradient(135deg, hsl(270 55% 50%), hsl(42 80% 52%));
+    --gradient-gold: linear-gradient(135deg, hsl(42 80% 52%), hsl(32 85% 55%));
+    --glow-primary: 0 4px 30px hsl(270 55% 50% / 0.18);
+    --glow-gold: 0 4px 20px hsl(42 80% 52% / 0.15);
   }
 }
 
@@ -112,7 +113,7 @@
   }
 
   .sponsored-glow {
-    box-shadow: 0 0 0 1px hsl(38 88% 55% / 0.25), 0 0 20px hsl(38 88% 55% / 0.06);
+    box-shadow: 0 0 0 1px hsl(42 80% 52% / 0.25), 0 0 20px hsl(42 80% 52% / 0.06);
   }
 
   .section-heading {
