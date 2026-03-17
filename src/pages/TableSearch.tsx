@@ -1,48 +1,19 @@
-import { mockTables } from "@/data/mock";
-import { RPG_SYSTEMS } from "@/data/rpg-systems";
-import { TableCard } from "@/components/shared/TableCard";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
-import { useState } from "react";
 import { Search } from "lucide-react";
 
 export default function TableSearch() {
-  const [query, setQuery] = useState("");
-  const [system, setSystem] = useState("");
-  const [format, setFormat] = useState("");
-
-  const filtered = mockTables.filter((t) => {
-    if (query && !t.title.toLowerCase().includes(query.toLowerCase()) && !t.city.toLowerCase().includes(query.toLowerCase())) return false;
-    if (system && t.system !== system) return false;
-    if (format && t.format !== format) return false;
-    return true;
-  });
-
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto px-4 pt-24 pb-12">
-        <h1 className="text-2xl font-display font-bold text-foreground mb-6">Explorar Mesas</h1>
-        <div className="flex flex-wrap gap-3 mb-8">
-          <div className="relative flex-1 min-w-[200px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Buscar por nome ou cidade..." className="w-full rounded-lg border border-border bg-card pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" />
-          </div>
-          <select value={system} onChange={(e) => setSystem(e.target.value)} className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-            <option value="">Todos os sistemas</option>
-            {RPG_SYSTEMS.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select value={format} onChange={(e) => setFormat(e.target.value)} className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
-            <option value="">Todos os formatos</option>
-            <option value="presencial">Presencial</option>
-            <option value="online">Online</option>
-            <option value="híbrido">Híbrido</option>
-          </select>
+      <div className="container mx-auto max-w-5xl px-4 pt-24 pb-12">
+        <h1 className="text-3xl font-display font-bold text-foreground mb-2">Buscar Mesas</h1>
+        <p className="text-muted-foreground mb-8">Encontre a mesa perfeita para você.</p>
+
+        <div className="rounded-xl border border-dashed border-border bg-card/50 p-12 text-center">
+          <Search className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+          <p className="text-muted-foreground">Nenhuma mesa disponível no momento. Volte em breve!</p>
         </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {filtered.map((t) => <TableCard key={t.id} table={t} />)}
-        </div>
-        {filtered.length === 0 && <p className="text-center text-muted-foreground mt-12">Nenhuma mesa encontrada.</p>}
       </div>
       <Footer />
     </div>

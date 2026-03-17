@@ -2,6 +2,7 @@ import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
+import { useAuth } from "@/contexts/AuthContext";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 interface NavItem {
@@ -28,9 +29,10 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { signOut } = useAuth();
 
-  const handleLogout = () => {
-    localStorage.removeItem("hivium_user");
+  const handleLogout = async () => {
+    await signOut();
     navigate("/");
   };
 
