@@ -11,3 +11,5 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = true
   [functions.send-booking-confirmation]
     verify_jwt = false
+  [functions.stripe-webhook]
+    verify_jwt = false
