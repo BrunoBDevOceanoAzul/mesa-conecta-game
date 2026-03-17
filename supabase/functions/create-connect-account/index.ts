@@ -105,7 +105,7 @@ serve(async (req) => {
     }
 
     // Create Stripe Connect Express account
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const account = await stripe.accounts.create({
       type: "express",
