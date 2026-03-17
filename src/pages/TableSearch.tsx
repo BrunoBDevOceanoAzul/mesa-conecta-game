@@ -1,4 +1,5 @@
-import { mockTables, SYSTEMS } from "@/data/mock";
+import { mockTables } from "@/data/mock";
+import { RPG_SYSTEMS } from "@/data/rpg-systems";
 import { TableCard } from "@/components/shared/TableCard";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
