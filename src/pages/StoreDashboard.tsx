@@ -69,7 +69,6 @@ export default function StoreDashboard() {
   const navigate = useNavigate();
   const sub = useSubscription();
   const displayName = user?.user_metadata?.name || "Luderia";
-  const displayName = user?.user_metadata?.name || "Luderia";
   const [tab, setTab] = useState<Tab>("overview");
 
   const [store, setStore] = useState<StoreData | null>(null);
