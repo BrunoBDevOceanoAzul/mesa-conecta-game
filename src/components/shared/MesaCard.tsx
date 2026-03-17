@@ -40,7 +40,7 @@ const sessionMap: Record<string, string> = {
   evento: "Evento",
 };
 
-export function MesaCard({ mesa, matchScore }: MesaCardProps) {
+export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCardProps) {
   const navigate = useNavigate();
   const date = new Date(mesa.start_at);
   const formattedDate = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
