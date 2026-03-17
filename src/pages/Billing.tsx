@@ -299,8 +299,9 @@ export default function Billing() {
                   )}
 
                   {sub.status === "past_due" && (
-                    <Button variant="default" size="default" className="gap-2 bg-destructive hover:bg-destructive/90">
-                      <CreditCard className="h-4 w-4" /> Atualizar pagamento
+                    <Button variant="default" size="default" className="gap-2 bg-destructive hover:bg-destructive/90" onClick={handleManageSubscription} disabled={actionLoading}>
+                      {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard className="h-4 w-4" />}
+                      Atualizar pagamento
                     </Button>
                   )}
                 </div>
