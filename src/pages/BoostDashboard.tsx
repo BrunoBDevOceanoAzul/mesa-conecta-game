@@ -143,17 +143,30 @@ export default function BoostDashboard() {
       return;
     }
 
-    const { error: campError } = await supabase.from("boost_campaigns").insert({
+    const campaignSource = useFounderFree ? "founder_free" : "paid_credit";
+
+    const { data: campData, error: campError } = await supabase.from("boost_campaigns").insert({
       user_id: user.id,
       target_type: "mesa",
       target_id: selectedMesa,
       target_title: mesa.title,
       budget_credits: useFounderFree ? 0 : campaignBudget,
       is_founder_benefit: useFounderFree,
+      campaign_source: campaignSource,
+      duration_days: 7,
       segment_city: segmentCity || null,
-    });
+    }).select("id").single();
 
-    if (!campError) {
+    if (!campError && campData) {
+      // Log usage
+      await supabase.from("boost_usage_logs").insert({
+        user_id: user.id,
+        boost_campaign_id: campData.id,
+        usage_type: useFounderFree ? "free_monthly_boost" : "paid_boost",
+        credits_spent: useFounderFree ? 0 : campaignBudget,
+        founder_benefit_used: useFounderFree,
+      });
+
       if (useFounderFree) {
         // Increment founder usage
         const currentUsed = await supabase.from("credit_wallets").select("free_boosts_used_current_month").eq("user_id", user.id).maybeSingle();
@@ -165,6 +178,7 @@ export default function BoostDashboard() {
           amount: 0,
           type: "founder_grant",
           description: `Destaque Founder: ${mesa.title}`,
+          reference_id: campData.id,
         });
       } else {
         await supabase.from("credit_wallets").update({ balance: walletBalance - campaignBudget }).eq("user_id", user.id);
@@ -173,15 +187,18 @@ export default function BoostDashboard() {
           amount: -campaignBudget,
           type: "spend",
           description: `Destaque: ${mesa.title}`,
+          reference_id: campData.id,
         });
       }
-      toast({ title: "Destaque ativado! ✨", description: useFounderFree ? "Founder Benefit aplicado!" : `${campaignBudget} créditos investidos.` });
+      toast({ title: "Destaque ativado! ✨", description: useFounderFree ? "Benefício Founder aplicado!" : `${campaignBudget} créditos investidos.` });
       setSelectedMesa("");
       setCampaignBudget(10);
       setSegmentCity("");
       setTab("campaigns");
       fetchData();
       eligibility.refresh();
+    } else if (campError) {
+      toast({ title: "Erro ao ativar destaque", description: campError.message, variant: "destructive" });
     }
   }
 

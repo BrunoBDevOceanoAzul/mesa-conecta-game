@@ -7,6 +7,7 @@ export type BoostEligibilityStatus =
   | "eligible_founder_free"     // Can boost free (founder with remaining grants)
   | "eligible_founder_exhausted" // Founder but monthly grants used up
   | "eligible_founder_expired"  // Was founder but 3-month window ended
+  | "eligible_store_with_plan"  // Store with active plan (no founder)
   | "no_plan"                   // Eligible role but no active subscription
   | "not_eligible"              // Wrong role (player, brand, not logged in)
   | "loading";
@@ -14,6 +15,7 @@ export type BoostEligibilityStatus =
 export interface BoostEligibility {
   status: BoostEligibilityStatus;
   canBoost: boolean;
+  canPurchaseCredits: boolean;
   isFounder: boolean;
   founderRank: number | null;
   founderFreeRemaining: number;
@@ -35,6 +37,7 @@ export function useBoostEligibility(): BoostEligibility {
   const [state, setState] = useState<Omit<BoostEligibility, "refresh">>({
     status: "loading",
     canBoost: false,
+    canPurchaseCredits: false,
     isFounder: false,
     founderRank: null,
     founderFreeRemaining: 0,
@@ -62,11 +65,13 @@ export function useBoostEligibility(): BoostEligibility {
     const role = profileRes.data?.role;
     const isGmOrStore = role === "gm" || role === "store";
 
+    // Not eligible: player, brand, or unknown role
     if (!isGmOrStore) {
       setState((s) => ({
         ...s,
         status: "not_eligible",
         canBoost: false,
+        canPurchaseCredits: false,
         userRole: role || null,
         loading: false,
       }));
@@ -76,6 +81,25 @@ export function useBoostEligibility(): BoostEligibility {
     const subscription = subRes.data;
     const hasActivePlan = !!subscription && new Date(subscription.current_period_end) > new Date();
     const wallet = walletRes.data;
+
+    // No active plan — blocked
+    if (!hasActivePlan) {
+      setState({
+        status: "no_plan",
+        canBoost: false,
+        canPurchaseCredits: false,
+        isFounder: false,
+        founderRank: null,
+        founderFreeRemaining: 0,
+        founderExpiresAt: null,
+        walletBalance: wallet?.balance || 0,
+        hasActivePlan: false,
+        planName: null,
+        userRole: role,
+        loading: false,
+      });
+      return;
+    }
 
     // Check founder status (only for GMs)
     const isFounder = role === "gm" && !!wallet?.is_founder;
@@ -108,8 +132,9 @@ export function useBoostEligibility(): BoostEligibility {
     let status: BoostEligibilityStatus;
     let canBoost = false;
 
-    if (!hasActivePlan) {
-      status = "no_plan";
+    if (role === "store") {
+      status = "eligible_store_with_plan";
+      canBoost = true;
     } else if (isFounder && founderActive && founderFreeRemaining > 0) {
       status = "eligible_founder_free";
       canBoost = true;
@@ -127,6 +152,7 @@ export function useBoostEligibility(): BoostEligibility {
     setState({
       status,
       canBoost,
+      canPurchaseCredits: true, // Has active plan, can always buy credits
       isFounder,
       founderRank,
       founderFreeRemaining,
