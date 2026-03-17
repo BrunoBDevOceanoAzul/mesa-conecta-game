@@ -288,18 +288,12 @@ export default function Billing() {
 
                   {sub.status === "active" && (
                     <>
-                      <Button variant="outline" size="default" className="gap-2 border-secondary/30 text-secondary hover:bg-secondary/10" onClick={() => setTab("plans")}>
-                        <ArrowUpRight className="h-4 w-4" /> Alterar plano
+                      <Button variant="outline" size="default" className="gap-2 border-secondary/30 text-secondary hover:bg-secondary/10" onClick={handleManageSubscription} disabled={actionLoading}>
+                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
+                        Gerenciar assinatura
                       </Button>
-                      <Button
-                        variant="ghost"
-                        size="default"
-                        className="gap-2 text-muted-foreground hover:text-destructive hover:bg-destructive/5"
-                        onClick={handleCancel}
-                        disabled={actionLoading}
-                      >
-                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
-                        Cancelar ao fim do ciclo
+                      <Button variant="outline" size="default" className="gap-2" onClick={() => setTab("plans")}>
+                        <Sparkles className="h-4 w-4" /> Ver planos
                       </Button>
                     </>
                   )}
