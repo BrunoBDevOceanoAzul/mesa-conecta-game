@@ -9,12 +9,12 @@ const profiles = [
     icon: Gamepad2,
     title: "Jogadores",
     headline: "Sua próxima mesa já sabe combinar com você.",
-    description: "Responda a anamnese. O sistema entende seu estilo, seus sistemas favoritos e entrega matches com score de compatibilidade real.",
+    description: "Responda a calibração. HIVIUM entende seu estilo, seus sistemas favoritos e entrega matches com score de compatibilidade real.",
     features: [
       "Matchmaking inteligente por estilo e cidade",
-      "Score de compatibilidade visível em cada mesa",
+      "Score de aderência visível em cada mesa",
       "Reserva com 2 cliques",
-      "Recomendações que melhoram com o tempo",
+      "Recomendações curadas que melhoram com o tempo",
     ],
     cta: "Encontrar mesas",
     ctaPath: "/buscar",
@@ -27,12 +27,12 @@ const profiles = [
     icon: Crown,
     title: "Mestres",
     headline: "Menos tempo vendendo vaga. Mais tempo narrando.",
-    description: "CRM nativo, calculadora de preço, analytics de campanha e impulsionamento. Tudo que um mestre profissional precisa.",
+    description: "CRM nativo, calculadora de valor, analytics de campanha e destaque no feed. Tudo que um mestre profissional precisa.",
     features: [
       "CRM com leads, tags e histórico",
       "Calculadora de valor por sessão",
       "Analytics: impressões, cliques, CTR",
-      "Impulsionamento por créditos no feed",
+      "Destaque por créditos no feed",
     ],
     cta: "Criar perfil de mestre",
     ctaPath: "/cadastro",
@@ -94,7 +94,7 @@ export function ProfilesSection() {
         >
           <span className="section-label">Para quem é</span>
           <h2 className="section-heading">
-            Um produto. <span className="gradient-text">Quatro poderes.</span>
+            Um ecossistema. <span className="gradient-text">Quatro domínios.</span>
           </h2>
           <p className="section-subheading mt-5">
             Cada perfil tem ferramentas sob medida. Nada genérico, nada sobrando.

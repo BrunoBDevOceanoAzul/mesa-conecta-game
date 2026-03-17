@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/data/mock";
-import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import logoImg from "@/assets/hivium-logo.png";
 import { motion, AnimatePresence } from "framer-motion";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -127,14 +127,14 @@ export default function Signup() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
-            <span className="font-display font-bold text-base text-foreground">Sócio do <span className="text-primary">Tabuleiro</span></span>
+            <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
+            <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">
             {step === "info" ? "Crie sua conta" : "Escolha seu perfil"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {step === "info" ? "Junte-se à comunidade de RPG que mais cresce no Brasil." : "Isso define sua experiência. Pode mudar depois."}
+            {step === "info" ? "Junte-se ao ecossistema tabletop mais inteligente do Brasil." : "Isso define sua experiência. Pode mudar depois."}
           </p>
         </div>
 

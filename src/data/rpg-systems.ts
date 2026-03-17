@@ -1,5 +1,5 @@
-// Complete list of RPG systems for Sócio do Tabuleiro
-// This will be synced to the database with vector embeddings for semantic search
+// Complete list of RPG systems for HIVIUM
+// Will be synced to the database with vector embeddings for semantic search
 
 export const RPG_SYSTEMS: string[] = [
   "13th Age",

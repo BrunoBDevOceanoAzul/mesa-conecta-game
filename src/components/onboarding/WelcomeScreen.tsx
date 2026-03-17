@@ -22,14 +22,14 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           animate={{ scale: 1, opacity: 0.06 }}
           transition={{ duration: 1.5 }}
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, hsl(270 55% 50%), transparent 70%)" }}
         />
         <motion.div
           initial={{ scale: 0.7, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.04 }}
           transition={{ duration: 2, delay: 0.5 }}
           className="absolute bottom-1/4 right-1/4 w-[350px] h-[350px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(38 88% 55%), transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, hsl(42 80% 52%), transparent 70%)" }}
         />
       </div>
 
@@ -51,7 +51,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="text-3xl md:text-4xl font-display font-bold text-foreground leading-[1.15] tracking-tight"
         >
-          Vamos personalizar
+          Vamos calibrar
           <br />
           <span className="gradient-text">sua experiência</span>
         </motion.h1>
@@ -62,7 +62,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           transition={{ delay: 0.6, duration: 0.6 }}
           className="mt-5 text-muted-foreground text-[15px] leading-relaxed max-w-sm mx-auto"
         >
-          Em poucos passos, a Hivium entende seu estilo e organiza a experiência ideal para você.
+          Em poucos passos, a HIVIUM entende seu estilo e organiza a experiência ideal para você.
         </motion.p>
 
         <motion.div

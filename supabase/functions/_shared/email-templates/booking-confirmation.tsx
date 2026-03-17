@@ -50,7 +50,7 @@ export function BookingConfirmation({
         <Container style={container}>
           {logoUrl && (
             <Section style={logoSection}>
-              <Img src={logoUrl} width="48" height="48" alt="MesaNexo" style={logo} />
+              <Img src={logoUrl} width="48" height="48" alt="HIVIUM" style={logo} />
             </Section>
           )}
 
@@ -117,7 +117,7 @@ export function BookingConfirmation({
 
           <Section style={footerSection}>
             <Text style={footerText}>
-              MesaNexo — A plataforma que conecta sua mesa ao jogador certo.
+              HIVIUM — A plataforma que conecta sua mesa ao jogador certo.
             </Text>
             <Text style={footerLink}>
               <a href={siteUrl} style={linkStyle}>sociodotabuleiro.app.br</a>

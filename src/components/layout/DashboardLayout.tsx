@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
 import { useAuth } from "@/contexts/AuthContext";
-import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import logoImg from "@/assets/hivium-logo.png";
 
 interface NavItem {
   label: string;
@@ -42,8 +42,8 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
       <aside className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
         <div className="flex h-14 items-center justify-between px-4 border-b border-border">
           <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-7 w-7 object-contain" />
-            <span className="font-display font-semibold text-foreground text-xs">Sócio do <span className="text-primary">Tabuleiro</span></span>
+            <img src={logoImg} alt="HIVIUM" className="h-7 w-7 object-contain" />
+            <span className="font-display font-bold text-xs gradient-text">HIVIUM</span>
           </button>
           <button className="lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
             <X className="h-5 w-5" />

@@ -124,7 +124,7 @@ export default function PlayerDashboard() {
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-display font-semibold text-foreground flex items-center gap-2">
               <Sparkles className="h-5 w-5 text-primary" />
-              Recomendadas para você
+              Curadas para você
             </h2>
             <Button variant="ghost" size="sm" onClick={() => navigate("/explorar")} className="text-primary">
               Ver todas →
