@@ -77,8 +77,10 @@ function StatCard({ icon, label, value, trend }: { icon: React.ReactNode; label:
 export default function GMDashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const sub = useSubscription();
   const [tab, setTab] = useState<Tab>("overview");
   const displayName = user?.user_metadata?.name || "Mestre";
+  const isPremium = sub.isActive;
 
   // Real mesas
   const [mesas, setMesas] = useState<Mesa[]>([]);
