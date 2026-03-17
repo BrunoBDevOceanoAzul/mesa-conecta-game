@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { MesaCard } from "@/components/shared/MesaCard";
@@ -50,6 +51,9 @@ export default function ExploreMesas() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loading, setLoading] = useState(true);
   const { preferences } = useUserPreferences();
+  const { user } = useAuth();
+  const [boostedMesaIds, setBoostedMesaIds] = useState<Set<string>>(new Set());
+  const [founderMesaIds, setFounderMesaIds] = useState<Set<string>>(new Set());
 
   // Filters
   const [searchQuery, setSearchQuery] = useState("");
@@ -64,13 +68,28 @@ export default function ExploreMesas() {
   useEffect(() => {
     async function fetchMesas() {
       setLoading(true);
-      const { data } = await supabase
-        .from("mesas")
-        .select("*")
-        .eq("status", "aberta")
-        .gte("start_at", new Date().toISOString())
-        .order("start_at", { ascending: true });
-      setMesas((data as Mesa[]) || []);
+      const [mesasRes, boostRes] = await Promise.all([
+        supabase
+          .from("mesas")
+          .select("*")
+          .eq("status", "aberta")
+          .gte("start_at", new Date().toISOString())
+          .order("start_at", { ascending: true }),
+        supabase
+          .from("boost_campaigns")
+          .select("target_id, is_founder_benefit")
+          .eq("target_type", "mesa")
+          .eq("status", "active"),
+      ]);
+      setMesas((mesasRes.data as Mesa[]) || []);
+      const boosted = new Set<string>();
+      const founder = new Set<string>();
+      (boostRes.data || []).forEach((c: any) => {
+        boosted.add(c.target_id);
+        if (c.is_founder_benefit) founder.add(c.target_id);
+      });
+      setBoostedMesaIds(boosted);
+      setFounderMesaIds(founder);
       setLoading(false);
     }
     fetchMesas();
@@ -346,7 +365,13 @@ export default function ExploreMesas() {
             </p>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filteredAndScored.map(({ mesa, matchScore }) => (
-                <MesaCard key={mesa.id} mesa={mesa} matchScore={matchScore} />
+                <MesaCard
+                  key={mesa.id}
+                  mesa={mesa}
+                  matchScore={matchScore}
+                  sponsored={boostedMesaIds.has(mesa.id)}
+                  founderBenefit={founderMesaIds.has(mesa.id)}
+                />
               ))}
             </div>
           </>
