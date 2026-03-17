@@ -429,6 +429,10 @@ export default function Admin() {
         {/* ─── GAMIFICATION ─── */}
         {tab === "gamification" && (
           <div className="space-y-6">
+            {/* Config Editor */}
+            <GamificationConfig />
+
+            <div className="border-t border-border pt-6" />
             <div>
               <h2 className="text-base font-display font-semibold text-foreground mb-3 flex items-center gap-2">
                 <Trophy className="h-4 w-4 text-secondary" /> Ranking de Mestres por XP
