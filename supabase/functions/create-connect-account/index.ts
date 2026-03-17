@@ -28,6 +28,12 @@ serve(async (req) => {
   try {
     logStep("Function started");
 
+    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
+    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceKey) throw new Error("Supabase env vars missing");
+
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
 
@@ -65,7 +71,7 @@ serve(async (req) => {
 
       // Generate a fresh onboarding link if not yet verified
       if (existing.onboarding_status !== "verified") {
-        const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
         const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
 
         const accountLink = await stripe.accountLinks.create({
@@ -99,7 +105,7 @@ serve(async (req) => {
     }
 
     // Create Stripe Connect Express account
-    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
     const account = await stripe.accounts.create({
       type: "express",

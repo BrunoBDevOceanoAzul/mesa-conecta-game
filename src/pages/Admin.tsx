@@ -14,8 +14,9 @@ import {
 import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
+import { GoLiveChecklist } from "@/components/admin/GoLiveChecklist";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons" | "golive";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
@@ -325,6 +326,7 @@ export default function Admin() {
     { key: "founders", label: "Founders", icon: <Gift className="h-4 w-4" /> },
     { key: "eligibility", label: "Elegibilidade", icon: <Sparkles className="h-4 w-4" /> },
     { key: "campaigns", label: "Destaques", icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "golive", label: "Go-Live", icon: <CheckCircle2 className="h-4 w-4" /> },
   ];
 
   return (
@@ -817,6 +819,11 @@ export default function Admin() {
         {/* ─── COUPONS ─── */}
         {tab === "coupons" && (
           <CouponManager />
+        )}
+
+        {/* ─── GO-LIVE CHECKLIST ─── */}
+        {tab === "golive" && (
+          <GoLiveChecklist />
         )}
       </div>
     </DashboardLayout>
