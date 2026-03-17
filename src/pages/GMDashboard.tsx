@@ -344,64 +344,21 @@ export default function GMDashboard() {
 
         {/* ─── CALCULATOR ─── */}
         {tab === "calc" && (
-          <div className="max-w-2xl space-y-5">
-            <div>
-              <h2 className="text-base font-display font-semibold text-foreground">Calculadora de Valor Mínimo</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">Descubra quanto cobrar por sessão para que seu trabalho seja valorizado.</p>
-            </div>
-
-            {/* Presets */}
-            <div className="flex gap-2">
-              {calcPresets.map((p, idx) => (
-                <button
-                  key={p.label}
-                  onClick={() => applyPreset(idx)}
-                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
-                    activePreset === idx
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
-                  }`}
-                >
-                  <Zap className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
-                  {p.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="rounded-xl border border-border bg-card overflow-hidden">
-              {/* Inputs */}
-              <div className="p-6 space-y-4">
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <CalcInput label="Horas de preparação" value={prepHours} onChange={(v) => { setPrepHours(v); setActivePreset(null); }} min={0} max={20} suffix="h" />
-                  <CalcInput label="Duração da sessão" value={sessionHours} onChange={(v) => { setSessionHours(v); setActivePreset(null); }} min={1} max={12} suffix="h" />
-                  <CalcInput label="Valor-hora desejado" value={hourlyRate} onChange={(v) => { setHourlyRate(v); setActivePreset(null); }} min={10} max={500} prefix="R$" />
-                  <CalcInput label="Jogadores esperados" value={players} onChange={(v) => { setPlayers(v); setActivePreset(null); }} min={2} max={12} />
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
-                  <span className="text-xs text-muted-foreground">Margem da plataforma</span>
-                  <span className="text-sm font-semibold text-foreground">{platformFee}%</span>
-                </div>
-              </div>
-
-              {/* Results */}
-              <div className="border-t border-border bg-muted/20 p-6 space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-foreground">Valor mínimo da sessão</span>
-                  <span className="text-2xl font-display font-bold text-primary">
-                    R${withFee.toFixed(2).replace(".", ",")}
-                  </span>
-                </div>
-                <div className="grid grid-cols-3 gap-3">
-                  <ResultPill label="4 jogadores" value={`R$${perPlayer4.toFixed(2).replace(".", ",")}`} />
-                  <ResultPill label="5 jogadores" value={`R$${perPlayer5.toFixed(2).replace(".", ",")}`} />
-                  <ResultPill label={`${players} jogadores`} value={`R$${perPlayerCustom.toFixed(2).replace(".", ",")}`} highlight />
-                </div>
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Fórmula: (prep + sessão) × valor/h × (1 + margem). Valores sugeridos — ajuste conforme sua experiência e mercado local.
-                </p>
-              </div>
-            </div>
+          <div className="max-w-4xl">
+            <PricingCalculator />
           </div>
+        )}
+
+        {/* ─── ANALYTICS ─── */}
+        {tab === "analytics" && (
+          <PremiumGate
+            feature="Atribuição por Canal"
+            description="Veja de onde vêm suas visitas e reservas. Recurso para assinantes."
+            allowed={isPremium}
+            loading={sub.loading}
+          >
+            <ShareAnalyticsPanel />
+          </PremiumGate>
         )}
       </div>
     </DashboardLayout>
