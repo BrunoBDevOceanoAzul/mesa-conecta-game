@@ -4,7 +4,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium font-body transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium font-body transition-all duration-300 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
@@ -25,7 +25,13 @@ const buttonVariants = cva(
         accent:
           "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90",
         gradient:
-          "text-primary-foreground shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98]",
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.08]",
+        "gradient-subtle":
+          "text-primary-foreground shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] border border-white/[0.06]",
+        "gradient-premium":
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.1]",
+        "gradient-founder":
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.1] font-bold",
         success:
           "bg-success text-success-foreground shadow-sm hover:bg-success/90",
       },
@@ -45,6 +51,33 @@ const buttonVariants = cva(
   }
 );
 
+const gradientStyles: Record<string, React.CSSProperties> = {
+  gradient: {
+    backgroundImage:
+      "linear-gradient(135deg, hsl(272 48% 42%) 0%, hsl(280 44% 52%) 40%, hsl(310 36% 48%) 70%, hsl(38 62% 56%) 100%)",
+    backgroundSize: "200% 200%",
+    backgroundPosition: "0% 50%",
+  },
+  "gradient-subtle": {
+    backgroundImage:
+      "linear-gradient(135deg, hsl(272 42% 38%) 0%, hsl(285 38% 46%) 50%, hsl(42 50% 50%) 100%)",
+    backgroundSize: "200% 200%",
+    backgroundPosition: "0% 50%",
+  },
+  "gradient-premium": {
+    backgroundImage:
+      "linear-gradient(135deg, hsl(265 50% 36%) 0%, hsl(280 48% 48%) 35%, hsl(320 32% 44%) 65%, hsl(40 70% 58%) 100%)",
+    backgroundSize: "200% 200%",
+    backgroundPosition: "0% 50%",
+  },
+  "gradient-founder": {
+    backgroundImage:
+      "linear-gradient(135deg, hsl(42 72% 48%) 0%, hsl(32 78% 50%) 40%, hsl(280 42% 48%) 80%, hsl(265 48% 42%) 100%)",
+    backgroundSize: "200% 200%",
+    backgroundPosition: "0% 50%",
+  },
+};
+
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {
@@ -55,12 +88,8 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, style, ...props }, ref) => {
     const Comp = asChild ? Slot : "button";
     const gradientStyle =
-      variant === "gradient"
-        ? {
-            backgroundImage:
-              "linear-gradient(135deg, hsl(270 52% 48%), hsl(42 78% 50%))",
-            ...style,
-          }
+      variant && gradientStyles[variant]
+        ? { ...gradientStyles[variant], ...style }
         : style;
     return (
       <Comp
