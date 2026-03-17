@@ -820,6 +820,11 @@ export default function Admin() {
         {tab === "coupons" && (
           <CouponManager />
         )}
+
+        {/* ─── GO-LIVE CHECKLIST ─── */}
+        {tab === "golive" && (
+          <GoLiveChecklist />
+        )}
       </div>
     </DashboardLayout>
   );
