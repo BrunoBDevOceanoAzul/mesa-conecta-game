@@ -1,35 +1,57 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const navLinks = [
-  { label: "Como funciona", href: "#como-funciona" },
-  { label: "Perfis", href: "#perfis" },
+  { label: "Início", href: "/" },
+  { label: "Explorar Mesas", href: "/buscar" },
+  { label: "Para Mestres", href: "#mestres" },
+  { label: "Para Lojas", href: "#lojas" },
   { label: "Planos", href: "#planos" },
-  { label: "FAQ", href: "#faq" },
 ];
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
+  const isHome = location.pathname === "/";
+
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("#")) {
+      if (!isHome) {
+        navigate("/" + href);
+      }
+      // scroll handled by anchor
+    } else {
+      navigate(href);
+    }
+    setOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <button onClick={() => navigate("/")} className="flex items-center gap-2">
           <div className="h-8 w-8 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-sm" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>
-            M
+            H
           </div>
           <span className="font-display font-bold text-lg text-foreground">
-            Mesa<span className="text-primary">Nexo</span>
+            Hiv<span className="text-primary">ium</span>
           </span>
         </button>
 
         {/* Desktop */}
         <div className="hidden md:flex items-center gap-6">
           {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="text-sm text-muted-foreground hover:text-foreground transition-colors">
+            <a
+              key={l.href}
+              href={l.href.startsWith("#") ? l.href : undefined}
+              onClick={(e) => {
+                if (!l.href.startsWith("#")) { e.preventDefault(); handleNavClick(l.href); }
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
               {l.label}
             </a>
           ))}
@@ -40,7 +62,7 @@ export function Navbar() {
             Entrar
           </Button>
           <Button variant="hero" size="sm" onClick={() => navigate("/cadastro")}>
-            Quero entrar na MesaNexo
+            Começar grátis
           </Button>
         </div>
 
@@ -53,7 +75,15 @@ export function Navbar() {
       {open && (
         <div className="md:hidden glass border-t border-border px-4 pb-4">
           {navLinks.map((l) => (
-            <a key={l.href} href={l.href} className="block py-2 text-sm text-muted-foreground hover:text-foreground" onClick={() => setOpen(false)}>
+            <a
+              key={l.href}
+              href={l.href.startsWith("#") ? l.href : undefined}
+              onClick={(e) => {
+                if (!l.href.startsWith("#")) { e.preventDefault(); }
+                handleNavClick(l.href);
+              }}
+              className="block py-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+            >
               {l.label}
             </a>
           ))}
@@ -62,7 +92,7 @@ export function Navbar() {
               Entrar
             </Button>
             <Button variant="hero" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
-              Quero entrar na MesaNexo
+              Começar grátis
             </Button>
           </div>
         </div>
