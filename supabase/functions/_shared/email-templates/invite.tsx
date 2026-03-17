@@ -28,15 +28,15 @@ export const InviteEmail = ({
 }: InviteEmailProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Você foi convidado para o Sócio do Tabuleiro</Preview>
+    <Preview>Você foi convidado para o HIVIUM</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="Sócio do Tabuleiro" style={logo} />
+        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="HIVIUM" style={logo} />
         <Heading style={h1}>Você foi convidado! 🎉</Heading>
         <Text style={text}>
           Alguém te convidou para fazer parte do{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Sócio do Tabuleiro</strong>
+            <strong>HIVIUM</strong>
           </Link>
           . Clique no botão abaixo para aceitar o convite e criar sua conta.
         </Text>

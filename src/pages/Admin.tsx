@@ -18,7 +18,7 @@ export default function Admin() {
           <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" /> Painel Admin
           </h1>
-          <p className="text-muted-foreground mt-1">Gerencie a plataforma.</p>
+          <p className="text-muted-foreground mt-1">Gerencie a plataforma HIVIUM.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-4">
@@ -37,7 +37,7 @@ export default function Admin() {
 
         <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
           <Users className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-          <p className="text-muted-foreground text-sm">Painel admin será expandido conforme a plataforma crescer.</p>
+          <p className="text-muted-foreground text-sm">O painel operacional HIVIUM será expandido conforme a plataforma crescer.</p>
         </div>
       </div>
     </DashboardLayout>

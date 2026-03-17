@@ -135,8 +135,8 @@ export function calculateMatchScore(
 }
 
 export function getMatchLabel(score: number): string {
-  if (score >= 90) return "Match perfeito!";
-  if (score >= 80) return "Combina muito";
+  if (score >= 90) return "Curadoria perfeita";
+  if (score >= 80) return "Alta aderência";
   if (score >= 70) return "Boa combinação";
   if (score >= 55) return "Pode interessar";
   return "Explorar";

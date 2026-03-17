@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const siteUrl = "https://sociodotabuleiro.app.br";
+    const siteUrl = "https://hivium.app";
     const mesaUrl = mesaId ? `${siteUrl}/mesa/${mesaId}` : siteUrl;
 
     // Render the email template

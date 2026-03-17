@@ -30,13 +30,13 @@ export const EmailChangeEmail = ({
 }: EmailChangeEmailProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Confirme a alteração do seu email no Sócio do Tabuleiro</Preview>
+    <Preview>Confirme a alteração do seu email no HIVIUM</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="Sócio do Tabuleiro" style={logo} />
+        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="HIVIUM" style={logo} />
         <Heading style={h1}>Confirme a alteração do email</Heading>
         <Text style={text}>
-          Você solicitou a alteração do seu email no Sócio do Tabuleiro de{' '}
+          Você solicitou a alteração do seu email no HIVIUM de{' '}
           <Link href={`mailto:${email}`} style={link}>
             {email}
           </Link>{' '}

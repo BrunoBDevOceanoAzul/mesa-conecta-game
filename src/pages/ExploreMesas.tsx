@@ -182,7 +182,7 @@ export default function ExploreMesas() {
             <Compass className="h-8 w-8 text-primary" />
             Explorar Mesas
           </h1>
-          <p className="text-muted-foreground mt-2">Encontre a mesa perfeita para você. {preferences ? "Ordenado por compatibilidade." : "Faça login para ver seu score de match."}</p>
+          <p className="text-muted-foreground mt-2">Encontre a mesa perfeita para você. {preferences ? "Ordenado por aderência ao seu perfil." : "Faça login para ver sua curadoria personalizada."}</p>
         </div>
 
         {/* Search bar */}
