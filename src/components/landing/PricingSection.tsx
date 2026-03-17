@@ -57,15 +57,13 @@ const featureFlagLabel = (key: string, value: unknown): string => {
 
 // Determine highlight/badge based on sort_order (higher = premium)
 const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?: string }> = {
-  player_guild: { highlight: true },
-  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Inclui ferramentas de destaque e visibilidade" },
-  gm_pro: { boostNote: "Ferramentas de crescimento desbloqueadas" },
-  gm_pro_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
-  gm_pro_plus_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
-  store_growth: { highlight: true, badge: "Recomendado", boostNote: "Ferramentas de crescimento e visibilidade avançadas" },
-  store_base: { boostNote: "Acesso a ferramentas de destaque" },
-  store_base_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
-  store_growth_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
+  player_free: {},
+  player_adventurer: {},
+  player_guild: { highlight: true, badge: "Popular" },
+  gm_pro: { boostNote: "Take rate 5–10% por mesa" },
+  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Take rate 5–10% por mesa" },
+  store_base: { boostNote: "Take rate ~5% por reserva" },
+  store_growth: { highlight: true, badge: "Recomendado", boostNote: "Take rate ~3% por reserva" },
 };
 
 export function PricingSection() {
@@ -122,7 +120,7 @@ export function PricingSection() {
         </div>
 
         {/* Plans */}
-        <div className={`mx-auto grid gap-5 ${filtered.length <= 2 ? "max-w-3xl md:grid-cols-2" : "max-w-5xl md:grid-cols-2 lg:grid-cols-4"}`}>
+        <div className={`mx-auto grid gap-5 ${filtered.length <= 2 ? "max-w-3xl md:grid-cols-2" : "max-w-5xl md:grid-cols-3"}`}>
           {filtered.map((plan, i) => {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
@@ -153,20 +151,16 @@ export function PricingSection() {
                 )}
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="font-display text-4xl font-bold text-foreground">
-                    R${(plan.price_monthly / 100).toFixed(2).replace(".", ",")}
+                    {plan.price_monthly === 0 ? "Grátis" : `R$${(plan.price_monthly / 100).toFixed(2).replace(".", ",")}`}
                   </span>
-                  <span className="text-sm text-muted-foreground">/mês</span>
+                  {plan.price_monthly > 0 && (
+                    <span className="text-sm text-muted-foreground">/mês</span>
+                  )}
                 </div>
 
                 {plan.trial_days > 0 && (
                   <p className="text-xs text-primary font-medium mt-1">
                     {plan.trial_days} dias grátis para testar
-                  </p>
-                )}
-
-                {plan.is_founder_plan && (
-                  <p className="text-xs text-primary/80 font-medium mt-1">
-                    {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
                   </p>
                 )}
 
@@ -191,10 +185,9 @@ export function PricingSection() {
                   className="mt-8 w-full"
                   size="lg"
                   onClick={() => navigate("/cadastro")}
-                  disabled={plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total}
                 >
-                  {plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total
-                    ? "Esgotado"
+                  {plan.price_monthly === 0
+                    ? "Criar conta grátis"
                     : plan.trial_days > 0
                       ? "Testar grátis"
                       : "Começar agora"}{" "}
