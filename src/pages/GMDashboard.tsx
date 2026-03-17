@@ -204,22 +204,26 @@ export default function GMDashboard() {
               <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={isPremium ? `R$${estimatedRevenue.toFixed(0)}` : "🔒"} />
             </div>
 
-            {/* Quick mesas list */}
-            <div>
-              <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
-              {mesas.length === 0 ? (
-                <EmptyBlock
-                  icon={<Calendar className="h-10 w-10" />}
-                  text="Nenhuma mesa criada ainda."
-                  sub="Crie sua primeira mesa e comece a receber jogadores."
-                />
-              ) : (
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                  {mesas.slice(0, 6).map((m) => (
-                    <MesaMiniCard key={m.id} mesa={m} />
-                  ))}
-                </div>
-              )}
+            {/* Income Goal + Quick mesas list */}
+            <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
+              <IncomeGoalTracker />
+              <div>
+                <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
+                {mesas.length === 0 ? (
+                  <EmptyBlock
+                    icon={<Calendar className="h-10 w-10" />}
+                    text="Nenhuma mesa criada ainda."
+                    sub="Crie sua primeira mesa e comece a receber jogadores."
+                  />
+                ) : (
+                  <div className="grid gap-3">
+                    {mesas.slice(0, 4).map((m) => (
+                      <MesaMiniCard key={m.id} mesa={m} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
             </div>
           </div>
         )}
