@@ -24,7 +24,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export function ProgressionPanel() {
   const prog = useMasterProgression();
-
+  const { tiers } = useXpConfig();
   if (prog.loading) {
     return (
       <div className="space-y-4">
