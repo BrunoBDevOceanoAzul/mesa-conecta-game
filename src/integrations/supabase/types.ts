@@ -333,7 +333,15 @@ export type Database = {
       }
       profiles: {
         Row: {
+          availability_days: string[] | null
+          availability_times: string[] | null
           avatar_url: string | null
+          avoided_notes: string | null
+          badges: string[] | null
+          brand_audience: string[] | null
+          brand_budget: string | null
+          brand_category: string | null
+          brand_objective: string | null
           budget_range: string | null
           city: string | null
           created_at: string
@@ -342,15 +350,35 @@ export type Database = {
           id: string
           lat: number | null
           lng: number | null
+          max_players: number | null
+          mesa_formats: string[] | null
           name: string | null
+          narrative_styles: string[] | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
           play_styles: string[] | null
           preferred_format: string | null
           preferred_systems: string[] | null
+          role: string | null
+          session_format_pref: string | null
+          special_services: string[] | null
+          target_audience: string | null
+          themes_avoided: string[] | null
+          themes_liked: string[] | null
           updated_at: string
           user_id: string
+          years_mastering: string | null
         }
         Insert: {
+          availability_days?: string[] | null
+          availability_times?: string[] | null
           avatar_url?: string | null
+          avoided_notes?: string | null
+          badges?: string[] | null
+          brand_audience?: string[] | null
+          brand_budget?: string | null
+          brand_category?: string | null
+          brand_objective?: string | null
           budget_range?: string | null
           city?: string | null
           created_at?: string
@@ -359,15 +387,35 @@ export type Database = {
           id?: string
           lat?: number | null
           lng?: number | null
+          max_players?: number | null
+          mesa_formats?: string[] | null
           name?: string | null
+          narrative_styles?: string[] | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           play_styles?: string[] | null
           preferred_format?: string | null
           preferred_systems?: string[] | null
+          role?: string | null
+          session_format_pref?: string | null
+          special_services?: string[] | null
+          target_audience?: string | null
+          themes_avoided?: string[] | null
+          themes_liked?: string[] | null
           updated_at?: string
           user_id: string
+          years_mastering?: string | null
         }
         Update: {
+          availability_days?: string[] | null
+          availability_times?: string[] | null
           avatar_url?: string | null
+          avoided_notes?: string | null
+          badges?: string[] | null
+          brand_audience?: string[] | null
+          brand_budget?: string | null
+          brand_category?: string | null
+          brand_objective?: string | null
           budget_range?: string | null
           city?: string | null
           created_at?: string
@@ -376,22 +424,36 @@ export type Database = {
           id?: string
           lat?: number | null
           lng?: number | null
+          max_players?: number | null
+          mesa_formats?: string[] | null
           name?: string | null
+          narrative_styles?: string[] | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
           play_styles?: string[] | null
           preferred_format?: string | null
           preferred_systems?: string[] | null
+          role?: string | null
+          session_format_pref?: string | null
+          special_services?: string[] | null
+          target_audience?: string | null
+          themes_avoided?: string[] | null
+          themes_liked?: string[] | null
           updated_at?: string
           user_id?: string
+          years_mastering?: string | null
         }
         Relationships: []
       }
       stores: {
         Row: {
           address: string | null
+          amenities: string[] | null
           capacity: number | null
           city: string | null
           created_at: string
           description: string | null
+          game_catalog: string[] | null
           id: string
           lat: number | null
           lng: number | null
@@ -400,15 +462,18 @@ export type Database = {
           owner_id: string
           phone: string | null
           simultaneous_tables: number | null
+          ticket_avg: string | null
           updated_at: string
           website: string | null
         }
         Insert: {
           address?: string | null
+          amenities?: string[] | null
           capacity?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
+          game_catalog?: string[] | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -417,15 +482,18 @@ export type Database = {
           owner_id: string
           phone?: string | null
           simultaneous_tables?: number | null
+          ticket_avg?: string | null
           updated_at?: string
           website?: string | null
         }
         Update: {
           address?: string | null
+          amenities?: string[] | null
           capacity?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
+          game_catalog?: string[] | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -434,6 +502,7 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           simultaneous_tables?: number | null
+          ticket_avg?: string | null
           updated_at?: string
           website?: string | null
         }
