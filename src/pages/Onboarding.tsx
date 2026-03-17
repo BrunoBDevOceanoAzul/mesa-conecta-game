@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,8 +11,17 @@ import { ProfileSelect } from "@/components/onboarding/ProfileSelect";
 import { OnboardingStepView } from "@/components/onboarding/OnboardingStep";
 import { ReviewScreen } from "@/components/onboarding/ReviewScreen";
 import { ProfileMappedScreen } from "@/components/onboarding/ProfileMappedScreen";
+import { TransitionScreen } from "@/components/onboarding/TransitionScreen";
 
-type Phase = "welcome" | "profile" | "steps" | "review" | "mapped";
+type Phase =
+  | "welcome"
+  | "profile"
+  | "transition-start"
+  | "steps"
+  | "transition-review"
+  | "review"
+  | "transition-mapped"
+  | "mapped";
 
 export default function Onboarding() {
   const { role: paramRole } = useParams<{ role?: string }>();
@@ -50,7 +59,6 @@ export default function Onboarding() {
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (Object.keys(loaded).length > 0) setAnswers(loaded);
           if (data.role) setRole(data.role as RoleKey);
-          // Resume step if saved
           const step = (data as any).onboarding_step;
           if (typeof step === "number" && step > 0) setCurrent(step);
         }
@@ -66,12 +74,11 @@ export default function Onboarding() {
   const handleSelectRole = (r: RoleKey) => {
     setRole(r);
     setCurrent(0);
-    setPhase("steps");
+    setPhase("transition-start");
   };
 
   const goNext = () => {
     setDirection(1);
-    // Save progress
     saveProgress(current + 1);
     setCurrent((c) => c + 1);
   };
@@ -86,7 +93,7 @@ export default function Onboarding() {
   };
 
   const goToReview = () => {
-    setPhase("review");
+    setPhase("transition-review");
   };
 
   const goToStep = (idx: number) => {
@@ -94,29 +101,28 @@ export default function Onboarding() {
     setPhase("steps");
   };
 
-  // Save progress silently
   const saveProgress = async (stepNum: number) => {
     if (!user) return;
     try {
       await supabase
         .from("profiles")
-        .update({
-          onboarding_step: stepNum,
-          role,
-        } as any)
+        .update({ onboarding_step: stepNum, role } as any)
         .eq("user_id", user.id);
     } catch {
       // Silent
     }
   };
 
-  // Final save
   const finishOnboarding = async () => {
     if (!user) return;
     setSaving(true);
 
     try {
-      const badges = generateBadges(role, { ...answers, availability_days: availability.days, availability_times: availability.times });
+      const badges = generateBadges(role, {
+        ...answers,
+        availability_days: availability.days,
+        availability_times: availability.times,
+      });
       const badgeLabels = badges.map((b) => b.label);
 
       const profileData: Record<string, unknown> = {
@@ -157,7 +163,6 @@ export default function Onboarding() {
 
       if (error) throw error;
 
-      // If store role, also create/update store
       if (role === "loja") {
         const storeData: Record<string, unknown> = {
           owner_id: user.id,
@@ -173,7 +178,6 @@ export default function Onboarding() {
           game_catalog: answers.game_catalog || [],
         };
 
-        // Upsert store
         const { data: existing } = await supabase
           .from("stores")
           .select("id")
@@ -187,7 +191,7 @@ export default function Onboarding() {
         }
       }
 
-      setPhase("mapped");
+      setPhase("transition-mapped");
     } catch (err: any) {
       toast({
         title: "Erro ao salvar perfil",
@@ -222,6 +226,16 @@ export default function Onboarding() {
           <ProfileSelect key="profile" onSelect={handleSelectRole} />
         )}
 
+        {phase === "transition-start" && (
+          <TransitionScreen
+            key="transition-start"
+            headline="Vamos entender seu estilo"
+            subtext="Em poucos passos, a Hivium ajusta a experiência ao seu ritmo e ao tipo de mesa que faz sentido para você."
+            onComplete={() => setPhase("steps")}
+            duration={2400}
+          />
+        )}
+
         {phase === "steps" && step && (
           <OnboardingStepView
             key={`step-${step.id}`}
@@ -245,6 +259,16 @@ export default function Onboarding() {
           />
         )}
 
+        {phase === "transition-review" && (
+          <TransitionScreen
+            key="transition-review"
+            headline="Estamos quase lá"
+            subtext="Quanto melhor o mapeamento, melhores as recomendações."
+            onComplete={() => setPhase("review")}
+            duration={2000}
+          />
+        )}
+
         {phase === "review" && (
           <ReviewScreen
             key="review"
@@ -253,6 +277,16 @@ export default function Onboarding() {
             onEdit={goToStep}
             onConfirm={finishOnboarding}
             saving={saving}
+          />
+        )}
+
+        {phase === "transition-mapped" && (
+          <TransitionScreen
+            key="transition-mapped"
+            headline="Seu perfil está tomando forma"
+            subtext="Revise os principais pontos antes de concluir."
+            onComplete={() => setPhase("mapped")}
+            duration={2200}
           />
         )}
 
