@@ -262,8 +262,8 @@ export default function Onboarding() {
         {phase === "transition-review" && (
           <TransitionScreen
             key="transition-review"
-            headline="Estamos quase lá"
-            subtext="Quanto melhor o mapeamento, melhores as recomendações."
+            headline="Quase lá"
+            subtext="Quanto melhor a calibração, melhores as recomendações da HIVIUM."
             onComplete={() => setPhase("review")}
             duration={2000}
           />
