@@ -157,6 +157,19 @@ export function PricingSection() {
                   </span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
+
+                {plan.trial_days > 0 && (
+                  <p className="text-xs text-primary font-medium mt-1">
+                    {plan.trial_days} dias grátis para testar
+                  </p>
+                )}
+
+                {plan.is_founder_plan && (
+                  <p className="text-xs text-amber-500 font-medium mt-1">
+                    {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
+                  </p>
+                )}
+
                 <ul className="mt-8 space-y-3">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -178,8 +191,14 @@ export function PricingSection() {
                   className="mt-8 w-full"
                   size="lg"
                   onClick={() => navigate("/cadastro")}
+                  disabled={plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total}
                 >
-                  Começar agora <ArrowRight className="h-4 w-4" />
+                  {plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total
+                    ? "Esgotado"
+                    : plan.trial_days > 0
+                      ? "Testar grátis"
+                      : "Começar agora"}{" "}
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </motion.div>
             );
