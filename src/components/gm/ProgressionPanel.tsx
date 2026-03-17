@@ -1,5 +1,6 @@
 import { useMasterProgression } from "@/hooks/use-master-progression";
-import { XP_TIERS, RARITY_CONFIG, CATEGORY_LABELS } from "@/lib/xp-config";
+import { RARITY_CONFIG, CATEGORY_LABELS } from "@/lib/xp-config";
+import { useXpConfig } from "@/hooks/use-xp-config";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -23,7 +24,7 @@ const ICON_MAP: Record<string, React.ReactNode> = {
 
 export function ProgressionPanel() {
   const prog = useMasterProgression();
-
+  const { tiers } = useXpConfig();
   if (prog.loading) {
     return (
       <div className="space-y-4">
@@ -34,7 +35,7 @@ export function ProgressionPanel() {
     );
   }
 
-  const nextTier = XP_TIERS.find((t) => t.level === prog.tier.level + 1);
+  const nextTier = tiers.find((t) => t.level === prog.tier.level + 1);
 
   return (
     <div className="space-y-6">
@@ -79,7 +80,7 @@ export function ProgressionPanel() {
           <Star className="h-4 w-4 text-secondary" /> Hierarquia de Mestres
         </h3>
         <div className="space-y-2">
-          {XP_TIERS.map((t) => {
+          {tiers.map((t) => {
             const isActive = t.level === prog.tier.level;
             const isCompleted = t.level < prog.tier.level;
             return (

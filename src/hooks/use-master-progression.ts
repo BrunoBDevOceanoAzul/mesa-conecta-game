@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { getTierForXp, getXpProgress, getXpActionAmount, type XpTier } from "@/lib/xp-config";
+import { useXpConfig } from "@/hooks/use-xp-config";
+import type { XpTier } from "@/lib/xp-config";
 
 export interface BadgeDefinition {
   id: string;
@@ -50,6 +51,7 @@ export interface MasterProgressionState {
 
 export function useMasterProgression(): MasterProgressionState {
   const { user } = useAuth();
+  const { getTierForXp, getXpProgress, getXpActionAmount, loading: configLoading } = useXpConfig();
   const [loading, setLoading] = useState(true);
   const [totalXp, setTotalXp] = useState(0);
   const [level, setLevel] = useState(1);
