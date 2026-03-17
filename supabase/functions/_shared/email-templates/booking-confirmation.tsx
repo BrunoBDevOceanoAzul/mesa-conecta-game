@@ -50,7 +50,7 @@ export function BookingConfirmation({
         <Container style={container}>
           {logoUrl && (
             <Section style={logoSection}>
-              <Img src={logoUrl} width="48" height="48" alt="MesaNexo" style={logo} />
+              <Img src={logoUrl} width="48" height="48" alt="HIVIUM" style={logo} />
             </Section>
           )}
 
