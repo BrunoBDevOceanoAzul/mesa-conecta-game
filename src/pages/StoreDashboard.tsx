@@ -227,6 +227,19 @@ export default function StoreDashboard() {
         {/* ─── OVERVIEW ─── */}
         {tab === "overview" && (
           <div className="space-y-6">
+            {/* Subscription banner for non-subscribers */}
+            {!sub.loading && !sub.isActive && (
+              <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 flex items-center gap-3">
+                <Store className="h-5 w-5 text-primary shrink-0" />
+                <p className="text-sm text-muted-foreground flex-1">
+                  Ative seu plano para desbloquear agenda completa, analytics e destaque.
+                </p>
+                <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
+                  Ver planos <ArrowRight className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
+
             {/* Plan usage bar */}
             <div className="rounded-xl border border-border bg-card p-5">
               <div className="flex items-center justify-between mb-3">
