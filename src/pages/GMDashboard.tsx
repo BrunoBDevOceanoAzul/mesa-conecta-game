@@ -1,150 +1,497 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp, Megaphone } from "lucide-react";
-import { useState } from "react";
+import {
+  Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
+  Megaphone, Plus, Eye, MousePointerClick, DollarSign,
+  PieChart, Edit2, Trash2, ChevronDown, Calculator,
+  UserCheck, MessageSquare, Tag, Clock, Zap
+} from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { useNavigate } from "react-router-dom";
+import type { Tables } from "@/integrations/supabase/types";
+
+type Mesa = Tables<"mesas">;
 
 const navItems = [
   { label: "Início", path: "/dashboard/mestre", icon: <Crown className="h-4 w-4" /> },
-  { label: "Minhas Mesas", path: "/dashboard/mestre", icon: <Calendar className="h-4 w-4" /> },
-  { label: "CRM / Leads", path: "/dashboard/mestre", icon: <Users className="h-4 w-4" /> },
-  { label: "Analytics", path: "/dashboard/mestre", icon: <BarChart3 className="h-4 w-4" /> },
-  { label: "Impulsionar", path: "/dashboard/mestre", icon: <Megaphone className="h-4 w-4" /> },
-  { label: "Feed", path: "/feed", icon: <TrendingUp className="h-4 w-4" /> },
+  { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
+  { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
+
+type Tab = "overview" | "mesas" | "crm" | "calc";
+
+// Calculator presets
+const calcPresets = [
+  { label: "One-Shot", prepHours: 2, sessionHours: 4, hourlyRate: 30, players: 5 },
+  { label: "Campanha", prepHours: 3, sessionHours: 4, hourlyRate: 40, players: 5 },
+  { label: "Evento", prepHours: 4, sessionHours: 6, hourlyRate: 50, players: 6 },
+];
+
+// CRM lead stages
+const stageConfig: Record<string, { label: string; color: string }> = {
+  novo: { label: "Novo", color: "bg-blue-500/15 text-blue-400 border-blue-500/20" },
+  interessado: { label: "Interessado", color: "bg-secondary/15 text-secondary border-secondary/20" },
+  confirmado: { label: "Confirmado", color: "bg-green-500/15 text-green-400 border-green-500/20" },
+  recorrente: { label: "Recorrente", color: "bg-primary/15 text-primary border-primary/20" },
+};
+
+interface CRMLead {
+  id: string;
+  name: string;
+  stage: string;
+  tags: string[];
+  notes: string;
+  sourceMesa: string;
+  lastContact: string;
+}
+
+function StatCard({ icon, label, value, trend }: { icon: React.ReactNode; label: string; value: string; trend?: string }) {
+  return (
+    <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
+      <div className="flex items-start justify-between">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
+          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
+          {trend && (
+            <p className="mt-1 text-xs text-green-500 flex items-center gap-1">
+              <TrendingUp className="h-3 w-3" /> {trend}
+            </p>
+          )}
+        </div>
+        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+          {icon}
+        </div>
+      </div>
+      <div className="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-primary/40 to-secondary/40 opacity-0 transition-opacity group-hover:opacity-100" />
+    </div>
+  );
+}
 
 export default function GMDashboard() {
   const { user } = useAuth();
-  const [tab, setTab] = useState<"overview" | "crm" | "calc">("overview");
+  const navigate = useNavigate();
+  const [tab, setTab] = useState<Tab>("overview");
   const displayName = user?.user_metadata?.name || "Mestre";
 
-  // Calculator
+  // Real mesas
+  const [mesas, setMesas] = useState<Mesa[]>([]);
+  const [loadingMesas, setLoadingMesas] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("mesas")
+      .select("*")
+      .eq("gm_id", user.id)
+      .order("start_at", { ascending: false })
+      .then(({ data }) => {
+        setMesas(data || []);
+        setLoadingMesas(false);
+      });
+  }, [user]);
+
+  // Derived stats
+  const activeMesas = mesas.filter((m) => m.status === "aberta");
+  const totalSeats = mesas.reduce((s, m) => s + m.seats_total, 0);
+  const filledSeats = mesas.reduce((s, m) => s + (m.seats_total - m.seats_available), 0);
+  const occupancyRate = totalSeats > 0 ? Math.round((filledSeats / totalSeats) * 100) : 0;
+  const estimatedRevenue = mesas.reduce((s, m) => {
+    const filled = m.seats_total - m.seats_available;
+    return s + filled * (m.min_price || 0);
+  }, 0);
+
+  // Calculator state
   const [prepHours, setPrepHours] = useState(2);
   const [sessionHours, setSessionHours] = useState(4);
   const [hourlyRate, setHourlyRate] = useState(30);
   const [platformFee] = useState(15);
-  const [players, setPlayers] = useState(4);
+  const [players, setPlayers] = useState(5);
+  const [activePreset, setActivePreset] = useState<number | null>(null);
 
   const totalHours = prepHours + sessionHours;
   const baseCost = totalHours * hourlyRate;
   const withFee = baseCost * (1 + platformFee / 100);
   const perPlayer4 = withFee / 4;
   const perPlayer5 = withFee / 5;
+  const perPlayerCustom = withFee / (players || 1);
+
+  function applyPreset(idx: number) {
+    const p = calcPresets[idx];
+    setPrepHours(p.prepHours);
+    setSessionHours(p.sessionHours);
+    setHourlyRate(p.hourlyRate);
+    setPlayers(p.players);
+    setActivePreset(idx);
+  }
+
+  // Mock CRM leads (will be real when reservations exist)
+  const [leads] = useState<CRMLead[]>([]);
+
+  const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
+    { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
+    { key: "mesas", label: "Minhas Mesas", icon: <Calendar className="h-4 w-4" /> },
+    { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
+    { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
+  ];
 
   return (
     <DashboardLayout role="gm" navItems={navItems} userName={displayName}>
-      <div className="space-y-8">
-        <div className="flex items-center justify-between">
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">Painel do Mestre 👑</h1>
-            <p className="text-muted-foreground mt-1">Gerencie mesas, leads e métricas.</p>
+            <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
+              Painel do Mestre <Crown className="h-5 w-5 text-secondary" />
+            </h1>
+            <p className="text-sm text-muted-foreground mt-1">Gerencie mesas, leads e métricas do seu negócio.</p>
           </div>
-          <Button variant="hero" size="sm">+ Nova Mesa</Button>
+          <Button variant="hero" size="sm" className="gap-2 self-start">
+            <Plus className="h-4 w-4" /> Nova Mesa
+          </Button>
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-2">
-          {[
-            { key: "overview", label: "Visão Geral" },
-            { key: "crm", label: "CRM / Leads" },
-            { key: "calc", label: "Calculadora" },
-          ].map((t) => (
+        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
+          {tabs.map((t) => (
             <button
               key={t.key}
-              onClick={() => setTab(t.key as typeof tab)}
-              className={`rounded-lg px-4 py-2 text-sm font-medium transition-all ${
-                tab === t.key ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-card"
+              onClick={() => setTab(t.key)}
+              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
+                tab === t.key
+                  ? "bg-card text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
+              {t.icon}
               {t.label}
             </button>
           ))}
         </div>
 
+        {/* ─── OVERVIEW ─── */}
         {tab === "overview" && (
-          <>
-            <div className="grid gap-4 md:grid-cols-4">
-              {[
-                { label: "Mesas ativas", value: "0", icon: <Calendar className="h-5 w-5 text-primary" /> },
-                { label: "Leads totais", value: "0", icon: <Users className="h-5 w-5 text-secondary" /> },
-                { label: "Impressões (7d)", value: "0", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
-                { label: "Créditos", value: "0", icon: <CreditCard className="h-5 w-5 text-primary" /> },
-              ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">{s.icon}</div>
-                  <div>
-                    <div className="text-xl font-display font-bold text-foreground">{s.value}</div>
-                    <div className="text-xs text-muted-foreground">{s.label}</div>
-                  </div>
-                </div>
-              ))}
+          <div className="space-y-6">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+              <StatCard icon={<Calendar className="h-5 w-5" />} label="Mesas Ativas" value={String(activeMesas.length)} />
+              <StatCard icon={<UserCheck className="h-5 w-5" />} label="Reservas" value={String(filledSeats)} />
+              <StatCard icon={<PieChart className="h-5 w-5" />} label="Ocupação" value={`${occupancyRate}%`} />
+              <StatCard icon={<Eye className="h-5 w-5" />} label="Impressões (7d)" value="—" />
+              <StatCard icon={<MousePointerClick className="h-5 w-5" />} label="Cliques (7d)" value="—" />
+              <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={`R$${estimatedRevenue.toFixed(0)}`} />
             </div>
 
+            {/* Quick mesas list */}
             <div>
-              <h2 className="text-lg font-display font-semibold text-foreground mb-4">Minhas Mesas</h2>
-              <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
-                <Calendar className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-                <p className="text-muted-foreground text-sm">Nenhuma mesa criada ainda. Crie sua primeira mesa!</p>
-              </div>
-            </div>
-          </>
-        )}
-
-        {tab === "crm" && (
-          <div>
-            <h2 className="text-lg font-display font-semibold text-foreground mb-4">Leads e Jogadores</h2>
-            <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
-              <Users className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-              <p className="text-muted-foreground text-sm">Nenhum lead ainda. Os jogadores aparecerão aqui conforme se inscreverem nas suas mesas.</p>
+              <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
+              {mesas.length === 0 ? (
+                <EmptyBlock
+                  icon={<Calendar className="h-10 w-10" />}
+                  text="Nenhuma mesa criada ainda."
+                  sub="Crie sua primeira mesa e comece a receber jogadores."
+                />
+              ) : (
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {mesas.slice(0, 6).map((m) => (
+                    <MesaMiniCard key={m.id} mesa={m} />
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}
 
-        {tab === "calc" && (
-          <div className="max-w-lg">
-            <h2 className="text-lg font-display font-semibold text-foreground mb-4">Calculadora de Valor Mínimo</h2>
-            <div className="rounded-xl border border-border bg-card p-6 space-y-4">
-              {[
-                { label: "Horas de preparação", value: prepHours, set: setPrepHours, min: 0, max: 20 },
-                { label: "Duração da sessão (h)", value: sessionHours, set: setSessionHours, min: 1, max: 12 },
-                { label: "Valor-hora desejado (R$)", value: hourlyRate, set: setHourlyRate, min: 10, max: 200 },
-                { label: "Jogadores esperados", value: players, set: setPlayers, min: 2, max: 10 },
-              ].map((f) => (
-                <div key={f.label}>
-                  <label className="text-sm text-muted-foreground">{f.label}</label>
-                  <input
-                    type="number"
-                    min={f.min}
-                    max={f.max}
-                    value={f.value}
-                    onChange={(e) => f.set(Number(e.target.value))}
-                    className="mt-1 w-full rounded-lg border border-border bg-background px-4 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                  />
-                </div>
-              ))}
+        {/* ─── MESAS MANAGEMENT ─── */}
+        {tab === "mesas" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <h2 className="text-base font-display font-semibold text-foreground">Gestão de Mesas</h2>
+              <Button variant="hero" size="sm" className="gap-2">
+                <Plus className="h-4 w-4" /> Nova Mesa
+              </Button>
+            </div>
+            {loadingMesas ? (
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-40 rounded-xl bg-muted/50 animate-pulse" />
+                ))}
+              </div>
+            ) : mesas.length === 0 ? (
+              <EmptyBlock
+                icon={<Calendar className="h-10 w-10" />}
+                text="Nenhuma mesa encontrada."
+                sub="Crie mesas para que jogadores possam encontrá-las."
+              />
+            ) : (
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {mesas.map((m) => (
+                  <MesaManageCard key={m.id} mesa={m} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-              <div className="border-t border-border pt-4 space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Margem plataforma</span>
-                  <span className="text-sm text-foreground">{platformFee}%</span>
+        {/* ─── CRM ─── */}
+        {tab === "crm" && (
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-display font-semibold text-foreground">Mini CRM</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">Acompanhe leads e jogadores que interagiram com suas mesas.</p>
+              </div>
+            </div>
+
+            {/* Stage funnel */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {Object.entries(stageConfig).map(([key, cfg]) => {
+                const count = leads.filter((l) => l.stage === key).length;
+                return (
+                  <div key={key} className={`rounded-xl border p-4 text-center ${cfg.color}`}>
+                    <p className="text-2xl font-display font-bold">{count}</p>
+                    <p className="text-xs font-medium mt-1">{cfg.label}</p>
+                  </div>
+                );
+              })}
+            </div>
+
+            {leads.length === 0 ? (
+              <EmptyBlock
+                icon={<Users className="h-10 w-10" />}
+                text="Nenhum lead ainda."
+                sub="Jogadores aparecerão aqui conforme se inscreverem nas suas mesas."
+              />
+            ) : (
+              <div className="rounded-xl border border-border overflow-hidden">
+                <table className="w-full text-sm">
+                  <thead className="bg-muted/40">
+                    <tr>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Jogador</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Estágio</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Tags</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Mesa de Origem</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Observações</th>
+                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Contato</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {leads.map((lead) => (
+                      <tr key={lead.id} className="hover:bg-muted/30 transition-colors">
+                        <td className="px-4 py-3 font-medium text-foreground">{lead.name}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${stageConfig[lead.stage]?.color || ""}`}>
+                            {stageConfig[lead.stage]?.label || lead.stage}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          <div className="flex gap-1 flex-wrap">
+                            {lead.tags.map((t) => (
+                              <Badge key={t} variant="secondary" className="text-[10px]">{t}</Badge>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{lead.sourceMesa}</td>
+                        <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell truncate max-w-[180px]">{lead.notes}</td>
+                        <td className="px-4 py-3 text-xs text-muted-foreground">{lead.lastContact}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* ─── CALCULATOR ─── */}
+        {tab === "calc" && (
+          <div className="max-w-2xl space-y-5">
+            <div>
+              <h2 className="text-base font-display font-semibold text-foreground">Calculadora de Valor Mínimo</h2>
+              <p className="text-xs text-muted-foreground mt-0.5">Descubra quanto cobrar por sessão para que seu trabalho seja valorizado.</p>
+            </div>
+
+            {/* Presets */}
+            <div className="flex gap-2">
+              {calcPresets.map((p, idx) => (
+                <button
+                  key={p.label}
+                  onClick={() => applyPreset(idx)}
+                  className={`rounded-lg border px-4 py-2 text-sm font-medium transition-all ${
+                    activePreset === idx
+                      ? "border-primary bg-primary/10 text-primary"
+                      : "border-border text-muted-foreground hover:border-primary/30 hover:text-foreground"
+                  }`}
+                >
+                  <Zap className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
+                  {p.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="rounded-xl border border-border bg-card overflow-hidden">
+              {/* Inputs */}
+              <div className="p-6 space-y-4">
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <CalcInput label="Horas de preparação" value={prepHours} onChange={(v) => { setPrepHours(v); setActivePreset(null); }} min={0} max={20} suffix="h" />
+                  <CalcInput label="Duração da sessão" value={sessionHours} onChange={(v) => { setSessionHours(v); setActivePreset(null); }} min={1} max={12} suffix="h" />
+                  <CalcInput label="Valor-hora desejado" value={hourlyRate} onChange={(v) => { setHourlyRate(v); setActivePreset(null); }} min={10} max={500} prefix="R$" />
+                  <CalcInput label="Jogadores esperados" value={players} onChange={(v) => { setPlayers(v); setActivePreset(null); }} min={2} max={12} />
                 </div>
-                <div className="flex justify-between">
+                <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
+                  <span className="text-xs text-muted-foreground">Margem da plataforma</span>
+                  <span className="text-sm font-semibold text-foreground">{platformFee}%</span>
+                </div>
+              </div>
+
+              {/* Results */}
+              <div className="border-t border-border bg-muted/20 p-6 space-y-4">
+                <div className="flex items-center justify-between">
                   <span className="text-sm font-medium text-foreground">Valor mínimo da sessão</span>
-                  <span className="text-lg font-display font-bold text-primary">R${withFee.toFixed(2).replace(".", ",")}</span>
+                  <span className="text-2xl font-display font-bold text-primary">
+                    R${withFee.toFixed(2).replace(".", ",")}
+                  </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Por jogador (4 pessoas)</span>
-                  <span className="text-sm font-semibold text-foreground">R${perPlayer4.toFixed(2).replace(".", ",")}</span>
+                <div className="grid grid-cols-3 gap-3">
+                  <ResultPill label="4 jogadores" value={`R$${perPlayer4.toFixed(2).replace(".", ",")}`} />
+                  <ResultPill label="5 jogadores" value={`R$${perPlayer5.toFixed(2).replace(".", ",")}`} />
+                  <ResultPill label={`${players} jogadores`} value={`R$${perPlayerCustom.toFixed(2).replace(".", ",")}`} highlight />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-muted-foreground">Por jogador (5 pessoas)</span>
-                  <span className="text-sm font-semibold text-foreground">R${perPlayer5.toFixed(2).replace(".", ",")}</span>
-                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Fórmula: (prep + sessão) × valor/h × (1 + margem). Valores sugeridos — ajuste conforme sua experiência e mercado local.
+                </p>
               </div>
             </div>
           </div>
         )}
       </div>
     </DashboardLayout>
+  );
+}
+
+/* ── Sub-components ── */
+
+function EmptyBlock({ icon, text, sub }: { icon: React.ReactNode; text: string; sub: string }) {
+  return (
+    <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
+      <div className="mx-auto text-muted-foreground/50 mb-3">{icon}</div>
+      <p className="text-sm font-medium text-muted-foreground">{text}</p>
+      <p className="text-xs text-muted-foreground/70 mt-1">{sub}</p>
+    </div>
+  );
+}
+
+function MesaMiniCard({ mesa }: { mesa: Mesa }) {
+  const filled = mesa.seats_total - mesa.seats_available;
+  const pct = Math.round((filled / mesa.seats_total) * 100);
+  const date = new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
+  return (
+    <div className="rounded-xl border border-border bg-card p-4 space-y-3 hover:border-primary/20 transition-colors">
+      <div className="flex items-start justify-between">
+        <div className="min-w-0">
+          <h3 className="text-sm font-semibold text-foreground truncate">{mesa.title}</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{mesa.system} · {date}</p>
+        </div>
+        <Badge variant={mesa.status === "aberta" ? "default" : "secondary"} className="text-[10px] shrink-0">
+          {mesa.status}
+        </Badge>
+      </div>
+      <div className="flex items-center gap-2">
+        <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+          <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        </div>
+        <span className="text-xs text-muted-foreground">{filled}/{mesa.seats_total}</span>
+      </div>
+    </div>
+  );
+}
+
+function MesaManageCard({ mesa }: { mesa: Mesa }) {
+  const filled = mesa.seats_total - mesa.seats_available;
+  const pct = Math.round((filled / mesa.seats_total) * 100);
+  const date = new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
+
+  return (
+    <div className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all group">
+      <div className="p-5 space-y-3">
+        <div className="flex items-start justify-between">
+          <div className="min-w-0">
+            <h3 className="text-sm font-semibold text-foreground truncate">{mesa.title}</h3>
+            <p className="text-xs text-muted-foreground mt-0.5">{mesa.system}</p>
+          </div>
+          <Badge variant={mesa.status === "aberta" ? "default" : "secondary"} className="text-[10px] shrink-0">
+            {mesa.status}
+          </Badge>
+        </div>
+
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Clock className="h-3 w-3" /> {date}
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <Users className="h-3 w-3" /> {filled}/{mesa.seats_total} vagas
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground">
+            <DollarSign className="h-3 w-3" /> R${mesa.min_price || 0}
+          </div>
+          <div className="flex items-center gap-1.5 text-muted-foreground capitalize">
+            <Tag className="h-3 w-3" /> {mesa.format}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-secondary" : "bg-primary"}`}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <span className="text-[11px] font-medium text-muted-foreground">{pct}%</span>
+        </div>
+      </div>
+
+      <div className="flex border-t border-border divide-x divide-border opacity-0 group-hover:opacity-100 transition-opacity">
+        <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors">
+          <Edit2 className="h-3 w-3" /> Editar
+        </button>
+        <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors">
+          <Trash2 className="h-3 w-3" /> Excluir
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CalcInput({ label, value, onChange, min, max, prefix, suffix }: {
+  label: string; value: number; onChange: (v: number) => void; min: number; max: number; prefix?: string; suffix?: string;
+}) {
+  return (
+    <div>
+      <label className="text-xs font-medium text-muted-foreground">{label}</label>
+      <div className="mt-1.5 flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+        {prefix && <span className="pl-3 text-sm text-muted-foreground">{prefix}</span>}
+        <input
+          type="number"
+          min={min}
+          max={max}
+          value={value}
+          onChange={(e) => onChange(Number(e.target.value))}
+          className="w-full bg-transparent px-3 py-2.5 text-sm text-foreground outline-none"
+        />
+        {suffix && <span className="pr-3 text-sm text-muted-foreground">{suffix}</span>}
+      </div>
+    </div>
+  );
+}
+
+function ResultPill({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+  return (
+    <div className={`rounded-lg border p-3 text-center transition-all ${
+      highlight ? "border-primary/30 bg-primary/5" : "border-border bg-card"
+    }`}>
+      <p className={`text-base font-display font-bold ${highlight ? "text-primary" : "text-foreground"}`}>{value}</p>
+      <p className="text-[10px] text-muted-foreground mt-0.5">{label}</p>
+    </div>
   );
 }
