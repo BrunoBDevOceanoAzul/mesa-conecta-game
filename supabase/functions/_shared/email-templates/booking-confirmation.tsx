@@ -117,7 +117,7 @@ export function BookingConfirmation({
 
           <Section style={footerSection}>
             <Text style={footerText}>
-              MesaNexo — A plataforma que conecta sua mesa ao jogador certo.
+              HIVIUM — A plataforma que conecta sua mesa ao jogador certo.
             </Text>
             <Text style={footerLink}>
               <a href={siteUrl} style={linkStyle}>sociodotabuleiro.app.br</a>

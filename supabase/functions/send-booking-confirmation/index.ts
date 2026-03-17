@@ -112,7 +112,7 @@ Deno.serve(async (req) => {
       payload: {
         message_id: messageId,
         to: playerEmail,
-        from: "MesaNexo <noreply@notify.sociodotabuleiro.app.br>",
+        from: "HIVIUM <noreply@notify.sociodotabuleiro.app.br>",
         sender_domain: "notify.sociodotabuleiro.app.br",
         subject: `Vaga confirmada: ${mesaTitle}`,
         html,
