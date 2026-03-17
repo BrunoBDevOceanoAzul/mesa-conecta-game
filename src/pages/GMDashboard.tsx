@@ -139,6 +139,7 @@ export default function GMDashboard() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
+    { key: "progression", label: "Progressão", icon: <Trophy className="h-4 w-4" /> },
     { key: "mesas", label: "Minhas Mesas", icon: <Calendar className="h-4 w-4" /> },
     { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
