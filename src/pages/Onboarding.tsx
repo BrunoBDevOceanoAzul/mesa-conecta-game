@@ -114,8 +114,7 @@ export default function Onboarding() {
             placeholder="Buscar cidade..."
           />
         )}
-
-
+        {step.type === "systems-search" && (
           <SearchableSystemSelect
             systems={RPG_SYSTEMS}
             popularSystems={POPULAR_SYSTEMS}
