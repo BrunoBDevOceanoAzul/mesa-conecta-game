@@ -242,72 +242,79 @@ export default function GMDashboard() {
 
         {/* ─── CRM ─── */}
         {tab === "crm" && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-base font-display font-semibold text-foreground">Mini CRM</h2>
-                <p className="text-xs text-muted-foreground mt-0.5">Acompanhe leads e jogadores que interagiram com suas mesas.</p>
+          <PremiumGate
+            feature="CRM de Leads"
+            description="Acompanhe leads e jogadores que interagiram com suas mesas. Recurso disponível para assinantes ativos."
+            allowed={isPremium}
+            loading={sub.loading}
+          >
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-display font-semibold text-foreground">Mini CRM</h2>
+                  <p className="text-xs text-muted-foreground mt-0.5">Acompanhe leads e jogadores que interagiram com suas mesas.</p>
+                </div>
               </div>
-            </div>
 
-            {/* Stage funnel */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {Object.entries(stageConfig).map(([key, cfg]) => {
-                const count = leads.filter((l) => l.stage === key).length;
-                return (
-                  <div key={key} className={`rounded-xl border p-4 text-center ${cfg.color}`}>
-                    <p className="text-2xl font-display font-bold">{count}</p>
-                    <p className="text-xs font-medium mt-1">{cfg.label}</p>
-                  </div>
-                );
-              })}
-            </div>
+              {/* Stage funnel */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {Object.entries(stageConfig).map(([key, cfg]) => {
+                  const count = leads.filter((l) => l.stage === key).length;
+                  return (
+                    <div key={key} className={`rounded-xl border p-4 text-center ${cfg.color}`}>
+                      <p className="text-2xl font-display font-bold">{count}</p>
+                      <p className="text-xs font-medium mt-1">{cfg.label}</p>
+                    </div>
+                  );
+                })}
+              </div>
 
-            {leads.length === 0 ? (
-              <EmptyBlock
-                icon={<Users className="h-10 w-10" />}
-                text="Nenhum lead ainda."
-                sub="Jogadores aparecerão aqui conforme se inscreverem nas suas mesas."
-              />
-            ) : (
-              <div className="rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/40">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Jogador</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Estágio</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Tags</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Mesa de Origem</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Observações</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Contato</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {leads.map((lead) => (
-                      <tr key={lead.id} className="hover:bg-muted/30 transition-colors">
-                        <td className="px-4 py-3 font-medium text-foreground">{lead.name}</td>
-                        <td className="px-4 py-3">
-                          <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${stageConfig[lead.stage]?.color || ""}`}>
-                            {stageConfig[lead.stage]?.label || lead.stage}
-                          </span>
-                        </td>
-                        <td className="px-4 py-3 hidden sm:table-cell">
-                          <div className="flex gap-1 flex-wrap">
-                            {lead.tags.map((t) => (
-                              <Badge key={t} variant="secondary" className="text-[10px]">{t}</Badge>
-                            ))}
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{lead.sourceMesa}</td>
-                        <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell truncate max-w-[180px]">{lead.notes}</td>
-                        <td className="px-4 py-3 text-xs text-muted-foreground">{lead.lastContact}</td>
+              {leads.length === 0 ? (
+                <EmptyBlock
+                  icon={<Users className="h-10 w-10" />}
+                  text="Nenhum lead ainda."
+                  sub="Jogadores aparecerão aqui conforme se inscreverem nas suas mesas."
+                />
+              ) : (
+                <div className="rounded-xl border border-border overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Jogador</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Estágio</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Tags</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Mesa de Origem</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Observações</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Contato</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {leads.map((lead) => (
+                        <tr key={lead.id} className="hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-3 font-medium text-foreground">{lead.name}</td>
+                          <td className="px-4 py-3">
+                            <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${stageConfig[lead.stage]?.color || ""}`}>
+                              {stageConfig[lead.stage]?.label || lead.stage}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 hidden sm:table-cell">
+                            <div className="flex gap-1 flex-wrap">
+                              {lead.tags.map((t) => (
+                                <Badge key={t} variant="secondary" className="text-[10px]">{t}</Badge>
+                              ))}
+                            </div>
+                          </td>
+                          <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{lead.sourceMesa}</td>
+                          <td className="px-4 py-3 text-muted-foreground text-xs hidden lg:table-cell truncate max-w-[180px]">{lead.notes}</td>
+                          <td className="px-4 py-3 text-xs text-muted-foreground">{lead.lastContact}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </PremiumGate>
         )}
 
         {/* ─── CALCULATOR ─── */}
