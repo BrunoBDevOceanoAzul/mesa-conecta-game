@@ -320,6 +320,7 @@ export default function Admin() {
   const tabs: { key: AdminTab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <BarChart3 className="h-4 w-4" /> },
     { key: "billing", label: "Receita", icon: <CreditCard className="h-4 w-4" /> },
+    { key: "coupons", label: "Cupons", icon: <Gift className="h-4 w-4" /> },
     { key: "gamification", label: "Gamificação", icon: <Trophy className="h-4 w-4" /> },
     { key: "founders", label: "Founders", icon: <Gift className="h-4 w-4" /> },
     { key: "eligibility", label: "Elegibilidade", icon: <Sparkles className="h-4 w-4" /> },
