@@ -25,7 +25,12 @@ const roleLabels: Record<UserRole, string> = {
   brand: "Marca",
 };
 
-export function DashboardLayout({ children, role, navItems, userName = "Usuário" }: DashboardLayoutProps) {
+export function DashboardLayout({
+  children,
+  role,
+  navItems,
+  userName = "Usuário",
+}: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
@@ -39,25 +44,45 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
   return (
     <div className="min-h-screen bg-background flex">
       {/* Sidebar */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${
+          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+      >
         <div className="flex h-14 items-center justify-between px-4 border-b border-border">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <img src={logoImg} alt="HIVIUM" className="h-7 w-7 object-contain" />
-            <span className="font-display font-bold text-xs gradient-text">HIVIUM</span>
+          <button
+            onClick={() => navigate("/")}
+            className="flex items-center gap-2.5"
+          >
+            <img
+              src={logoImg}
+              alt="HIVIUM"
+              className="h-7 w-7 object-contain"
+            />
+            <span className="font-display font-bold text-xs gradient-text tracking-wide">
+              HIVIUM
+            </span>
           </button>
-          <button className="lg:hidden text-muted-foreground" onClick={() => setSidebarOpen(false)}>
+          <button
+            className="lg:hidden text-muted-foreground hover:text-foreground transition-colors"
+            onClick={() => setSidebarOpen(false)}
+          >
             <X className="h-5 w-5" />
           </button>
         </div>
 
         <div className="p-3">
-          <div className="flex items-center gap-3 rounded-lg bg-muted/30 p-3 mb-4">
-            <div className="h-8 w-8 rounded-full bg-primary/15 flex items-center justify-center text-xs font-bold text-primary">
+          <div className="flex items-center gap-3 rounded-lg bg-surface p-3 mb-5">
+            <div className="h-9 w-9 rounded-full bg-primary/12 flex items-center justify-center text-sm font-bold text-primary ring-1 ring-primary/15">
               {userName.charAt(0)}
             </div>
             <div className="min-w-0">
-              <div className="text-sm font-medium text-foreground truncate">{userName}</div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-wider">{roleLabels[role]}</div>
+              <div className="text-sm font-medium text-foreground truncate">
+                {userName}
+              </div>
+              <div className="text-overline text-muted-foreground mt-0.5">
+                {roleLabels[role]}
+              </div>
             </div>
           </div>
 
@@ -67,11 +92,14 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
               return (
                 <button
                   key={item.path}
-                  onClick={() => { navigate(item.path); setSidebarOpen(false); }}
-                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm transition-all ${
+                  onClick={() => {
+                    navigate(item.path);
+                    setSidebarOpen(false);
+                  }}
+                  className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
                     active
                       ? "bg-primary/10 text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                      : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
                   }`}
                 >
                   {item.icon}
@@ -83,7 +111,10 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
         </div>
 
         <div className="absolute bottom-3 left-3 right-3">
-          <button onClick={handleLogout} className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/30 transition-all">
+          <button
+            onClick={handleLogout}
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-200"
+          >
             <LogOut className="h-4 w-4" />
             Sair
           </button>
@@ -92,16 +123,25 @@ export function DashboardLayout({ children, role, navItems, userName = "Usuário
 
       {/* Overlay */}
       {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden" onClick={() => setSidebarOpen(false)} />
+        <div
+          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
       )}
 
       {/* Main */}
       <main className="flex-1 min-w-0">
         <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-xl px-4 lg:px-6">
-          <button className="lg:hidden text-foreground" onClick={() => setSidebarOpen(true)}>
+          <button
+            className="lg:hidden text-foreground"
+            onClick={() => setSidebarOpen(true)}
+          >
             <Menu className="h-5 w-5" />
           </button>
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            onClick={() => navigate(-1)}
+            className="text-muted-foreground hover:text-foreground transition-colors"
+          >
             <ChevronLeft className="h-5 w-5" />
           </button>
         </header>

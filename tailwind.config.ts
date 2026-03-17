@@ -2,7 +2,12 @@ import type { Config } from "tailwindcss";
 
 export default {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -19,6 +24,7 @@ export default {
       },
       colors: {
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--border-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -34,6 +40,18 @@ export default {
         destructive: {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
+        },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
+        warning: {
+          DEFAULT: "hsl(var(--warning))",
+          foreground: "hsl(var(--warning-foreground))",
+        },
+        info: {
+          DEFAULT: "hsl(var(--info))",
+          foreground: "hsl(var(--info-foreground))",
         },
         muted: {
           DEFAULT: "hsl(var(--muted))",
@@ -51,7 +69,11 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-        surface: "hsl(var(--surface))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          hover: "hsl(var(--surface-hover))",
+          elevated: "hsl(var(--surface-elevated))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -64,9 +86,25 @@ export default {
         },
       },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        "2xl": "var(--radius-2xl)",
+        xl: "var(--radius-xl)",
+        lg: "var(--radius-lg)",
+        md: "var(--radius)",
+        sm: "var(--radius-sm)",
+        full: "var(--radius-full)",
+      },
+      boxShadow: {
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        "glow-primary": "var(--glow-primary)",
+        "glow-gold": "var(--glow-gold)",
+        "glow-primary-strong": "var(--glow-primary-strong)",
+      },
+      spacing: {
+        "18": "4.5rem",
+        "22": "5.5rem",
       },
       keyframes: {
         "accordion-down": {
@@ -81,26 +119,36 @@ export default {
           from: { opacity: "0", transform: "translateY(10px)" },
           to: { opacity: "1", transform: "translateY(0)" },
         },
+        "fade-in-up": {
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
         "slide-in-left": {
           from: { opacity: "0", transform: "translateX(-20px)" },
           to: { opacity: "1", transform: "translateX(0)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(270 55% 50% / 0.15)" },
-          "50%": { boxShadow: "0 0 40px hsl(270 55% 50% / 0.25)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(270 52% 48% / 0.15)" },
+          "50%": { boxShadow: "0 0 40px hsl(270 52% 48% / 0.25)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
           "50%": { transform: "translateY(-6px)" },
+        },
+        shimmer: {
+          "0%": { backgroundPosition: "-200% 0" },
+          "100%": { backgroundPosition: "200% 0" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.5s ease-out forwards",
+        "fade-in-up": "fade-in-up 0.6s ease-out forwards",
         "slide-in-left": "slide-in-left 0.5s ease-out forwards",
         "pulse-glow": "pulse-glow 3s ease-in-out infinite",
         float: "float 3s ease-in-out infinite",
+        shimmer: "shimmer 2s linear infinite",
       },
     },
   },
