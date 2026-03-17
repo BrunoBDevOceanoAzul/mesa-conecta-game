@@ -27,8 +27,6 @@ export function NearbyStoresMap({ userLat, userLng, radiusKm = 50 }: NearbyStore
   const [error, setError] = useState<string | null>(null);
   const [selectedStore, setSelectedStore] = useState<StoreData | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
-  const mapInstanceRef = useRef<google.maps.Map | null>(null);
-  const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([]);
 
   const fetchStores = useCallback(async () => {
     if (!userLat || !userLng) return;
