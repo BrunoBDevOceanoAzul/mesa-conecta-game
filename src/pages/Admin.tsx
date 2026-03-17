@@ -12,6 +12,7 @@ import {
   Trophy, Star, Zap, Plus
 } from "lucide-react";
 import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
+import { GamificationConfig } from "@/components/admin/GamificationConfig";
 
 type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification";
 
