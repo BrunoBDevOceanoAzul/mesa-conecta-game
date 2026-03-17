@@ -405,6 +405,110 @@ export type Database = {
           },
         ]
       }
+      payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          description: string | null
+          external_payment_id: string | null
+          id: string
+          paid_at: string | null
+          payment_type: string
+          provider: string
+          status: string
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          external_payment_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_type?: string
+          provider?: string
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string | null
+          external_payment_id?: string | null
+          id?: string
+          paid_at?: string | null
+          payment_type?: string
+          provider?: string
+          status?: string
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          billing_cycle: string
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          feature_flags: Json
+          id: string
+          is_active: boolean
+          name: string
+          price_monthly: number
+          role: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle?: string
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json
+          id?: string
+          is_active?: boolean
+          name: string
+          price_monthly?: number
+          role: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json
+          id?: string
+          is_active?: boolean
+          name?: string
+          price_monthly?: number
+          role?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           availability_days: string[] | null
@@ -584,42 +688,65 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          cancel_at_period_end: boolean
+          canceled_at: string | null
           created_at: string
           current_period_end: string
           current_period_start: string
+          external_subscription_id: string | null
           id: string
+          plan_id: string | null
           plan_name: string
           plan_role: string
           price_cents: number
+          provider: string
           status: string
           updated_at: string
           user_id: string
         }
         Insert: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          external_subscription_id?: string | null
           id?: string
+          plan_id?: string | null
           plan_name: string
           plan_role: string
           price_cents?: number
+          provider?: string
           status?: string
           updated_at?: string
           user_id: string
         }
         Update: {
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
           current_period_end?: string
           current_period_start?: string
+          external_subscription_id?: string | null
           id?: string
+          plan_id?: string | null
           plan_name?: string
           plan_role?: string
           price_cents?: number
+          provider?: string
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       suppressed_emails: {
         Row: {
