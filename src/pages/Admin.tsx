@@ -16,7 +16,7 @@ import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
 import { GoLiveChecklist } from "@/components/admin/GoLiveChecklist";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons" | "golive";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
