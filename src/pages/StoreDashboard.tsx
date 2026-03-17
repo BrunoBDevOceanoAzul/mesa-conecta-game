@@ -542,7 +542,7 @@ export default function StoreDashboard() {
               </Button>
             </div>
 
-            {currentPlan === "growth" && (
+            {hasFeedHighlight && (
               <div className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 flex items-center gap-3">
                 <Star className="h-5 w-5 text-secondary shrink-0" />
                 <div>
