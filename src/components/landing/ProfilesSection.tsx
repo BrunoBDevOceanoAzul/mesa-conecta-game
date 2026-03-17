@@ -9,7 +9,7 @@ const profiles = [
     icon: Gamepad2,
     title: "Para Jogadores",
     headline: "Sua próxima mesa já sabe combinar com você.",
-    description: "Responda a anamnese. O Hivium entende seu estilo, seus sistemas favoritos, sua cidade e disponibilidade — e entrega matches com score de compatibilidade real.",
+    description: "Responda a anamnese. O Sócio do Tabuleiro entende seu estilo, seus sistemas favoritos, sua cidade e disponibilidade — e entrega matches com score de compatibilidade real.",
     features: [
       "Matchmaking inteligente por estilo, sistema e cidade",
       "Score de compatibilidade visível em cada mesa",
