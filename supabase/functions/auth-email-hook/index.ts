@@ -39,7 +39,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 const SITE_NAME = "HIVIUM"
 const SENDER_DOMAIN = "notify.hivium.com.br"
 const ROOT_DOMAIN = "hivium.com.br"
-const FROM_DOMAIN = "notify.sociodotabuleiro.app.br" // Domain shown in From address (may be root or sender subdomain)
+const FROM_DOMAIN = "notify.hivium.com.br" // Domain shown in From address (may be root or sender subdomain)
 
 // Sample data for preview mode ONLY (not used in actual email sending).
 // URLs are baked in at scaffold time from the project's real data.
