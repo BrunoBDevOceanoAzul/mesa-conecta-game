@@ -147,6 +147,7 @@ export default function GMDashboard() {
     { key: "mesas", label: "Minhas Mesas", icon: <Calendar className="h-4 w-4" /> },
     { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
+    { key: "analytics", label: "Atribuição", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
   return (
