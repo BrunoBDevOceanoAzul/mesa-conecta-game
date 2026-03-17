@@ -22,6 +22,10 @@ interface DBPlan {
   price_monthly: number;
   feature_flags: Record<string, unknown>;
   sort_order: number;
+  trial_days: number;
+  is_founder_plan: boolean;
+  founder_slots_total: number;
+  founder_slots_used: number;
 }
 
 const featureFlagLabel = (key: string, value: unknown): string => {
