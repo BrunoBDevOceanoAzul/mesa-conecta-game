@@ -11,7 +11,7 @@ import {
   XCircle, Clock, TrendingUp, ToggleLeft, ToggleRight, MousePointerClick
 } from "lucide-react";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
