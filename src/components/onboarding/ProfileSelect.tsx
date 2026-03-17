@@ -21,17 +21,25 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
       exit={{ opacity: 0 }}
       className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12"
     >
-      <div className="w-full max-w-lg">
+      {/* Ambient glow */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-[0.04]"
+          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+        />
+      </div>
+
+      <div className="w-full max-w-lg relative z-10">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           className="text-center mb-10"
         >
           <span className="section-label">Perfil</span>
-          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground">
-            Como você usa a MesaNexo?
+          <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground tracking-tight">
+            Como você usa a Hivium?
           </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2.5 text-[15px] text-muted-foreground leading-relaxed">
             Escolha o perfil que mais combina com você
           </p>
         </motion.div>
@@ -44,29 +52,29 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
             return (
               <motion.button
                 key={key}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 24 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 + i * 0.08 }}
                 onClick={() => onSelect(key)}
                 className={cn(
-                  "group relative flex items-center gap-4 rounded-2xl border border-border bg-card p-5",
+                  "group relative flex items-center gap-4 rounded-2xl border border-border/60 bg-card/50 p-5",
                   "text-left transition-all duration-300",
-                  "hover:border-primary/40 hover:shadow-[0_0_30px_hsl(272_60%_58%_/_0.08)]",
+                  "hover:border-primary/40 hover:bg-card/80 hover:shadow-[0_0_30px_hsl(272_60%_58%_/_0.06)]",
                   "active:scale-[0.98]"
                 )}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
+                <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-primary/8 text-primary transition-all duration-300 group-hover:bg-primary/12 group-hover:shadow-[0_0_15px_hsl(272_60%_58%_/_0.1)]">
                   <Icon className="h-6 w-6" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="font-display font-semibold text-foreground text-base">
+                  <h3 className="font-display font-bold text-foreground text-[15px]">
                     {info.title}
                   </h3>
-                  <p className="text-sm text-muted-foreground mt-0.5 leading-snug">
+                  <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">
                     {info.description}
                   </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground/40 shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground/30 shrink-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary/60" />
               </motion.button>
             );
           })}
