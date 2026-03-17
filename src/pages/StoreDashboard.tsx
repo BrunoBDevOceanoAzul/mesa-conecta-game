@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { mockTables } from "@/data/mock";
+import { useAuth } from "@/contexts/AuthContext";
 import { Store, Calendar, BarChart3, TrendingUp, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -11,11 +11,12 @@ const navItems = [
   { label: "Configurações", path: "/dashboard/loja", icon: <Settings className="h-4 w-4" /> },
 ];
 
-const storeTables = mockTables.filter((t) => t.venue.includes("Taverna") || t.venue.includes("Dungeon"));
-
 export default function StoreDashboard() {
+  const { user } = useAuth();
+  const displayName = user?.user_metadata?.name || "Luderia";
+
   return (
-    <DashboardLayout role="store" navItems={navItems} userName="Taverna do Dragão">
+    <DashboardLayout role="store" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
@@ -27,10 +28,10 @@ export default function StoreDashboard() {
 
         <div className="grid gap-4 md:grid-cols-4">
           {[
-            { label: "Mesas este mês", value: "8", icon: <Calendar className="h-5 w-5 text-primary" /> },
-            { label: "Capacidade usada", value: "72%", icon: <Store className="h-5 w-5 text-secondary" /> },
-            { label: "Reservas (7d)", value: "23", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
-            { label: "Visualizações", value: "456", icon: <TrendingUp className="h-5 w-5 text-primary" /> },
+            { label: "Mesas este mês", value: "0", icon: <Calendar className="h-5 w-5 text-primary" /> },
+            { label: "Capacidade usada", value: "—", icon: <Store className="h-5 w-5 text-secondary" /> },
+            { label: "Reservas (7d)", value: "0", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
+            { label: "Visualizações", value: "0", icon: <TrendingUp className="h-5 w-5 text-primary" /> },
           ].map((s) => (
             <div key={s.label} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">{s.icon}</div>
@@ -44,33 +45,17 @@ export default function StoreDashboard() {
 
         <div>
           <h2 className="text-lg font-display font-semibold text-foreground mb-4">Agenda de Mesas</h2>
-          <div className="space-y-3">
-            {storeTables.map((t) => (
-              <div key={t.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between">
-                <div>
-                  <div className="font-medium text-foreground">{t.title}</div>
-                  <div className="text-sm text-muted-foreground">
-                    {t.system} · {t.gmName} · {new Date(t.startAt).toLocaleDateString("pt-BR")} · {t.seatsAvailable}/{t.seatsTotal} vagas
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`rounded-lg px-2.5 py-1 text-xs font-medium ${t.status === "aberta" ? "bg-green-500/10 text-green-400" : "bg-muted text-muted-foreground"}`}>
-                    {t.status}
-                  </span>
-                </div>
-              </div>
-            ))}
+          <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
+            <Calendar className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+            <p className="text-muted-foreground text-sm">Nenhuma mesa agendada. Publique sua primeira agenda!</p>
           </div>
         </div>
 
-        {/* Store info */}
         <div className="rounded-xl border border-border bg-card p-6">
           <h2 className="text-lg font-display font-semibold text-foreground mb-4">Informações da Luderia</h2>
-          <div className="grid gap-4 md:grid-cols-2 text-sm">
-            <div><span className="text-muted-foreground">Endereço:</span> <span className="text-foreground ml-2">R. Augusta, 1200 – São Paulo</span></div>
-            <div><span className="text-muted-foreground">Capacidade:</span> <span className="text-foreground ml-2">40 pessoas</span></div>
-            <div><span className="text-muted-foreground">Mesas simultâneas:</span> <span className="text-foreground ml-2">8</span></div>
-            <div><span className="text-muted-foreground">Plano:</span> <span className="text-primary font-medium ml-2">Loja Growth</span></div>
+          <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-center">
+            <Store className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+            <p className="text-muted-foreground text-sm">Complete o perfil da sua luderia para aparecer no mapa.</p>
           </div>
         </div>
       </div>

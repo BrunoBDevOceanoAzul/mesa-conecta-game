@@ -1,5 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { mockTables, mockCRMLeads } from "@/data/mock";
+import { useAuth } from "@/contexts/AuthContext";
 import { Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp, Megaphone } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -13,17 +13,10 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <TrendingUp className="h-4 w-4" /> },
 ];
 
-const myTables = mockTables.filter((t) => t.gmId === "gm1");
-
-const stageColors: Record<string, string> = {
-  novo: "bg-secondary/10 text-secondary",
-  interessado: "bg-accent/10 text-accent",
-  confirmado: "bg-primary/10 text-primary",
-  recorrente: "bg-green-500/10 text-green-400",
-};
-
 export default function GMDashboard() {
+  const { user } = useAuth();
   const [tab, setTab] = useState<"overview" | "crm" | "calc">("overview");
+  const displayName = user?.user_metadata?.name || "Mestre";
 
   // Calculator
   const [prepHours, setPrepHours] = useState(2);
@@ -39,7 +32,7 @@ export default function GMDashboard() {
   const perPlayer5 = withFee / 5;
 
   return (
-    <DashboardLayout role="gm" navItems={navItems} userName='Rafael "Arkanos"'>
+    <DashboardLayout role="gm" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <div className="flex items-center justify-between">
           <div>
@@ -72,10 +65,10 @@ export default function GMDashboard() {
           <>
             <div className="grid gap-4 md:grid-cols-4">
               {[
-                { label: "Mesas ativas", value: myTables.length.toString(), icon: <Calendar className="h-5 w-5 text-primary" /> },
-                { label: "Leads totais", value: mockCRMLeads.length.toString(), icon: <Users className="h-5 w-5 text-secondary" /> },
-                { label: "Impressões (7d)", value: "1.2k", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
-                { label: "Créditos", value: "45", icon: <CreditCard className="h-5 w-5 text-primary" /> },
+                { label: "Mesas ativas", value: "0", icon: <Calendar className="h-5 w-5 text-primary" /> },
+                { label: "Leads totais", value: "0", icon: <Users className="h-5 w-5 text-secondary" /> },
+                { label: "Impressões (7d)", value: "0", icon: <BarChart3 className="h-5 w-5 text-accent" /> },
+                { label: "Créditos", value: "0", icon: <CreditCard className="h-5 w-5 text-primary" /> },
               ].map((s) => (
                 <div key={s.label} className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
                   <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-muted/50">{s.icon}</div>
@@ -89,21 +82,9 @@ export default function GMDashboard() {
 
             <div>
               <h2 className="text-lg font-display font-semibold text-foreground mb-4">Minhas Mesas</h2>
-              <div className="space-y-3">
-                {myTables.map((t) => (
-                  <div key={t.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-foreground">{t.title}</div>
-                      <div className="text-sm text-muted-foreground">{t.system} · {t.seatsAvailable}/{t.seatsTotal} vagas · {new Date(t.startAt).toLocaleDateString("pt-BR")}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`rounded-lg px-2.5 py-1 text-xs font-medium ${t.status === "aberta" ? "bg-green-500/10 text-green-400" : "bg-muted text-muted-foreground"}`}>
-                        {t.status}
-                      </span>
-                      <Button variant="outline" size="sm">Editar</Button>
-                    </div>
-                  </div>
-                ))}
+              <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
+                <Calendar className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                <p className="text-muted-foreground text-sm">Nenhuma mesa criada ainda. Crie sua primeira mesa!</p>
               </div>
             </div>
           </>
@@ -112,44 +93,9 @@ export default function GMDashboard() {
         {tab === "crm" && (
           <div>
             <h2 className="text-lg font-display font-semibold text-foreground mb-4">Leads e Jogadores</h2>
-            <div className="rounded-xl border border-border overflow-hidden">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-border bg-muted/30">
-                    <th className="text-left p-3 text-muted-foreground font-medium">Jogador</th>
-                    <th className="text-left p-3 text-muted-foreground font-medium">Stage</th>
-                    <th className="text-left p-3 text-muted-foreground font-medium hidden md:table-cell">Tags</th>
-                    <th className="text-left p-3 text-muted-foreground font-medium hidden lg:table-cell">Notas</th>
-                    <th className="text-left p-3 text-muted-foreground font-medium">Origem</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {mockCRMLeads.map((lead) => (
-                    <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-muted/20 transition-colors">
-                      <td className="p-3 flex items-center gap-2">
-                        <div className="h-7 w-7 rounded-full bg-primary/20 flex items-center justify-center text-xs font-bold text-primary">
-                          {lead.playerName.charAt(0)}
-                        </div>
-                        <span className="text-foreground">{lead.playerName}</span>
-                      </td>
-                      <td className="p-3">
-                        <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${stageColors[lead.stage]}`}>
-                          {lead.stage}
-                        </span>
-                      </td>
-                      <td className="p-3 hidden md:table-cell">
-                        <div className="flex flex-wrap gap-1">
-                          {lead.tags.slice(0, 3).map((tag) => (
-                            <span key={tag} className="rounded bg-muted px-1.5 py-0.5 text-xs text-muted-foreground">{tag}</span>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-3 text-muted-foreground hidden lg:table-cell">{lead.notes}</td>
-                      <td className="p-3 text-muted-foreground text-xs">{lead.sourceTable || "—"}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
+              <Users className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+              <p className="text-muted-foreground text-sm">Nenhum lead ainda. Os jogadores aparecerão aqui conforme se inscreverem nas suas mesas.</p>
             </div>
           </div>
         )}
