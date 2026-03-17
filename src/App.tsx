@@ -14,7 +14,7 @@ import PlayerDashboard from "./pages/PlayerDashboard";
 import GMDashboard from "./pages/GMDashboard";
 import StoreDashboard from "./pages/StoreDashboard";
 import Feed from "./pages/Feed";
-import TableSearch from "./pages/TableSearch";
+import ExploreMesas from "./pages/ExploreMesas";
 import TableDetail from "./pages/TableDetail";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
@@ -37,7 +37,8 @@ const App = () => (
             <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
             <Route path="/feed" element={<Feed />} />
-            <Route path="/buscar" element={<TableSearch />} />
+            <Route path="/explorar" element={<ExploreMesas />} />
+            <Route path="/buscar" element={<ExploreMesas />} />
             <Route path="/mesa/:id" element={<TableDetail />} />
             <Route path="/checkout/:id" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />

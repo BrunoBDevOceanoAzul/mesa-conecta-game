@@ -82,14 +82,23 @@ export default function Onboarding() {
     setSaving(true);
 
     try {
-      // Update profile with city and coordinates
+      // Update profile with city, coordinates, and preferences
+      const updateData: Record<string, unknown> = {
+        city: answers.city as string,
+        lat: coords.lat,
+        lng: coords.lng,
+      };
+
+      // Save preferences based on role
+      if (answers.systems) updateData.preferred_systems = answers.systems;
+      if (answers.styles) updateData.play_styles = answers.styles;
+      if (answers.experience) updateData.experience_level = answers.experience;
+      if (answers.format) updateData.preferred_format = answers.format;
+      if (answers.budget) updateData.budget_range = answers.budget;
+
       const { error } = await supabase
         .from("profiles")
-        .update({
-          city: answers.city as string,
-          lat: coords.lat,
-          lng: coords.lng,
-        })
+        .update(updateData)
         .eq("user_id", user.id);
 
       if (error) throw error;
