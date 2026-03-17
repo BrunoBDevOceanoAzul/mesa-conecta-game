@@ -15,6 +15,7 @@ import {
   CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText,
   UserCheck, BookOpen, Star, Sparkles
 } from "lucide-react";
+import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 
 type Mesa = Tables<"mesas">;
 type StoreData = Tables<"stores">;
