@@ -10,14 +10,14 @@ const steps = [
   },
   {
     icon: Sliders,
-    title: "Responda a anamnese",
+    title: "Calibre seu perfil",
     desc: "Gostos, sistemas, cidade e estilo. O algoritmo faz o resto.",
     detail: "600+ sistemas",
   },
   {
     icon: Search,
-    title: "Receba matches reais",
-    desc: "Mesas ranqueadas por compatibilidade. Score visível.",
+    title: "Receba matches curados",
+    desc: "Mesas ranqueadas por aderência. Score visível.",
     detail: "Matchmaking real",
   },
   {

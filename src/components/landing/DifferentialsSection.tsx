@@ -4,8 +4,8 @@ import { Target, Brain, BarChart3, Shield, Layers, Zap } from "lucide-react";
 const differentials = [
   {
     icon: Brain,
-    title: "Anamnese inteligente",
-    desc: "Leitura de perfil que alimenta matchmaking, CRM e recomendações.",
+    title: "Calibração inteligente",
+    desc: "Leitura de perfil que alimenta matchmaking, CRM e recomendações curadas.",
     emphasis: "Cada resposta tem propósito.",
   },
   {
@@ -28,14 +28,14 @@ const differentials = [
   },
   {
     icon: Zap,
-    title: "Impulsionamento por créditos",
+    title: "Destaque por créditos",
     desc: "CPC transparente. Destaque mesas e posts sem algoritmo obscuro.",
     emphasis: "Você controla o investimento.",
   },
   {
     icon: Shield,
     title: "Ecossistema de confiança",
-    desc: "Perfis verificados, anamnese obrigatória, reviews pós-sessão.",
+    desc: "Perfis verificados, calibração obrigatória, reviews pós-sessão.",
     emphasis: "Confiança é feature.",
   },
 ];

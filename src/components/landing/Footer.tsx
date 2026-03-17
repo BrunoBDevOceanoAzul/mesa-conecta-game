@@ -1,4 +1,4 @@
-import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import logoImg from "@/assets/hivium-logo.png";
 
 export function Footer() {
   return (
@@ -6,9 +6,9 @@ export function Footer() {
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-2.5">
-            <img src={logoImg} alt="Sócio do Tabuleiro" className="h-7 w-7 object-contain" />
-            <span className="font-display font-semibold text-sm text-foreground">
-              Sócio do <span className="text-primary">Tabuleiro</span>
+            <img src={logoImg} alt="HIVIUM" className="h-7 w-7 object-contain" />
+            <span className="font-display font-bold text-sm gradient-text">
+              HIVIUM
             </span>
           </div>
 
@@ -21,7 +21,7 @@ export function Footer() {
           </div>
 
           <p className="text-[11px] text-muted-foreground/50">
-            © 2026 Sócio do Tabuleiro
+            © 2026 HIVIUM
           </p>
         </div>
       </div>

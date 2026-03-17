@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
-import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import logoImg from "@/assets/hivium-logo.png";
 
 const navLinks = [
   { label: "Como funciona", href: "#como-funciona" },
@@ -33,9 +33,9 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
-          <img src={logoImg} alt="Sócio do Tabuleiro" className="h-9 w-9 object-contain" />
-          <span className="font-display font-bold text-base text-foreground tracking-tight">
-            Sócio do <span className="text-primary">Tabuleiro</span>
+          <img src={logoImg} alt="HIVIUM" className="h-9 w-9 object-contain" />
+          <span className="font-display font-bold text-base tracking-tight gradient-text">
+            HIVIUM
           </span>
         </button>
 

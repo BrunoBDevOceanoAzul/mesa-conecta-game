@@ -14,13 +14,13 @@ export function BoostSection() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
           >
-            <span className="section-label">Impulsionamento</span>
+            <span className="section-label">Destaque</span>
             <h2 className="text-3xl font-display font-bold md:text-4xl leading-tight mb-5">
               Destaque sua mesa.{" "}
               <span className="gradient-text">Pague por clique.</span>
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-8">
-              Sem algoritmo obscuro. Compre créditos, impulsione no feed, pague por clique real. CPC configurável, transparência total.
+              Sem algoritmo obscuro. Compre créditos, destaque no feed, pague por clique real. CPC configurável, transparência total.
             </p>
 
             <div className="grid grid-cols-2 gap-3 mb-8">
@@ -40,7 +40,7 @@ export function BoostSection() {
 
             <div className="rounded-xl bg-secondary/5 border border-secondary/15 p-4">
               <p className="text-sm text-secondary font-medium mb-1">🎁 Programa Founders</p>
-              <p className="text-xs text-muted-foreground">Os 20 primeiros mestres ganham 3 impulsos grátis/mês por 6 meses.</p>
+              <p className="text-xs text-muted-foreground">Os 20 primeiros mestres ganham 3 destaques grátis/mês por 6 meses.</p>
             </div>
           </motion.div>
 

@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-1/4 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/6 blur-[180px]" />
         <div className="absolute bottom-1/3 right-1/4 h-[400px] w-[400px] rounded-full bg-secondary/5 blur-[150px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(hsl(272_60%_58%/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(272_60%_58%/0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(hsl(270_55%_50%/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(270_55%_50%/0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
       </div>
 
       <div className="container relative mx-auto px-4 text-center">
@@ -21,7 +21,7 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <span className="section-label">A plataforma de RPG que faltava</span>
+          <span className="section-label">Curadoria · Conexão · Presença</span>
         </motion.div>
 
         <motion.h1
@@ -30,11 +30,9 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
         >
-          Encontre a mesa certa.{" "}
+          Onde mesas certas{" "}
           <br className="hidden sm:block" />
-          <span className="gradient-text">Lote suas sessões.</span>{" "}
-          <br className="hidden sm:block" />
-          Organize sua luderia.
+          <span className="gradient-text">encontram pessoas certas.</span>
         </motion.h1>
 
         <motion.p
@@ -43,9 +41,9 @@ export function HeroSection() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
         >
-          Não vendemos vagas. Vendemos encaixe.{" "}
+          Menos ruído. Mais aderência.{" "}
           <span className="text-foreground/70">
-            Cruzamos perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
+            HIVIUM cruza perfis, estilo de jogo e disponibilidade para criar matches reais entre jogadores, mestres e luderias.
           </span>
         </motion.p>
 
@@ -73,8 +71,8 @@ export function HeroSection() {
         >
           {[
             { value: "600+", label: "Sistemas" },
-            { value: "200+", label: "Mesas ativas" },
-            { value: "1.2k", label: "Jogadores" },
+            { value: "200+", label: "Mesas curadas" },
+            { value: "1.2k", label: "Membros" },
             { value: "50+", label: "Luderias" },
           ].map((s) => (
             <div key={s.label} className="text-center">
@@ -90,7 +88,7 @@ export function HeroSection() {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}
         >
-          Menos vaga vazia · Mais campanhas vivas
+          Toda grande mesa começa com a combinação certa
         </motion.p>
       </div>
     </section>

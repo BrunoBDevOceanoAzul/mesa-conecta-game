@@ -27,7 +27,7 @@ export function CTASection() {
             </h2>
 
             <p className="mt-6 text-muted-foreground max-w-md mx-auto">
-              RPG é comunidade, profissão e mercado. A plataforma que entende isso.
+              RPG é comunidade, profissão e mercado. HIVIUM organiza o jogo social.
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">

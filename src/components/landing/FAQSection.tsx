@@ -4,12 +4,12 @@ import { ChevronDown } from "lucide-react";
 
 const faqs = [
   {
-    q: "O que é o Sócio do Tabuleiro?",
+    q: "O que é a HIVIUM?",
     a: "A plataforma que conecta jogadores, mestres e luderias de RPG com matchmaking inteligente, CRM nativo e ferramentas de crescimento. Não somos diretório — somos ecossistema.",
   },
   {
     q: "Como funciona o matchmaking?",
-    a: "Você responde uma anamnese sobre gostos, estilo, cidade e disponibilidade. O sistema cruza tudo e exibe um score de compatibilidade em cada mesa.",
+    a: "Você responde uma calibração sobre gostos, estilo, cidade e disponibilidade. O sistema cruza tudo e exibe um score de aderência em cada mesa.",
   },
   {
     q: "Preciso pagar para jogar?",
@@ -17,18 +17,18 @@ const faqs = [
   },
   {
     q: "Sou mestre. Como ganho com a plataforma?",
-    a: "Perfil profissional, mesas publicadas, reservas automáticas, CRM integrado. Com Pro+: analytics completo e impulsionamento.",
+    a: "Perfil profissional, mesas publicadas, reservas automáticas, CRM integrado. Com Pro+: analytics completo e destaque no feed.",
   },
   {
-    q: "Como funciona o impulsionamento?",
-    a: "Compre créditos, destaque mesas ou posts por 7 dias, pague por clique (CPC). Founders ganham 3 impulsos grátis/mês por 6 meses.",
+    q: "Como funciona o destaque de mesas?",
+    a: "Compre créditos, destaque mesas ou posts por 7 dias, pague por clique (CPC). Founders ganham 3 destaques grátis/mês por 6 meses.",
   },
   {
     q: "Tenho uma luderia. O que ganho?",
     a: "Perfil, agenda pública, gestão de mesas, visibilidade regional e analytics. A partir de R$79,90/mês.",
   },
   {
-    q: "O que é a anamnese?",
+    q: "O que é a calibração de perfil?",
     a: "Questionário que mapeia seu perfil: sistemas, estilo, disponibilidade, orçamento e preferências. Alimenta matchmaking e CRM.",
   },
 ];
