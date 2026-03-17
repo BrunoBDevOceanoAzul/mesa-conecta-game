@@ -13,8 +13,9 @@ import {
 } from "lucide-react";
 import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
+import { CouponManager } from "@/components/admin/CouponManager";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
