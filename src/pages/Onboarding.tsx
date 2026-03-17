@@ -25,7 +25,7 @@ const playerSteps: StepConfig[] = [
 ];
 
 const gmSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "text", field: "city" },
+  { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "city-autocomplete", field: "city" },
   { title: "Sistemas que domina", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilo narrativo", subtitle: "Como você conduz?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Foco em quem?", subtitle: "Seu público principal", type: "select-one", options: ["Iniciantes", "Intermediários", "Avançados", "Todos os níveis"], field: "focus" },
