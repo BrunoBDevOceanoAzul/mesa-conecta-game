@@ -10,7 +10,7 @@ import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 interface StepConfig {
   title: string;
   subtitle: string;
-  type: "text" | "select-multi" | "select-one" | "systems-search";
+  type: "text" | "select-multi" | "select-one" | "systems-search" | "city-autocomplete";
   options?: string[];
   field: string;
 }
