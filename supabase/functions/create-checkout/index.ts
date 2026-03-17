@@ -83,7 +83,12 @@ serve(async (req) => {
       if (!plan) throw new Error(`Plan '${plan_code}' not found or inactive`);
       if (!plan.stripe_price_id) throw new Error(`Plan '${plan_code}' has no Stripe price configured`);
 
-      logStep("Plan found", { code: plan.code, priceId: plan.stripe_price_id });
+      // Founder slot check
+      if (plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total) {
+        throw new Error(`Founder slots for '${plan_code}' are sold out`);
+      }
+
+      logStep("Plan found", { code: plan.code, priceId: plan.stripe_price_id, trial_days: plan.trial_days });
 
       // Check for existing active subscription
       const existingSubs = await stripe.subscriptions.list({
@@ -108,6 +113,7 @@ serve(async (req) => {
             hivium_plan_code: plan.code,
             hivium_plan_id: plan.id,
           },
+          ...(plan.trial_days > 0 ? { trial_period_days: plan.trial_days } : {}),
         },
         metadata: {
           type: "subscription",
