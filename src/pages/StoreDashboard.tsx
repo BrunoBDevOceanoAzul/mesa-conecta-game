@@ -332,6 +332,9 @@ export default function StoreDashboard() {
               </div>
             )}
 
+            {/* Connect Status */}
+            <ConnectStatusBlock />
+
             {/* Recent mesas */}
             <div>
               <div className="flex items-center justify-between mb-3">
