@@ -365,7 +365,13 @@ export default function ExploreMesas() {
             </p>
             <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
               {filteredAndScored.map(({ mesa, matchScore }) => (
-                <MesaCard key={mesa.id} mesa={mesa} matchScore={matchScore} />
+                <MesaCard
+                  key={mesa.id}
+                  mesa={mesa}
+                  matchScore={matchScore}
+                  sponsored={boostedMesaIds.has(mesa.id)}
+                  founderBenefit={founderMesaIds.has(mesa.id)}
+                />
               ))}
             </div>
           </>
