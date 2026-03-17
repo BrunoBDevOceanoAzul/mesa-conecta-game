@@ -122,11 +122,11 @@ export function PricingSection() {
         </div>
 
         {/* Plans */}
-        <div className={`mx-auto grid gap-5 ${filtered.length === 1 ? "max-w-sm" : "max-w-3xl md:grid-cols-2"}`}>
+        <div className={`mx-auto grid gap-5 ${filtered.length <= 2 ? "max-w-3xl md:grid-cols-2" : "max-w-5xl md:grid-cols-2 lg:grid-cols-4"}`}>
           {filtered.map((plan, i) => {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
-              .filter(([, v]) => v !== false)
+              .filter(([k, v]) => v !== false && k !== "founder_locked")
               .map(([k, v]) => featureFlagLabel(k, v));
 
             return (
@@ -165,7 +165,7 @@ export function PricingSection() {
                 )}
 
                 {plan.is_founder_plan && (
-                  <p className="text-xs text-amber-500 font-medium mt-1">
+                  <p className="text-xs text-primary/80 font-medium mt-1">
                     {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
                   </p>
                 )}
