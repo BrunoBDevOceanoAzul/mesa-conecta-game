@@ -90,7 +90,7 @@ export default function Billing() {
 
   if (sub.loading) {
     return (
-      <DashboardLayout role={sub.userRole || "player"} navItems={navItems} userName={displayName}>
+    <DashboardLayout role={(sub.userRole || "player") as any} navItems={navItems} userName={displayName}>
         <div className="flex items-center justify-center min-h-[40vh]">
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
