@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Crown, Store, Megaphone, Loader2 } from "lucide-react";
+import { Gamepad2, Crown, Store, Megaphone, Loader2, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/data/mock";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
+import { motion, AnimatePresence } from "framer-motion";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -20,10 +21,10 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 const roles: { role: UserRole; icon: typeof Gamepad2; label: string; desc: string }[] = [
-  { role: "player", icon: Gamepad2, label: "Jogador", desc: "Quero encontrar e jogar em mesas" },
-  { role: "gm", icon: Crown, label: "Mestre", desc: "Quero narrar e gerenciar mesas" },
-  { role: "store", icon: Store, label: "Loja / Luderia", desc: "Quero organizar eventos e mesas" },
-  { role: "brand", icon: Megaphone, label: "Marca", desc: "Quero anunciar para a comunidade" },
+  { role: "player", icon: Gamepad2, label: "Jogador", desc: "Encontrar e jogar em mesas" },
+  { role: "gm", icon: Crown, label: "Mestre", desc: "Narrar e gerenciar mesas" },
+  { role: "store", icon: Store, label: "Luderia", desc: "Organizar eventos e mesas" },
+  { role: "brand", icon: Megaphone, label: "Marca", desc: "Anunciar para a comunidade" },
 ];
 
 const roleToDash: Record<UserRole, string> = {
@@ -56,15 +57,14 @@ export default function Signup() {
     });
     if (result?.error) {
       toast({
-        title: "Erro ao continuar com Google",
-        description: "Não foi possível autenticar com o Google. Tente novamente.",
+        title: "Erro com Google",
+        description: "Falha na autenticação. Tente novamente.",
         variant: "destructive",
       });
       setGoogleLoading(false);
       return;
     }
     if (!result?.redirected) {
-      // After Google auth, check profile
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const { data: profile } = await supabase
@@ -125,10 +125,10 @@ export default function Signup() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2 mb-6">
+        <div className="text-center mb-10">
+          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
             <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
-            <span className="font-display font-bold text-lg text-foreground">Sócio do <span className="text-primary">Tabuleiro</span></span>
+            <span className="font-display font-bold text-base text-foreground">Sócio do <span className="text-primary">Tabuleiro</span></span>
           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">
             {step === "info" ? "Crie sua conta" : "Escolha seu perfil"}
@@ -138,69 +138,78 @@ export default function Signup() {
           </p>
         </div>
 
-        {step === "info" ? (
-          <>
-            <Button
-              variant="outline"
-              className="w-full mb-4 gap-2"
-              onClick={handleGoogleSignup}
-              disabled={googleLoading}
-            >
-              {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-5 w-5" />}
-              Continuar com Google
-            </Button>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-              <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-2 text-muted-foreground">ou</span></div>
-            </div>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <label className="text-sm font-medium text-foreground">Nome</label>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Seu nome ou apelido" required />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Email</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="seu@email.com" required />
-              </div>
-              <div>
-                <label className="text-sm font-medium text-foreground">Senha</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary" placeholder="Mínimo 6 caracteres" required minLength={6} />
-              </div>
-              <Button variant="hero" className="w-full" type="submit">Continuar</Button>
-            </form>
-          </>
-        ) : (
-          <div className="grid gap-3">
-            {roles.map((r) => (
-              <button
-                key={r.role}
-                onClick={() => handleRoleSelect(r.role)}
-                disabled={loading}
-                className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all hover:scale-[1.02] ${
-                  selectedRole === r.role ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
-                } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+        <AnimatePresence mode="wait">
+          {step === "info" ? (
+            <motion.div key="info" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}>
+              <Button
+                variant="outline"
+                className="w-full mb-5 gap-2 h-11"
+                onClick={handleGoogleSignup}
+                disabled={googleLoading}
               >
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                  {loading && selectedRole === r.role ? (
-                    <Loader2 className="h-6 w-6 text-primary animate-spin" />
-                  ) : (
-                    <r.icon className="h-6 w-6 text-primary" />
-                  )}
+                {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-5 w-5" />}
+                Continuar com Google
+              </Button>
+
+              <div className="relative my-6">
+                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-3 text-muted-foreground/60">ou</span></div>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome</label>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="Seu nome ou apelido" required />
                 </div>
                 <div>
-                  <div className="font-display font-semibold text-foreground">{r.label}</div>
-                  <div className="text-sm text-muted-foreground">{r.desc}</div>
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="seu@email.com" required />
                 </div>
+                <div>
+                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="Mínimo 6 caracteres" required minLength={6} />
+                </div>
+                <Button variant="default" className="w-full h-11" type="submit">
+                  Continuar <ArrowRight className="h-4 w-4 ml-1" />
+                </Button>
+              </form>
+            </motion.div>
+          ) : (
+            <motion.div key="role" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
+              <div className="grid gap-3">
+                {roles.map((r) => (
+                  <button
+                    key={r.role}
+                    onClick={() => handleRoleSelect(r.role)}
+                    disabled={loading}
+                    className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
+                      selectedRole === r.role ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/20"
+                    } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
+                  >
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+                      {loading && selectedRole === r.role ? (
+                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
+                      ) : (
+                        <r.icon className="h-5 w-5 text-primary" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="font-display font-semibold text-foreground text-sm">{r.label}</div>
+                      <div className="text-xs text-muted-foreground">{r.desc}</div>
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                ← Voltar
               </button>
-            ))}
-          </div>
-        )}
+            </motion.div>
+          )}
+        </AnimatePresence>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">
+        <p className="mt-8 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
-          <button onClick={() => navigate("/login")} className="text-primary hover:underline">Entrar</button>
+          <button onClick={() => navigate("/login")} className="text-primary hover:underline font-medium">Entrar</button>
         </p>
       </div>
     </div>

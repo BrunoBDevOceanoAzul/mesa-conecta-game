@@ -5,11 +5,11 @@ import { useNavigate, useLocation } from "react-router-dom";
 import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 const navLinks = [
-  { label: "Início", href: "/" },
-  { label: "Explorar Mesas", href: "/buscar" },
-  { label: "Para Mestres", href: "#mestres" },
-  { label: "Para Lojas", href: "#lojas" },
+  { label: "Como funciona", href: "#como-funciona" },
+  { label: "Perfis", href: "#perfis" },
   { label: "Planos", href: "#planos" },
+  { label: "FAQ", href: "#faq" },
+  { label: "Explorar", href: "/buscar" },
 ];
 
 export function Navbar() {
@@ -32,15 +32,15 @@ export function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2">
-          <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
-          <span className="font-display font-bold text-lg text-foreground">
+        <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+          <img src={logoImg} alt="Sócio do Tabuleiro" className="h-9 w-9 object-contain" />
+          <span className="font-display font-bold text-base text-foreground tracking-tight">
             Sócio do <span className="text-primary">Tabuleiro</span>
           </span>
         </button>
 
         {/* Desktop */}
-        <div className="hidden md:flex items-center gap-6">
+        <div className="hidden md:flex items-center gap-7">
           {navLinks.map((l) => (
             <a
               key={l.href}
@@ -48,7 +48,7 @@ export function Navbar() {
               onClick={(e) => {
                 if (!l.href.startsWith("#")) { e.preventDefault(); handleNavClick(l.href); }
               }}
-              className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+              className="text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {l.label}
             </a>
@@ -56,11 +56,11 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/login")}>
+          <Button variant="ghost" size="sm" onClick={() => navigate("/login")} className="text-muted-foreground hover:text-foreground">
             Entrar
           </Button>
-          <Button variant="hero" size="sm" onClick={() => navigate("/cadastro")}>
-            Começar grátis
+          <Button variant="default" size="sm" onClick={() => navigate("/cadastro")}>
+            Criar conta
           </Button>
         </div>
 
@@ -71,7 +71,7 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-card border-t border-border px-4 pb-4">
+        <div className="md:hidden bg-card border-t border-border px-4 pb-4 animate-fade-in">
           {navLinks.map((l) => (
             <a
               key={l.href}
@@ -80,7 +80,7 @@ export function Navbar() {
                 if (!l.href.startsWith("#")) { e.preventDefault(); }
                 handleNavClick(l.href);
               }}
-              className="block py-2 text-sm text-muted-foreground hover:text-primary cursor-pointer"
+              className="block py-2.5 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
             >
               {l.label}
             </a>
@@ -89,8 +89,8 @@ export function Navbar() {
             <Button variant="ghost" size="sm" onClick={() => { navigate("/login"); setOpen(false); }}>
               Entrar
             </Button>
-            <Button variant="hero" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
-              Começar grátis
+            <Button variant="default" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
+              Criar conta
             </Button>
           </div>
         </div>
