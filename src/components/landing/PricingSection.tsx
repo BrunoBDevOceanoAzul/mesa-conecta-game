@@ -126,7 +126,7 @@ export function PricingSection() {
           {filtered.map((plan, i) => {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
-              .filter(([, v]) => v !== false)
+              .filter(([k, v]) => v !== false && k !== "founder_locked")
               .map(([k, v]) => featureFlagLabel(k, v));
 
             return (
