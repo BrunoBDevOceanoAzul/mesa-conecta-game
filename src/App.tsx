@@ -40,7 +40,7 @@ const App = () => (
             <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
-            <Route path="/boost" element={<ProtectedRoute><BoostDashboard /></ProtectedRoute>} />
+            <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/explorar" element={<ExploreMesas />} />
             <Route path="/buscar" element={<ExploreMesas />} />
