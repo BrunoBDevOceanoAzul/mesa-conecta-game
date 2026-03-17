@@ -71,7 +71,7 @@ serve(async (req) => {
 
       // Generate a fresh onboarding link if not yet verified
       if (existing.onboarding_status !== "verified") {
-        const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", { apiVersion: "2025-08-27.basil" });
+        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
         const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
 
         const accountLink = await stripe.accountLinks.create({
