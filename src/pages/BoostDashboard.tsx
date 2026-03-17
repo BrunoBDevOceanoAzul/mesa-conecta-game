@@ -89,19 +89,29 @@ export default function BoostDashboard() {
     if (!user) return;
     setLoading(true);
 
-    const [walletRes, txRes, campRes, mesasRes] = await Promise.all([
+    const [walletRes, txRes, campRes] = await Promise.all([
       supabase.from("credit_wallets").select("balance").eq("user_id", user.id).maybeSingle(),
       supabase.from("credit_transactions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50),
       supabase.from("boost_campaigns").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      isGm
-        ? supabase.from("mesas").select("id, title").eq("gm_id", user.id).eq("status", "aberta")
-        : supabase.from("mesas").select("id, title").eq("store_id", user.id).eq("status", "aberta"),
     ]);
+
+    // For stores, first find the store then query mesas by store.id
+    let mesasData: { id: string; title: string }[] = [];
+    if (isGm) {
+      const { data } = await supabase.from("mesas").select("id, title").eq("gm_id", user.id).eq("status", "aberta");
+      mesasData = data || [];
+    } else if (isStore) {
+      const { data: storeData } = await supabase.from("stores").select("id").eq("owner_id", user.id).maybeSingle();
+      if (storeData) {
+        const { data } = await supabase.from("mesas").select("id, title").eq("store_id", storeData.id).eq("status", "aberta");
+        mesasData = data || [];
+      }
+    }
 
     setWalletBalance(walletRes.data?.balance || 0);
     setTransactions((txRes.data as Transaction[]) || []);
     setCampaigns((campRes.data as Campaign[]) || []);
-    setMesas(mesasRes.data || []);
+    setMesas(mesasData);
     setLoading(false);
   }
 
