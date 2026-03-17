@@ -80,7 +80,7 @@ export function ProgressionPanel() {
           <Star className="h-4 w-4 text-secondary" /> Hierarquia de Mestres
         </h3>
         <div className="space-y-2">
-          {XP_TIERS.map((t) => {
+          {tiers.map((t) => {
             const isActive = t.level === prog.tier.level;
             const isCompleted = t.level < prog.tier.level;
             return (
