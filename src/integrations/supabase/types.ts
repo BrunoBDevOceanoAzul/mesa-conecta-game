@@ -1639,9 +1639,12 @@ export type Database = {
           currency: string
           description: string | null
           feature_flags: Json
+          founder_slots_total: number | null
+          founder_slots_used: number | null
           id: string
           interval_count: number | null
           is_active: boolean
+          is_founder_plan: boolean | null
           is_public: boolean | null
           limits_json: Json | null
           name: string
@@ -1651,6 +1654,7 @@ export type Database = {
           sort_order: number
           stripe_price_id: string | null
           stripe_product_id: string | null
+          trial_days: number | null
           updated_at: string
         }
         Insert: {
@@ -1663,9 +1667,12 @@ export type Database = {
           currency?: string
           description?: string | null
           feature_flags?: Json
+          founder_slots_total?: number | null
+          founder_slots_used?: number | null
           id?: string
           interval_count?: number | null
           is_active?: boolean
+          is_founder_plan?: boolean | null
           is_public?: boolean | null
           limits_json?: Json | null
           name: string
@@ -1675,6 +1682,7 @@ export type Database = {
           sort_order?: number
           stripe_price_id?: string | null
           stripe_product_id?: string | null
+          trial_days?: number | null
           updated_at?: string
         }
         Update: {
@@ -1687,9 +1695,12 @@ export type Database = {
           currency?: string
           description?: string | null
           feature_flags?: Json
+          founder_slots_total?: number | null
+          founder_slots_used?: number | null
           id?: string
           interval_count?: number | null
           is_active?: boolean
+          is_founder_plan?: boolean | null
           is_public?: boolean | null
           limits_json?: Json | null
           name?: string
@@ -1699,6 +1710,7 @@ export type Database = {
           sort_order?: number
           stripe_price_id?: string | null
           stripe_product_id?: string | null
+          trial_days?: number | null
           updated_at?: string
         }
         Relationships: []

@@ -22,6 +22,10 @@ interface DBPlan {
   price_monthly: number;
   feature_flags: Record<string, unknown>;
   sort_order: number;
+  trial_days: number;
+  is_founder_plan: boolean;
+  founder_slots_total: number;
+  founder_slots_used: number;
 }
 
 const featureFlagLabel = (key: string, value: unknown): string => {
@@ -56,8 +60,12 @@ const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?
   player_guild: { highlight: true },
   gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Inclui ferramentas de destaque e visibilidade" },
   gm_pro: { boostNote: "Ferramentas de crescimento desbloqueadas" },
+  gm_pro_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
+  gm_pro_plus_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
   store_growth: { highlight: true, badge: "Recomendado", boostNote: "Ferramentas de crescimento e visibilidade avançadas" },
   store_base: { boostNote: "Acesso a ferramentas de destaque" },
+  store_base_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
+  store_growth_founder: { highlight: true, badge: "🔒 Founder", boostNote: "Preço travado para sempre" },
 };
 
 export function PricingSection() {
@@ -68,7 +76,7 @@ export function PricingSection() {
   useEffect(() => {
     supabase
       .from("plans")
-      .select("id, code, role, name, description, price_monthly, feature_flags, sort_order")
+      .select("id, code, role, name, description, price_monthly, feature_flags, sort_order, trial_days, is_founder_plan, founder_slots_total, founder_slots_used")
       .eq("is_active", true)
       .order("sort_order")
       .then(({ data }) => {
@@ -149,6 +157,19 @@ export function PricingSection() {
                   </span>
                   <span className="text-sm text-muted-foreground">/mês</span>
                 </div>
+
+                {plan.trial_days > 0 && (
+                  <p className="text-xs text-primary font-medium mt-1">
+                    {plan.trial_days} dias grátis para testar
+                  </p>
+                )}
+
+                {plan.is_founder_plan && (
+                  <p className="text-xs text-amber-500 font-medium mt-1">
+                    {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
+                  </p>
+                )}
+
                 <ul className="mt-8 space-y-3">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-3 text-sm text-muted-foreground">
@@ -170,8 +191,14 @@ export function PricingSection() {
                   className="mt-8 w-full"
                   size="lg"
                   onClick={() => navigate("/cadastro")}
+                  disabled={plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total}
                 >
-                  Começar agora <ArrowRight className="h-4 w-4" />
+                  {plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total
+                    ? "Esgotado"
+                    : plan.trial_days > 0
+                      ? "Testar grátis"
+                      : "Começar agora"}{" "}
+                  <ArrowRight className="h-4 w-4" />
                 </Button>
               </motion.div>
             );
