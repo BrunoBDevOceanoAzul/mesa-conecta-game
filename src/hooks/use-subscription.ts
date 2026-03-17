@@ -89,19 +89,18 @@ export function useSubscription(): SubscriptionState {
     ]);
 
     setUserRole(profileRes.data?.role || null);
-    setAllPlans((plansRes.data as Plan[]) || []);
+    setAllPlans((plansRes.data || []) as unknown as Plan[]);
     setPayments((paymentsRes.data as Payment[]) || []);
 
     const sub = subRes.data as Subscription | null;
     setSubscription(sub);
 
     if (sub?.plan_id) {
-      const matchedPlan = (plansRes.data || []).find((p: Plan) => p.id === sub.plan_id);
-      setPlan(matchedPlan || null);
+      const matchedPlan = (plansRes.data || []).find((p: any) => p.id === sub.plan_id);
+      setPlan((matchedPlan as unknown as Plan) || null);
     } else if (sub?.plan_name) {
-      // Fallback: match by name
-      const matchedPlan = (plansRes.data || []).find((p: Plan) => p.name === sub.plan_name);
-      setPlan(matchedPlan || null);
+      const matchedPlan = (plansRes.data || []).find((p: any) => p.name === sub.plan_name);
+      setPlan((matchedPlan as unknown as Plan) || null);
     } else {
       setPlan(null);
     }

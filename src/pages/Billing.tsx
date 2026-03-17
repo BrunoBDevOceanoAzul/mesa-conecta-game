@@ -105,7 +105,7 @@ export default function Billing() {
   ];
 
   return (
-    <DashboardLayout role={sub.userRole || "player"} navItems={navItems} userName={displayName}>
+    <DashboardLayout role={(sub.userRole || "player") as any} navItems={navItems} userName={displayName}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
