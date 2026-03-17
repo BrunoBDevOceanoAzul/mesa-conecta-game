@@ -12,7 +12,7 @@ export default function Login() {
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     // MVP: simulate login
-    localStorage.setItem("mesanexo_user", JSON.stringify({ email, role: "player" }));
+    localStorage.setItem("hivium_user", JSON.stringify({ email, role: "player" }));
     navigate("/dashboard/jogador");
   };
 
