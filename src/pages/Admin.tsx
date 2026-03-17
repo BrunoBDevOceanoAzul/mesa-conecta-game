@@ -813,6 +813,11 @@ export default function Admin() {
             )}
           </div>
         )}
+
+        {/* ─── COUPONS ─── */}
+        {tab === "coupons" && (
+          <CouponManager />
+        )}
       </div>
     </DashboardLayout>
   );
