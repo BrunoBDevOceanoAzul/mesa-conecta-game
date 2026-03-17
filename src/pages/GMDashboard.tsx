@@ -219,6 +219,13 @@ export default function GMDashboard() {
           </div>
         )}
 
+        {/* ─── PROGRESSION ─── */}
+        {tab === "progression" && (
+          <div className="max-w-2xl">
+            <ProgressionPanel />
+          </div>
+        )}
+
         {/* ─── MESAS MANAGEMENT ─── */}
         {tab === "mesas" && (
           <div className="space-y-4">
