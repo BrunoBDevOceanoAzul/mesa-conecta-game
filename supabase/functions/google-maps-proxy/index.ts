@@ -47,27 +47,60 @@ Deno.serve(async (req) => {
     const { action, input, lat, lng, radius } = await req.json();
 
     if (action === "autocomplete") {
-      const url = `https://maps.googleapis.com/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-        input
-      )}&types=(cities)&language=pt-BR&components=country:br&key=${GOOGLE_MAPS_API_KEY}`;
-
-      const response = await fetch(url);
+      const url = "https://places.googleapis.com/v1/places:autocomplete";
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+        },
+        body: JSON.stringify({
+          input,
+          includedPrimaryTypes: ["locality", "administrative_area_level_2"],
+          includedRegionCodes: ["br"],
+          languageCode: "pt-BR",
+        }),
+      });
       const data = await response.json();
 
-      return new Response(JSON.stringify(data), {
+      // Map new API response to legacy format for frontend compatibility
+      const predictions = (data.suggestions || [])
+        .filter((s: any) => s.placePrediction)
+        .map((s: any) => ({
+          place_id: s.placePrediction.placeId,
+          description: s.placePrediction.text?.text || "",
+        }));
+
+      return new Response(JSON.stringify({ predictions }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
     if (action === "place-details") {
-      const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${encodeURIComponent(
-        input
-      )}&fields=geometry,formatted_address,name&language=pt-BR&key=${GOOGLE_MAPS_API_KEY}`;
-
-      const response = await fetch(url);
+      const url = `https://places.googleapis.com/v1/places/${encodeURIComponent(input)}`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
+          "X-Goog-FieldMask": "location,displayName,formattedAddress",
+        },
+      });
       const data = await response.json();
 
-      return new Response(JSON.stringify(data), {
+      // Map to legacy format for frontend compatibility
+      const result = {
+        geometry: {
+          location: {
+            lat: data.location?.latitude,
+            lng: data.location?.longitude,
+          },
+        },
+        formatted_address: data.formattedAddress,
+        name: data.displayName?.text,
+      };
+
+      return new Response(JSON.stringify({ result }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
