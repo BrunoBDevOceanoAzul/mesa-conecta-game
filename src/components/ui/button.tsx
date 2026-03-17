@@ -4,20 +4,20 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium font-display transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-medium font-body transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0",
   {
     variants: {
       variant: {
-        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/20",
+        default: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/15",
         destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90",
-        outline: "border border-border bg-transparent text-foreground hover:bg-card hover:text-foreground",
+        outline: "border border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground",
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
-        ghost: "hover:bg-card hover:text-foreground",
+        ghost: "hover:bg-muted hover:text-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        hero: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 hover:scale-[1.02]",
-        "hero-outline": "border border-muted text-foreground hover:bg-card hover:border-primary/50 hover:shadow-lg hover:shadow-primary/10",
-        accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-lg shadow-accent/20",
-        gradient: "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02]",
+        hero: "bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shadow-primary/20 hover:shadow-lg hover:shadow-primary/25 hover:scale-[1.02]",
+        "hero-outline": "border border-border text-foreground hover:bg-muted hover:border-primary/40 hover:shadow-md hover:shadow-primary/8",
+        accent: "bg-accent text-accent-foreground hover:bg-accent/90 shadow-md shadow-accent/15",
+        gradient: "text-primary-foreground shadow-md hover:shadow-lg hover:scale-[1.02]",
       },
       size: {
         default: "h-10 px-5 py-2",
@@ -45,7 +45,7 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
     const Comp = asChild ? Slot : "button";
     const gradientStyle =
       variant === "gradient"
-        ? { backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))", ...style }
+        ? { backgroundImage: "linear-gradient(135deg, hsl(280 52% 42%), hsl(38 88% 55%))", ...style }
         : style;
     return (
       <Comp

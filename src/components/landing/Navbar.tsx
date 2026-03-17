@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import logoImg from "@/assets/logo-socio-tabuleiro.png";
 
 const navLinks = [
   { label: "Início", href: "/" },
@@ -22,7 +23,6 @@ export function Navbar() {
       if (!isHome) {
         navigate("/" + href);
       }
-      // scroll handled by anchor
     } else {
       navigate(href);
     }
@@ -33,11 +33,9 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <button onClick={() => navigate("/")} className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg flex items-center justify-center font-display font-bold text-primary-foreground text-sm" style={{ backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }}>
-            H
-          </div>
+          <img src={logoImg} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
           <span className="font-display font-bold text-lg text-foreground">
-            Hiv<span className="text-primary">ium</span>
+            Sócio do <span className="text-primary">Tabuleiro</span>
           </span>
         </button>
 
@@ -50,7 +48,7 @@ export function Navbar() {
               onClick={(e) => {
                 if (!l.href.startsWith("#")) { e.preventDefault(); handleNavClick(l.href); }
               }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="text-sm text-muted-foreground hover:text-primary transition-colors cursor-pointer"
             >
               {l.label}
             </a>
@@ -73,7 +71,7 @@ export function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden glass border-t border-border px-4 pb-4">
+        <div className="md:hidden bg-card border-t border-border px-4 pb-4">
           {navLinks.map((l) => (
             <a
               key={l.href}
@@ -82,7 +80,7 @@ export function Navbar() {
                 if (!l.href.startsWith("#")) { e.preventDefault(); }
                 handleNavClick(l.href);
               }}
-              className="block py-2 text-sm text-muted-foreground hover:text-foreground cursor-pointer"
+              className="block py-2 text-sm text-muted-foreground hover:text-primary cursor-pointer"
             >
               {l.label}
             </a>
