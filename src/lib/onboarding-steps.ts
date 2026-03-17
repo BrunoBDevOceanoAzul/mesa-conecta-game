@@ -419,7 +419,7 @@ export const brandSteps: OnboardingStep[] = [
   {
     id: "brand-objective",
     title: "O que você quer gerar aqui?",
-    subtitle: "Seu objetivo principal na Hivium",
+    subtitle: "Seu objetivo principal na HIVIUM",
     type: "cards-single",
     field: "brand_objective",
     options: [

@@ -284,7 +284,7 @@ export default function Onboarding() {
           <TransitionScreen
             key="transition-mapped"
             headline="Seu perfil está tomando forma"
-            subtext="Revise os principais pontos antes de concluir."
+            subtext="A HIVIUM já pode personalizar tudo para você."
             onComplete={() => setPhase("mapped")}
             duration={2200}
           />
