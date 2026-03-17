@@ -36,9 +36,11 @@ export type Database = {
         Row: {
           boosted_entity_type: string | null
           budget_credits: number
+          campaign_source: string
           clicks: number
           cpc_rate: number
           created_at: string
+          duration_days: number
           ends_at: string
           id: string
           impressions: number
@@ -60,9 +62,11 @@ export type Database = {
         Insert: {
           boosted_entity_type?: string | null
           budget_credits?: number
+          campaign_source?: string
           clicks?: number
           cpc_rate?: number
           created_at?: string
+          duration_days?: number
           ends_at?: string
           id?: string
           impressions?: number
@@ -84,9 +88,11 @@ export type Database = {
         Update: {
           boosted_entity_type?: string | null
           budget_credits?: number
+          campaign_source?: string
           clicks?: number
           cpc_rate?: number
           created_at?: string
+          duration_days?: number
           ends_at?: string
           id?: string
           impressions?: number
@@ -106,6 +112,50 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      boost_usage_logs: {
+        Row: {
+          billing_reference: string | null
+          boost_campaign_id: string | null
+          created_at: string
+          credits_spent: number
+          founder_benefit_used: boolean
+          id: string
+          usage_type: string
+          used_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_reference?: string | null
+          boost_campaign_id?: string | null
+          created_at?: string
+          credits_spent?: number
+          founder_benefit_used?: boolean
+          id?: string
+          usage_type: string
+          used_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_reference?: string | null
+          boost_campaign_id?: string | null
+          created_at?: string
+          credits_spent?: number
+          founder_benefit_used?: boolean
+          id?: string
+          usage_type?: string
+          used_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "boost_usage_logs_boost_campaign_id_fkey"
+            columns: ["boost_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "boost_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       credit_transactions: {
         Row: {
@@ -618,6 +668,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_use_boost: { Args: { _user_id: string }; Returns: boolean }
+      can_use_founder_boost: { Args: { _user_id: string }; Returns: boolean }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
