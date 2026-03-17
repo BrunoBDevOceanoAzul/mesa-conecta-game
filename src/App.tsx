@@ -19,6 +19,7 @@ import TableDetail from "./pages/TableDetail";
 import Checkout from "./pages/Checkout";
 import Admin from "./pages/Admin";
 import BoostDashboard from "./pages/BoostDashboard";
+import Billing from "./pages/Billing";
 import OAuthCallback from "./pages/OAuthCallback";
 
 const queryClient = new QueryClient();
@@ -41,6 +42,7 @@ const App = () => (
             <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
             <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
             <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
+            <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/explorar" element={<ExploreMesas />} />
             <Route path="/buscar" element={<ExploreMesas />} />
