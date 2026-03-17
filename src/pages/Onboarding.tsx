@@ -16,7 +16,7 @@ interface StepConfig {
 }
 
 const playerSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "text", field: "city" },
+  { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "city-autocomplete", field: "city" },
   { title: "Sistemas preferidos", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilos de mesa", subtitle: "Como você gosta de jogar?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Nível de experiência", subtitle: "Não existe resposta errada", type: "select-one", options: ["Nunca joguei", "Iniciante", "Intermediário", "Experiente", "Veterano"], field: "experience" },
