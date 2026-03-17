@@ -35,7 +35,7 @@ export function ProgressionPanel() {
     );
   }
 
-  const nextTier = XP_TIERS.find((t) => t.level === prog.tier.level + 1);
+  const nextTier = tiers.find((t) => t.level === prog.tier.level + 1);
 
   return (
     <div className="space-y-6">
