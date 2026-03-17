@@ -24,6 +24,8 @@ interface Mesa {
 interface MesaCardProps {
   mesa: Mesa;
   matchScore?: number;
+  sponsored?: boolean;
+  founderBenefit?: boolean;
 }
 
 const formatMap: Record<string, string> = {
