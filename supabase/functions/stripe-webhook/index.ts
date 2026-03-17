@@ -307,6 +307,42 @@ serve(async (req) => {
         await handleChargeRefunded(event.data.object as Stripe.Charge);
         break;
 
+      case "account.updated": {
+        // Stripe Connect account update
+        const acct = event.data.object as Stripe.Account;
+        const acctId = acct.id;
+        logStep("Connect account.updated", { accountId: acctId });
+
+        const { data: connectedAcct } = await supabase
+          .from("connected_accounts")
+          .select("id")
+          .eq("stripe_connected_account_id", acctId)
+          .maybeSingle();
+
+        if (connectedAcct) {
+          let onboardingStatus = "pending";
+          if (acct.charges_enabled && acct.payouts_enabled && acct.details_submitted) {
+            onboardingStatus = "verified";
+          } else if (acct.details_submitted) {
+            onboardingStatus = "submitted";
+          } else if (acct.requirements?.disabled_reason) {
+            onboardingStatus = "restricted";
+          }
+
+          await supabase.from("connected_accounts").update({
+            charges_enabled: acct.charges_enabled ?? false,
+            payouts_enabled: acct.payouts_enabled ?? false,
+            details_submitted: acct.details_submitted ?? false,
+            onboarding_status: onboardingStatus,
+            capabilities_json: acct.capabilities ?? {},
+            requirements_json: acct.requirements ?? {},
+          }).eq("id", connectedAcct.id);
+
+          logStep("Connected account synced", { id: connectedAcct.id, status: onboardingStatus });
+        }
+        break;
+      }
+
       default:
         logStep("Unhandled event type", { type: event.type });
     }

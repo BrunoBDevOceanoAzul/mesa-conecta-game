@@ -19,6 +19,7 @@ import { PricingCalculator } from "@/components/gm/PricingCalculator";
 import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
 import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
 import { ShareButton } from "@/components/shared/ShareModal";
+import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 
 type Mesa = Tables<"mesas">;
 
@@ -177,9 +178,12 @@ export default function GMDashboard() {
               <StatCard icon={<DollarSign className="h-5 w-5" />} label="Receita Est." value={isPremium ? `R$${estimatedRevenue.toFixed(0)}` : "🔒"} />
             </div>
 
-            {/* Income Goal + Quick mesas list */}
+            {/* Income Goal + Connect Status + Quick mesas list */}
             <div className="grid gap-6 lg:grid-cols-[1fr_1fr]">
-              <IncomeGoalTracker />
+              <div className="space-y-6">
+                <IncomeGoalTracker />
+                <ConnectStatusBlock />
+              </div>
               <div>
                 <h2 className="text-base font-display font-semibold text-foreground mb-3">Mesas Recentes</h2>
                 {mesas.length === 0 ? (

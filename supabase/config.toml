@@ -13,3 +13,9 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.stripe-webhook]
     verify_jwt = false
+  [functions.create-connect-account]
+    verify_jwt = false
+  [functions.manage-coupons]
+    verify_jwt = false
+  [functions.validate-coupon]
+    verify_jwt = false

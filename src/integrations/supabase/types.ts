@@ -510,6 +510,133 @@ export type Database = {
         }
         Relationships: []
       }
+      connected_accounts: {
+        Row: {
+          application_fee_percent: number
+          capabilities_json: Json
+          charges_enabled: boolean
+          country: string
+          created_at: string
+          currency: string
+          details_submitted: boolean
+          id: string
+          onboarding_status: string
+          onboarding_url: string | null
+          payouts_enabled: boolean
+          platform_fee_amount: number | null
+          requirements_json: Json
+          role: string
+          stripe_account_type: string
+          stripe_connected_account_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          application_fee_percent?: number
+          capabilities_json?: Json
+          charges_enabled?: boolean
+          country?: string
+          created_at?: string
+          currency?: string
+          details_submitted?: boolean
+          id?: string
+          onboarding_status?: string
+          onboarding_url?: string | null
+          payouts_enabled?: boolean
+          platform_fee_amount?: number | null
+          requirements_json?: Json
+          role: string
+          stripe_account_type?: string
+          stripe_connected_account_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          application_fee_percent?: number
+          capabilities_json?: Json
+          charges_enabled?: boolean
+          country?: string
+          created_at?: string
+          currency?: string
+          details_submitted?: boolean
+          id?: string
+          onboarding_status?: string
+          onboarding_url?: string | null
+          payouts_enabled?: boolean
+          platform_fee_amount?: number | null
+          requirements_json?: Json
+          role?: string
+          stripe_account_type?: string
+          stripe_connected_account_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      coupon_redemptions: {
+        Row: {
+          coupon_id: string
+          created_at: string
+          currency: string
+          discount_amount_applied: number
+          id: string
+          payment_id: string | null
+          redeemed_at: string
+          stripe_discount_id: string | null
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string
+          currency?: string
+          discount_amount_applied?: number
+          id?: string
+          payment_id?: string | null
+          redeemed_at?: string
+          stripe_discount_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string
+          currency?: string
+          discount_amount_applied?: number
+          id?: string
+          payment_id?: string | null
+          redeemed_at?: string
+          stripe_discount_id?: string | null
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_redemptions_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "discount_coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_redemptions_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_packages: {
         Row: {
           code: string
@@ -783,6 +910,90 @@ export type Database = {
           id?: string
           is_default?: boolean | null
           name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      discount_coupons: {
+        Row: {
+          amount_off: number | null
+          applies_to_credit_packages_json: Json
+          applies_to_plan_ids_json: Json
+          applies_to_roles_json: Json
+          created_at: string
+          created_by_admin_user_id: string
+          currency: string
+          discount_type: string
+          duration_in_months: number | null
+          duration_type: string
+          expires_at: string | null
+          first_time_customer_only: boolean
+          id: string
+          internal_name: string
+          is_active: boolean
+          max_redemptions: number | null
+          max_redemptions_per_user: number
+          metadata_json: Json
+          minimum_amount: number | null
+          percent_off: number | null
+          public_code: string
+          starts_at: string | null
+          stripe_coupon_id: string | null
+          stripe_promotion_code_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          amount_off?: number | null
+          applies_to_credit_packages_json?: Json
+          applies_to_plan_ids_json?: Json
+          applies_to_roles_json?: Json
+          created_at?: string
+          created_by_admin_user_id: string
+          currency?: string
+          discount_type?: string
+          duration_in_months?: number | null
+          duration_type?: string
+          expires_at?: string | null
+          first_time_customer_only?: boolean
+          id?: string
+          internal_name: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          max_redemptions_per_user?: number
+          metadata_json?: Json
+          minimum_amount?: number | null
+          percent_off?: number | null
+          public_code: string
+          starts_at?: string | null
+          stripe_coupon_id?: string | null
+          stripe_promotion_code_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          amount_off?: number | null
+          applies_to_credit_packages_json?: Json
+          applies_to_plan_ids_json?: Json
+          applies_to_roles_json?: Json
+          created_at?: string
+          created_by_admin_user_id?: string
+          currency?: string
+          discount_type?: string
+          duration_in_months?: number | null
+          duration_type?: string
+          expires_at?: string | null
+          first_time_customer_only?: boolean
+          id?: string
+          internal_name?: string
+          is_active?: boolean
+          max_redemptions?: number | null
+          max_redemptions_per_user?: number
+          metadata_json?: Json
+          minimum_amount?: number | null
+          percent_off?: number | null
+          public_code?: string
+          starts_at?: string | null
+          stripe_coupon_id?: string | null
+          stripe_promotion_code_id?: string | null
           updated_at?: string
         }
         Relationships: []
