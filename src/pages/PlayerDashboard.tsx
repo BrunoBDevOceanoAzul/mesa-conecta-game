@@ -1,6 +1,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { mockTables } from "@/data/mock";
 import { TableCard } from "@/components/shared/TableCard";
+import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
 import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart } from "lucide-react";
 
 const navItems = [
@@ -65,6 +66,9 @@ export default function PlayerDashboard() {
             ))}
           </div>
         </div>
+
+        {/* Nearby Stores */}
+        <NearbyStoresMap />
       </div>
     </DashboardLayout>
   );

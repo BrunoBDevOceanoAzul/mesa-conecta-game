@@ -4,18 +4,19 @@ import { Button } from "@/components/ui/button";
 import { PLAY_STYLES } from "@/data/mock";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
+import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 
 interface StepConfig {
   title: string;
   subtitle: string;
-  type: "text" | "select-multi" | "select-one" | "systems-search";
+  type: "text" | "select-multi" | "select-one" | "systems-search" | "city-autocomplete";
   options?: string[];
   field: string;
 }
 
 const playerSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "text", field: "city" },
+  { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "city-autocomplete", field: "city" },
   { title: "Sistemas preferidos", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilos de mesa", subtitle: "Como você gosta de jogar?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Nível de experiência", subtitle: "Não existe resposta errada", type: "select-one", options: ["Nunca joguei", "Iniciante", "Intermediário", "Experiente", "Veterano"], field: "experience" },
@@ -24,7 +25,7 @@ const playerSteps: StepConfig[] = [
 ];
 
 const gmSteps: StepConfig[] = [
-  { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "text", field: "city" },
+  { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "city-autocomplete", field: "city" },
   { title: "Sistemas que domina", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilo narrativo", subtitle: "Como você conduz?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Foco em quem?", subtitle: "Seu público principal", type: "select-one", options: ["Iniciantes", "Intermediários", "Avançados", "Todos os níveis"], field: "focus" },
@@ -33,7 +34,7 @@ const gmSteps: StepConfig[] = [
 ];
 
 const storeSteps: StepConfig[] = [
-  { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "text", field: "city" },
+  { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "city-autocomplete", field: "city" },
   { title: "Sistemas e jogos disponíveis", subtitle: "Quais sistemas vocês oferecem?", type: "systems-search", field: "systems" },
   { title: "Capacidade da casa", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
   { title: "Mesas simultâneas", subtitle: "Quantas mesas cabem ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
@@ -53,6 +54,7 @@ export default function Onboarding() {
   const steps = stepsMap[role] || playerSteps;
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
+  const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
 
   const step = steps[current];
   const value = answers[step.field];
@@ -63,7 +65,7 @@ export default function Onboarding() {
   };
 
   const canNext =
-    step.type === "text"
+    step.type === "text" || step.type === "city-autocomplete"
       ? !!(value as string)?.trim()
       : step.type === "select-one"
       ? !!value
@@ -102,6 +104,16 @@ export default function Onboarding() {
           />
         )}
 
+        {step.type === "city-autocomplete" && (
+          <CityAutocomplete
+            value={(value as string) || ""}
+            onChange={(city, lat, lng) => {
+              setAnswers({ ...answers, [step.field]: city });
+              if (lat && lng) setCoords({ lat, lng });
+            }}
+            placeholder="Buscar cidade..."
+          />
+        )}
         {step.type === "systems-search" && (
           <SearchableSystemSelect
             systems={RPG_SYSTEMS}
