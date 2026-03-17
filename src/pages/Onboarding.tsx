@@ -9,6 +9,7 @@ import { ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface StepConfig {
   title: string;
@@ -33,16 +34,16 @@ const gmSteps: StepConfig[] = [
   { title: "Estilo narrativo", subtitle: "Como você conduz?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Foco em quem?", subtitle: "Seu público principal", type: "select-one", options: ["Iniciantes", "Intermediários", "Avançados", "Todos os níveis"], field: "focus" },
   { title: "Formato das sessões", subtitle: "Como você narra?", type: "select-one", options: ["Presencial", "Online", "Híbrido"], field: "format" },
-  { title: "Ticket médio por sessão", subtitle: "Quanto cobra em média?", type: "select-one", options: ["Até R$25", "R$25–40", "R$40–60", "R$60–100", "R$100+"], field: "ticket" },
+  { title: "Ticket médio", subtitle: "Quanto cobra em média?", type: "select-one", options: ["Até R$25", "R$25–40", "R$40–60", "R$60–100", "R$100+"], field: "ticket" },
 ];
 
 const storeSteps: StepConfig[] = [
-  { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "city-autocomplete", field: "city" },
-  { title: "Sistemas e jogos disponíveis", subtitle: "Quais sistemas vocês oferecem?", type: "systems-search", field: "systems" },
-  { title: "Capacidade da casa", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
-  { title: "Mesas simultâneas", subtitle: "Quantas mesas cabem ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
-  { title: "Dias disponíveis", subtitle: "Quando a luderia funciona?", type: "select-multi", options: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"], field: "days" },
-  { title: "Público alvo", subtitle: "Quem frequenta?", type: "select-multi", options: ["Famílias", "Jovens (18-25)", "Adultos (25-40)", "Gamers", "Corporativo", "Iniciantes"], field: "audience" },
+  { title: "Cidade da luderia", subtitle: "Localização do espaço", type: "city-autocomplete", field: "city" },
+  { title: "Sistemas disponíveis", subtitle: "Quais vocês oferecem?", type: "systems-search", field: "systems" },
+  { title: "Capacidade", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
+  { title: "Mesas simultâneas", subtitle: "Quantas ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
+  { title: "Dias disponíveis", subtitle: "Quando funciona?", type: "select-multi", options: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"], field: "days" },
+  { title: "Público", subtitle: "Quem frequenta?", type: "select-multi", options: ["Famílias", "Jovens (18-25)", "Adultos (25-40)", "Gamers", "Corporativo", "Iniciantes"], field: "audience" },
 ];
 
 const stepsMap: Record<string, StepConfig[]> = {
@@ -61,6 +62,7 @@ export default function Onboarding() {
   const [answers, setAnswers] = useState<Record<string, string | string[]>>({});
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
   const [saving, setSaving] = useState(false);
+  const [direction, setDirection] = useState(1);
 
   const step = steps[current];
   const value = answers[step.field];
@@ -77,19 +79,20 @@ export default function Onboarding() {
       ? !!value
       : ((value as string[]) || []).length > 0;
 
+  const goNext = () => { setDirection(1); setCurrent(current + 1); };
+  const goPrev = () => { setDirection(-1); current > 0 ? setCurrent(current - 1) : navigate(-1); };
+
   const finish = async () => {
     if (!user) return;
     setSaving(true);
 
     try {
-      // Update profile with city, coordinates, and preferences
       const updateData: Record<string, unknown> = {
         city: answers.city as string,
         lat: coords.lat,
         lng: coords.lng,
       };
 
-      // Save preferences based on role
       if (answers.systems) updateData.preferred_systems = answers.systems;
       if (answers.styles) updateData.play_styles = answers.styles;
       if (answers.experience) updateData.experience_level = answers.experience;
@@ -111,8 +114,8 @@ export default function Onboarding() {
       navigate(dashMap[role] || "/dashboard/jogador");
     } catch (err: any) {
       toast({
-        title: "Erro ao salvar",
-        description: err.message,
+        title: "Erro ao salvar perfil",
+        description: "Tente novamente. Se persistir, entre em contato.",
         variant: "destructive",
       });
     } finally {
@@ -120,104 +123,120 @@ export default function Onboarding() {
     }
   };
 
+  const progress = ((current + 1) / steps.length) * 100;
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-lg">
         {/* Progress */}
-        <div className="mb-8">
-          <div className="flex justify-between text-xs text-muted-foreground mb-2">
+        <div className="mb-10">
+          <div className="flex justify-between text-[11px] text-muted-foreground mb-2 font-medium">
             <span>Passo {current + 1} de {steps.length}</span>
-            <span>{Math.round(((current + 1) / steps.length) * 100)}%</span>
+            <span>{Math.round(progress)}%</span>
           </div>
-          <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-300" style={{ width: `${((current + 1) / steps.length) * 100}%`, backgroundImage: "linear-gradient(135deg, hsl(258 90% 66%), hsl(189 94% 43%))" }} />
+          <div className="h-1 rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${progress}%`, backgroundImage: "var(--gradient-primary)" }}
+            />
           </div>
         </div>
 
-        <h2 className="text-2xl font-display font-bold text-foreground">{step.title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground mb-6">{step.subtitle}</p>
+        <AnimatePresence mode="wait" custom={direction}>
+          <motion.div
+            key={current}
+            custom={direction}
+            initial={{ opacity: 0, x: direction * 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: direction * -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <h2 className="text-2xl font-display font-bold text-foreground">{step.title}</h2>
+            <p className="mt-1.5 text-sm text-muted-foreground mb-7">{step.subtitle}</p>
 
-        {step.type === "text" && (
-          <input
-            type="text"
-            value={(value as string) || ""}
-            onChange={(e) => setAnswers({ ...answers, [step.field]: e.target.value })}
-            className="w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            placeholder="Digite aqui..."
-            autoFocus
-          />
-        )}
+            {step.type === "text" && (
+              <input
+                type="text"
+                value={(value as string) || ""}
+                onChange={(e) => setAnswers({ ...answers, [step.field]: e.target.value })}
+                className="w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow"
+                placeholder="Digite aqui..."
+                autoFocus
+              />
+            )}
 
-        {step.type === "city-autocomplete" && (
-          <CityAutocomplete
-            value={(value as string) || ""}
-            onChange={(city, lat, lng) => {
-              setAnswers({ ...answers, [step.field]: city });
-              if (lat && lng) setCoords({ lat, lng });
-            }}
-            placeholder="Buscar cidade..."
-          />
-        )}
-        {step.type === "systems-search" && (
-          <SearchableSystemSelect
-            systems={RPG_SYSTEMS}
-            popularSystems={POPULAR_SYSTEMS}
-            selected={(value as string[]) || []}
-            onChange={(sel) => setAnswers({ ...answers, [step.field]: sel })}
-            placeholder="Buscar entre 600+ sistemas..."
-          />
-        )}
+            {step.type === "city-autocomplete" && (
+              <CityAutocomplete
+                value={(value as string) || ""}
+                onChange={(city, lat, lng) => {
+                  setAnswers({ ...answers, [step.field]: city });
+                  if (lat && lng) setCoords({ lat, lng });
+                }}
+                placeholder="Buscar cidade..."
+              />
+            )}
+            {step.type === "systems-search" && (
+              <SearchableSystemSelect
+                systems={RPG_SYSTEMS}
+                popularSystems={POPULAR_SYSTEMS}
+                selected={(value as string[]) || []}
+                onChange={(sel) => setAnswers({ ...answers, [step.field]: sel })}
+                placeholder="Buscar entre 600+ sistemas..."
+              />
+            )}
 
-        {step.type === "select-one" && (
-          <div className="grid gap-2">
-            {step.options?.map((opt) => (
-              <button
-                key={opt}
-                onClick={() => setAnswers({ ...answers, [step.field]: opt })}
-                className={`flex items-center gap-3 rounded-lg border p-3.5 text-left text-sm transition-all ${
-                  value === opt ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/30"
-                }`}
-              >
-                <div className={`h-5 w-5 rounded-full border-2 flex items-center justify-center shrink-0 ${value === opt ? "border-primary bg-primary" : "border-muted"}`}>
-                  {value === opt && <Check className="h-3 w-3 text-primary-foreground" />}
-                </div>
-                {opt}
-              </button>
-            ))}
-          </div>
-        )}
+            {step.type === "select-one" && (
+              <div className="grid gap-2">
+                {step.options?.map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => setAnswers({ ...answers, [step.field]: opt })}
+                    className={`flex items-center gap-3 rounded-lg border p-3.5 text-left text-sm transition-all ${
+                      value === opt ? "border-primary bg-primary/5 text-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/20"
+                    }`}
+                  >
+                    <div className={`h-4 w-4 rounded-full border-2 flex items-center justify-center shrink-0 transition-all ${value === opt ? "border-primary bg-primary" : "border-muted"}`}>
+                      {value === opt && <Check className="h-2.5 w-2.5 text-primary-foreground" />}
+                    </div>
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
 
-        {step.type === "select-multi" && (
-          <div className="flex flex-wrap gap-2">
-            {step.options?.map((opt) => {
-              const selected = ((value as string[]) || []).includes(opt);
-              return (
-                <button
-                  key={opt}
-                  onClick={() => toggleMulti(opt)}
-                  className={`rounded-lg border px-4 py-2.5 text-sm transition-all ${
-                    selected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/30"
-                  }`}
-                >
-                  {opt}
-                </button>
-              );
-            })}
-          </div>
-        )}
+            {step.type === "select-multi" && (
+              <div className="flex flex-wrap gap-2">
+                {step.options?.map((opt) => {
+                  const selected = ((value as string[]) || []).includes(opt);
+                  return (
+                    <button
+                      key={opt}
+                      onClick={() => toggleMulti(opt)}
+                      className={`rounded-lg border px-4 py-2.5 text-sm transition-all ${
+                        selected ? "border-primary bg-primary/10 text-primary" : "border-border bg-card text-muted-foreground hover:border-primary/20"
+                      }`}
+                    >
+                      {opt}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
 
-        <div className="mt-8 flex justify-between">
-          <Button variant="ghost" onClick={() => current > 0 ? setCurrent(current - 1) : navigate(-1)} disabled={current === 0}>
+        <div className="mt-10 flex justify-between">
+          <Button variant="ghost" onClick={goPrev} disabled={current === 0} className="text-muted-foreground">
             <ChevronLeft className="h-4 w-4" /> Voltar
           </Button>
           {current < steps.length - 1 ? (
-            <Button variant="hero" onClick={() => setCurrent(current + 1)} disabled={!canNext}>
+            <Button variant="default" onClick={goNext} disabled={!canNext}>
               Próximo <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
             <Button variant="gradient" onClick={finish} disabled={!canNext || saving}>
               {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-              Finalizar 🎉
+              Finalizar
             </Button>
           )}
         </div>
