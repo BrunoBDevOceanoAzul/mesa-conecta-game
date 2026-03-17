@@ -122,7 +122,7 @@ export function PricingSection() {
         </div>
 
         {/* Plans */}
-        <div className={`mx-auto grid gap-5 ${filtered.length === 1 ? "max-w-sm" : "max-w-3xl md:grid-cols-2"}`}>
+        <div className={`mx-auto grid gap-5 ${filtered.length <= 2 ? "max-w-3xl md:grid-cols-2" : "max-w-5xl md:grid-cols-2 lg:grid-cols-" + Math.min(filtered.length, 4)}`}>
           {filtered.map((plan, i) => {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
