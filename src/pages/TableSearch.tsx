@@ -1,4 +1,5 @@
-import { mockTables, SYSTEMS } from "@/data/mock";
+import { mockTables } from "@/data/mock";
+import { RPG_SYSTEMS } from "@/data/rpg-systems";
 import { TableCard } from "@/components/shared/TableCard";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
@@ -29,7 +30,7 @@ export default function TableSearch() {
           </div>
           <select value={system} onChange={(e) => setSystem(e.target.value)} className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
             <option value="">Todos os sistemas</option>
-            {SYSTEMS.map((s) => <option key={s} value={s}>{s}</option>)}
+            {RPG_SYSTEMS.map((s) => <option key={s} value={s}>{s}</option>)}
           </select>
           <select value={format} onChange={(e) => setFormat(e.target.value)} className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary">
             <option value="">Todos os formatos</option>

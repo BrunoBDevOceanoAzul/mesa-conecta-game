@@ -1,20 +1,22 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { SYSTEMS, PLAY_STYLES } from "@/data/mock";
+import { PLAY_STYLES } from "@/data/mock";
+import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
+import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
 import { ChevronRight, ChevronLeft, Check } from "lucide-react";
 
 interface StepConfig {
   title: string;
   subtitle: string;
-  type: "text" | "select-multi" | "select-one" | "range";
+  type: "text" | "select-multi" | "select-one" | "systems-search";
   options?: string[];
   field: string;
 }
 
 const playerSteps: StepConfig[] = [
   { title: "Qual sua cidade?", subtitle: "Para encontrar mesas perto de você", type: "text", field: "city" },
-  { title: "Sistemas preferidos", subtitle: "Selecione um ou mais", type: "select-multi", options: SYSTEMS, field: "systems" },
+  { title: "Sistemas preferidos", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilos de mesa", subtitle: "Como você gosta de jogar?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Nível de experiência", subtitle: "Não existe resposta errada", type: "select-one", options: ["Nunca joguei", "Iniciante", "Intermediário", "Experiente", "Veterano"], field: "experience" },
   { title: "Formato preferido", subtitle: "Como você prefere jogar?", type: "select-one", options: ["Presencial", "Online", "Híbrido", "Tanto faz"], field: "format" },
@@ -23,7 +25,7 @@ const playerSteps: StepConfig[] = [
 
 const gmSteps: StepConfig[] = [
   { title: "Qual sua cidade?", subtitle: "Onde você narra?", type: "text", field: "city" },
-  { title: "Sistemas que domina", subtitle: "Selecione seus sistemas", type: "select-multi", options: SYSTEMS, field: "systems" },
+  { title: "Sistemas que domina", subtitle: "Busque entre 600+ sistemas de RPG", type: "systems-search", field: "systems" },
   { title: "Estilo narrativo", subtitle: "Como você conduz?", type: "select-multi", options: PLAY_STYLES, field: "styles" },
   { title: "Foco em quem?", subtitle: "Seu público principal", type: "select-one", options: ["Iniciantes", "Intermediários", "Avançados", "Todos os níveis"], field: "focus" },
   { title: "Formato das sessões", subtitle: "Como você narra?", type: "select-one", options: ["Presencial", "Online", "Híbrido"], field: "format" },
@@ -32,6 +34,7 @@ const gmSteps: StepConfig[] = [
 
 const storeSteps: StepConfig[] = [
   { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "text", field: "city" },
+  { title: "Sistemas e jogos disponíveis", subtitle: "Quais sistemas vocês oferecem?", type: "systems-search", field: "systems" },
   { title: "Capacidade da casa", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
   { title: "Mesas simultâneas", subtitle: "Quantas mesas cabem ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
   { title: "Dias disponíveis", subtitle: "Quando a luderia funciona?", type: "select-multi", options: ["Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"], field: "days" },
@@ -42,12 +45,6 @@ const stepsMap: Record<string, StepConfig[]> = {
   jogador: playerSteps,
   mestre: gmSteps,
   loja: storeSteps,
-};
-
-const roleMap: Record<string, string> = {
-  jogador: "player",
-  mestre: "gm",
-  loja: "store",
 };
 
 export default function Onboarding() {
@@ -65,7 +62,12 @@ export default function Onboarding() {
     setAnswers({ ...answers, [step.field]: arr.includes(opt) ? arr.filter((v) => v !== opt) : [...arr, opt] });
   };
 
-  const canNext = step.type === "text" ? !!(value as string)?.trim() : step.type === "select-one" ? !!value : ((value as string[]) || []).length > 0;
+  const canNext =
+    step.type === "text"
+      ? !!(value as string)?.trim()
+      : step.type === "select-one"
+      ? !!value
+      : ((value as string[]) || []).length > 0;
 
   const finish = () => {
     const dashMap: Record<string, string> = { jogador: "/dashboard/jogador", mestre: "/dashboard/mestre", loja: "/dashboard/loja" };
@@ -97,6 +99,16 @@ export default function Onboarding() {
             className="w-full rounded-lg border border-border bg-card px-4 py-3 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
             placeholder="Digite aqui..."
             autoFocus
+          />
+        )}
+
+        {step.type === "systems-search" && (
+          <SearchableSystemSelect
+            systems={RPG_SYSTEMS}
+            popularSystems={POPULAR_SYSTEMS}
+            selected={(value as string[]) || []}
+            onChange={(sel) => setAnswers({ ...answers, [step.field]: sel })}
+            placeholder="Buscar entre 600+ sistemas..."
           />
         )}
 
