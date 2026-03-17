@@ -63,7 +63,7 @@ export default function Admin() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [tab, setTab] = useState<AdminTab>("overview");
-  const [stats, setStats] = useState({ members: 0, mesas: 0, gms: 0, stores: 0, activeSubs: 0, activeCampaigns: 0 });
+  const [stats, setStats] = useState({ members: 0, mesas: 0, gms: 0, stores: 0, activeSubs: 0, activeCampaigns: 0, mrr: 0, mrrByRole: {} as Record<string, number>, canceledSubs: 0, pastDueSubs: 0 });
   const [founders, setFounders] = useState<FounderInfo[]>([]);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
   const [allCampaigns, setAllCampaigns] = useState<CampaignOverview[]>([]);
