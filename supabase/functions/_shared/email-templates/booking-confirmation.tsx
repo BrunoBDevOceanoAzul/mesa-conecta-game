@@ -39,7 +39,7 @@ export function BookingConfirmation({
   format = "Presencial",
   price = "R$40",
   mesaUrl = "#",
-  siteUrl = "https://sociodotabuleiro.app.br",
+  siteUrl = "https://hivium.app",
   logoUrl,
 }: BookingConfirmationProps) {
   return (
