@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  /** If set, only these profile roles can access. Others get redirected. */
+  /** If set, only these profile roles can access. "admin" is checked via user_roles table. */
   allowedRoles?: string[];
 }
 
@@ -15,21 +15,29 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const location = useLocation();
   const [roleLoading, setRoleLoading] = useState(!!allowedRoles);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     if (!allowedRoles || !user) {
       setRoleLoading(false);
       return;
     }
-    supabase
-      .from("profiles")
-      .select("role")
-      .eq("user_id", user.id)
-      .maybeSingle()
-      .then(({ data }) => {
-        setUserRole(data?.role || null);
-        setRoleLoading(false);
-      });
+
+    const checkAccess = async () => {
+      const [profileRes, adminRes] = await Promise.all([
+        supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+        // Check admin via the security definer function
+        allowedRoles.includes("admin")
+          ? supabase.rpc("is_admin", { _user_id: user.id })
+          : Promise.resolve({ data: false }),
+      ]);
+
+      setUserRole(profileRes.data?.role || null);
+      setIsAdmin(!!adminRes.data);
+      setRoleLoading(false);
+    };
+
+    checkAccess();
   }, [user, allowedRoles]);
 
   if (loading || roleLoading) {
@@ -45,15 +53,20 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   }
 
   // Role-based guard
-  if (allowedRoles && userRole && !allowedRoles.includes(userRole)) {
-    // Redirect to appropriate dashboard based on role
-    const roleRoutes: Record<string, string> = {
-      player: "/dashboard/jogador",
-      gm: "/dashboard/mestre",
-      store: "/dashboard/loja",
-      brand: "/feed",
-    };
-    return <Navigate to={roleRoutes[userRole] || "/"} replace />;
+  if (allowedRoles) {
+    const hasAccess =
+      (allowedRoles.includes("admin") && isAdmin) ||
+      (userRole && allowedRoles.includes(userRole));
+
+    if (!hasAccess) {
+      const roleRoutes: Record<string, string> = {
+        player: "/dashboard/jogador",
+        gm: "/dashboard/mestre",
+        store: "/dashboard/loja",
+        brand: "/feed",
+      };
+      return <Navigate to={roleRoutes[userRole || ""] || "/"} replace />;
+    }
   }
 
   return <>{children}</>;
