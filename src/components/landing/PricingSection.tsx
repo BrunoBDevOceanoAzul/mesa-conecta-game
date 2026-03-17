@@ -151,20 +151,16 @@ export function PricingSection() {
                 )}
                 <div className="mt-4 flex items-baseline gap-1">
                   <span className="font-display text-4xl font-bold text-foreground">
-                    R${(plan.price_monthly / 100).toFixed(2).replace(".", ",")}
+                    {plan.price_monthly === 0 ? "Grátis" : `R$${(plan.price_monthly / 100).toFixed(2).replace(".", ",")}`}
                   </span>
-                  <span className="text-sm text-muted-foreground">/mês</span>
+                  {plan.price_monthly > 0 && (
+                    <span className="text-sm text-muted-foreground">/mês</span>
+                  )}
                 </div>
 
                 {plan.trial_days > 0 && (
                   <p className="text-xs text-primary font-medium mt-1">
                     {plan.trial_days} dias grátis para testar
-                  </p>
-                )}
-
-                {plan.is_founder_plan && (
-                  <p className="text-xs text-primary/80 font-medium mt-1">
-                    {Math.max(0, plan.founder_slots_total - plan.founder_slots_used)} vagas restantes de {plan.founder_slots_total}
                   </p>
                 )}
 
@@ -189,10 +185,9 @@ export function PricingSection() {
                   className="mt-8 w-full"
                   size="lg"
                   onClick={() => navigate("/cadastro")}
-                  disabled={plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total}
                 >
-                  {plan.is_founder_plan && plan.founder_slots_used >= plan.founder_slots_total
-                    ? "Esgotado"
+                  {plan.price_monthly === 0
+                    ? "Criar conta grátis"
                     : plan.trial_days > 0
                       ? "Testar grátis"
                       : "Começar agora"}{" "}
