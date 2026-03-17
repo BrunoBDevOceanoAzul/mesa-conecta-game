@@ -34,6 +34,7 @@ export type Database = {
       }
       boost_campaigns: {
         Row: {
+          boosted_entity_type: string | null
           budget_credits: number
           clicks: number
           cpc_rate: number
@@ -42,6 +43,7 @@ export type Database = {
           id: string
           impressions: number
           is_founder_benefit: boolean
+          requires_subscription: boolean
           reservations: number
           segment_city: string | null
           segment_interests: string[] | null
@@ -56,6 +58,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          boosted_entity_type?: string | null
           budget_credits?: number
           clicks?: number
           cpc_rate?: number
@@ -64,6 +67,7 @@ export type Database = {
           id?: string
           impressions?: number
           is_founder_benefit?: boolean
+          requires_subscription?: boolean
           reservations?: number
           segment_city?: string | null
           segment_interests?: string[] | null
@@ -78,6 +82,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          boosted_entity_type?: string | null
           budget_credits?: number
           clicks?: number
           cpc_rate?: number
@@ -86,6 +91,7 @@ export type Database = {
           id?: string
           impressions?: number
           is_founder_benefit?: boolean
+          requires_subscription?: boolean
           reservations?: number
           segment_city?: string | null
           segment_interests?: string[] | null
@@ -135,27 +141,45 @@ export type Database = {
         Row: {
           balance: number
           created_at: string
+          founder_expires_at: string | null
           founder_grants_used: number
+          founder_rank: number | null
+          founder_started_at: string | null
+          free_boosts_per_month: number
+          free_boosts_used_current_month: number
           id: string
           is_founder: boolean
+          last_month_reset: string | null
           updated_at: string
           user_id: string
         }
         Insert: {
           balance?: number
           created_at?: string
+          founder_expires_at?: string | null
           founder_grants_used?: number
+          founder_rank?: number | null
+          founder_started_at?: string | null
+          free_boosts_per_month?: number
+          free_boosts_used_current_month?: number
           id?: string
           is_founder?: boolean
+          last_month_reset?: string | null
           updated_at?: string
           user_id: string
         }
         Update: {
           balance?: number
           created_at?: string
+          founder_expires_at?: string | null
           founder_grants_used?: number
+          founder_rank?: number | null
+          founder_started_at?: string | null
+          free_boosts_per_month?: number
+          free_boosts_used_current_month?: number
           id?: string
           is_founder?: boolean
+          last_month_reset?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -508,6 +532,45 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string
+          current_period_start: string
+          id: string
+          plan_name: string
+          plan_role: string
+          price_cents: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_name: string
+          plan_role: string
+          price_cents?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string
+          current_period_start?: string
+          id?: string
+          plan_name?: string
+          plan_role?: string
+          price_cents?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       suppressed_emails: {
         Row: {
           created_at: string
@@ -562,6 +625,10 @@ export type Database = {
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
+      }
+      has_active_subscription: {
+        Args: { _plan_role?: string; _user_id: string }
+        Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
