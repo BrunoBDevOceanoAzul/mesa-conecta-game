@@ -23,7 +23,7 @@ type Tab = "overview" | "space" | "agenda" | "feed";
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
   { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
-  { label: "Impulsionar", path: "/boost", icon: <Megaphone className="h-4 w-4" /> },
+  { label: "Destaque", path: "/boost", icon: <Megaphone className="h-4 w-4" /> },
   { label: "Feed", path: "/feed", icon: <FileText className="h-4 w-4" /> },
 ];
 
