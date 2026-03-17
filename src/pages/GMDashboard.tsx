@@ -17,6 +17,7 @@ type Mesa = Tables<"mesas">;
 
 const navItems = [
   { label: "Início", path: "/dashboard/mestre", icon: <Crown className="h-4 w-4" /> },
+  { label: "Impulsionar", path: "/boost", icon: <Megaphone className="h-4 w-4" /> },
   { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];

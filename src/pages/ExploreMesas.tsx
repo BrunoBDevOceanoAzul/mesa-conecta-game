@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { MesaCard } from "@/components/shared/MesaCard";
