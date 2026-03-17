@@ -13,7 +13,7 @@ import {
   MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2,
   Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap,
   CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText,
-  UserCheck, BookOpen, Star
+  UserCheck, BookOpen, Star, Sparkles
 } from "lucide-react";
 
 type Mesa = Tables<"mesas">;
