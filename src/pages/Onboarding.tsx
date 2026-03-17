@@ -206,7 +206,8 @@ export default function Onboarding() {
               Próximo <ChevronRight className="h-4 w-4" />
             </Button>
           ) : (
-            <Button variant="gradient" onClick={finish} disabled={!canNext}>
+            <Button variant="gradient" onClick={finish} disabled={!canNext || saving}>
+              {saving ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Finalizar 🎉
             </Button>
           )}
