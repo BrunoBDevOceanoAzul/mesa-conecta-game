@@ -199,11 +199,11 @@ export default function StoreDashboard() {
             <p className="text-sm text-muted-foreground mt-1">Organize mesas, eventos e acompanhe sua operação.</p>
           </div>
           {/* Plan badge */}
-          <div className={`self-start flex items-center gap-2 rounded-xl border px-4 py-2.5 ${currentPlan === "growth" ? "border-secondary/30 bg-secondary/5" : "border-border bg-card"}`}>
-            {currentPlan === "growth" ? <Star className="h-4 w-4 text-secondary" /> : <Store className="h-4 w-4 text-muted-foreground" />}
+          <div className={`self-start flex items-center gap-2 rounded-xl border px-4 py-2.5 ${isGrowth ? "border-secondary/30 bg-secondary/5" : "border-border bg-card"}`}>
+            {isGrowth ? <Star className="h-4 w-4 text-secondary" /> : <Store className="h-4 w-4 text-muted-foreground" />}
             <div>
-              <span className={`text-sm font-display font-bold ${currentPlan === "growth" ? "text-secondary" : "text-foreground"}`}>{plan.label}</span>
-              <span className="text-[10px] text-muted-foreground ml-2">{plan.price}</span>
+              <span className={`text-sm font-display font-bold ${isGrowth ? "text-secondary" : "text-foreground"}`}>{planLabel}</span>
+              <span className="text-[10px] text-muted-foreground ml-2">{planPrice}</span>
             </div>
           </div>
         </div>
