@@ -30,15 +30,15 @@ export const SignupEmail = ({
 }: SignupEmailProps) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Confirme seu email no Sócio do Tabuleiro</Preview>
+    <Preview>Confirme seu email no HIVIUM</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="Sócio do Tabuleiro" style={logo} />
+        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="HIVIUM" style={logo} />
         <Heading style={h1}>Confirme seu email 🎲</Heading>
         <Text style={text}>
           Bem-vindo ao{' '}
           <Link href={siteUrl} style={link}>
-            <strong>Sócio do Tabuleiro</strong>
+            <strong>HIVIUM</strong>
           </Link>
           ! Estamos felizes em ter você na comunidade.
         </Text>

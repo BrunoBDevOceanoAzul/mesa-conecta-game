@@ -120,7 +120,7 @@ export function BookingConfirmation({
               HIVIUM — A plataforma que conecta sua mesa ao jogador certo.
             </Text>
             <Text style={footerLink}>
-              <a href={siteUrl} style={linkStyle}>sociodotabuleiro.app.br</a>
+              <a href={siteUrl} style={linkStyle}>hivium.app</a>
             </Text>
           </Section>
         </Container>
