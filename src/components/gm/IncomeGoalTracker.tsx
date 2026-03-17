@@ -55,7 +55,7 @@ export function IncomeGoalTracker() {
     const now = new Date();
     const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
     
-    const { data, error } = await supabase.from("income_goals").insert({
+    const { data } = await (supabase as any).from("income_goals").insert({
       user_id: user.id,
       goal_amount: newAmount,
       goal_period_type: "monthly",
@@ -63,14 +63,15 @@ export function IncomeGoalTracker() {
     }).select().single();
 
     if (data) {
+      const d = data as any;
       setGoal({
-        id: data.id,
-        goal_amount: Number(data.goal_amount),
-        amount_achieved: Number(data.amount_achieved),
-        progress_percent: Number(data.progress_percent),
-        status: data.status,
-        started_at: data.started_at,
-        ends_at: data.ends_at,
+        id: d.id,
+        goal_amount: Number(d.goal_amount),
+        amount_achieved: Number(d.amount_achieved),
+        progress_percent: Number(d.progress_percent),
+        status: d.status,
+        started_at: d.started_at,
+        ends_at: d.ends_at,
       });
       setEditMode(false);
     }
