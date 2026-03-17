@@ -1,4 +1,4 @@
-// Complete list of RPG systems for MesaNexo
+// Complete list of RPG systems for Hivium
 // This will be synced to the database with vector embeddings for semantic search
 
 export const RPG_SYSTEMS: string[] = [
