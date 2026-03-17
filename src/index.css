@@ -150,7 +150,6 @@
   .cta-glow:hover {
     box-shadow: 0 6px 28px hsl(272 48% 42% / 0.28), 0 12px 52px hsl(280 44% 52% / 0.12);
   }
-  }
   .text-label {
     @apply text-sm font-medium font-body leading-none;
   }
