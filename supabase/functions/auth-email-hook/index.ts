@@ -36,9 +36,9 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "mesa-conecta-game"
-const SENDER_DOMAIN = "notify.sociodotabuleiro.app.br"
-const ROOT_DOMAIN = "sociodotabuleiro.app.br"
+const SITE_NAME = "HIVIUM"
+const SENDER_DOMAIN = "notify.hivium.com.br"
+const ROOT_DOMAIN = "hivium.com.br"
 const FROM_DOMAIN = "notify.sociodotabuleiro.app.br" // Domain shown in From address (may be root or sender subdomain)
 
 // Sample data for preview mode ONLY (not used in actual email sending).
