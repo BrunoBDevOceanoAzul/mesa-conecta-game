@@ -179,7 +179,13 @@ export default function Login() {
           </Button>
         </form>
 
-        <p className="mt-8 text-center text-sm text-muted-foreground">
+        <div className="mt-4 text-center">
+          <button onClick={() => setForgotMode(true)} className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            Esqueceu sua senha?
+          </button>
+        </div>
+
+        <p className="mt-6 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
           <button onClick={() => navigate("/cadastro")} className="text-primary hover:underline font-medium">Criar conta</button>
         </p>
