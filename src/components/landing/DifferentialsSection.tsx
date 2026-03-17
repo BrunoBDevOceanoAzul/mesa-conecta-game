@@ -61,7 +61,7 @@ export function DifferentialsSection() {
             <span className="gradient-text">Nós criamos conexões.</span>
           </h2>
           <p className="mt-6 text-muted-foreground max-w-2xl mx-auto text-lg">
-            MesaQuest lista. Mestres da Lorota divulga. Hivium entende quem você é, o que você quer e faz o match acontecer.
+            MesaQuest lista. Mestres da Lorota divulga. Sócio do Tabuleiro entende quem você é, o que você quer e faz o match acontecer.
           </p>
         </motion.div>
 

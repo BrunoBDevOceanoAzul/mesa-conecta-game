@@ -72,7 +72,7 @@ const profiles = [
       "Dashboard com impressões, cliques e CTR",
       "CPC configurável e créditos avulsos",
     ],
-    cta: "Anunciar no Hivium",
+    cta: "Anunciar no Sócio do Tabuleiro",
     ctaPath: "/cadastro",
     gradient: "from-primary via-secondary to-primary",
     accentColor: "text-primary",
