@@ -5,7 +5,10 @@ import { PLAY_STYLES } from "@/data/mock";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
 import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
-import { ChevronRight, ChevronLeft, Check } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 
 interface StepConfig {
   title: string;
