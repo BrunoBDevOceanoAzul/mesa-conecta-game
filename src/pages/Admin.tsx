@@ -91,12 +91,15 @@ export default function Admin() {
 
   async function fetchAdminData() {
     setLoading(true);
-    const [profilesRes, mesasRes, subsRes, walletsRes, campaignsRes] = await Promise.all([
+    const [profilesRes, mesasRes, subsRes, walletsRes, campaignsRes, xpRes, masterBadgesRes, badgeDefsRes] = await Promise.all([
       supabase.from("profiles").select("id, user_id, name, email, role"),
       supabase.from("mesas").select("id, status"),
       supabase.from("subscriptions").select("*"),
       supabase.from("credit_wallets").select("*"),
       supabase.from("boost_campaigns").select("*").order("created_at", { ascending: false }),
+      supabase.from("master_xp_profiles").select("*").order("total_xp", { ascending: false }),
+      supabase.from("master_badges").select("*"),
+      supabase.from("badge_definitions").select("*"),
     ]);
 
     const profiles = profilesRes.data || [];
