@@ -104,7 +104,18 @@ export default function Onboarding() {
           />
         )}
 
-        {step.type === "systems-search" && (
+        {step.type === "city-autocomplete" && (
+          <CityAutocomplete
+            value={(value as string) || ""}
+            onChange={(city, lat, lng) => {
+              setAnswers({ ...answers, [step.field]: city });
+              if (lat && lng) setCoords({ lat, lng });
+            }}
+            placeholder="Buscar cidade..."
+          />
+        )}
+
+
           <SearchableSystemSelect
             systems={RPG_SYSTEMS}
             popularSystems={POPULAR_SYSTEMS}
