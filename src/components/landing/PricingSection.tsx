@@ -76,7 +76,7 @@ export function PricingSection() {
   useEffect(() => {
     supabase
       .from("plans")
-      .select("id, code, role, name, description, price_monthly, feature_flags, sort_order")
+      .select("id, code, role, name, description, price_monthly, feature_flags, sort_order, trial_days, is_founder_plan, founder_slots_total, founder_slots_used")
       .eq("is_active", true)
       .order("sort_order")
       .then(({ data }) => {
