@@ -34,7 +34,7 @@ const gmSteps: StepConfig[] = [
 ];
 
 const storeSteps: StepConfig[] = [
-  { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "text", field: "city" },
+  { title: "Qual a cidade da luderia?", subtitle: "Localização do espaço", type: "city-autocomplete", field: "city" },
   { title: "Sistemas e jogos disponíveis", subtitle: "Quais sistemas vocês oferecem?", type: "systems-search", field: "systems" },
   { title: "Capacidade da casa", subtitle: "Quantas pessoas cabem?", type: "select-one", options: ["Até 15", "15–30", "30–50", "50+"], field: "capacity" },
   { title: "Mesas simultâneas", subtitle: "Quantas mesas cabem ao mesmo tempo?", type: "select-one", options: ["1–3", "4–6", "7–10", "10+"], field: "tables" },
