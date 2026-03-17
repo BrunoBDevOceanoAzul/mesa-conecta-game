@@ -88,9 +88,13 @@ export default function StoreDashboard() {
   const [storeSimTables, setStoreSimTables] = useState(4);
   const [storeOpenDays, setStoreOpenDays] = useState<string[]>([]);
 
-  // Current plan (simulated — would be from subscription table)
-  const [currentPlan] = useState<"base" | "growth">("base");
-  const plan = PLAN_LIMITS[currentPlan];
+  // Real plan data from subscription
+  const flags = sub.featureFlags || {};
+  const planMesasPerMonth = (flags.mesas_per_month as number) || DEFAULT_LIMITS.mesasPerMonth;
+  const planLabel = sub.plan?.name || "Sem plano";
+  const planPrice = sub.plan ? `R$${(sub.plan.price_monthly / 100).toFixed(2).replace(".", ",")}/mês` : "";
+  const isGrowth = sub.plan?.code === "store_growth";
+  const hasFeedHighlight = !!flags.feed_highlight;
 
   useEffect(() => {
     if (!user) return;
