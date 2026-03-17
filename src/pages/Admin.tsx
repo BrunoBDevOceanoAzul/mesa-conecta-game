@@ -61,6 +61,16 @@ interface CampaignOverview {
   user_role: string | null;
 }
 
+interface XpRanking {
+  user_id: string;
+  total_xp: number;
+  current_level: number;
+  current_title: string;
+  name: string | null;
+  email: string | null;
+  badge_count: number;
+}
+
 export default function Admin() {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -69,6 +79,10 @@ export default function Admin() {
   const [founders, setFounders] = useState<FounderInfo[]>([]);
   const [eligibleUsers, setEligibleUsers] = useState<EligibleUser[]>([]);
   const [allCampaigns, setAllCampaigns] = useState<CampaignOverview[]>([]);
+  const [xpRanking, setXpRanking] = useState<XpRanking[]>([]);
+  const [badgeDefs, setBadgeDefs] = useState<any[]>([]);
+  const [awardUserId, setAwardUserId] = useState("");
+  const [awardBadgeId, setAwardBadgeId] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
