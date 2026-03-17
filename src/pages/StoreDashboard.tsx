@@ -263,7 +263,7 @@ export default function StoreDashboard() {
 
             {/* Stats */}
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-              <StatCard icon={<CalendarDays className="h-5 w-5" />} label="Mesas no mês" value={String(mesasThisMonth.length)} sub={`de ${plan.mesasPerMonth} disponíveis`} />
+              <StatCard icon={<CalendarDays className="h-5 w-5" />} label="Mesas no mês" value={String(mesasThisMonth.length)} sub={`de ${planMesasPerMonth} disponíveis`} />
               <StatCard icon={<Calendar className="h-5 w-5" />} label="Próximas" value={String(upcomingMesas.length)} />
               <StatCard icon={<PieChart className="h-5 w-5" />} label="Ocupação" value={`${occupancyRate}%`} />
               <StatCard icon={<BookOpen className="h-5 w-5" />} label="Sistemas" value={String(uniqueSystems.size)} />
