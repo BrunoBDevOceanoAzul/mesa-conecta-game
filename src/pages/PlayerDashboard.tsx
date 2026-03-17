@@ -66,6 +66,9 @@ export default function PlayerDashboard() {
             ))}
           </div>
         </div>
+
+        {/* Nearby Stores */}
+        <NearbyStoresMap />
       </div>
     </DashboardLayout>
   );
