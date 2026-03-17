@@ -244,11 +244,11 @@ export default function StoreDashboard() {
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-3 rounded-full bg-muted overflow-hidden">
                   <div
-                    className={`h-full rounded-full transition-all ${mesasUsedOfPlan >= plan.mesasPerMonth ? "bg-destructive" : "bg-primary"}`}
-                    style={{ width: `${Math.min(100, (mesasUsedOfPlan / plan.mesasPerMonth) * 100)}%` }}
+                    className={`h-full rounded-full transition-all ${mesasUsedOfPlan >= planMesasPerMonth ? "bg-destructive" : "bg-primary"}`}
+                    style={{ width: `${Math.min(100, (mesasUsedOfPlan / planMesasPerMonth) * 100)}%` }}
                   />
                 </div>
-                <span className="text-xs font-medium text-muted-foreground">{Math.round((mesasUsedOfPlan / plan.mesasPerMonth) * 100)}%</span>
+                <span className="text-xs font-medium text-muted-foreground">{Math.round((mesasUsedOfPlan / planMesasPerMonth) * 100)}%</span>
               </div>
               {currentPlan === "base" && (
                 <div className="mt-4 flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3">
