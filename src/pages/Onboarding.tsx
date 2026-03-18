@@ -226,6 +226,18 @@ export default function Onboarding() {
 
   const step = steps[current];
 
+  // Show loading while auth or profile is loading
+  if (authLoading || !profileLoaded) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-[100dvh] bg-background relative overflow-hidden">
       <AnimatePresence mode="wait">
