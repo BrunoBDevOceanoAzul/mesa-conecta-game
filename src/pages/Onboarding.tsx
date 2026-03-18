@@ -63,7 +63,9 @@ export default function Onboarding() {
           const step = (data as any).onboarding_step;
           if (typeof step === "number" && step > 0) setCurrent(step);
         }
-      });
+        setProfileLoaded(true);
+      })
+      .catch(() => setProfileLoaded(true));
   }, [user]);
 
   const steps = stepsMap[role];
