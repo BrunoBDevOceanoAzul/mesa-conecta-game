@@ -90,7 +90,7 @@ export default function Signup() {
       email,
       password,
       options: {
-        data: { name },
+        data: { name, role },
         emailRedirectTo: window.location.origin,
       },
     });
