@@ -68,22 +68,33 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result?.error) {
+    try {
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin + "/~oauth",
+      });
+      if (result?.error) {
+        toast({
+          title: "Erro com Google",
+          description: "Falha na autenticação. Tente novamente.",
+          variant: "destructive",
+        });
+        setGoogleLoading(false);
+        return;
+      }
+      // If not redirected (popup flow completed), session is already set
+      if (!result?.redirected) {
+        await redirectAfterAuth(navigate);
+      }
+      // If redirected, OAuthCallback page will handle navigation
+    } catch (err) {
       toast({
         title: "Erro com Google",
         description: "Falha na autenticação. Tente novamente.",
         variant: "destructive",
       });
+    } finally {
       setGoogleLoading(false);
-      return;
     }
-    if (!result?.redirected) {
-      await redirectAfterAuth(navigate);
-    }
-    setGoogleLoading(false);
   };
 
   const handleForgotPassword = async (e: React.FormEvent) => {
