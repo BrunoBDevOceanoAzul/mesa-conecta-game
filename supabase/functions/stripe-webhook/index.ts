@@ -84,7 +84,8 @@ async function upsertSubscription(sub: Stripe.Subscription) {
     .maybeSingle();
 
   const mapStatus = (s: string) => {
-    if (s === "active" || s === "trialing") return "active";
+    if (s === "active") return "active";
+    if (s === "trialing") return "trial";
     if (s === "past_due") return "past_due";
     if (s === "canceled" || s === "unpaid" || s === "incomplete_expired") return "canceled";
     return s;
