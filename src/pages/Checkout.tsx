@@ -471,10 +471,10 @@ export default function Checkout() {
                     {/* Coupon discount */}
                     {coupon && priceTotal !== discountedTotal && (
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-green-400">
+                        <span className="text-secondary">
                           Cupom {coupon.public_code}
                         </span>
-                        <span className="text-green-400 font-medium">
+                        <span className="text-secondary font-medium">
                           -{formatBRL(priceTotal - discountedTotal)}
                         </span>
                       </div>
