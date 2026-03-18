@@ -1,52 +1,76 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Loader2 } from "lucide-react";
 
+const roleToOnboarding: Record<string, string> = {
+  player: "/onboarding/jogador",
+  gm: "/onboarding/mestre",
+  store: "/onboarding/loja",
+  brand: "/onboarding",
+};
+
+const roleToDash: Record<string, string> = {
+  player: "/dashboard/jogador",
+  gm: "/dashboard/mestre",
+  store: "/dashboard/loja",
+  brand: "/dashboard/marca",
+};
+
+async function resolveRedirect(userId: string, fallbackRole: string): Promise<string> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("city, role")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  const role = profile?.role || fallbackRole || "player";
+
+  if (!profile?.city) {
+    return roleToOnboarding[role] || "/onboarding/jogador";
+  }
+  return roleToDash[role] || "/dashboard/jogador";
+}
+
 export default function OAuthCallback() {
   const navigate = useNavigate();
+  const handled = useRef(false);
 
   useEffect(() => {
+    if (handled.current) return;
+    handled.current = true;
+
     const handleCallback = async () => {
-      // Wait for auth state to settle
+      // First try existing session
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        const { data: profile } = await supabase
-          .from("profiles")
-          .select("city")
-          .eq("user_id", session.user.id)
-          .single();
+        const dest = await resolveRedirect(
+          session.user.id,
+          session.user.user_metadata?.role
+        );
+        navigate(dest, { replace: true });
+        return;
+      }
 
-        if (!profile?.city) {
-          navigate("/onboarding/jogador", { replace: true });
-        } else {
-          navigate("/dashboard/jogador", { replace: true });
-        }
-      } else {
-        // Listen for session
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Wait for auth state change (e.g. token exchange in progress)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (_event, session) => {
           if (session?.user) {
             subscription.unsubscribe();
-            supabase
-              .from("profiles")
-              .select("city")
-              .eq("user_id", session.user.id)
-              .single()
-              .then(({ data: profile }) => {
-                if (!profile?.city) {
-                  navigate("/onboarding/jogador", { replace: true });
-                } else {
-                  navigate("/dashboard/jogador", { replace: true });
-                }
-              });
+            const dest = await resolveRedirect(
+              session.user.id,
+              session.user.user_metadata?.role
+            );
+            navigate(dest, { replace: true });
           }
-        });
+        }
+      );
 
-        // Timeout fallback
-        setTimeout(() => {
-          navigate("/login", { replace: true });
-        }, 10000);
-      }
+      // Timeout fallback
+      setTimeout(() => {
+        subscription.unsubscribe();
+        navigate("/login", { replace: true });
+      }, 10000);
     };
 
     handleCallback();

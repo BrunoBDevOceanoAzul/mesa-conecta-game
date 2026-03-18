@@ -26,7 +26,7 @@ type Phase =
 export default function Onboarding() {
   const { role: paramRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
@@ -38,6 +38,7 @@ export default function Onboarding() {
   const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
   const [avoidedNotes, setAvoidedNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Load existing profile data on mount
   useEffect(() => {
