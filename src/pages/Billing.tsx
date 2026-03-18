@@ -96,6 +96,26 @@ export default function Billing() {
   const sub = useSubscription();
   const [tab, setTab] = useState<BillingTab>("overview");
   const [actionLoading, setActionLoading] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  // Auto-refresh after Stripe checkout redirect
+  useEffect(() => {
+    const checkoutResult = searchParams.get("checkout");
+    if (checkoutResult === "success" || checkoutResult === "credits_success") {
+      toast({
+        title: checkoutResult === "credits_success" ? "Créditos adquiridos! 🎉" : "Assinatura confirmada! 🎉",
+        description: "Seu pagamento foi processado. Os dados serão atualizados em instantes.",
+      });
+      // Remove query params and refresh subscription data
+      setSearchParams({}, { replace: true });
+      // Poll for webhook sync (may take a few seconds)
+      const intervals = [2000, 5000, 10000];
+      intervals.forEach((delay) => setTimeout(() => sub.refresh(), delay));
+    } else if (checkoutResult === "cancel") {
+      toast({ title: "Checkout cancelado", description: "Nenhuma cobrança foi realizada." });
+      setSearchParams({}, { replace: true });
+    }
+  }, []);
 
   const displayName = user?.user_metadata?.name || "Usuário";
   const cfg = statusConfig[sub.status];
