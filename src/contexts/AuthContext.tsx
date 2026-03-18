@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (event === "SIGNED_IN" && session?.user) {
           const currentPath = window.location.pathname;
           // Only redirect if user is on a public/landing page (not already in app)
-          const isPublicPage = ["/", "/login", "/cadastro", "/reset-password"].includes(currentPath);
+          const isPublicPage = ["/", "/login", "/cadastro", "/reset-password", "/~oauth"].includes(currentPath);
           
           if (isPublicPage) {
             const role = session.user.user_metadata?.role || "player";

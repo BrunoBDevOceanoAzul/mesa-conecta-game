@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
+import { Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +27,7 @@ type Phase =
 export default function Onboarding() {
   const { role: paramRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
@@ -38,16 +39,21 @@ export default function Onboarding() {
   const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
   const [avoidedNotes, setAvoidedNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [profileLoaded, setProfileLoaded] = useState(false);
 
   // Load existing profile data on mount
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
+    if (!user) {
+      setProfileLoaded(true);
+      return;
+    }
+    const load = async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
         if (data) {
           const loaded: Record<string, unknown> = {};
           if (data.city) loaded.city = data.city;
@@ -62,7 +68,13 @@ export default function Onboarding() {
           const step = (data as any).onboarding_step;
           if (typeof step === "number" && step > 0) setCurrent(step);
         }
-      });
+      } catch {
+        // Silent
+      } finally {
+        setProfileLoaded(true);
+      }
+    };
+    load();
   }, [user]);
 
   const steps = stepsMap[role];
@@ -214,6 +226,18 @@ export default function Onboarding() {
   };
 
   const step = steps[current];
+
+  // Show loading while auth or profile is loading
+  if (authLoading || !profileLoaded) {
+    return (
+      <div className="min-h-[100dvh] bg-background flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin text-primary mx-auto mb-4" />
+          <p className="text-sm text-muted-foreground">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-[100dvh] bg-background relative overflow-hidden">
