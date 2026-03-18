@@ -41,6 +41,8 @@ const App = () => (
             <Route path="/cadastro" element={<Signup />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/erro" element={<ErrorPage />} />
+            <Route path="/privacidade" element={<PrivacyPolicy />} />
+            <Route path="/termos" element={<TermsOfService />} />
             <Route path="/~oauth" element={<OAuthCallback />} />
             <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
             <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
