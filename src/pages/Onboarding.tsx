@@ -42,13 +42,17 @@ export default function Onboarding() {
 
   // Load existing profile data on mount
   useEffect(() => {
-    if (!user) return;
-    supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", user.id)
-      .single()
-      .then(({ data }) => {
+    if (!user) {
+      setProfileLoaded(true);
+      return;
+    }
+    const load = async () => {
+      try {
+        const { data } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
         if (data) {
           const loaded: Record<string, unknown> = {};
           if (data.city) loaded.city = data.city;
@@ -63,9 +67,13 @@ export default function Onboarding() {
           const step = (data as any).onboarding_step;
           if (typeof step === "number" && step > 0) setCurrent(step);
         }
+      } catch {
+        // Silent
+      } finally {
         setProfileLoaded(true);
-      })
-      .catch(() => setProfileLoaded(true));
+      }
+    };
+    load();
   }, [user]);
 
   const steps = stepsMap[role];
