@@ -184,7 +184,15 @@ export function PricingSection() {
                   variant={meta.highlight ? "gradient" : "outline"}
                   className="mt-8 w-full"
                   size="lg"
-                  onClick={() => navigate("/cadastro")}
+                  onClick={() => {
+                    if (plan.price_monthly === 0) {
+                      navigate("/cadastro");
+                    } else {
+                      // Extract base code (remove interval suffix for monthly plans)
+                      const baseCode = plan.code;
+                      navigate(`/checkout?plan=${baseCode}&role=${plan.role}`);
+                    }
+                  }}
                 >
                   {plan.price_monthly === 0
                     ? "Criar conta grátis"
