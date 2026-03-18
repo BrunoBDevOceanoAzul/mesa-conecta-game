@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import logoImg from "@/assets/hivium-logo.png";
 
 const navLinks = [
@@ -12,10 +19,18 @@ const navLinks = [
   { label: "Explorar", href: "/buscar" },
 ];
 
+const roleToDash: Record<string, string> = {
+  player: "/dashboard/jogador",
+  gm: "/dashboard/mestre",
+  store: "/dashboard/loja",
+  brand: "/dashboard/marca",
+};
+
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, signOut } = useAuth();
   const isHome = location.pathname === "/";
 
   const handleNavClick = (href: string) => {
@@ -27,6 +42,17 @@ export function Navbar() {
       navigate(href);
     }
     setOpen(false);
+  };
+
+  const userRole = user?.user_metadata?.role || "player";
+  const dashPath = roleToDash[userRole] || "/dashboard/jogador";
+  const userName = user?.user_metadata?.name || user?.email?.split("@")[0] || "U";
+  const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
+  const initials = userName.charAt(0).toUpperCase();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
   };
 
   return (
@@ -56,12 +82,50 @@ export function Navbar() {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm" onClick={() => navigate("/login")} className="text-muted-foreground hover:text-foreground">
-            Entrar
-          </Button>
-          <Button variant="default" size="sm" onClick={() => navigate("/cadastro")}>
-            Criar conta
-          </Button>
+          {user ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className="flex items-center gap-2.5 rounded-full p-1 pr-3 hover:bg-surface-hover transition-colors">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+                    {avatarUrl ? (
+                      <AvatarImage src={avatarUrl} alt={userName} />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground max-w-[120px] truncate">
+                    {userName}
+                  </span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-52 p-2">
+                <button
+                  onClick={() => navigate(dashPath)}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Meu Painel
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sair
+                </button>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => navigate("/login")} className="text-muted-foreground hover:text-foreground">
+                Entrar
+              </Button>
+              <Button variant="default" size="sm" onClick={() => navigate("/cadastro")}>
+                Criar conta
+              </Button>
+            </>
+          )}
         </div>
 
         {/* Mobile */}
@@ -86,12 +150,40 @@ export function Navbar() {
             </a>
           ))}
           <div className="mt-3 flex flex-col gap-2">
-            <Button variant="ghost" size="sm" onClick={() => { navigate("/login"); setOpen(false); }}>
-              Entrar
-            </Button>
-            <Button variant="default" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
-              Criar conta
-            </Button>
+            {user ? (
+              <>
+                <div className="flex items-center gap-3 rounded-lg bg-surface p-3 mb-2">
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20">
+                    {avatarUrl ? (
+                      <AvatarImage src={avatarUrl} alt={userName} />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                      {initials}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-sm font-medium text-foreground truncate">
+                    {userName}
+                  </span>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => { navigate(dashPath); setOpen(false); }}>
+                  <LayoutDashboard className="h-4 w-4 mr-2" />
+                  Meu Painel
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => { handleLogout(); setOpen(false); }}>
+                  <LogOut className="h-4 w-4 mr-2" />
+                  Sair
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button variant="ghost" size="sm" onClick={() => { navigate("/login"); setOpen(false); }}>
+                  Entrar
+                </Button>
+                <Button variant="default" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
+                  Criar conta
+                </Button>
+              </>
+            )}
           </div>
         </div>
       )}
