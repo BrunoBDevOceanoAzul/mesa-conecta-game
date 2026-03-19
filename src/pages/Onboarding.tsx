@@ -77,7 +77,13 @@ export default function Onboarding() {
     load();
   }, [user]);
 
-  const steps = stepsMap[role];
+  const allSteps = stepsMap[role];
+  // Filter steps based on conditional logic (e.g., skip city for online-only users)
+  const steps = allSteps.filter((s) => {
+    if (!s.conditionalOn) return true;
+    const depValue = answers[s.conditionalOn.field];
+    return s.conditionalOn.values.includes(depValue as string);
+  });
 
   const handleChange = useCallback((field: string, value: unknown) => {
     setAnswers((prev) => ({ ...prev, [field]: value }));
