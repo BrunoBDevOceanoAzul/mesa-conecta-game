@@ -357,9 +357,6 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
     </div>
   );
 }
-  return (
-    <div>
-      <label className="field-label">{label}</label>
       <Input
         type={type}
         value={value}
