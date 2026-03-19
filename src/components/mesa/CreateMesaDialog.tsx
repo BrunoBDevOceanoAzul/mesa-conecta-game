@@ -5,7 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Loader2, Swords, ImagePlus, X } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Plus, Loader2, Swords, ImagePlus, X, Calculator, ChevronDown } from "lucide-react";
+import { PricingCalculator } from "@/components/gm/PricingCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -271,6 +273,28 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           <p className="text-xs text-muted-foreground -mt-3">
             Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
           </p>
+
+          {/* Pricing Calculator */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <button type="button" className="flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors -mt-1">
+                <Calculator className="h-3.5 w-3.5" />
+                Abrir calculadora de preços
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3">
+              <div className="rounded-xl border border-border overflow-hidden">
+                <PricingCalculator
+                  compact
+                  onApplyPrice={(min, max) => {
+                    setMinPrice(String(min));
+                    setMaxPrice(String(max));
+                  }}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Seats */}
           <div>

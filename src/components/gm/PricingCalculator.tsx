@@ -103,7 +103,14 @@ const presets = [
   { label: "Solo Premium", icon: Star, state: { ...defaultState, mesaType: "solo" as MesaType, format: "online" as Format, hourlyRate: 60, players: 1, production: "premium" as ProductionLevel } },
 ];
 
-export function PricingCalculator() {
+interface PricingCalculatorProps {
+  /** When provided, shows "Usar preço" buttons that apply min/max to a form */
+  onApplyPrice?: (min: number, max: number) => void;
+  /** If true, renders in a compact mode (no goal tracker) */
+  compact?: boolean;
+}
+
+export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorProps = {}) {
   const [state, setState] = useState<CalculatorState>(defaultState);
   const [activePreset, setActivePreset] = useState<number | null>(null);
 
@@ -230,9 +237,9 @@ export function PricingCalculator() {
           <div>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Faixa de preço por jogador</h3>
             <div className="grid grid-cols-3 gap-3">
-              <PricePill label="Conservador" value={results.conservative} />
-              <PricePill label="Mercado" value={results.market} highlight />
-              <PricePill label="Premium" value={results.premium} accent />
+              <PricePill label="Conservador" value={results.conservative} onClick={onApplyPrice ? () => onApplyPrice(results.conservative, results.conservative) : undefined} />
+              <PricePill label="Mercado" value={results.market} highlight onClick={onApplyPrice ? () => onApplyPrice(results.conservative, results.market) : undefined} />
+              <PricePill label="Premium" value={results.premium} accent onClick={onApplyPrice ? () => onApplyPrice(results.market, results.premium) : undefined} />
             </div>
           </div>
 
@@ -245,7 +252,7 @@ export function PricingCalculator() {
           </div>
 
           {/* Goal progress */}
-          {state.monthlyGoal > 0 && (
+          {!compact && state.monthlyGoal > 0 && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-display font-semibold text-foreground flex items-center gap-2">
@@ -327,22 +334,28 @@ function SelectField<T extends string>({ label, value, options, onChange }: {
   );
 }
 
-function PricePill({ label, value, highlight, accent }: { label: string; value: number; highlight?: boolean; accent?: boolean }) {
+function PricePill({ label, value, highlight, accent, onClick }: { label: string; value: number; highlight?: boolean; accent?: boolean; onClick?: () => void }) {
   return (
-    <div className={`rounded-xl border p-4 text-center transition-all ${
-      highlight
-        ? "border-primary/30 bg-primary/5 shadow-sm"
-        : accent
-          ? "border-secondary/20 bg-secondary/5"
-          : "border-border bg-card"
-    }`}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className={`rounded-xl border p-4 text-center transition-all ${
+        highlight
+          ? "border-primary/30 bg-primary/5 shadow-sm"
+          : accent
+            ? "border-secondary/20 bg-secondary/5"
+            : "border-border bg-card"
+      } ${onClick ? "cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-95" : ""}`}
+    >
       <p className={`text-xl font-display font-bold ${
         highlight ? "text-primary" : accent ? "text-secondary" : "text-foreground"
       }`}>
         R${value}
       </p>
       <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">{label}</p>
-    </div>
+      {onClick && <p className="text-[9px] text-primary mt-1 font-medium">Usar preço</p>}
+    </button>
   );
 }
 
