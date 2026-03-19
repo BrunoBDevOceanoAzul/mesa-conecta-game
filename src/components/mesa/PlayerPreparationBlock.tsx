@@ -48,7 +48,7 @@ export function PlayerPreparationBlock({
         setHasFlow(true);
         setDescription(flow.description);
         setDeadlineAt(flow.deadline_at);
-        setMaterials((flow.materials_json || []) as MaterialItem[]);
+        setMaterials((flow.materials_json || []) as unknown as MaterialItem[]);
 
         // Load form template
         if (flow.form_template_id) {
