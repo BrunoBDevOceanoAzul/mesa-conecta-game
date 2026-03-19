@@ -67,8 +67,8 @@ export function useSystemTemplate(systemName: string | null) {
         if (data) {
           setTemplate({
             ...data,
-            default_character_form_json: (data.default_character_form_json || []) as FormSection[],
-            default_materials_json: (data.default_materials_json || []) as MaterialItem[],
+            default_character_form_json: (data.default_character_form_json || []) as unknown as FormSection[],
+            default_materials_json: (data.default_materials_json || []) as unknown as MaterialItem[],
           });
         } else {
           // Fallback: try generic
@@ -80,8 +80,8 @@ export function useSystemTemplate(systemName: string | null) {
             .then(({ data: fallback }) => {
               setTemplate(fallback ? {
                 ...fallback,
-                default_character_form_json: (fallback.default_character_form_json || []) as FormSection[],
-                default_materials_json: (fallback.default_materials_json || []) as MaterialItem[],
+                default_character_form_json: (fallback.default_character_form_json || []) as unknown as FormSection[],
+                default_materials_json: (fallback.default_materials_json || []) as unknown as MaterialItem[],
               } : null);
             });
         }
