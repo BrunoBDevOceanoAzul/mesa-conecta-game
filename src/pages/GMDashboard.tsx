@@ -126,9 +126,7 @@ export default function GMDashboard() {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">Gerencie mesas, leads e métricas do seu negócio.</p>
           </div>
-          <Button variant="hero" size="sm" className="gap-2 self-start">
-            <Plus className="h-4 w-4" /> Nova Mesa
-          </Button>
+          <CreateMesaDialog role="gm" onCreated={fetchMesas} />
         </div>
 
         {/* Tabs */}
