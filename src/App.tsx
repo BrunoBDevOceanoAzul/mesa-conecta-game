@@ -24,6 +24,8 @@ import Billing from "./pages/Billing";
 import OAuthCallback from "./pages/OAuthCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import MestrePublicProfile from "./pages/MestrePublicProfile";
+import LojaPublicProfile from "./pages/LojaPublicProfile";
 import AdminPainel from "./pages/admin/AdminPainel";
 import AdminInsights from "./pages/admin/AdminInsights";
 import AdminUsers from "./pages/admin/AdminUsers";
@@ -58,7 +60,8 @@ const App = () => (
             <Route path="/explorar" element={<ExploreMesas />} />
             <Route path="/buscar" element={<ExploreMesas />} />
             <Route path="/mesa/:id" element={<TableDetail />} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
+            <Route path="/loja/:slug" element={<LojaPublicProfile />} />
             {/* Admin routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPainel /></ProtectedRoute>} />
             <Route path="/admin/insights" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInsights /></ProtectedRoute>} />
