@@ -238,6 +238,17 @@ export default function LojaPublicProfile() {
           </section>
         )}
 
+        {/* AVALIAÇÕES */}
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <SectionTitle icon={Star}>Avaliações</SectionTitle>
+            {storeProfile?.average_rating > 0 && (
+              <ReputationBadge rating={storeProfile.average_rating} totalReviews={storeProfile.total_reviews || 0} />
+            )}
+          </div>
+          <ReviewsList reviewedUserId={profile.user_id} reviewType="store" showHeader={false} />
+        </section>
+
         {/* AGENDA / MESAS */}
         <section id="agenda">
           <SectionTitle icon={Calendar}>
