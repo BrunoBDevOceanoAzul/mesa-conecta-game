@@ -98,6 +98,14 @@ export default function Onboarding() {
   }, [user]);
 
   const effectiveRole: RoleKey = role || "jogador";
+  // Map UI RoleKey back to DB role for persistence
+  const roleKeyToDbRole: Record<string, string> = {
+    jogador: "player",
+    mestre: "gm",
+    loja: "store",
+    marca: "brand",
+  };
+  const dbRole = roleKeyToDbRole[effectiveRole] || effectiveRole;
   const allSteps = stepsMap[effectiveRole];
   // Filter steps based on conditional logic (e.g., skip city for online-only users)
   const steps = allSteps.filter((s) => {
