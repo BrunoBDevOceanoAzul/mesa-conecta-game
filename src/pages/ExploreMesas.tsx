@@ -194,7 +194,7 @@ export default function ExploreMesas() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por título, sistema, mestre ou cidade..."
-              className="w-full rounded-xl border border-border bg-card pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="field-input !rounded-xl pl-10 pr-4 py-3"
             />
           </div>
           <Button
