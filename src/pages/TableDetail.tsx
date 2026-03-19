@@ -16,6 +16,7 @@ import { PlayerPreparationBlock } from "@/components/mesa/PlayerPreparationBlock
 import { PreparationSetupPanel } from "@/components/mesa/PreparationSetupPanel";
 import { MesaLiveChat } from "@/components/mesa/MesaLiveChat";
 import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
+import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
   Loader2, User, Monitor, Home, RefreshCw, Star, Timer
