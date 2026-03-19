@@ -173,7 +173,7 @@ export default function Onboarding() {
       const badgeLabels = badges.map((b) => b.label);
 
       const profileData: Record<string, unknown> = {
-        role: effectiveRole,
+        role: dbRole,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
