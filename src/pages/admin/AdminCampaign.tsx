@@ -196,6 +196,11 @@ export default function AdminCampaign() {
             </Table>
           </CardContent>
         </Card>
+
+        <Separator className="my-4" />
+
+        {/* Pricing Perception */}
+        <PricingInsights />
       </div>
     </AdminLayout>
   );
