@@ -26,22 +26,27 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
   const lastSeenInterval = useRef<ReturnType<typeof setInterval> | null>(null);
+  const initialized = useRef(false);
 
   useEffect(() => {
+    // Set up auth state listener FIRST (before getSession)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
+      async (event, newSession) => {
+        // Only update state, avoid async calls in the listener to prevent deadlocks
+        setSession(newSession);
+        setUser(newSession?.user ?? null);
         setLoading(false);
 
-        if (event === "SIGNED_IN" && session?.user) {
-          const provider = session.user.app_metadata?.provider || "email";
-          trackSignIn(session.user.id, provider);
+        if (event === "SIGNED_IN" && newSession?.user) {
+          const provider = newSession.user.app_metadata?.provider || "email";
+          // Use setTimeout to avoid blocking the auth state change
+          setTimeout(() => {
+            trackSignIn(newSession.user.id, provider);
+          }, 0);
 
-          // Start heartbeat
           if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
           lastSeenInterval.current = setInterval(() => {
-            updateLastSeen(session.user.id);
+            updateLastSeen(newSession.user.id);
           }, 5 * 60 * 1000);
         }
 
@@ -51,18 +56,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             lastSeenInterval.current = null;
           }
         }
+
+        if (event === "TOKEN_REFRESHED" && newSession?.user) {
+          // Session refreshed successfully — ensure heartbeat is running
+          if (!lastSeenInterval.current) {
+            lastSeenInterval.current = setInterval(() => {
+              updateLastSeen(newSession.user.id);
+            }, 5 * 60 * 1000);
+          }
+        }
       }
     );
 
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
+    // Then get the initial session
+    supabase.auth.getSession().then(({ data: { session: initSession }, error }) => {
+      if (error) {
+        console.warn("[Auth] getSession error:", error.message);
+        // Don't block the app — let it load without a session
+      }
+      if (!initialized.current) {
+        setSession(initSession);
+        setUser(initSession?.user ?? null);
+        setLoading(false);
+        initialized.current = true;
 
-      if (session?.user) {
-        lastSeenInterval.current = setInterval(() => {
-          updateLastSeen(session.user.id);
-        }, 5 * 60 * 1000);
+        if (initSession?.user) {
+          lastSeenInterval.current = setInterval(() => {
+            updateLastSeen(initSession.user.id);
+          }, 5 * 60 * 1000);
+        }
       }
     });
 
@@ -75,6 +97,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     if (user) await trackSignOut(user.id);
     await supabase.auth.signOut();
+    setUser(null);
+    setSession(null);
   };
 
   return (

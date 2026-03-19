@@ -33,26 +33,31 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) {
-      const isUnconfirmed = error.message.toLowerCase().includes("email not confirmed");
-      toast({
-        title: isUnconfirmed ? "Email não confirmado" : "Não foi possível entrar",
-        description: isUnconfirmed
-          ? "Verifique sua caixa de entrada e clique no link de confirmação que enviamos para " + email
-          : error.message === "Invalid login credentials"
-            ? "Email ou senha incorretos. Tente novamente."
-            : error.message,
-        variant: "destructive",
-      });
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) {
+        const isUnconfirmed = error.message.toLowerCase().includes("email not confirmed");
+        toast({
+          title: isUnconfirmed ? "Email não confirmado" : "Não foi possível entrar",
+          description: isUnconfirmed
+            ? "Verifique sua caixa de entrada e clique no link de confirmação que enviamos para " + email
+            : error.message === "Invalid login credentials"
+              ? "Email ou senha incorretos. Tente novamente."
+              : error.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      if (data.user) {
+        const dest = await resolveRedirect(data.user.id, data.user.user_metadata?.role);
+        navigate(dest);
+      }
+    } catch (err) {
+      toast({ title: "Erro de conexão", description: "Servidor temporariamente indisponível. Tente novamente em alguns segundos.", variant: "destructive" });
+    } finally {
       setLoading(false);
-      return;
     }
-    if (data.user) {
-      const dest = await resolveRedirect(data.user.id, data.user.user_metadata?.role);
-      navigate(dest);
-    }
-    setLoading(false);
   };
 
   const handleGoogleLogin = async () => {
@@ -66,17 +71,17 @@ export default function Login() {
         setGoogleLoading(false);
         return;
       }
-      // Popup flow completed (not redirected) — session is already set
       if (!result?.redirected) {
+        // Popup flow — session already set
+        await new Promise((r) => setTimeout(r, 500));
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const dest = await resolveRedirect(user.id, user.user_metadata?.role);
           navigate(dest);
         }
       }
-      // If redirected, OAuthCallback handles everything
     } catch {
-      toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
+      toast({ title: "Erro com Google", description: "Servidor indisponível. Tente novamente em alguns segundos.", variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }

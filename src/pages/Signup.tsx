@@ -1,13 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Gamepad2, Crown, Store, Megaphone, Loader2, ArrowRight, Swords, Users } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { Gamepad2, Crown, Store, Loader2, ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { resolveRedirect } from "@/lib/auth-redirect";
 import logoImg from "@/assets/hivium-logo.png";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -21,98 +21,128 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-interface RoleOption {
-  id: string;
-  role: string;       // saved to DB as primary_role
-  canPlay: boolean;
-  canGm: boolean;
-  icon: typeof Gamepad2;
+interface RoleConfig {
+  role: string;
   label: string;
   desc: string;
+  icon: typeof Gamepad2;
+  color: string;
+  canPlay: boolean;
+  canGm: boolean;
+  canManageStore: boolean;
+  onboardingPath: string;
 }
 
-const roleOptions: RoleOption[] = [
-  {
-    id: "player",
+const roleConfigs: Record<string, RoleConfig> = {
+  jogador: {
     role: "player",
-    canPlay: true,
-    canGm: false,
-    icon: Gamepad2,
     label: "Jogador",
-    desc: "Quero encontrar mesas, campanhas e grupos para jogar.",
+    desc: "Encontre mesas, campanhas e grupos para jogar RPG.",
+    icon: Gamepad2,
+    color: "text-teal-500",
+    canPlay: true,
+    canGm: false,
+    canManageStore: false,
+    onboardingPath: "/onboarding/jogador",
   },
-  {
-    id: "gm",
+  mestre: {
     role: "gm",
-    canPlay: false,
-    canGm: true,
-    icon: Crown,
     label: "Mestre",
-    desc: "Quero criar mesas, conduzir sessões e encontrar jogadores.",
-  },
-  {
-    id: "gm_player",
-    role: "gm",
-    canPlay: true,
+    desc: "Crie mesas, conduza sessões e encontre jogadores.",
+    icon: Crown,
+    color: "text-plum-500",
+    canPlay: false,
     canGm: true,
-    icon: Swords,
-    label: "Mestre que também joga",
-    desc: "Quero mestrar, mas também participar de mesas como jogador.",
+    canManageStore: false,
+    onboardingPath: "/onboarding/mestre",
   },
-  {
-    id: "player_gm",
-    role: "player",
-    canPlay: true,
-    canGm: true,
-    icon: Users,
-    label: "Jogador que também mestra",
-    desc: "Jogo com frequência, mas também posso abrir mesas como mestre.",
-  },
-  {
-    id: "store",
+  loja: {
     role: "store",
-    canPlay: false,
-    canGm: false,
-    icon: Store,
     label: "Loja / Luderia",
-    desc: "Quero organizar mesas, eventos e trazer a comunidade para minha casa.",
-  },
-  {
-    id: "brand",
-    role: "brand",
+    desc: "Organize mesas, eventos e traga a comunidade para sua casa.",
+    icon: Store,
+    color: "text-coral-400",
     canPlay: false,
     canGm: false,
-    icon: Megaphone,
-    label: "Marca / Patrocinador",
-    desc: "Quero alcançar a comunidade tabletop com campanhas e parcerias.",
+    canManageStore: true,
+    onboardingPath: "/onboarding/loja",
   },
-];
-const roleToDash: Record<string, string> = {
-  player: "/onboarding/jogador",
-  gm: "/onboarding/mestre",
-  store: "/onboarding/loja",
-  brand: "/dashboard/marca",
 };
 
-export default function Signup() {
+export default function RoleSignup() {
+  const { role: roleParam } = useParams<{ role: string }>();
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [step, setStep] = useState<"info" | "role">("info");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const config = roleParam ? roleConfigs[roleParam] : null;
+
+  if (!config) {
+    return <SignupSelector />;
+  }
+
+  const Icon = config.icon;
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setStep("role");
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: {
+            name,
+            role: config.role,
+            can_play: config.canPlay,
+            can_gm: config.canGm,
+            can_manage_store: config.canManageStore,
+            can_manage_brand: false,
+          },
+          emailRedirectTo: window.location.origin,
+        },
+      });
+
+      if (error) {
+        toast({ title: "Erro ao criar conta", description: error.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+
+      if (data.user && !data.session) {
+        toast({ title: "Verifique seu email ✉️", description: "Enviamos um link de confirmação para " + email });
+        setLoading(false);
+        return;
+      }
+
+      if (data.session) {
+        navigate(config.onboardingPath);
+      }
+    } catch {
+      toast({ title: "Erro de conexão", description: "Servidor indisponível. Tente novamente.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleGoogleSignup = async () => {
+  const handleGoogle = async () => {
     setGoogleLoading(true);
     try {
+      // Store the intended role so OAuthCallback can use it
+      sessionStorage.setItem("hivium_signup_role", JSON.stringify({
+        role: config.role,
+        canPlay: config.canPlay,
+        canGm: config.canGm,
+        canManageStore: config.canManageStore,
+        onboardingPath: config.onboardingPath,
+      }));
+
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin + "/~oauth",
       });
@@ -122,72 +152,110 @@ export default function Signup() {
         return;
       }
       if (!result?.redirected) {
+        await new Promise((r) => setTimeout(r, 500));
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const dest = await resolveRedirect(user.id);
-          navigate(dest);
+          // Set role on profile for Google users
+          await supabase.from("profiles").update({
+            role: config.role,
+            can_play: config.canPlay,
+            can_gm: config.canGm,
+            can_manage_store: config.canManageStore,
+          } as any).eq("user_id", user.id);
+          navigate(config.onboardingPath);
         }
       }
     } catch {
-      toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
+      toast({ title: "Erro com Google", description: "Servidor indisponível. Tente novamente.", variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }
   };
 
-  const handleRoleSelect = async (option: RoleOption) => {
-    setSelectedId(option.id);
-    setLoading(true);
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-sm"
+      >
+        <div className="text-center mb-10">
+          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-6">
+            <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
+            <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+          </button>
 
-    const canManageStore = option.role === "store";
-    const canManageBrand = option.role === "brand";
+          <div className={cn("inline-flex items-center justify-center h-14 w-14 rounded-2xl mx-auto mb-4", config.color, "bg-primary/8")}>
+            <Icon className="h-7 w-7" />
+          </div>
 
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: {
-          name,
-          role: option.role,
-          can_play: option.canPlay,
-          can_gm: option.canGm,
-          can_manage_store: canManageStore,
-          can_manage_brand: canManageBrand,
-        },
-        emailRedirectTo: window.location.origin,
-      },
-    });
+          <h1 className="text-2xl font-display font-bold text-foreground">
+            Cadastro de {config.label}
+          </h1>
+          <p className="mt-2 text-sm text-muted-foreground">{config.desc}</p>
+        </div>
 
-    if (error) {
-      toast({ title: "Erro ao criar conta", description: error.message, variant: "destructive" });
-      setLoading(false);
-      setSelectedId(null);
-      return;
-    }
+        <Button
+          variant="outline"
+          className="w-full mb-5 gap-2 h-11"
+          onClick={handleGoogle}
+          disabled={googleLoading || loading}
+        >
+          {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-5 w-5" />}
+          Continuar com Google
+        </Button>
 
-    if (data.user && !data.session) {
-      toast({ title: "Verifique seu email ✉️", description: "Enviamos um link de confirmação para " + email });
-      setLoading(false);
-      return;
-    }
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
+          <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-3 text-muted-foreground/60">ou</span></div>
+        </div>
 
-    if (data.session) {
-      // Update profile with capabilities
-      await supabase
-        .from("profiles")
-        .update({ 
-          can_play: option.canPlay, 
-          can_gm: option.canGm,
-          can_manage_store: canManageStore,
-          can_manage_brand: canManageBrand,
-        } as any)
-        .eq("user_id", data.user!.id);
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="field-label">Nome</label>
+            <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="field-input" placeholder="Seu nome ou apelido" required disabled={loading} />
+          </div>
+          <div>
+            <label className="field-label">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required disabled={loading} />
+          </div>
+          <div>
+            <label className="field-label">Senha</label>
+            <div className="relative mt-1.5">
+              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="field-input !mt-0 pr-10" placeholder="Mínimo 6 caracteres" required minLength={6} disabled={loading} />
+              <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+                {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <Button variant="default" className="w-full h-11" type="submit" disabled={loading}>
+            {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+            Criar conta como {config.label}
+          </Button>
+        </form>
 
-      navigate(roleToDash[option.role] || "/onboarding");
-    }
+        <button onClick={() => navigate("/cadastro")} className="mt-6 flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mx-auto">
+          <ArrowLeft className="h-3.5 w-3.5" /> Escolher outro perfil
+        </button>
 
-    setLoading(false);
-  };
+        <p className="mt-4 text-center text-sm text-muted-foreground">
+          Já tem conta?{" "}
+          <button onClick={() => navigate("/login")} className="text-primary hover:underline font-medium">Entrar</button>
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
+// Role selector page (the /cadastro landing)
+function SignupSelector() {
+  const navigate = useNavigate();
+
+  const options = [
+    { key: "jogador", label: "Jogador", desc: "Quero encontrar mesas e campanhas para jogar.", icon: Gamepad2, color: "text-teal-500", bg: "bg-teal-50 dark:bg-teal-950/30" },
+    { key: "mestre", label: "Mestre", desc: "Quero criar mesas, sessões e encontrar jogadores.", icon: Crown, color: "text-plum-500", bg: "bg-plum-50 dark:bg-plum-950/30" },
+    { key: "loja", label: "Loja / Luderia", desc: "Quero organizar eventos e trazer a comunidade.", icon: Store, color: "text-coral-400", bg: "bg-coral-50 dark:bg-coral-950/30" },
+  ];
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4 py-12">
@@ -197,114 +265,31 @@ export default function Signup() {
             <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
-          <h1 className="text-2xl font-display font-bold text-foreground">
-            {step === "info" ? "Crie sua conta" : "Como você quer usar a HIVIUM?"}
-          </h1>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {step === "info"
-              ? "Junte-se ao ecossistema tabletop mais inteligente do Brasil."
-              : "Escolha o que melhor te define. Isso personaliza toda a experiência."}
-          </p>
+          <h1 className="text-2xl font-display font-bold text-foreground">Como você usa a HIVIUM?</h1>
+          <p className="mt-2 text-sm text-muted-foreground">Cada perfil tem seu cadastro próprio. Escolha o seu.</p>
         </div>
 
-        <AnimatePresence mode="wait">
-          {step === "info" ? (
-            <motion.div key="info" initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 10 }} transition={{ duration: 0.2 }}>
-              <Button
-                variant="outline"
-                className="w-full mb-5 gap-2 h-11"
-                onClick={handleGoogleSignup}
-                disabled={googleLoading}
-              >
-                {googleLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <GoogleIcon className="h-5 w-5" />}
-                Continuar com Google
-              </Button>
-
-              <div className="relative my-6">
-                <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-border" /></div>
-                <div className="relative flex justify-center text-xs uppercase"><span className="bg-background px-3 text-muted-foreground/60">ou</span></div>
+        <div className="grid gap-3">
+          {options.map((opt, i) => (
+            <motion.button
+              key={opt.key}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.08 }}
+              onClick={() => navigate(`/cadastro/${opt.key}`)}
+              className="group relative flex items-center gap-4 rounded-2xl border border-border bg-card p-5 text-left transition-all duration-300 hover:border-plum-200 hover:shadow-md active:scale-[0.98]"
+            >
+              <div className={cn("flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl transition-all duration-300 group-hover:shadow-sm", opt.bg, opt.color)}>
+                <opt.icon className="h-6 w-6" />
               </div>
-
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="field-label">Nome</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="field-input" placeholder="Seu nome ou apelido" required />
-                </div>
-                <div>
-                  <label className="field-label">Email</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required />
-                </div>
-                <div>
-                  <label className="field-label">Senha</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="field-input" placeholder="Mínimo 6 caracteres" required minLength={6} />
-                </div>
-                <Button variant="default" className="w-full h-11" type="submit">
-                  Continuar <ArrowRight className="h-4 w-4 ml-1" />
-                </Button>
-              </form>
-            </motion.div>
-          ) : (
-            <motion.div key="role" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
-              <div className="grid gap-3">
-                {roleOptions.map((opt, i) => {
-                  const isSelected = selectedId === opt.id;
-                  return (
-                    <motion.button
-                      key={opt.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.06 }}
-                      onClick={() => handleRoleSelect(opt)}
-                      disabled={loading}
-                      className={cn(
-                        "group relative flex items-center gap-4 rounded-2xl border p-5 text-left transition-all duration-300",
-                        isSelected
-                          ? "border-primary bg-primary/8 shadow-[0_0_20px_hsl(var(--primary)_/_0.1)]"
-                          : "border-border/60 bg-card/50 hover:border-primary/30 hover:bg-card/80",
-                        loading && !isSelected && "opacity-50 pointer-events-none"
-                      )}
-                    >
-                      {/* Selection indicator */}
-                      <div className={cn(
-                        "absolute top-3 right-3 h-5 w-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center",
-                        isSelected
-                          ? "border-primary bg-primary"
-                          : "border-muted-foreground/20"
-                      )}>
-                        {isSelected && (
-                          loading
-                            ? <Loader2 className="h-3 w-3 text-primary-foreground animate-spin" />
-                            : <div className="h-2 w-2 rounded-full bg-primary-foreground" />
-                        )}
-                      </div>
-
-                      <div className={cn(
-                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-300",
-                        isSelected
-                          ? "bg-primary/15 text-primary shadow-[0_0_15px_hsl(var(--primary)_/_0.12)]"
-                          : "bg-primary/8 text-primary group-hover:bg-primary/12"
-                      )}>
-                        <opt.icon className="h-5 w-5" />
-                      </div>
-                      <div className="flex-1 min-w-0 pr-6">
-                        <h3 className="font-display font-bold text-foreground text-[15px]">{opt.label}</h3>
-                        <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">{opt.desc}</p>
-                      </div>
-                    </motion.button>
-                  );
-                })}
+              <div className="flex-1 min-w-0">
+                <h3 className="font-display font-bold text-foreground text-[15px]">{opt.label}</h3>
+                <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">{opt.desc}</p>
               </div>
-
-              <p className="text-center text-[11px] text-muted-foreground/60 mt-4">
-                Você poderá ajustar seu perfil depois.
-              </p>
-
-              <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors block mx-auto">
-                ← Voltar
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+              <ArrowLeft className="h-5 w-5 text-muted-foreground/30 shrink-0 rotate-180 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-plum-400" />
+            </motion.button>
+          ))}
+        </div>
 
         <p className="mt-8 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
