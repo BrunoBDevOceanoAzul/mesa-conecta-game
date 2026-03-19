@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import {
   MapPin, Star, Users, Swords, BookOpen, Calendar,
