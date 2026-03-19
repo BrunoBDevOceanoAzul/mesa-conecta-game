@@ -20,20 +20,22 @@ interface DashboardLayoutProps {
   userName?: string;
 }
 
-const roleLabels: Record<UserRole | "admin", string> = {
+const roleLabels: Record<UserRole | "admin" | "advisor", string> = {
   player: "Jogador",
   gm: "Mestre",
   store: "Luderia",
   brand: "Marca",
   admin: "Administrador",
+  advisor: "Conselheiro",
 };
 
-const roleBadgeClass: Record<UserRole | "admin", string> = {
+const roleBadgeClass: Record<UserRole | "admin" | "advisor", string> = {
   player: "role-badge-player",
   gm: "role-badge-gm",
   store: "role-badge-store",
   brand: "role-badge-brand",
   admin: "role-badge-premium",
+  advisor: "role-badge-premium",
 };
 
 export function DashboardLayout({
