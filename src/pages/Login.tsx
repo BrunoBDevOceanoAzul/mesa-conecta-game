@@ -65,23 +65,33 @@ export default function Login() {
     try {
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin + "/~oauth",
+        extraParams: {
+          prompt: "select_account",
+        },
       });
+
       if (result?.error) {
-        toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
-        setGoogleLoading(false);
+        const message = result.error instanceof Error ? result.error.message : String(result.error);
+        toast({
+          title: "Erro com Google",
+          description: message || "Falha na autenticação. Tente novamente.",
+          variant: "destructive",
+        });
         return;
       }
+
       if (!result?.redirected) {
         // Popup flow — session already set
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 600));
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           const dest = await resolveRedirect(user.id, user.user_metadata?.role);
           navigate(dest);
         }
       }
-    } catch {
-      toast({ title: "Erro com Google", description: "Servidor indisponível. Tente novamente em alguns segundos.", variant: "destructive" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Servidor indisponível. Tente novamente em alguns segundos.";
+      toast({ title: "Erro com Google", description: message, variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }
