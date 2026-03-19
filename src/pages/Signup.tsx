@@ -145,14 +145,23 @@ export default function RoleSignup() {
 
       const result = await lovable.auth.signInWithOAuth("google", {
         redirect_uri: window.location.origin + "/~oauth",
+        extraParams: {
+          prompt: "select_account",
+        },
       });
+
       if (result?.error) {
-        toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
-        setGoogleLoading(false);
+        const message = result.error instanceof Error ? result.error.message : String(result.error);
+        toast({
+          title: "Erro com Google",
+          description: message || "Falha na autenticação. Tente novamente.",
+          variant: "destructive",
+        });
         return;
       }
+
       if (!result?.redirected) {
-        await new Promise((r) => setTimeout(r, 500));
+        await new Promise((r) => setTimeout(r, 600));
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
           // Set role on profile for Google users
@@ -165,8 +174,9 @@ export default function RoleSignup() {
           navigate(config.onboardingPath);
         }
       }
-    } catch {
-      toast({ title: "Erro com Google", description: "Servidor indisponível. Tente novamente.", variant: "destructive" });
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Servidor indisponível. Tente novamente em alguns segundos.";
+      toast({ title: "Erro com Google", description: message, variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }
