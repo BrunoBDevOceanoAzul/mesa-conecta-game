@@ -187,7 +187,7 @@ export default function Onboarding() {
 
       if (error) throw error;
 
-      if (role === "loja") {
+      if (effectiveRole === "loja") {
         const storeData: Record<string, unknown> = {
           owner_id: user.id,
           name: (answers.city as string) || "Minha Luderia",
