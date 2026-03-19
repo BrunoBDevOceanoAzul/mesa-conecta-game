@@ -106,12 +106,13 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const { planId: urlPlanId } = useParams();
 
   const [plans, setPlans] = useState<DBPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Selection state
+  // Selection state — support both /checkout/:planId and /checkout?plan=code
   const planParam = searchParams.get("plan") || "";
   const roleParam = searchParams.get("role") || "";
   const [selectedBasePlan, setSelectedBasePlan] = useState<string>(planParam);
