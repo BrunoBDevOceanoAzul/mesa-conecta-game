@@ -31,7 +31,7 @@ export default function Onboarding() {
   const { toast } = useToast();
 
   const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
-  const [role, setRole] = useState<RoleKey>((paramRole as RoleKey) || "jogador");
+  const [role, setRole] = useState<RoleKey | null>(paramRole ? (paramRole as RoleKey) : null);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
