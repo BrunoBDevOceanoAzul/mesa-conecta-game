@@ -522,6 +522,7 @@ export type Database = {
           source_type: string | null
           status: Database["public"]["Enums"]["booking_status"] | null
           store_user_id: string | null
+          stripe_checkout_session_id: string | null
           table_session_id: string | null
           updated_at: string
         }
@@ -541,6 +542,7 @@ export type Database = {
           source_type?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           store_user_id?: string | null
+          stripe_checkout_session_id?: string | null
           table_session_id?: string | null
           updated_at?: string
         }
@@ -560,6 +562,7 @@ export type Database = {
           source_type?: string | null
           status?: Database["public"]["Enums"]["booking_status"] | null
           store_user_id?: string | null
+          stripe_checkout_session_id?: string | null
           table_session_id?: string | null
           updated_at?: string
         }
@@ -4381,6 +4384,7 @@ export type Database = {
         | "completed"
         | "refunded"
         | "waitlist"
+        | "pending_payment"
       payment_status_enum:
         | "pending"
         | "paid"
@@ -4532,6 +4536,7 @@ export const Constants = {
         "completed",
         "refunded",
         "waitlist",
+        "pending_payment",
       ],
       payment_status_enum: [
         "pending",
