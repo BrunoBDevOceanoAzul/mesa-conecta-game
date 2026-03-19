@@ -70,6 +70,8 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
     return data;
   };
 
+  const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=${entityType}&id=${entityId}`;
+
   const handleShare = async (channel: string) => {
     setGenerating(true);
     await saveShareLink(channel);
@@ -128,6 +130,17 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
             <h3 className="text-base font-display font-semibold text-foreground">Compartilhar Mesa</h3>
             <p className="text-xs text-muted-foreground truncate max-w-[280px]">{entityTitle}</p>
           </div>
+        </div>
+
+        {/* OG Image Preview */}
+        <div className="mb-4 rounded-lg overflow-hidden border border-border bg-muted/30">
+          <img
+            src={ogImageUrl}
+            alt="Preview do link"
+            className="w-full h-auto"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+          <p className="px-3 py-1.5 text-[10px] text-muted-foreground">Preview ao compartilhar nas redes sociais</p>
         </div>
 
         {/* Social channels */}
