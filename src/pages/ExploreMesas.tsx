@@ -306,7 +306,7 @@ export default function ExploreMesas() {
 
               {/* Date */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Data</label>
+                <label className="field-label mb-1.5 block">Data</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
