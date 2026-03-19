@@ -385,12 +385,25 @@ export default function Checkout() {
                         <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{plan.description}</p>
                       )}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-display font-bold text-foreground">
-                          {formatBRL(plan.price_monthly)}
-                        </span>
-                        <span className="text-sm text-muted-foreground">/mês</span>
+                        {plan.price_monthly === 0 ? (
+                          <>
+                            <span className="text-2xl font-display font-bold text-secondary">Grátis</span>
+                            {isFirstMesa && (
+                              <Badge className="ml-2 bg-secondary/10 text-secondary border-secondary/20 text-[10px]">
+                                1ª mesa
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-2xl font-display font-bold text-foreground">
+                              {formatBRL(plan.price_monthly)}
+                            </span>
+                            <span className="text-sm text-muted-foreground">/mês</span>
+                          </>
+                        )}
                       </div>
-                      {plan.trial_days && plan.trial_days > 0 && (
+                      {plan.trial_days && plan.trial_days > 0 && plan.price_monthly > 0 && (
                         <p className="text-xs text-primary font-medium mt-1">{plan.trial_days} dias grátis</p>
                       )}
                     </button>
