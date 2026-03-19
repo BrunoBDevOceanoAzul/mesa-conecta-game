@@ -42,6 +42,7 @@ export interface FeedPost {
   shares: number;
   likes_count: number;
   published_at: string;
+  slug?: string | null;
   // Joined
   author_name?: string;
   author_avatar_url?: string;
