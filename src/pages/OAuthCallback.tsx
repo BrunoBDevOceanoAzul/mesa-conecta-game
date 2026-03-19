@@ -4,6 +4,27 @@ import { supabase } from "@/integrations/supabase/client";
 import { resolveRedirect } from "@/lib/auth-redirect";
 import { Loader2 } from "lucide-react";
 
+/** If user came from a role-specific signup, apply that role to their profile */
+async function applySignupRoleAndRedirect(userId: string): Promise<string> {
+  const raw = sessionStorage.getItem("hivium_signup_role");
+  if (raw) {
+    sessionStorage.removeItem("hivium_signup_role");
+    try {
+      const { role, canPlay, canGm, canManageStore, onboardingPath } = JSON.parse(raw);
+      await supabase.from("profiles").update({
+        role,
+        can_play: canPlay,
+        can_gm: canGm,
+        can_manage_store: canManageStore,
+      } as any).eq("user_id", userId);
+      return onboardingPath;
+    } catch {
+      // Fall through to normal redirect
+    }
+  }
+  return resolveRedirect(userId);
+}
+
 export default function OAuthCallback() {
   const navigate = useNavigate();
   const handled = useRef(false);
