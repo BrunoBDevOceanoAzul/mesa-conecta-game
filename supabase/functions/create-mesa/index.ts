@@ -62,7 +62,7 @@ serve(async (req) => {
     const {
       title, description, system, session_type, format,
       city, venue, min_price, max_price, seats_total,
-      start_at, tags, image_url, play_styles, store_id,
+      start_at, end_at, tags, image_url, cover_image_url, play_styles, store_id,
     } = body;
 
     if (!title || !system || !session_type || !format || !start_at) {
@@ -129,9 +129,11 @@ serve(async (req) => {
       gm_name: gmName,
       store_id: profile.role === "store" ? user.id : (store_id || null),
       start_at,
+      end_at: end_at || null,
       status: "aberta",
       tags: tags || [],
       image_url: image_url || null,
+      cover_image_url: cover_image_url || null,
       play_styles: play_styles || [],
       stripe_product_id: stripeProductId,
       stripe_price_id: stripePriceId,

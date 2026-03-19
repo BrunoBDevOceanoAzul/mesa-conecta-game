@@ -1894,8 +1894,10 @@ export type Database = {
       mesas: {
         Row: {
           city: string | null
+          cover_image_url: string | null
           created_at: string
           description: string | null
+          end_at: string | null
           format: string
           gm_id: string
           gm_name: string
@@ -1920,8 +1922,10 @@ export type Database = {
         }
         Insert: {
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          end_at?: string | null
           format: string
           gm_id: string
           gm_name: string
@@ -1946,8 +1950,10 @@ export type Database = {
         }
         Update: {
           city?: string | null
+          cover_image_url?: string | null
           created_at?: string
           description?: string | null
+          end_at?: string | null
           format?: string
           gm_id?: string
           gm_name?: string

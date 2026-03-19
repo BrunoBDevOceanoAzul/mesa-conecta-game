@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Loader2, Swords } from "lucide-react";
+import { Plus, Loader2, Swords, ImagePlus, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -34,6 +34,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -46,6 +47,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [maxPrice, setMaxPrice] = useState("");
   const [seatsTotal, setSeatsTotal] = useState("5");
   const [startAt, setStartAt] = useState("");
+  const [endAt, setEndAt] = useState("");
+  const [coverFile, setCoverFile] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
 
   const resetForm = () => {
     setTitle("");
@@ -59,13 +63,55 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setMaxPrice("");
     setSeatsTotal("5");
     setStartAt("");
+    setEndAt("");
+    setCoverFile(null);
+    setCoverPreview(null);
+  };
+
+  const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Imagem muito grande", description: "Máximo 5MB.", variant: "destructive" });
+      return;
+    }
+    setCoverFile(file);
+    setCoverPreview(URL.createObjectURL(file));
+  };
+
+  const removeCover = () => {
+    setCoverFile(null);
+    setCoverPreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const uploadCover = async (): Promise<string | null> => {
+    if (!coverFile || !user) return null;
+    const ext = coverFile.name.split(".").pop() || "jpg";
+    const path = `${user.id}/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("mesa-covers").upload(path, coverFile, { upsert: true });
+    if (error) throw new Error(`Upload falhou: ${error.message}`);
+    const { data } = supabase.storage.from("mesa-covers").getPublicUrl(path);
+    return data.publicUrl;
   };
 
   const handleSubmit = async () => {
     if (!user || !title.trim() || !system || !startAt) return;
+
+    // Validate end_at > start_at
+    if (endAt && new Date(endAt) <= new Date(startAt)) {
+      toast({ title: "Horário inválido", description: "O término deve ser após o início.", variant: "destructive" });
+      return;
+    }
+
     setLoading(true);
 
     try {
+      let coverUrl: string | null = null;
+      if (coverFile) {
+        coverUrl = await uploadCover();
+      }
+
       const { data, error } = await supabase.functions.invoke("create-mesa", {
         body: {
           title: title.trim(),
@@ -79,7 +125,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           max_price: Number(maxPrice) || Number(minPrice) || 0,
           seats_total: Number(seatsTotal) || 5,
           start_at: new Date(startAt).toISOString(),
+          end_at: endAt ? new Date(endAt).toISOString() : null,
           store_id: role === "store" ? storeId || user.id : null,
+          cover_image_url: coverUrl,
         },
       });
 
@@ -109,6 +157,15 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
   const canSubmit = title.trim() && system && startAt && !loading;
 
+  // Calculate duration display
+  const durationText = startAt && endAt ? (() => {
+    const diff = (new Date(endAt).getTime() - new Date(startAt).getTime()) / 60000;
+    if (diff <= 0) return null;
+    const h = Math.floor(diff / 60);
+    const m = Math.round(diff % 60);
+    return h > 0 ? `${h}h${m > 0 ? ` ${m}min` : ""}` : `${m}min`;
+  })() : null;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -126,15 +183,40 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-2">
+        <div className="space-y-5 mt-2">
+          {/* Cover Image */}
+          <div>
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Capa da aventura</Label>
+            <p className="text-xs text-muted-foreground mb-2">Essa imagem pode ser o primeiro fator de interesse do jogador.</p>
+            <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverSelect} />
+            {coverPreview ? (
+              <div className="relative rounded-xl overflow-hidden border border-border group">
+                <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>
+                    Trocar
+                  </Button>
+                  <Button size="sm" variant="destructive" onClick={removeCover}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                className="w-full h-32 rounded-xl border-2 border-dashed border-border hover:border-plum-300 bg-muted/30 hover:bg-plum-50/50 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-plum-500"
+              >
+                <ImagePlus className="h-6 w-6" />
+                <span className="text-xs font-medium">Adicione uma imagem</span>
+              </button>
+            )}
+          </div>
+
           {/* Title */}
           <div>
             <Label>Título da mesa *</Label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ex: A Maldição de Strahd"
-            />
+            <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: A Maldição de Strahd" />
           </div>
 
           {/* System */}
@@ -194,49 +276,46 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Preço mínimo (R$)</Label>
-              <Input
-                type="number"
-                min="0"
-                value={minPrice}
-                onChange={(e) => setMinPrice(e.target.value)}
-                placeholder="0"
-              />
+              <Input type="number" min="0" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="0" />
             </div>
             <div>
               <Label>Preço máximo (R$)</Label>
-              <Input
-                type="number"
-                min="0"
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(e.target.value)}
-                placeholder="0"
-              />
+              <Input type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="0" />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground -mt-2">
+          <p className="text-xs text-muted-foreground -mt-3">
             Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
           </p>
 
-          {/* Seats + Date */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>Vagas totais *</Label>
-              <Input
-                type="number"
-                min="1"
-                max="30"
-                value={seatsTotal}
-                onChange={(e) => setSeatsTotal(e.target.value)}
-              />
+          {/* Seats */}
+          <div>
+            <Label>Vagas totais *</Label>
+            <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+          </div>
+
+          {/* Date & Time block */}
+          <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data e Horário</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <Label>Início *</Label>
+                <Input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} />
+              </div>
+              <div>
+                <Label>Término previsto</Label>
+                <Input
+                  type="datetime-local"
+                  value={endAt}
+                  onChange={(e) => setEndAt(e.target.value)}
+                  min={startAt || undefined}
+                />
+              </div>
             </div>
-            <div>
-              <Label>Data e hora *</Label>
-              <Input
-                type="datetime-local"
-                value={startAt}
-                onChange={(e) => setStartAt(e.target.value)}
-              />
-            </div>
+            {durationText && (
+              <p className="text-xs text-plum-500 font-medium">
+                ⏱ Duração estimada: {durationText}
+              </p>
+            )}
           </div>
 
           {/* Description */}
@@ -250,11 +329,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             />
           </div>
 
-          <Button
-            onClick={handleSubmit}
-            disabled={!canSubmit}
-            className="w-full gap-2"
-          >
+          <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full gap-2">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Swords className="h-4 w-4" />}
             Criar Mesa
           </Button>

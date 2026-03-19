@@ -32,10 +32,12 @@ type Mesa = {
   gm_id: string;
   gm_name: string;
   start_at: string;
+  end_at: string | null;
   status: string;
   tags: string[] | null;
   play_styles: string[] | null;
   image_url: string | null;
+  cover_image_url: string | null;
 };
 
 const FORMATS = ["presencial", "online", "híbrido"];
