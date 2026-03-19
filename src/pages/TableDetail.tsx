@@ -424,6 +424,22 @@ export default function TableDetail() {
           targetName={mesa.title}
         />
       )}
+      {/* Booking Flow Dialog */}
+      {mesa && (
+        <BookingFlowDialog
+          open={bookingOpen}
+          onOpenChange={setBookingOpen}
+          mesa={{
+            id: mesa.id,
+            title: mesa.title,
+            gm_id: mesa.gm_id,
+            gm_name: mesa.gm_name,
+            min_price: mesa.min_price,
+            seats_available: mesa.seats_available,
+            seats_total: mesa.seats_total,
+          }}
+        />
+      )}
 
       <Footer />
     </div>
