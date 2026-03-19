@@ -387,7 +387,7 @@ export default function TableDetail() {
               )}
 
               <p className="text-[11px] text-muted-foreground text-center">
-                Pagamento simulado para MVP
+                Pagamento seguro via Stripe
               </p>
 
               {/* Chat with GM */}
