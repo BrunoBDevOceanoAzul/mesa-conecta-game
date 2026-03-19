@@ -24,14 +24,28 @@ type Phase =
   | "transition-mapped"
   | "mapped";
 
+// Map DB roles (gm, player, store, brand) to onboarding RoleKeys (mestre, jogador, loja, marca)
+const dbRoleToRoleKey: Record<string, RoleKey> = {
+  gm: "mestre",
+  player: "jogador",
+  store: "loja",
+  brand: "marca",
+  // Also accept the RoleKey itself
+  mestre: "mestre",
+  jogador: "jogador",
+  loja: "loja",
+  marca: "marca",
+};
+
 export default function Onboarding() {
   const { role: paramRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
-  const [role, setRole] = useState<RoleKey | null>(paramRole ? (paramRole as RoleKey) : null);
+  const resolvedParamRole = paramRole ? (dbRoleToRoleKey[paramRole] || paramRole as RoleKey) : null;
+  const [phase, setPhase] = useState<Phase>(resolvedParamRole ? "steps" : "welcome");
+  const [role, setRole] = useState<RoleKey | null>(resolvedParamRole);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
@@ -65,7 +79,8 @@ export default function Onboarding() {
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (Object.keys(loaded).length > 0) setAnswers(loaded);
           if (data.role) {
-            setRole(data.role as RoleKey);
+            const mapped = dbRoleToRoleKey[data.role] || data.role as RoleKey;
+            setRole(mapped);
           } else {
             // No role selected yet — ensure we show profile selection
             setPhase("profile");
@@ -83,6 +98,14 @@ export default function Onboarding() {
   }, [user]);
 
   const effectiveRole: RoleKey = role || "jogador";
+  // Map UI RoleKey back to DB role for persistence
+  const roleKeyToDbRole: Record<string, string> = {
+    jogador: "player",
+    mestre: "gm",
+    loja: "store",
+    marca: "brand",
+  };
+  const dbRole = roleKeyToDbRole[effectiveRole] || effectiveRole;
   const allSteps = stepsMap[effectiveRole];
   // Filter steps based on conditional logic (e.g., skip city for online-only users)
   const steps = allSteps.filter((s) => {
@@ -130,7 +153,7 @@ export default function Onboarding() {
     try {
       await supabase
         .from("profiles")
-        .update({ onboarding_step: stepNum, role: effectiveRole } as any)
+        .update({ onboarding_step: stepNum, role: dbRole } as any)
         .eq("user_id", user.id);
     } catch {
       // Silent
@@ -150,7 +173,7 @@ export default function Onboarding() {
       const badgeLabels = badges.map((b) => b.label);
 
       const profileData: Record<string, unknown> = {
-        role: effectiveRole,
+        role: dbRole,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
