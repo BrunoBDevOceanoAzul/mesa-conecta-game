@@ -34,7 +34,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews";
 
 // Calculator presets (legacy - now using PricingCalculator component)
 
