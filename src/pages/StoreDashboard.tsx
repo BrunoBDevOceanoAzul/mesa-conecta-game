@@ -18,9 +18,10 @@ import {
 } from "lucide-react";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
+import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 
-type Mesa = Tables<"mesas">;
-type StoreData = Tables<"stores">;
+type Mesa = any;
+type StoreData = any;
 
 type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
 
