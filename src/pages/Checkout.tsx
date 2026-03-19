@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrivileges } from "@/hooks/use-privileges";
 import { CouponInput } from "@/components/checkout/CouponInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -103,6 +104,7 @@ function formatBRL(cents: number): string {
 
 export default function Checkout() {
   const { user } = useAuth();
+  const { isSuperUser } = usePrivileges();
   const navigate = useNavigate();
   const [isFirstMesa, setIsFirstMesa] = useState(true);
   const { toast } = useToast();
@@ -172,9 +174,9 @@ export default function Checkout() {
   // Derive base plan codes — include free plans when it's first mesa
   const basePlans = useMemo(() => {
     return plans.filter(
-      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || p.price_monthly > 0)
+      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || isSuperUser || p.price_monthly > 0)
     );
-  }, [plans, isFirstMesa]);
+  }, [plans, isFirstMesa, isSuperUser]);
 
   // Filter by role if provided
   const filteredBasePlans = useMemo(() => {
@@ -240,12 +242,18 @@ export default function Checkout() {
     if (!resolvedPlan || !user) return;
     setSubmitting(true);
     try {
-      // Create a subscription record directly for free plans
       const now = new Date();
       const periodEnd = new Date(now);
       periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-      const { error } = await supabase.from("subscriptions").upsert({
+      // Delete any existing free/inactive subscriptions for this user first
+      await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("price_cents", 0);
+
+      const { error } = await supabase.from("subscriptions").insert({
         user_id: user.id,
         plan_id: resolvedPlan.id,
         plan_name: resolvedPlan.name,
@@ -255,7 +263,7 @@ export default function Checkout() {
         current_period_start: now.toISOString(),
         current_period_end: periodEnd.toISOString(),
         cancel_at_period_end: false,
-      }, { onConflict: "user_id" });
+      });
 
       if (error) throw error;
 
