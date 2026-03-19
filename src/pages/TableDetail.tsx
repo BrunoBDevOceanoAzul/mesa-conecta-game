@@ -14,7 +14,7 @@ import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useReviewEligibility } from "@/hooks/use-reviews";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer
 } from "lucide-react";
 
 type Mesa = {
@@ -33,10 +33,12 @@ type Mesa = {
   gm_id: string;
   gm_name: string;
   start_at: string;
+  end_at: string | null;
   status: string;
   tags: string[] | null;
   play_styles: string[] | null;
   image_url: string | null;
+  cover_image_url: string | null;
 };
 
 const formatIcons: Record<string, typeof Monitor> = {
@@ -50,6 +52,15 @@ const sessionLabels: Record<string, string> = {
   campanha: "Campanha",
   evento: "Evento",
 };
+
+function getDurationLabel(startAt: string, endAt?: string | null): string | null {
+  if (!endAt) return null;
+  const diff = (new Date(endAt).getTime() - new Date(startAt).getTime()) / 60000;
+  if (diff <= 0) return null;
+  const h = Math.floor(diff / 60);
+  const m = Math.round(diff % 60);
+  return h > 0 ? `${h}h${m > 0 ? ` ${m}min` : ""}` : `${m}min`;
+}
 
 export default function TableDetail() {
   const { id } = useParams();
@@ -68,7 +79,7 @@ export default function TableDetail() {
       .select("*")
       .eq("id", id)
       .single()
-      .then(({ data, error }) => {
+      .then(({ data }) => {
         if (data) setMesa(data as Mesa);
         setLoading(false);
       });
@@ -110,15 +121,33 @@ export default function TableDetail() {
 
   const date = new Date(mesa.start_at);
   const FormatIcon = formatIcons[mesa.format] || Monitor;
+  const coverUrl = mesa.cover_image_url || mesa.image_url;
+  const duration = getDurationLabel(mesa.start_at, mesa.end_at);
+
+  const startTime = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const endTime = mesa.end_at
+    ? new Date(mesa.end_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    : null;
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      <div className="container mx-auto max-w-4xl px-4 pt-24 pb-16">
+
+      {/* Hero Cover */}
+      <div className="relative w-full h-48 md:h-64 lg:h-72 overflow-hidden">
+        {coverUrl ? (
+          <img src={coverUrl} alt={mesa.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-plum-100 via-gold-50 to-coral-50" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      </div>
+
+      <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
         {/* Back */}
         <button
           onClick={() => navigate(-1)}
-          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" /> Voltar
         </button>
@@ -129,14 +158,14 @@ export default function TableDetail() {
             {/* Header */}
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="rounded-lg bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
                   {mesa.system}
                 </span>
                 <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
                   {sessionLabels[mesa.session_type] || mesa.session_type}
                 </span>
                 <span className={`rounded-lg px-3 py-1 text-sm font-medium ${
-                  mesa.status === "aberta" ? "bg-green-500/10 text-green-600" : "bg-muted text-muted-foreground"
+                  mesa.status === "aberta" ? "bg-teal-50 text-teal-500" : "bg-muted text-muted-foreground"
                 }`}>
                   {mesa.status.charAt(0).toUpperCase() + mesa.status.slice(1)}
                 </span>
@@ -160,6 +189,45 @@ export default function TableDetail() {
               )}
             </div>
 
+            {/* Time highlight card */}
+            <div className="rounded-2xl border border-plum-200 bg-gradient-to-r from-plum-50 to-gold-50 p-5">
+              <div className="flex items-center gap-6 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-plum-500" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Data</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-plum-500" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Horário</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {startTime}{endTime ? ` → ${endTime}` : ""}
+                    </span>
+                  </div>
+                </div>
+                {duration && (
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gold-100 flex items-center justify-center">
+                      <Timer className="h-5 w-5 text-gold-500" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block">Duração estimada</span>
+                      <span className="text-sm font-semibold text-foreground">{duration}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Description */}
             {mesa.description && (
               <div className="rounded-2xl border border-border bg-card p-6">
@@ -170,12 +238,10 @@ export default function TableDetail() {
 
             {/* Details grid */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <DetailItem icon={<User className="h-5 w-5 text-primary" />} label="Mestre" value={mesa.gm_name} />
-              <DetailItem icon={<FormatIcon className="h-5 w-5 text-primary" />} label="Formato" value={mesa.format.charAt(0).toUpperCase() + mesa.format.slice(1)} />
-              {mesa.city && <DetailItem icon={<MapPin className="h-5 w-5 text-primary" />} label="Cidade" value={mesa.city} />}
-              {mesa.venue && <DetailItem icon={<Home className="h-5 w-5 text-primary" />} label="Local" value={mesa.venue} />}
-              <DetailItem icon={<Calendar className="h-5 w-5 text-primary" />} label="Data" value={date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long", year: "numeric" })} />
-              <DetailItem icon={<Clock className="h-5 w-5 text-primary" />} label="Horário" value={date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })} />
+              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label="Mestre" value={mesa.gm_name} />
+              <DetailItem icon={<FormatIcon className="h-5 w-5 text-teal-500" />} label="Formato" value={mesa.format.charAt(0).toUpperCase() + mesa.format.slice(1)} />
+              {mesa.city && <DetailItem icon={<MapPin className="h-5 w-5 text-coral-400" />} label="Cidade" value={mesa.city} />}
+              {mesa.venue && <DetailItem icon={<Home className="h-5 w-5 text-gold-500" />} label="Local" value={mesa.venue} />}
             </div>
 
             {/* Tags */}
@@ -184,37 +250,29 @@ export default function TableDetail() {
                 <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Tags</h2>
                 <div className="flex flex-wrap gap-2">
                   {mesa.tags.map((tag) => (
-                    <span
-                      key={tag}
-                      className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm text-muted-foreground"
-                    >
+                    <span key={tag} className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm text-muted-foreground">
                       <Tag className="h-3 w-3" />
                       {tag}
                     </span>
                   ))}
-            </div>
+                </div>
+              </div>
+            )}
 
             {/* Reviews section */}
             <div className="mt-8">
               {eligibility.eligible && (
-                <Button
-                  variant="hero"
-                  size="sm"
-                  className="mb-4 gap-2"
-                  onClick={() => setReviewOpen(true)}
-                >
+                <Button variant="hero" size="sm" className="mb-4 gap-2" onClick={() => setReviewOpen(true)}>
                   <Star className="h-4 w-4" /> Avaliar esta mesa
                 </Button>
               )}
               {eligibility.alreadyReviewed && (
                 <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1">
-                  <Star className="h-3 w-3 text-secondary" /> Você já avaliou esta sessão
+                  <Star className="h-3 w-3 text-gold-400" /> Você já avaliou esta sessão
                 </p>
               )}
               <ReviewsList reviewedTableId={id} reviewType="table" />
             </div>
-          </div>
-            )}
           </div>
 
           {/* Sidebar - Booking card */}
@@ -222,13 +280,24 @@ export default function TableDetail() {
             <div className="rounded-2xl border border-border bg-card p-6 space-y-5 shadow-sm">
               {/* Price */}
               <div className="text-center">
-                <span className="text-3xl font-display font-bold text-foreground">
+                <span className="text-3xl font-display font-bold text-gold-500">
                   R${mesa.min_price}
                   {mesa.max_price > mesa.min_price && (
                     <span className="text-lg font-normal text-muted-foreground">–{mesa.max_price}</span>
                   )}
                 </span>
                 <p className="text-sm text-muted-foreground mt-0.5">por sessão</p>
+              </div>
+
+              {/* Quick time info */}
+              <div className="rounded-xl bg-muted/50 p-3 text-center">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+                  <Clock className="h-4 w-4 text-plum-400" />
+                  {startTime}{endTime ? ` → ${endTime}` : ""}
+                </div>
+                {duration && (
+                  <p className="text-xs text-muted-foreground mt-1">Duração estimada: {duration}</p>
+                )}
               </div>
 
               {/* Seats */}
@@ -245,15 +314,15 @@ export default function TableDetail() {
                   className="h-full rounded-full transition-all"
                   style={{
                     width: `${((mesa.seats_total - mesa.seats_available) / mesa.seats_total) * 100}%`,
-                    backgroundImage: "linear-gradient(135deg, hsl(280 52% 42%), hsl(38 88% 55%))",
+                    backgroundImage: "var(--gradient-xp)",
                   }}
                 />
               </div>
 
               {/* Match score mini */}
               {matchScore !== null && matchScore >= 55 && (
-                <div className="rounded-xl bg-primary/5 border border-primary/10 p-3 text-center">
-                  <div className="flex items-center justify-center gap-1.5 text-primary">
+                <div className="rounded-xl bg-plum-50 border border-plum-100 p-3 text-center">
+                  <div className="flex items-center justify-center gap-1.5 text-plum-500">
                     <Sparkles className="h-4 w-4" />
                     <span className="text-sm font-display font-bold">{matchScore}% compatível</span>
                   </div>
@@ -263,12 +332,7 @@ export default function TableDetail() {
 
               {/* Reserve button */}
               {mesa.status === "aberta" && mesa.seats_available > 0 ? (
-                <Button
-                  variant="hero"
-                  size="lg"
-                  className="w-full text-base"
-                  onClick={() => navigate(`/checkout/${mesa.id}`)}
-                >
+                <Button variant="hero" size="lg" className="w-full text-base" onClick={() => navigate(`/checkout/${mesa.id}`)}>
                   Reservar Vaga
                 </Button>
               ) : (
@@ -297,11 +361,7 @@ export default function TableDetail() {
               />
 
               {/* Share button */}
-              <ShareButton
-                entityType="mesa"
-                entityId={mesa.id}
-                entityTitle={mesa.title}
-              />
+              <ShareButton entityType="mesa" entityId={mesa.id} entityTitle={mesa.title} />
             </div>
           </div>
         </div>
@@ -328,7 +388,7 @@ export default function TableDetail() {
 function DetailItem({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
     <div className="flex items-start gap-3 rounded-xl border border-border bg-card p-4">
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted/50">
         {icon}
       </div>
       <div>
