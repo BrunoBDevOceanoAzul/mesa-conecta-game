@@ -289,14 +289,12 @@ export default function BoostDashboard() {
         />
 
         {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
+        <div className="dash-tabs">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={tab === t.key ? "dash-tab-active" : "dash-tab-inactive"}
             >
               {t.icon}
               {t.label}
