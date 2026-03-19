@@ -191,6 +191,26 @@ export default function GMDashboard() {
           </div>
         )}
 
+        {/* ─── REVIEWS ─── */}
+        {tab === "reviews" && (
+          <div className="space-y-6 max-w-3xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-display font-semibold text-foreground">Suas Avaliações</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">O que jogadores dizem sobre suas mesas.</p>
+              </div>
+              {gmReviews.stats.totalReviews > 0 && (
+                <ReputationBadge
+                  rating={gmReviews.stats.avgRating}
+                  totalReviews={gmReviews.stats.totalReviews}
+                  size="lg"
+                />
+              )}
+            </div>
+            <ReviewsList reviewedUserId={user?.id} reviewType="gm" showReputation={false} />
+          </div>
+        )}
+
         {/* ─── MESAS MANAGEMENT ─── */}
         {tab === "mesas" && (
           <div className="space-y-4">
