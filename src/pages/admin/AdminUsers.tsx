@@ -82,6 +82,7 @@ const ROLE_CONFIG: Record<string, { label: string; icon: React.ReactNode; cls: s
   store: { label: "Luderia", icon: <Store className="h-3 w-3" />, cls: "bg-accent/10 text-accent border-accent/20" },
   brand: { label: "Marca", icon: <Megaphone className="h-3 w-3" />, cls: "bg-primary/10 text-primary border-primary/20" },
   admin: { label: "Admin", icon: <Shield className="h-3 w-3" />, cls: "bg-destructive/10 text-destructive border-destructive/20" },
+  advisor: { label: "Conselheiro", icon: <Star className="h-3 w-3" />, cls: "bg-warning/10 text-warning border-warning/20" },
 };
 
 const ROLE_LABELS: Record<string, string> = {
@@ -89,6 +90,8 @@ const ROLE_LABELS: Record<string, string> = {
   gm: "Mestre",
   store: "Loja / Luderia",
   brand: "Marca",
+  admin: "Admin",
+  advisor: "Conselheiro",
 };
 
 const defaultDiscount: DiscountFormData = {
@@ -649,6 +652,8 @@ export default function AdminUsers() {
                               <SelectItem value="gm">Mestre</SelectItem>
                               <SelectItem value="store">Loja / Luderia</SelectItem>
                               <SelectItem value="brand">Marca</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="advisor">Conselheiro</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
