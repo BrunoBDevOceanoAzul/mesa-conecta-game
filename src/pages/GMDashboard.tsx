@@ -53,27 +53,7 @@ interface CRMLead {
   lastContact: string;
 }
 
-function StatCard({ icon, label, value, trend }: { icon: React.ReactNode; label: string; value: string; trend?: string }) {
-  return (
-    <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
-          {trend && (
-            <p className="mt-1 text-xs text-green-500 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" /> {trend}
-            </p>
-          )}
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-          {icon}
-        </div>
-      </div>
-      <div className="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-primary/40 to-secondary/40 opacity-0 transition-opacity group-hover:opacity-100" />
-    </div>
-  );
-}
+import { StatCard } from "@/components/shared/StatCard";
 
 export default function GMDashboard() {
   const { user } = useAuth();
