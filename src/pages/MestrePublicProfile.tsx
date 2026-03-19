@@ -7,6 +7,8 @@ import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import {
   MapPin, Star, Users, Swords, BookOpen, Calendar,
   Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap,
