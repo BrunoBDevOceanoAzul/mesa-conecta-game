@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useReviewEligibility } from "@/hooks/use-reviews";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
