@@ -35,7 +35,7 @@ export default function OAuthCallback() {
         if (session?.user) {
           setStatus("Preparando seu perfil...");
           await new Promise((r) => setTimeout(r, 1000));
-          const dest = await resolveRedirect(session.user.id);
+          const dest = await applySignupRoleAndRedirect(session.user.id);
           navigate(dest, { replace: true });
           return;
         }
