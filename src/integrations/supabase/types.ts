@@ -1639,7 +1639,12 @@ export type Database = {
           likely_founder: boolean | null
           likely_paid_user: boolean | null
           name: string
+          perceived_value_score: number | null
+          plan_objections_json: Json | null
           player_answers_json: Json | null
+          preferred_billing_cycle: string | null
+          price_fairness_label: string | null
+          pricing_feedback_json: Json | null
           pricing_sensitivity: string | null
           primary_role: string | null
           selected_roles_json: Json
@@ -1649,7 +1654,9 @@ export type Database = {
           utm_campaign: string | null
           utm_medium: string | null
           utm_source: string | null
+          value_drivers_json: Json | null
           wants_followup: boolean | null
+          wants_trial: boolean | null
           whatsapp: string | null
           willingness_to_pay: string | null
         }
@@ -1668,7 +1675,12 @@ export type Database = {
           likely_founder?: boolean | null
           likely_paid_user?: boolean | null
           name: string
+          perceived_value_score?: number | null
+          plan_objections_json?: Json | null
           player_answers_json?: Json | null
+          preferred_billing_cycle?: string | null
+          price_fairness_label?: string | null
+          pricing_feedback_json?: Json | null
           pricing_sensitivity?: string | null
           primary_role?: string | null
           selected_roles_json?: Json
@@ -1678,7 +1690,9 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          value_drivers_json?: Json | null
           wants_followup?: boolean | null
+          wants_trial?: boolean | null
           whatsapp?: string | null
           willingness_to_pay?: string | null
         }
@@ -1697,7 +1711,12 @@ export type Database = {
           likely_founder?: boolean | null
           likely_paid_user?: boolean | null
           name?: string
+          perceived_value_score?: number | null
+          plan_objections_json?: Json | null
           player_answers_json?: Json | null
+          preferred_billing_cycle?: string | null
+          price_fairness_label?: string | null
+          pricing_feedback_json?: Json | null
           pricing_sensitivity?: string | null
           primary_role?: string | null
           selected_roles_json?: Json
@@ -1707,11 +1726,66 @@ export type Database = {
           utm_campaign?: string | null
           utm_medium?: string | null
           utm_source?: string | null
+          value_drivers_json?: Json | null
           wants_followup?: boolean | null
+          wants_trial?: boolean | null
           whatsapp?: string | null
           willingness_to_pay?: string | null
         }
         Relationships: []
+      }
+      interest_pricing_feedback: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          main_objections: Json | null
+          main_value_drivers: Json | null
+          perceived_price_position: string | null
+          plan_presented: string
+          preferred_billing_cycle: string | null
+          role_context: string
+          updated_at: string
+          willingness_to_pay_range: string | null
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          main_objections?: Json | null
+          main_value_drivers?: Json | null
+          perceived_price_position?: string | null
+          plan_presented: string
+          preferred_billing_cycle?: string | null
+          role_context: string
+          updated_at?: string
+          willingness_to_pay_range?: string | null
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          main_objections?: Json | null
+          main_value_drivers?: Json | null
+          perceived_price_position?: string | null
+          plan_presented?: string
+          preferred_billing_cycle?: string | null
+          role_context?: string
+          updated_at?: string
+          willingness_to_pay_range?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "interest_pricing_feedback_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "interest_leads"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       leads: {
         Row: {
