@@ -115,8 +115,8 @@ export default function Login() {
           </div>
           <form onSubmit={handleForgotPassword} className="space-y-4">
             <div>
-              <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="seu@email.com" required />
+              <label className="field-label">Email</label>
+              <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required />
             </div>
             <Button className="w-full h-11" type="submit" disabled={forgotLoading}>
               {forgotLoading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
@@ -160,13 +160,13 @@ export default function Login() {
 
         <form onSubmit={handleLogin} className="space-y-4">
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="seu@email.com" required disabled={loading} />
+            <label className="field-label">Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required disabled={loading} />
           </div>
           <div>
-            <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
+            <label className="field-label">Senha</label>
             <div className="relative mt-1.5">
-              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 pr-10 transition-shadow" placeholder="••••••••" required disabled={loading} />
+              <input type={showPw ? "text" : "password"} value={password} onChange={(e) => setPassword(e.target.value)} className="field-input !mt-0 pr-10" placeholder="••••••••" required disabled={loading} />
               <button type="button" onClick={() => setShowPw(!showPw)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                 {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>

@@ -147,16 +147,16 @@ export default function Signup() {
 
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Nome</label>
-                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="Seu nome ou apelido" required />
+                  <label className="field-label">Nome</label>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} className="field-input" placeholder="Seu nome ou apelido" required />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Email</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="seu@email.com" required />
+                  <label className="field-label">Email</label>
+                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required />
                 </div>
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Senha</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/50 transition-shadow" placeholder="Mínimo 6 caracteres" required minLength={6} />
+                  <label className="field-label">Senha</label>
+                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="field-input" placeholder="Mínimo 6 caracteres" required minLength={6} />
                 </div>
                 <Button variant="default" className="w-full h-11" type="submit">
                   Continuar <ArrowRight className="h-4 w-4 ml-1" />

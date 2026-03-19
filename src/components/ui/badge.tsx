@@ -8,25 +8,25 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default:
-          "border-transparent bg-primary/12 text-primary",
+          "border-transparent bg-primary/10 text-primary",
         secondary:
-          "border-transparent bg-secondary/12 text-secondary",
+          "border-transparent bg-secondary/10 text-secondary",
         destructive:
-          "border-transparent bg-destructive/12 text-destructive",
+          "border-transparent bg-destructive/10 text-destructive",
         outline:
           "border-border text-foreground",
         success:
-          "border-transparent bg-success/12 text-success",
+          "border-transparent bg-success/10 text-success",
         warning:
-          "border-transparent bg-warning/12 text-warning",
+          "border-transparent bg-warning/10 text-warning",
         info:
-          "border-transparent bg-info/12 text-info",
+          "border-transparent bg-info/10 text-info",
         premium:
-          "border-transparent border border-white/10 text-primary-foreground font-bold",
+          "border-transparent border border-white/8 text-primary-foreground font-bold",
         gold:
           "border-transparent text-secondary-foreground font-bold",
         founder:
-          "border-transparent border border-white/10 text-primary-foreground font-bold",
+          "border-transparent border border-white/8 text-primary-foreground font-bold",
       },
     },
     defaultVariants: {
@@ -37,15 +37,13 @@ const badgeVariants = cva(
 
 const badgeGradientStyles: Record<string, React.CSSProperties> = {
   premium: {
-    backgroundImage:
-      "linear-gradient(135deg, hsl(265 50% 36%) 0%, hsl(280 48% 48%) 35%, hsl(320 32% 44%) 65%, hsl(40 70% 58%) 100%)",
+    backgroundImage: "var(--gradient-premium)",
   },
   gold: {
-    backgroundImage: "linear-gradient(135deg, hsl(42 68% 48%), hsl(32 72% 52%))",
+    backgroundImage: "var(--gradient-gold)",
   },
   founder: {
-    backgroundImage:
-      "linear-gradient(135deg, hsl(42 72% 48%) 0%, hsl(32 78% 50%) 40%, hsl(280 42% 48%) 80%, hsl(265 48% 42%) 100%)",
+    backgroundImage: "var(--gradient-founder)",
   },
 };
 

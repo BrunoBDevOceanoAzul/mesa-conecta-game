@@ -74,8 +74,8 @@ export function DashboardLayout({
         </div>
 
         <div className="p-3">
-          <div className="flex items-center gap-3 rounded-lg bg-surface p-3 mb-5">
-            <div className="h-9 w-9 rounded-full bg-primary/12 flex items-center justify-center text-sm font-bold text-primary ring-1 ring-primary/15">
+          <div className="flex items-center gap-3 rounded-xl bg-surface p-3 mb-5">
+            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary ring-1 ring-primary/12">
               {userName.charAt(0)}
             </div>
             <div className="min-w-0">
@@ -100,7 +100,7 @@ export function DashboardLayout({
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
                     active
-                      ? "bg-primary/10 text-primary font-medium"
+                      ? "bg-primary/8 text-primary font-medium"
                       : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
                   }`}
                 >
