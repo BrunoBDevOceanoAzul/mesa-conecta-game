@@ -132,9 +132,8 @@ export default function Interesse() {
                 transition={{ delay: i * 0.15 }}
                 className="surface-card-elevated text-center group hover:border-border-strong transition-all"
               >
-                <div className={`inline-flex h-14 w-14 items-center justify-center rounded-xl ${bg} ${card.color} mb-5`} style={{ backgroundColor: undefined }}>
-                  <div className={`${card.bg} ${card.color} h-14 w-14 rounded-xl flex items-center justify-center`}>
-                    {card.icon}
+                <div className={`${card.bg} ${card.color} h-14 w-14 rounded-xl flex items-center justify-center mx-auto mb-5`}>
+                  {card.icon}
                   </div>
                 </div>
                 <h3 className="text-h4 mb-3">{card.title}</h3>
