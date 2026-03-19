@@ -27,18 +27,20 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     const checkAccess = async () => {
       try {
         const [profileRes, adminRes] = await Promise.all([
-          supabase.from("profiles").select("role, can_play, can_gm").eq("user_id", user.id).maybeSingle(),
+          supabase.from("profiles").select("role, can_play, can_gm, can_manage_store, can_manage_brand").eq("user_id", user.id).maybeSingle(),
           allowedRoles.includes("admin")
             ? supabase.rpc("is_admin", { _user_id: user.id })
             : Promise.resolve({ data: false }),
         ]);
 
-        const profile = profileRes.data;
+        const profile = profileRes.data as any;
         // Effective roles: primary role + hybrid capabilities
         const effectiveRoles: string[] = [];
         if (profile?.role) effectiveRoles.push(profile.role);
         if (profile?.can_play && !effectiveRoles.includes("player")) effectiveRoles.push("player");
         if (profile?.can_gm && !effectiveRoles.includes("gm")) effectiveRoles.push("gm");
+        if (profile?.can_manage_store && !effectiveRoles.includes("store")) effectiveRoles.push("store");
+        if (profile?.can_manage_brand && !effectiveRoles.includes("brand")) effectiveRoles.push("brand");
 
         setUserRole(profile?.role || null);
         setIsAdmin(!!adminRes.data);

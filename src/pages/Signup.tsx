@@ -68,8 +68,25 @@ const roleOptions: RoleOption[] = [
     label: "Jogador que também mestra",
     desc: "Jogo com frequência, mas também posso abrir mesas como mestre.",
   },
+  {
+    id: "store",
+    role: "store",
+    canPlay: false,
+    canGm: false,
+    icon: Store,
+    label: "Loja / Luderia",
+    desc: "Quero organizar mesas, eventos e trazer a comunidade para minha casa.",
+  },
+  {
+    id: "brand",
+    role: "brand",
+    canPlay: false,
+    canGm: false,
+    icon: Megaphone,
+    label: "Marca / Patrocinador",
+    desc: "Quero alcançar a comunidade tabletop com campanhas e parcerias.",
+  },
 ];
-
 const roleToDash: Record<string, string> = {
   player: "/onboarding/jogador",
   gm: "/onboarding/mestre",
@@ -122,6 +139,9 @@ export default function Signup() {
     setSelectedId(option.id);
     setLoading(true);
 
+    const canManageStore = option.role === "store";
+    const canManageBrand = option.role === "brand";
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -131,6 +151,8 @@ export default function Signup() {
           role: option.role,
           can_play: option.canPlay,
           can_gm: option.canGm,
+          can_manage_store: canManageStore,
+          can_manage_brand: canManageBrand,
         },
         emailRedirectTo: window.location.origin,
       },
@@ -150,13 +172,18 @@ export default function Signup() {
     }
 
     if (data.session) {
-      // Update profile with can_play/can_gm
+      // Update profile with capabilities
       await supabase
         .from("profiles")
-        .update({ can_play: option.canPlay, can_gm: option.canGm } as any)
+        .update({ 
+          can_play: option.canPlay, 
+          can_gm: option.canGm,
+          can_manage_store: canManageStore,
+          can_manage_brand: canManageBrand,
+        } as any)
         .eq("user_id", data.user!.id);
 
-      navigate(roleToDash[option.role] || "/onboarding/jogador");
+      navigate(roleToDash[option.role] || "/onboarding");
     }
 
     setLoading(false);
@@ -268,15 +295,8 @@ export default function Signup() {
                 })}
               </div>
 
-              {/* Extra roles link */}
               <p className="text-center text-[11px] text-muted-foreground/60 mt-4">
-                Lojas e marcas?{" "}
-                <button
-                  onClick={() => {/* Could expand to show store/brand options */}}
-                  className="text-primary/70 hover:text-primary underline"
-                >
-                  Clique aqui
-                </button>
+                Você poderá ajustar seu perfil depois.
               </p>
 
               <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors block mx-auto">

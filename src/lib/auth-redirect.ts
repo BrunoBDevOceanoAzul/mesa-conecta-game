@@ -46,7 +46,7 @@ export async function resolveRedirect(userId: string, _fallbackRole?: string): P
       return roleToOnboarding[role] || "/onboarding";
     }
 
-    return roleToDash[role] || "/dashboard/jogador";
+    return roleToDash[role] || "/onboarding";
   } catch (err) {
     console.warn("[auth-redirect] Error resolving redirect:", err);
     // Safe fallback — send to generic onboarding which will handle role selection
