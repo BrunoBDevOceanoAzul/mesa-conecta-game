@@ -1910,6 +1910,8 @@ export type Database = {
           start_at: string
           status: string
           store_id: string | null
+          stripe_price_id: string | null
+          stripe_product_id: string | null
           system: string
           tags: string[] | null
           title: string
@@ -1934,6 +1936,8 @@ export type Database = {
           start_at: string
           status?: string
           store_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           system: string
           tags?: string[] | null
           title: string
@@ -1958,6 +1962,8 @@ export type Database = {
           start_at?: string
           status?: string
           store_id?: string | null
+          stripe_price_id?: string | null
+          stripe_product_id?: string | null
           system?: string
           tags?: string[] | null
           title?: string
