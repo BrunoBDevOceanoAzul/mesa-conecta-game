@@ -29,7 +29,7 @@ serve(async (req) => {
     if (userError || !userData.user) throw new Error("Authentication failed");
 
     const body = await req.json();
-    const { action, title, description, system, session_type, format, tags, play_styles } = body;
+    const { action, title, description, system, session_type, format, tags, play_styles, url, channels } = body;
 
     // Gather platform performance insights for context
     let platformContext = "";
