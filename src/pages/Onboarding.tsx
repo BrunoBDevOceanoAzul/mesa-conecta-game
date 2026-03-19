@@ -260,7 +260,7 @@ export default function Onboarding() {
           <TransitionScreen
             key="transition-start"
             headline="Vamos calibrar seu perfil"
-            subtext="Em poucos passos, a HIVIUM ajusta a experiência ao seu ritmo e ao tipo de mesa que faz sentido para você."
+            subtext="Em poucos passos, a HIVIUM personaliza mesas online, presenciais e híbridas ao seu ritmo."
             onComplete={() => setPhase("steps")}
             duration={2400}
           />
