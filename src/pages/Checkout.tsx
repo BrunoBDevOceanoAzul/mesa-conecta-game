@@ -104,6 +104,7 @@ function formatBRL(cents: number): string {
 export default function Checkout() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isFirstMesa, setIsFirstMesa] = useState(true);
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const { planId: urlPlanId } = useParams();
