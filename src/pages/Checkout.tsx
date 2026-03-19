@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { usePrivileges } from "@/hooks/use-privileges";
 import { CouponInput } from "@/components/checkout/CouponInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
