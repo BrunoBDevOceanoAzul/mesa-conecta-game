@@ -20,6 +20,7 @@ interface ReviewFormModalProps {
   bookingId: string;
   reviewedUserId?: string;
   reviewedTableId?: string;
+  reviewedStoreId?: string;
   reviewType: "gm" | "table" | "store";
   targetName: string;
   onSuccess?: () => void;
@@ -31,6 +32,7 @@ export function ReviewFormModal({
   bookingId,
   reviewedUserId,
   reviewedTableId,
+  reviewedStoreId,
   reviewType,
   targetName,
   onSuccess,
@@ -50,6 +52,7 @@ export function ReviewFormModal({
       reviewer_user_id: user.id,
       reviewed_user_id: reviewedUserId || null,
       reviewed_table_id: reviewedTableId || null,
+      reviewed_store_id: reviewedStoreId || null,
       rating,
       comment: comment.trim() || null,
       review_type: reviewType,
