@@ -569,6 +569,7 @@ export type Database = {
           related_store_id: string | null
           related_table_id: string | null
           shares: number
+          slug: string | null
           sponsor_label: string | null
           status: string
           tags: string[] | null
@@ -594,6 +595,7 @@ export type Database = {
           related_store_id?: string | null
           related_table_id?: string | null
           shares?: number
+          slug?: string | null
           sponsor_label?: string | null
           status?: string
           tags?: string[] | null
@@ -619,6 +621,7 @@ export type Database = {
           related_store_id?: string | null
           related_table_id?: string | null
           shares?: number
+          slug?: string | null
           sponsor_label?: string | null
           status?: string
           tags?: string[] | null
@@ -1888,6 +1891,54 @@ export type Database = {
         }
         Relationships: []
       }
+      post_comments: {
+        Row: {
+          author_user_id: string
+          content: string
+          created_at: string
+          id: string
+          parent_comment_id: string | null
+          post_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          author_user_id: string
+          content: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          post_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          author_user_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          post_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "post_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "post_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_likes: {
         Row: {
           created_at: string
@@ -1910,6 +1961,53 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_share_links: {
+        Row: {
+          channel: string
+          clicks: number
+          created_at: string
+          id: string
+          owner_user_id: string | null
+          post_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          channel: string
+          clicks?: number
+          created_at?: string
+          id?: string
+          owner_user_id?: string | null
+          post_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          channel?: string
+          clicks?: number
+          created_at?: string
+          id?: string
+          owner_user_id?: string | null
+          post_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_share_links_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "community_posts"
