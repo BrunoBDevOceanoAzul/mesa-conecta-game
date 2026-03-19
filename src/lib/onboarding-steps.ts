@@ -337,12 +337,28 @@ export const gmSteps: OnboardingStep[] = [
 // ─── LOJA / LUDERIA ──────────────────────────────────
 export const storeSteps: OnboardingStep[] = [
   {
+    id: "store-format",
+    title: "Como sua operação acontece?",
+    subtitle: "A HIVIUM conecta experiências presenciais, híbridas e online.",
+    microcopy: "Vamos adaptar a plataforma à realidade da sua casa.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Presencial", icon: "MapPin", description: "Operação 100% local" },
+      { label: "Híbrido", icon: "Blend", description: "Local + experiências online" },
+      { label: "Online", icon: "Monitor", description: "Também quero explorar o digital" },
+    ],
+    required: true,
+  },
+  {
     id: "store-city",
-    title: "Onde sua operação acontece?",
+    title: "Onde sua casa está localizada?",
     subtitle: "Jogadores e mestres encontram você no mapa",
+    microcopy: "Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
     required: true,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "store-capacity",
