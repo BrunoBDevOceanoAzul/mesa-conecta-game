@@ -412,8 +412,8 @@ function CalcInput({ label, value, onChange, min, max, prefix, suffix }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
-      <div className="mt-1.5 flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+      <label className="field-label">{label}</label>
+      <div className="mt-1.5 flex items-center rounded-lg border border-border bg-surface focus-within:ring-2 focus-within:ring-ring/50 focus-within:border-primary/40 transition-all">
         {prefix && <span className="pl-3 text-sm text-muted-foreground">{prefix}</span>}
         <input
           type="number"
