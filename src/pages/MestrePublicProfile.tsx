@@ -235,6 +235,17 @@ export default function MestrePublicProfile() {
           </section>
         )}
 
+        {/* AVALIAÇÕES */}
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <SectionTitle icon={Star}>Avaliações</SectionTitle>
+            {rating > 0 && (
+              <ReputationBadge rating={rating} totalReviews={gmProfile?.total_reviews || 0} />
+            )}
+          </div>
+          <ReviewsList reviewedUserId={profile.user_id} reviewType="gm" showHeader={false} />
+        </section>
+
         {/* MESAS */}
         <section id="mesas">
           <SectionTitle icon={Gamepad2}>
