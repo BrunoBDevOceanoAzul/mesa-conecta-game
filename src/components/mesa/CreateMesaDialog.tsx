@@ -274,6 +274,28 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
           </p>
 
+          {/* Pricing Calculator */}
+          <Collapsible>
+            <CollapsibleTrigger asChild>
+              <button type="button" className="flex items-center gap-2 text-xs font-medium text-primary hover:text-primary/80 transition-colors -mt-1">
+                <Calculator className="h-3.5 w-3.5" />
+                Abrir calculadora de preços
+                <ChevronDown className="h-3 w-3" />
+              </button>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="mt-3">
+              <div className="rounded-xl border border-border overflow-hidden">
+                <PricingCalculator
+                  compact
+                  onApplyPrice={(min, max) => {
+                    setMinPrice(String(min));
+                    setMaxPrice(String(max));
+                  }}
+                />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+
           {/* Seats */}
           <div>
             <Label>Vagas totais *</Label>
