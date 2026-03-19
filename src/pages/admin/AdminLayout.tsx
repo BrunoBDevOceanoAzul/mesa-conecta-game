@@ -14,6 +14,7 @@ const navItems = [
   { label: "Insights", path: "/admin/insights", icon: "🧠" },
   { label: "Usuários", path: "/admin/usuarios", icon: "👥" },
   { label: "Reviews", path: "/admin/reviews", icon: "⭐" },
+  { label: "Feedback", path: "/admin/feedback", icon: "🎯" },
   { label: "Campanha", path: "/admin/campanha", icon: "📣" },
   { label: "Social", path: "/admin/social", icon: "🔗" },
   { label: "Configurações", path: "/admin/configuracoes", icon: "⚙️" },
