@@ -24,14 +24,28 @@ type Phase =
   | "transition-mapped"
   | "mapped";
 
+// Map DB roles (gm, player, store, brand) to onboarding RoleKeys (mestre, jogador, loja, marca)
+const dbRoleToRoleKey: Record<string, RoleKey> = {
+  gm: "mestre",
+  player: "jogador",
+  store: "loja",
+  brand: "marca",
+  // Also accept the RoleKey itself
+  mestre: "mestre",
+  jogador: "jogador",
+  loja: "loja",
+  marca: "marca",
+};
+
 export default function Onboarding() {
   const { role: paramRole } = useParams<{ role?: string }>();
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
-  const [role, setRole] = useState<RoleKey | null>(paramRole ? (paramRole as RoleKey) : null);
+  const resolvedParamRole = paramRole ? (dbRoleToRoleKey[paramRole] || paramRole as RoleKey) : null;
+  const [phase, setPhase] = useState<Phase>(resolvedParamRole ? "steps" : "welcome");
+  const [role, setRole] = useState<RoleKey | null>(resolvedParamRole);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
