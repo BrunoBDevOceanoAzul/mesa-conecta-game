@@ -454,7 +454,11 @@ export default function TableDetail() {
               )}
 
               {/* Reserve button */}
-              {mesa.status === "aberta" && mesa.seats_available > 0 ? (
+              {existingBooking ? (
+                <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
+                  <Check className="h-4 w-4" /> Você já está nesta mesa
+                </Button>
+              ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
                 <Button variant="hero" size="lg" className="w-full text-base" onClick={() => {
                   if (!user) {
                     navigate("/login");
@@ -462,7 +466,9 @@ export default function TableDetail() {
                   }
                   setBookingOpen(true);
                 }}>
-                  Reservar Vaga
+                  {mesa.min_price > 0
+                    ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                    : "Reservar Vaga — Grátis"}
                 </Button>
               ) : (
                 <Button variant="outline" size="lg" className="w-full" disabled>
@@ -470,9 +476,11 @@ export default function TableDetail() {
                 </Button>
               )}
 
-              <p className="text-[11px] text-muted-foreground text-center">
-                Pagamento seguro via Stripe
-              </p>
+              {!existingBooking && mesa.min_price > 0 && (
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Pagamento seguro via Stripe • sem surpresas
+                </p>
+              )}
 
               {/* Chat with GM */}
               <StartChatButton
