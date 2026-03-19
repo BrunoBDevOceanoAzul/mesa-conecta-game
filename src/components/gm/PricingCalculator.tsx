@@ -103,7 +103,14 @@ const presets = [
   { label: "Solo Premium", icon: Star, state: { ...defaultState, mesaType: "solo" as MesaType, format: "online" as Format, hourlyRate: 60, players: 1, production: "premium" as ProductionLevel } },
 ];
 
-export function PricingCalculator() {
+interface PricingCalculatorProps {
+  /** When provided, shows "Usar preço" buttons that apply min/max to a form */
+  onApplyPrice?: (min: number, max: number) => void;
+  /** If true, renders in a compact mode (no goal tracker) */
+  compact?: boolean;
+}
+
+export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorProps = {}) {
   const [state, setState] = useState<CalculatorState>(defaultState);
   const [activePreset, setActivePreset] = useState<number | null>(null);
 
