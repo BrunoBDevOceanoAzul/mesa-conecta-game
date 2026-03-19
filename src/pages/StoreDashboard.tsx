@@ -20,7 +20,7 @@ import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 type Mesa = Tables<"mesas">;
 type StoreData = Tables<"stores">;
 
-type Tab = "overview" | "space" | "agenda" | "feed";
+type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
