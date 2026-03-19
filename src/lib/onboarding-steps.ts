@@ -38,13 +38,28 @@ export interface OnboardingStep {
 // ─── JOGADOR ───────────────────────────────────────────
 export const playerSteps: OnboardingStep[] = [
   {
+    id: "player-format",
+    title: "Como você prefere jogar?",
+    subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
+    microcopy: "Vamos personalizar sua jornada com base no formato que faz mais sentido para você.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Online", icon: "Monitor", description: "De qualquer lugar, sem limite geográfico" },
+      { label: "Presencial", icon: "MapPin", description: "Nada supera estar junto na mesa" },
+      { label: "Híbrido", icon: "Blend", description: "O melhor dos dois mundos" },
+    ],
+    required: true,
+  },
+  {
     id: "player-city",
-    title: "Onde você joga ou gostaria de jogar?",
-    subtitle: "Sua localização nos ajuda a encontrar mesas perto de você",
-    microcopy: "Você pode ajustar isso depois.",
+    title: "Em que cidade ou região você quer viver essa experiência?",
+    subtitle: "Usamos isso para mostrar mesas presenciais próximas de você",
+    microcopy: "Você também verá opções online quando fizerem sentido. Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
-    required: true,
+    required: false,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "player-availability",
@@ -115,7 +130,7 @@ export const playerSteps: OnboardingStep[] = [
   },
   {
     id: "player-session-format",
-    title: "Como você prefere jogar?",
+    title: "Que formato de mesa combina mais com você?",
     subtitle: "One-shot, campanha ou tanto faz?",
     type: "cards-single",
     field: "session_format_pref",
@@ -123,19 +138,6 @@ export const playerSteps: OnboardingStep[] = [
       { label: "One-shot", icon: "Zap", description: "Uma sessão completa" },
       { label: "Campanha", icon: "Map", description: "Histórias longas e contínuas" },
       { label: "Tanto faz", icon: "Shuffle", description: "Ambos me agradam" },
-    ],
-    required: false,
-  },
-  {
-    id: "player-format",
-    title: "Qual formato combina mais com sua rotina?",
-    subtitle: "Presencial, online ou híbrido?",
-    type: "cards-single",
-    field: "preferred_format",
-    options: [
-      { label: "Presencial", icon: "MapPin", description: "Nada supera estar junto" },
-      { label: "Online", icon: "Monitor", description: "De qualquer lugar" },
-      { label: "Híbrido", icon: "Blend", description: "O melhor dos dois" },
     ],
     required: false,
   },
