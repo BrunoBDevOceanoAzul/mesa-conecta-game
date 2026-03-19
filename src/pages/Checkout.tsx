@@ -104,6 +104,7 @@ function formatBRL(cents: number): string {
 export default function Checkout() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [isFirstMesa, setIsFirstMesa] = useState(true);
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const { planId: urlPlanId } = useParams();
@@ -121,6 +122,18 @@ export default function Checkout() {
   );
   const [coupon, setCoupon] = useState<ValidatedCoupon | null>(null);
 
+  // Check if user has any bookings (first mesa = free)
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .eq("player_user_id", user.id)
+      .then(({ count }) => {
+        setIsFirstMesa((count ?? 0) === 0);
+      });
+  }, [user]);
+
   // Fetch plans
   useEffect(() => {
     supabase
@@ -137,7 +150,6 @@ export default function Checkout() {
         if (urlPlanId) {
           const match = fetched.find((p) => p.id === urlPlanId || p.code === urlPlanId);
           if (match) {
-            // If it's an interval variant (e.g. gm_pro_quarterly), resolve to base plan + interval
             const baseSuffixes = ["_quarterly", "_semiannual", "_annual"];
             let baseCode = match.code;
             let interval: BillingInterval = "monthly";
@@ -157,12 +169,12 @@ export default function Checkout() {
       });
   }, []);
 
-  // Derive base plan codes (monthly only, excluding free)
+  // Derive base plan codes — include free plans when it's first mesa
   const basePlans = useMemo(() => {
     return plans.filter(
-      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && p.code !== "player_free"
+      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || p.price_monthly > 0)
     );
-  }, [plans]);
+  }, [plans, isFirstMesa]);
 
   // Filter by role if provided
   const filteredBasePlans = useMemo(() => {
@@ -223,9 +235,47 @@ export default function Checkout() {
     return priceTotal;
   }, [priceTotal, coupon]);
 
+  // Handle free plan activation
+  async function handleFreePlan() {
+    if (!resolvedPlan || !user) return;
+    setSubmitting(true);
+    try {
+      // Create a subscription record directly for free plans
+      const now = new Date();
+      const periodEnd = new Date(now);
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+      const { error } = await supabase.from("subscriptions").upsert({
+        user_id: user.id,
+        plan_id: resolvedPlan.id,
+        plan_name: resolvedPlan.name,
+        plan_role: resolvedPlan.role,
+        status: "active",
+        price_cents: 0,
+        current_period_start: now.toISOString(),
+        current_period_end: periodEnd.toISOString(),
+        cancel_at_period_end: false,
+      }, { onConflict: "user_id" });
+
+      if (error) throw error;
+
+      toast({ title: "Plano ativado!", description: "Seu plano gratuito foi ativado com sucesso." });
+      navigate("/billing?checkout=success");
+    } catch (err: any) {
+      toast({ title: "Erro", description: err?.message || "Erro ao ativar plano", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   // Handle checkout
   async function handleCheckout() {
     if (!resolvedPlan || !user) return;
+
+    // Free plan — activate directly without Stripe
+    if (resolvedPlan.price_monthly === 0) {
+      return handleFreePlan();
+    }
 
     setSubmitting(true);
     try {
@@ -373,12 +423,25 @@ export default function Checkout() {
                         <p className="text-xs text-muted-foreground mb-3 line-clamp-2">{plan.description}</p>
                       )}
                       <div className="flex items-baseline gap-1">
-                        <span className="text-2xl font-display font-bold text-foreground">
-                          {formatBRL(plan.price_monthly)}
-                        </span>
-                        <span className="text-sm text-muted-foreground">/mês</span>
+                        {plan.price_monthly === 0 ? (
+                          <>
+                            <span className="text-2xl font-display font-bold text-secondary">Grátis</span>
+                            {isFirstMesa && (
+                              <Badge className="ml-2 bg-secondary/10 text-secondary border-secondary/20 text-[10px]">
+                                1ª mesa
+                              </Badge>
+                            )}
+                          </>
+                        ) : (
+                          <>
+                            <span className="text-2xl font-display font-bold text-foreground">
+                              {formatBRL(plan.price_monthly)}
+                            </span>
+                            <span className="text-sm text-muted-foreground">/mês</span>
+                          </>
+                        )}
                       </div>
-                      {plan.trial_days && plan.trial_days > 0 && (
+                      {plan.trial_days && plan.trial_days > 0 && plan.price_monthly > 0 && (
                         <p className="text-xs text-primary font-medium mt-1">{plan.trial_days} dias grátis</p>
                       )}
                     </button>
@@ -510,13 +573,23 @@ export default function Checkout() {
                         <p className="text-xs text-muted-foreground line-through">{formatBRL(priceTotal)}</p>
                       )}
                       <p className="text-xl font-display font-bold text-foreground">
-                        {formatBRL(discountedTotal)}
+                        {discountedTotal === 0 ? "Grátis" : formatBRL(discountedTotal)}
                       </p>
                     </div>
                   </div>
 
+                  {/* First mesa free notice */}
+                  {resolvedPlan && resolvedPlan.price_monthly === 0 && isFirstMesa && (
+                    <div className="rounded-lg bg-secondary/10 border border-secondary/20 px-3 py-2 flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5 text-secondary" />
+                      <span className="text-xs text-secondary font-medium">
+                        Sua primeira mesa é por nossa conta! Jogue grátis e conheça a plataforma.
+                      </span>
+                    </div>
+                  )}
+
                   {/* Trial notice */}
-                  {resolvedPlan && resolvedPlan.trial_days && resolvedPlan.trial_days > 0 && (
+                  {resolvedPlan && resolvedPlan.trial_days && resolvedPlan.trial_days > 0 && resolvedPlan.price_monthly > 0 && (
                     <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5 text-primary" />
                       <span className="text-xs text-primary font-medium">
@@ -548,7 +621,7 @@ export default function Checkout() {
                     variant="gradient"
                     size="lg"
                     className="w-full gap-2"
-                    disabled={submitting || !resolvedPlan?.stripe_price_id}
+                    disabled={submitting || (resolvedPlan?.price_monthly !== 0 && !resolvedPlan?.stripe_price_id)}
                     onClick={handleCheckout}
                   >
                     {submitting ? (
@@ -556,10 +629,15 @@ export default function Checkout() {
                     ) : (
                       <ArrowRight className="h-4 w-4" />
                     )}
-                    {submitting ? "Redirecionando…" : "Finalizar assinatura"}
+                    {submitting
+                      ? "Redirecionando…"
+                      : resolvedPlan?.price_monthly === 0
+                        ? "Ativar plano gratuito"
+                        : "Finalizar assinatura"
+                    }
                   </Button>
 
-                  {!resolvedPlan?.stripe_price_id && resolvedPlan && (
+                  {!resolvedPlan?.stripe_price_id && resolvedPlan && resolvedPlan.price_monthly > 0 && (
                     <p className="text-xs text-destructive text-center">
                       Plano indisponível para este ciclo. Escolha outro.
                     </p>
