@@ -146,6 +146,9 @@ export function DashboardLayout({
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <div className="p-4 lg:p-6">{children}</div>
       </main>

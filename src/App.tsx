@@ -58,6 +58,7 @@ const App = () => (
             <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
             <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
             <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+            <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
             <Route path="/feed" element={<Feed />} />
             <Route path="/post/:slug" element={<PostDetail />} />
             <Route path="/explorar" element={<ExploreMesas />} />
