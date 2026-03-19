@@ -70,13 +70,32 @@ function getDurationLabel(startAt: string, endAt?: string | null): string | null
 export default function TableDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { preferences } = useUserPreferences();
   const [mesa, setMesa] = useState<Mesa | null>(null);
   const [loading, setLoading] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const eligibility = useReviewEligibility(id);
+
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    const bookingStatus = searchParams.get("booking");
+    if (bookingStatus === "success") {
+      setBookingSuccess(true);
+      // Clean URL
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    } else if (bookingStatus === "canceled") {
+      // Canceled booking — could clean up pending booking here
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!id) return;
