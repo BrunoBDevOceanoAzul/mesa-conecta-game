@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
