@@ -134,7 +134,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.1 }}
-          className="mt-12"
+          className="mt-12 flex flex-col items-center gap-4"
         >
           <Button
             variant="gradient"
@@ -144,6 +144,15 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           >
             Entrar no dashboard <ArrowRight className="h-4 w-4" />
           </Button>
+          <a
+            href={getInstagramUrl("onboarding_mapped")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <Instagram className="h-3.5 w-3.5" />
+            Siga {getInstagramHandle()} para novidades
+          </a>
         </motion.div>
       </div>
     </motion.div>
