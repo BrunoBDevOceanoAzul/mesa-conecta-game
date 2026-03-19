@@ -30,7 +30,7 @@ interface InsightsData {
   experienceLevels: { name: string; count: number }[];
   // Supply
   gmSystems: { name: string; count: number }[];
-  gmPriceRanges: { range: string; count: number }[];
+  gmPriceRanges: { name: string; count: number }[];
   gmCities: { name: string; count: number }[];
   tableFormats: { name: string; count: number }[];
   // Gaps
