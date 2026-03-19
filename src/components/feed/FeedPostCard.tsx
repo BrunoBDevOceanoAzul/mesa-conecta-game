@@ -6,6 +6,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { SharePostModal } from "@/components/feed/SharePostModal";
 
 const roleBadgeConfig: Record<string, { label: string; className: string }> = {
   gm: { label: "Mestre", className: "bg-primary/15 text-primary border-primary/20" },
@@ -42,6 +43,7 @@ export interface FeedPost {
   shares: number;
   likes_count: number;
   published_at: string;
+  slug?: string | null;
   // Joined
   author_name?: string;
   author_avatar_url?: string;
@@ -94,21 +96,17 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
     }
   };
 
-  const handleShare = async () => {
-    setSharing(true);
-    const url = `${window.location.origin}/feed?post=${post.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({ title: "Link copiado!", description: "Compartilhe onde quiser." });
-      // Track share
-      await supabase.from("community_posts").update({ shares: post.shares + 1 }).eq("id", post.id);
-    } catch {
-      toast({ title: "Erro ao copiar", variant: "destructive" });
-    }
-    setSharing(false);
+  const handleShare = () => {
+    // Delegate to SharePostModal — handled via the button below
   };
 
-  const handleAuthorClick = () => {
+  const handlePostClick = () => {
+    const target = post.slug || post.id;
+    navigate(`/post/${target}`);
+  };
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (post.author_role === "gm" && post.author_slug) {
       navigate(`/mestre/${post.author_slug}`);
     } else if (post.author_role === "store" && post.author_slug) {
@@ -131,7 +129,8 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
 
   return (
     <div
-      className={`group rounded-xl border transition-all duration-200 ${
+      onClick={handlePostClick}
+      className={`group rounded-xl border transition-all duration-200 cursor-pointer ${
         post.is_sponsored
           ? "border-secondary/25 bg-card shadow-lg shadow-secondary/5"
           : "border-border bg-card hover:border-border-strong"
@@ -241,20 +240,24 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-4 pt-3 border-t border-border">
+        <div className="flex items-center gap-4 pt-3 border-t border-border" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={handleLike}
             className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? "text-primary font-semibold" : "text-muted-foreground hover:text-primary"}`}
           >
             <Heart className={`h-4 w-4 ${liked ? "fill-primary" : ""}`} /> {likesCount > 0 ? likesCount : ""}
           </button>
-          <button
-            onClick={handleShare}
-            disabled={sharing}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors ml-auto"
-          >
-            <Share2 className="h-4 w-4" /> Compartilhar
-          </button>
+          <MessageCircle
+            className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+            onClick={handlePostClick}
+          />
+          <div className="ml-auto">
+            <SharePostModal
+              postId={post.id}
+              postSlug={post.slug || null}
+              postTitle={post.title}
+            />
+          </div>
         </div>
       </div>
     </div>
