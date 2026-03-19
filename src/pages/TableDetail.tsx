@@ -12,6 +12,9 @@ import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useReviewEligibility } from "@/hooks/use-reviews";
+import { PlayerPreparationBlock } from "@/components/mesa/PlayerPreparationBlock";
+import { PreparationSetupPanel } from "@/components/mesa/PreparationSetupPanel";
+import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
   Loader2, User, Monitor, Home, RefreshCw, Star, Timer
@@ -259,7 +262,31 @@ export default function TableDetail() {
               </div>
             )}
 
-            {/* Reviews section */}
+            {/* Preparation Block - Player View */}
+            {user && user.id !== mesa.gm_id && (
+              <PlayerPreparationBlock
+                gameTableId={mesa.id}
+                tableTitle={mesa.title}
+                systemName={mesa.system}
+              />
+            )}
+
+            {/* Preparation Setup - GM View */}
+            {user && user.id === mesa.gm_id && (
+              <div className="space-y-4">
+                <PreparationSetupPanel
+                  gameTableId={mesa.id}
+                  systemName={mesa.system}
+                  tableTitle={mesa.title}
+                />
+                <GMSubmissionsTracker
+                  gameTableId={mesa.id}
+                  tableTitle={mesa.title}
+                />
+              </div>
+            )}
+
+
             <div className="mt-8">
               {eligibility.eligible && (
                 <Button variant="hero" size="sm" className="mb-4 gap-2" onClick={() => setReviewOpen(true)}>

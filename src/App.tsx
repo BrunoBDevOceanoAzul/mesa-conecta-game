@@ -39,7 +39,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminCampaign from "./pages/admin/AdminCampaign";
 import AdminReviews from "./pages/admin/AdminReviews";
-
+import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -76,6 +76,7 @@ const App = () => (
               <Route path="/explorar" element={<ExploreMesas />} />
               <Route path="/buscar" element={<ExploreMesas />} />
               <Route path="/mesa/:id" element={<TableDetail />} />
+              <Route path="/mesa/:id/ficha" element={<MesaCharacterSheet />} />
               <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
               <Route path="/loja/:slug" element={<LojaPublicProfile />} />
               {/* Admin routes */}

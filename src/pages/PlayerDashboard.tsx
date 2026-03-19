@@ -3,12 +3,13 @@ import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { PendingReviewsBanner } from "@/components/reviews/PendingReviewsBanner";
+import { PlayerPreparationBlock } from "@/components/mesa/PlayerPreparationBlock";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useSubscription } from "@/hooks/use-subscription";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram } from "lucide-react";
+import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram, BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -53,7 +54,7 @@ export default function PlayerDashboard() {
   const planLabel = sub.plan?.name || null;
   const [profile, setProfile] = useState<{ name?: string; city?: string; lat?: number; lng?: number } | null>(null);
   const [mesas, setMesas] = useState<Mesa[]>([]);
-
+  const [myBookings, setMyBookings] = useState<any[]>([]);
   useEffect(() => {
     if (!user) return;
     supabase
@@ -75,6 +76,16 @@ export default function PlayerDashboard() {
       .limit(20)
       .then(({ data }) => {
         setMesas((data as Mesa[]) || []);
+      });
+
+    // Fetch my bookings with table info
+    supabase
+      .from("bookings")
+      .select("id, game_table_id, status, game_tables(title, system_name)")
+      .eq("player_user_id", user.id)
+      .in("status", ["confirmed", "pending"])
+      .then(({ data }) => {
+        setMyBookings(data || []);
       });
   }, [user]);
 
@@ -130,6 +141,30 @@ export default function PlayerDashboard() {
             <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
               Ver planos
             </Button>
+          </div>
+        )}
+
+        {/* My Bookings - Preparation */}
+        {myBookings.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-display font-semibold text-foreground">
+                Preparação das suas mesas
+              </h2>
+            </div>
+            {myBookings.map((booking: any) => {
+              const table = booking.game_tables;
+              if (!table) return null;
+              return (
+                <PlayerPreparationBlock
+                  key={booking.id}
+                  gameTableId={booking.game_table_id}
+                  tableTitle={table.title}
+                  systemName={table.system_name}
+                />
+              );
+            })}
           </div>
         )}
 

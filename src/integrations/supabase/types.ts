@@ -1413,6 +1413,101 @@ export type Database = {
         }
         Relationships: []
       }
+      form_performance_metrics: {
+        Row: {
+          abandonment_rate: number | null
+          average_completion_time_seconds: number | null
+          form_template_id: string | null
+          game_table_id: string
+          id: string
+          total_started: number
+          total_submitted: number
+          updated_at: string
+        }
+        Insert: {
+          abandonment_rate?: number | null
+          average_completion_time_seconds?: number | null
+          form_template_id?: string | null
+          game_table_id: string
+          id?: string
+          total_started?: number
+          total_submitted?: number
+          updated_at?: string
+        }
+        Update: {
+          abandonment_rate?: number | null
+          average_completion_time_seconds?: number | null
+          form_template_id?: string | null
+          game_table_id?: string
+          id?: string
+          total_started?: number
+          total_submitted?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_performance_metrics_form_template_id_fkey"
+            columns: ["form_template_id"]
+            isOneToOne: false
+            referencedRelation: "form_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_performance_metrics_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: true
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_templates: {
+        Row: {
+          created_at: string
+          created_by_user_id: string | null
+          id: string
+          is_default: boolean
+          is_public: boolean
+          name: string
+          schema_json: Json
+          system_template_id: string | null
+          template_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_default?: boolean
+          is_public?: boolean
+          name: string
+          schema_json?: Json
+          system_template_id?: string | null
+          template_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by_user_id?: string | null
+          id?: string
+          is_default?: boolean
+          is_public?: boolean
+          name?: string
+          schema_json?: Json
+          system_template_id?: string | null
+          template_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_templates_system_template_id_fkey"
+            columns: ["system_template_id"]
+            isOneToOne: false
+            referencedRelation: "rpg_system_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       founder_benefits: {
         Row: {
           created_at: string
@@ -2263,6 +2358,118 @@ export type Database = {
         }
         Relationships: []
       }
+      player_form_submissions: {
+        Row: {
+          answers_json: Json
+          booking_id: string | null
+          created_at: string
+          form_template_id: string | null
+          game_table_id: string
+          id: string
+          last_edited_at: string | null
+          started_at: string | null
+          status: string
+          submitted_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers_json?: Json
+          booking_id?: string | null
+          created_at?: string
+          form_template_id?: string | null
+          game_table_id: string
+          id?: string
+          last_edited_at?: string | null
+          started_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers_json?: Json
+          booking_id?: string | null
+          created_at?: string
+          form_template_id?: string | null
+          game_table_id?: string
+          id?: string
+          last_edited_at?: string | null
+          started_at?: string | null
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_form_submissions_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_form_submissions_form_template_id_fkey"
+            columns: ["form_template_id"]
+            isOneToOne: false
+            referencedRelation: "form_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_form_submissions_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      player_material_access: {
+        Row: {
+          booking_id: string | null
+          created_at: string
+          game_table_id: string
+          id: string
+          materials_viewed_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          booking_id?: string | null
+          created_at?: string
+          game_table_id: string
+          id?: string
+          materials_viewed_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          booking_id?: string | null
+          created_at?: string
+          game_table_id?: string
+          id?: string
+          materials_viewed_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "player_material_access_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "player_material_access_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       player_profiles: {
         Row: {
           availability_json: Json | null
@@ -2786,6 +2993,42 @@ export type Database = {
           },
         ]
       }
+      rpg_system_templates: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string
+          default_character_form_json: Json
+          default_materials_json: Json
+          description: string | null
+          id: string
+          slug: string
+          system_name: string
+          updated_at: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string
+          default_character_form_json?: Json
+          default_materials_json?: Json
+          description?: string | null
+          id?: string
+          slug: string
+          system_name: string
+          updated_at?: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string
+          default_character_form_json?: Json
+          default_materials_json?: Json
+          description?: string | null
+          id?: string
+          slug?: string
+          system_name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       store_profiles: {
         Row: {
           address_line: string | null
@@ -3133,6 +3376,73 @@ export type Database = {
           updated_by_user_id?: string | null
         }
         Relationships: []
+      }
+      table_preparation_flows: {
+        Row: {
+          created_at: string
+          deadline_at: string | null
+          description: string | null
+          form_template_id: string | null
+          game_table_id: string
+          id: string
+          is_active: boolean
+          materials_json: Json
+          share_link: string | null
+          system_template_id: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          deadline_at?: string | null
+          description?: string | null
+          form_template_id?: string | null
+          game_table_id: string
+          id?: string
+          is_active?: boolean
+          materials_json?: Json
+          share_link?: string | null
+          system_template_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          deadline_at?: string | null
+          description?: string | null
+          form_template_id?: string | null
+          game_table_id?: string
+          id?: string
+          is_active?: boolean
+          materials_json?: Json
+          share_link?: string | null
+          system_template_id?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "table_preparation_flows_form_template_id_fkey"
+            columns: ["form_template_id"]
+            isOneToOne: false
+            referencedRelation: "form_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "table_preparation_flows_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: true
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "table_preparation_flows_system_template_id_fkey"
+            columns: ["system_template_id"]
+            isOneToOne: false
+            referencedRelation: "rpg_system_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       table_sessions: {
         Row: {
