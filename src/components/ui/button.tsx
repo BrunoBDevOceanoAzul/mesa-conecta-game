@@ -25,13 +25,13 @@ const buttonVariants = cva(
         accent:
           "bg-accent text-accent-foreground shadow-sm hover:bg-accent/90",
         gradient:
-          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.06]",
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-primary/10",
         "gradient-subtle":
-          "text-primary-foreground shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] border border-white/[0.05]",
+          "text-primary-foreground shadow-md hover:shadow-lg hover:scale-[1.01] active:scale-[0.99] border border-primary/8",
         "gradient-premium":
-          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.08]",
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-primary/12",
         "gradient-founder":
-          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-white/[0.08] font-bold",
+          "text-primary-foreground shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] border border-primary/12 font-bold",
         success:
           "bg-success text-success-foreground shadow-sm hover:bg-success/90",
       },
