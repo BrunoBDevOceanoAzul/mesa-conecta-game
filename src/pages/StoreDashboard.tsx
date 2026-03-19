@@ -33,23 +33,7 @@ const navItems = [
 const DEFAULT_LIMITS = { mesasPerMonth: 4, feedHighlight: false };
 
 
-function StatCard({ icon, label, value, sub, accent }: { icon: React.ReactNode; label: string; value: string; sub?: string; accent?: boolean }) {
-  return (
-    <div className={`group relative overflow-hidden rounded-xl border p-5 transition-all hover:shadow-lg ${accent ? "border-secondary/30 bg-secondary/5 hover:shadow-secondary/10" : "border-border bg-card hover:shadow-primary/5 hover:border-primary/20"}`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
-          {sub && <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>}
-        </div>
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${accent ? "bg-secondary/15 text-secondary" : "bg-primary/10 text-primary"}`}>
-          {icon}
-        </div>
-      </div>
-      <div className={`absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r opacity-0 transition-opacity group-hover:opacity-100 ${accent ? "from-secondary/40 to-accent/40" : "from-primary/40 to-secondary/40"}`} />
-    </div>
-  );
-}
+import { StatCard } from "@/components/shared/StatCard";
 
 function EmptyBlock({ icon, text, sub, action, onAction }: { icon: React.ReactNode; text: string; sub: string; action?: string; onAction?: () => void }) {
   return (
