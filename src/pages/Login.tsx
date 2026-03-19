@@ -21,15 +21,30 @@ function GoogleIcon({ className }: { className?: string }) {
 async function redirectAfterAuth(navigate: ReturnType<typeof useNavigate>) {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
+
+  // Check admin first
+  const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: user.id });
+  if (isAdmin) {
+    navigate("/admin");
+    return;
+  }
+
+  const role = user.user_metadata?.role || "player";
   const { data: profile } = await supabase
     .from("profiles")
     .select("city")
     .eq("user_id", user.id)
     .single();
   if (!profile?.city) {
-    navigate("/onboarding/jogador");
+    navigate("/onboarding/" + (role === "player" ? "jogador" : role === "gm" ? "mestre" : role === "store" ? "loja" : "jogador"));
   } else {
-    navigate("/dashboard/jogador");
+    const roleToDash: Record<string, string> = {
+      player: "/dashboard/jogador",
+      gm: "/dashboard/mestre",
+      store: "/dashboard/loja",
+      brand: "/dashboard/marca",
+    };
+    navigate(roleToDash[role] || "/dashboard/jogador");
   }
 }
 
