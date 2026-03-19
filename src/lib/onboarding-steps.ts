@@ -512,12 +512,12 @@ export const stepsMap: Record<RoleKey, OnboardingStep[]> = {
 export const roleInfo: Record<RoleKey, { title: string; description: string; icon: string }> = {
   jogador: {
     title: "Jogador",
-    description: "Encontre mesas que combinam com seu estilo, agenda e orçamento.",
+    description: "Descubra mesas online, presenciais ou híbridas que combinam com seu estilo.",
     icon: "Dice5",
   },
   mestre: {
     title: "Mestre",
-    description: "Organize campanhas, atraia jogadores certos e cresça com mais recorrência.",
+    description: "Organize mesas, atraia jogadores certos e cresça — online ou presencialmente.",
     icon: "BookOpen",
   },
   loja: {
