@@ -13,16 +13,17 @@ interface NavItem {
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: UserRole;
+  role: UserRole | "admin";
   navItems: NavItem[];
   userName?: string;
 }
 
-const roleLabels: Record<UserRole, string> = {
+const roleLabels: Record<UserRole | "admin", string> = {
   player: "Jogador",
   gm: "Mestre",
   store: "Luderia",
   brand: "Marca",
+  admin: "Administrador",
 };
 
 export function DashboardLayout({

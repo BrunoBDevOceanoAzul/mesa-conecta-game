@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
@@ -20,6 +21,7 @@ const navLinks = [
 ];
 
 const roleToDash: Record<string, string> = {
+  admin: "/admin",
   player: "/dashboard/jogador",
   gm: "/dashboard/mestre",
   store: "/dashboard/loja",
@@ -28,10 +30,30 @@ const roleToDash: Record<string, string> = {
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
   const isHome = location.pathname === "/";
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAdminStatus = async () => {
+      if (!user) {
+        if (mounted) setIsAdmin(false);
+        return;
+      }
+
+      const { data } = await supabase.rpc("is_admin", { _user_id: user.id });
+      if (mounted) setIsAdmin(!!data);
+    };
+
+    loadAdminStatus();
+    return () => {
+      mounted = false;
+    };
+  }, [user]);
 
   const handleNavClick = (href: string) => {
     if (href.startsWith("#")) {
@@ -45,7 +67,7 @@ export function Navbar() {
   };
 
   const userRole = user?.user_metadata?.role || "player";
-  const dashPath = roleToDash[userRole] || "/dashboard/jogador";
+  const dashPath = isAdmin ? "/admin" : roleToDash[userRole] || "/dashboard/jogador";
   const userName = user?.user_metadata?.name || user?.email?.split("@")[0] || "U";
   const avatarUrl = user?.user_metadata?.avatar_url || user?.user_metadata?.picture;
   const initials = userName.charAt(0).toUpperCase();

@@ -11,6 +11,7 @@ const roleToOnboarding: Record<string, string> = {
 };
 
 const roleToDash: Record<string, string> = {
+  admin: "/admin",
   player: "/dashboard/jogador",
   gm: "/dashboard/mestre",
   store: "/dashboard/loja",
