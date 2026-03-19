@@ -24,6 +24,8 @@ import Billing from "./pages/Billing";
 import OAuthCallback from "./pages/OAuthCallback";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import MestrePublicProfile from "./pages/MestrePublicProfile";
+import LojaPublicProfile from "./pages/LojaPublicProfile";
 import AdminPainel from "./pages/admin/AdminPainel";
 import AdminInsights from "./pages/admin/AdminInsights";
 import AdminUsers from "./pages/admin/AdminUsers";
