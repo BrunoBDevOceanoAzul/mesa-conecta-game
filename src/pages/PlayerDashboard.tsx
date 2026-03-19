@@ -144,6 +144,30 @@ export default function PlayerDashboard() {
           </div>
         )}
 
+        {/* My Bookings - Preparation */}
+        {myBookings.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5 text-primary" />
+              <h2 className="text-base font-display font-semibold text-foreground">
+                Preparação das suas mesas
+              </h2>
+            </div>
+            {myBookings.map((booking: any) => {
+              const table = booking.game_tables;
+              if (!table) return null;
+              return (
+                <PlayerPreparationBlock
+                  key={booking.id}
+                  gameTableId={booking.game_table_id}
+                  tableTitle={table.title}
+                  systemName={table.system_name}
+                />
+              );
+            })}
+          </div>
+        )}
+
         {/* Pending reviews */}
         <PendingReviewsBanner />
 
