@@ -142,7 +142,7 @@ export default function Onboarding() {
     setSaving(true);
 
     try {
-      const badges = generateBadges(role, {
+      const badges = generateBadges(effectiveRole, {
         ...answers,
         availability_days: availability.days,
         availability_times: availability.times,
