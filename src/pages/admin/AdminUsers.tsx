@@ -652,6 +652,8 @@ export default function AdminUsers() {
                               <SelectItem value="gm">Mestre</SelectItem>
                               <SelectItem value="store">Loja / Luderia</SelectItem>
                               <SelectItem value="brand">Marca</SelectItem>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="advisor">Conselheiro</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
