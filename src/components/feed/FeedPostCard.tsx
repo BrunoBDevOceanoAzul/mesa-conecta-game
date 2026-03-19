@@ -6,6 +6,7 @@ import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { SharePostModal } from "@/components/feed/SharePostModal";
 
 const roleBadgeConfig: Record<string, { label: string; className: string }> = {
   gm: { label: "Mestre", className: "bg-primary/15 text-primary border-primary/20" },
