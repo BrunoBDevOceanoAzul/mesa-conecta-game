@@ -15,7 +15,7 @@ interface NavItem {
 
 interface DashboardLayoutProps {
   children: ReactNode;
-  role: UserRole | "admin";
+  role: UserRole | "admin" | "advisor";
   navItems: NavItem[];
   userName?: string;
 }
