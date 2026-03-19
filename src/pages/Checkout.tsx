@@ -235,9 +235,47 @@ export default function Checkout() {
     return priceTotal;
   }, [priceTotal, coupon]);
 
+  // Handle free plan activation
+  async function handleFreePlan() {
+    if (!resolvedPlan || !user) return;
+    setSubmitting(true);
+    try {
+      // Create a subscription record directly for free plans
+      const now = new Date();
+      const periodEnd = new Date(now);
+      periodEnd.setMonth(periodEnd.getMonth() + 1);
+
+      const { error } = await supabase.from("subscriptions").upsert({
+        user_id: user.id,
+        plan_id: resolvedPlan.id,
+        plan_name: resolvedPlan.name,
+        plan_role: resolvedPlan.role,
+        status: "active",
+        price_cents: 0,
+        current_period_start: now.toISOString(),
+        current_period_end: periodEnd.toISOString(),
+        cancel_at_period_end: false,
+      }, { onConflict: "user_id" });
+
+      if (error) throw error;
+
+      toast({ title: "Plano ativado!", description: "Seu plano gratuito foi ativado com sucesso." });
+      navigate("/billing?checkout=success");
+    } catch (err: any) {
+      toast({ title: "Erro", description: err?.message || "Erro ao ativar plano", variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   // Handle checkout
   async function handleCheckout() {
     if (!resolvedPlan || !user) return;
+
+    // Free plan — activate directly without Stripe
+    if (resolvedPlan.price_monthly === 0) {
+      return handleFreePlan();
+    }
 
     setSubmitting(true);
     try {
