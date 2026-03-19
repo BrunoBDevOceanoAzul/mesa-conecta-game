@@ -221,6 +221,39 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
     }
   }
 
+  // ─── Mesa Booking Payment ───
+  if (session.mode === "payment" && session.metadata?.type === "mesa_booking") {
+    const bookingId = session.metadata.hivium_booking_id;
+    const mesaId = session.metadata.hivium_mesa_id;
+    const userId = session.metadata.hivium_user_id;
+
+    if (bookingId) {
+      // Confirm booking
+      await supabase.from("bookings").update({
+        status: "confirmed",
+        payment_status: "paid",
+      }).eq("id", bookingId);
+
+      // Decrement seats
+      if (mesaId) {
+        const { data: mesa } = await supabase
+          .from("mesas")
+          .select("seats_available")
+          .eq("id", mesaId)
+          .maybeSingle();
+
+        if (mesa && mesa.seats_available > 0) {
+          await supabase.from("mesas")
+            .update({ seats_available: mesa.seats_available - 1 })
+            .eq("id", mesaId);
+        }
+      }
+
+      logStep("Booking confirmed after payment", { bookingId, mesaId });
+      await auditLog("booking_paid", "booking", bookingId, { mesa_id: mesaId, user_id: userId, session_id: session.id });
+    }
+  }
+
   await auditLog("checkout_completed", "checkout_session", session.id, {
     mode: session.mode,
     type: session.metadata?.type,

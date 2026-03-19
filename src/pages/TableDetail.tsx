@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
@@ -70,13 +70,32 @@ function getDurationLabel(startAt: string, endAt?: string | null): string | null
 export default function TableDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
   const { preferences } = useUserPreferences();
   const [mesa, setMesa] = useState<Mesa | null>(null);
   const [loading, setLoading] = useState(true);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [bookingSuccess, setBookingSuccess] = useState(false);
   const eligibility = useReviewEligibility(id);
+
+  // Handle return from Stripe Checkout
+  useEffect(() => {
+    const bookingStatus = searchParams.get("booking");
+    if (bookingStatus === "success") {
+      setBookingSuccess(true);
+      // Clean URL
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    } else if (bookingStatus === "canceled") {
+      // Canceled booking — could clean up pending booking here
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   useEffect(() => {
     if (!id) return;
@@ -159,6 +178,19 @@ export default function TableDetail() {
         )}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       </div>
+
+      {/* Booking success banner */}
+      {bookingSuccess && (
+        <div className="mb-4 rounded-xl border border-secondary/30 bg-secondary/10 p-4 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+            <Sparkles className="h-5 w-5 text-secondary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Pagamento confirmado! 🎉</p>
+            <p className="text-xs text-muted-foreground">Sua vaga na mesa <strong>{mesa.title}</strong> foi reservada com sucesso.</p>
+          </div>
+        </div>
+      )}
 
       <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
         {/* Back */}
