@@ -2599,6 +2599,7 @@ export type Database = {
         Row: {
           address_line: string | null
           address_number: string | null
+          average_rating: number | null
           average_ticket: number | null
           capacity_total: number | null
           city: string | null
@@ -2614,6 +2615,7 @@ export type Database = {
           simultaneous_tables: number | null
           state: string | null
           structure_features_json: Json | null
+          total_reviews: number | null
           updated_at: string
           user_id: string
           venue_name: string | null
@@ -2622,6 +2624,7 @@ export type Database = {
         Insert: {
           address_line?: string | null
           address_number?: string | null
+          average_rating?: number | null
           average_ticket?: number | null
           capacity_total?: number | null
           city?: string | null
@@ -2637,6 +2640,7 @@ export type Database = {
           simultaneous_tables?: number | null
           state?: string | null
           structure_features_json?: Json | null
+          total_reviews?: number | null
           updated_at?: string
           user_id: string
           venue_name?: string | null
@@ -2645,6 +2649,7 @@ export type Database = {
         Update: {
           address_line?: string | null
           address_number?: string | null
+          average_rating?: number | null
           average_ticket?: number | null
           capacity_total?: number | null
           city?: string | null
@@ -2660,6 +2665,7 @@ export type Database = {
           simultaneous_tables?: number | null
           state?: string | null
           structure_features_json?: Json | null
+          total_reviews?: number | null
           updated_at?: string
           user_id?: string
           venue_name?: string | null
