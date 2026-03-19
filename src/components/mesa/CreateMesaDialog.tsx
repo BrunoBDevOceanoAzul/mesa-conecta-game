@@ -207,6 +207,31 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             onSelectCover={handleAiCoverSelect}
           />
 
+          {/* Board Game Search (for stores) */}
+          {role === "store" && (
+            <div>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jogo do catálogo</Label>
+              <p className="text-xs text-muted-foreground mb-2">Busque um jogo para autopreencher os dados.</p>
+              <BoardGameSearch
+                showExpansions={false}
+                onSelect={(game: BoardGame) => {
+                  if (!title.trim()) setTitle(game.name);
+                  if (game.thumbnail_url && !coverPreview) {
+                    setCoverUrl(game.thumbnail_url);
+                    setCoverPreview(game.thumbnail_url);
+                  }
+                  if (game.max_players && !seatsTotal) {
+                    setSeatsTotal(String(game.max_players));
+                  }
+                  toast({
+                    title: "Jogo selecionado!",
+                    description: `${game.name} — ${game.min_players}-${game.max_players} jogadores, ${game.playing_time}min`,
+                  });
+                }}
+              />
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <Label>Título da mesa *</Label>
