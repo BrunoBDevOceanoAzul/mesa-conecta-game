@@ -1,41 +1,8 @@
 import { useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { resolveRedirect } from "@/lib/auth-redirect";
 import { Loader2 } from "lucide-react";
-
-const roleToOnboarding: Record<string, string> = {
-  player: "/onboarding/jogador",
-  gm: "/onboarding/mestre",
-  store: "/onboarding/loja",
-  brand: "/onboarding",
-};
-
-const roleToDash: Record<string, string> = {
-  admin: "/admin",
-  player: "/dashboard/jogador",
-  gm: "/dashboard/mestre",
-  store: "/dashboard/loja",
-  brand: "/dashboard/marca",
-};
-
-async function resolveRedirect(userId: string, fallbackRole: string): Promise<string> {
-  // Check admin first
-  const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: userId });
-  if (isAdmin) return "/admin";
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("city, role")
-    .eq("user_id", userId)
-    .maybeSingle();
-
-  const role = profile?.role || fallbackRole || "player";
-
-  if (!profile?.city) {
-    return roleToOnboarding[role] || "/onboarding/jogador";
-  }
-  return roleToDash[role] || "/dashboard/jogador";
-}
 
 export default function OAuthCallback() {
   const navigate = useNavigate();
@@ -45,40 +12,35 @@ export default function OAuthCallback() {
     if (handled.current) return;
     handled.current = true;
 
-    const handleCallback = async () => {
-      // First try existing session
-      const { data: { session } } = await supabase.auth.getSession();
+    const run = async () => {
+      // Wait for Supabase to exchange tokens from URL hash
+      const { data: { session }, error } = await supabase.auth.getSession();
+
       if (session?.user) {
-        const dest = await resolveRedirect(
-          session.user.id,
-          session.user.user_metadata?.role
-        );
+        const dest = await resolveRedirect(session.user.id, session.user.user_metadata?.role);
         navigate(dest, { replace: true });
         return;
       }
 
-      // Wait for auth state change (e.g. token exchange in progress)
+      // If no session yet, listen for the auth state change (token exchange in progress)
       const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (_event, session) => {
-          if (session?.user) {
+        async (event, session) => {
+          if (event === "SIGNED_IN" && session?.user) {
             subscription.unsubscribe();
-            const dest = await resolveRedirect(
-              session.user.id,
-              session.user.user_metadata?.role
-            );
+            const dest = await resolveRedirect(session.user.id, session.user.user_metadata?.role);
             navigate(dest, { replace: true });
           }
         }
       );
 
-      // Timeout fallback
+      // Timeout → back to login
       setTimeout(() => {
         subscription.unsubscribe();
         navigate("/login", { replace: true });
-      }, 10000);
+      }, 10_000);
     };
 
-    handleCallback();
+    run();
   }, [navigate]);
 
   return (

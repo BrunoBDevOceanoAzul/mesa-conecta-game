@@ -5,6 +5,7 @@ import { Gamepad2, Crown, Store, Megaphone, Loader2, ArrowRight } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+import { resolveRedirect } from "@/lib/auth-redirect";
 import type { UserRole } from "@/data/mock";
 import logoImg from "@/assets/hivium-logo.png";
 import { motion, AnimatePresence } from "framer-motion";
@@ -57,35 +58,21 @@ export default function Signup() {
         redirect_uri: window.location.origin + "/~oauth",
       });
       if (result?.error) {
-        toast({
-          title: "Erro com Google",
-          description: "Falha na autenticação. Tente novamente.",
-          variant: "destructive",
-        });
+        toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
         setGoogleLoading(false);
         return;
       }
+      // Popup flow completed
       if (!result?.redirected) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const { data: profile } = await supabase
-            .from("profiles")
-            .select("city")
-            .eq("user_id", user.id)
-            .single();
-          if (!profile?.city) {
-            navigate("/onboarding/jogador");
-          } else {
-            navigate("/dashboard/jogador");
-          }
+          const dest = await resolveRedirect(user.id, user.user_metadata?.role);
+          navigate(dest);
         }
       }
-    } catch (err) {
-      toast({
-        title: "Erro com Google",
-        description: "Falha na autenticação. Tente novamente.",
-        variant: "destructive",
-      });
+      // If redirected, OAuthCallback handles everything
+    } catch {
+      toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }
@@ -105,21 +92,14 @@ export default function Signup() {
     });
 
     if (error) {
-      toast({
-        title: "Erro ao criar conta",
-        description: error.message,
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao criar conta", description: error.message, variant: "destructive" });
       setLoading(false);
       setSelectedRole(null);
       return;
     }
 
     if (data.user && !data.session) {
-      toast({
-        title: "Verifique seu email ✉️",
-        description: "Enviamos um link de confirmação para " + email,
-      });
+      toast({ title: "Verifique seu email ✉️", description: "Enviamos um link de confirmação para " + email });
       setLoading(false);
       return;
     }
