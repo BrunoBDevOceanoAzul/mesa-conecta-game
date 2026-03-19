@@ -135,7 +135,6 @@ export default function Interesse() {
                 <div className={`${card.bg} ${card.color} h-14 w-14 rounded-xl flex items-center justify-center mx-auto mb-5`}>
                   {card.icon}
                   </div>
-                </div>
                 <h3 className="text-h4 mb-3">{card.title}</h3>
                 <p className="text-body-sm text-muted-foreground">{card.desc}</p>
               </motion.div>
