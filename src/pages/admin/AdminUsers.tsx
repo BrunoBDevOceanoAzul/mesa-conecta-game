@@ -374,5 +374,3 @@ function InfoItem({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
-// Import icons used in detail
-import { Trophy, Layers, DollarSign } from "lucide-react";
