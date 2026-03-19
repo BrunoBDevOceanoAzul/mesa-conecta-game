@@ -568,7 +568,7 @@ export type Database = {
             foreignKeyName: "bookings_game_table_id_fkey"
             columns: ["game_table_id"]
             isOneToOne: false
-            referencedRelation: "game_tables"
+            referencedRelation: "mesas"
             referencedColumns: ["id"]
           },
           {
@@ -918,7 +918,7 @@ export type Database = {
             foreignKeyName: "chat_analytics_game_table_id_fkey"
             columns: ["game_table_id"]
             isOneToOne: false
-            referencedRelation: "game_tables"
+            referencedRelation: "mesas"
             referencedColumns: ["id"]
           },
         ]
@@ -1204,7 +1204,7 @@ export type Database = {
             foreignKeyName: "conversations_related_table_id_fkey"
             columns: ["related_table_id"]
             isOneToOne: false
-            referencedRelation: "game_tables"
+            referencedRelation: "mesas"
             referencedColumns: ["id"]
           },
         ]
@@ -1766,7 +1766,7 @@ export type Database = {
             foreignKeyName: "feedback_email_queue_game_table_id_fkey"
             columns: ["game_table_id"]
             isOneToOne: false
-            referencedRelation: "game_tables"
+            referencedRelation: "mesas"
             referencedColumns: ["id"]
           },
           {
