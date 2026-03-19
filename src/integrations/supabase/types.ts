@@ -549,6 +549,92 @@ export type Database = {
         }
         Relationships: []
       }
+      community_posts: {
+        Row: {
+          author_id: string
+          author_role: string
+          clicks: number
+          content: string
+          created_at: string
+          cta_text: string | null
+          cta_url: string | null
+          id: string
+          image_url: string | null
+          impressions: number
+          is_sponsored: boolean
+          likes_count: number
+          post_type: string
+          published_at: string | null
+          related_gm_id: string | null
+          related_store_id: string | null
+          related_table_id: string | null
+          shares: number
+          sponsor_label: string | null
+          status: string
+          tags: string[] | null
+          title: string | null
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          author_role?: string
+          clicks?: number
+          content: string
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_sponsored?: boolean
+          likes_count?: number
+          post_type?: string
+          published_at?: string | null
+          related_gm_id?: string | null
+          related_store_id?: string | null
+          related_table_id?: string | null
+          shares?: number
+          sponsor_label?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          author_role?: string
+          clicks?: number
+          content?: string
+          created_at?: string
+          cta_text?: string | null
+          cta_url?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_sponsored?: boolean
+          likes_count?: number
+          post_type?: string
+          published_at?: string | null
+          related_gm_id?: string | null
+          related_store_id?: string | null
+          related_table_id?: string | null
+          shares?: number
+          sponsor_label?: string | null
+          status?: string
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_related_table_id_fkey"
+            columns: ["related_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       connected_accounts: {
         Row: {
           application_fee_percent: number
@@ -1801,6 +1887,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      post_likes: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_likes_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       posts: {
         Row: {
