@@ -17,6 +17,7 @@ import {
   UserCheck, BookOpen, Star, Sparkles
 } from "lucide-react";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 type Mesa = Tables<"mesas">;
 type StoreData = Tables<"stores">;
