@@ -174,9 +174,9 @@ export default function Checkout() {
   // Derive base plan codes — include free plans when it's first mesa
   const basePlans = useMemo(() => {
     return plans.filter(
-      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || p.price_monthly > 0)
+      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || isSuperUser || p.price_monthly > 0)
     );
-  }, [plans, isFirstMesa]);
+  }, [plans, isFirstMesa, isSuperUser]);
 
   // Filter by role if provided
   const filteredBasePlans = useMemo(() => {
