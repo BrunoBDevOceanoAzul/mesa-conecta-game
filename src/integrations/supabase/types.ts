@@ -371,6 +371,140 @@ export type Database = {
         }
         Relationships: []
       }
+      board_game_aliases: {
+        Row: {
+          alias: string
+          alias_type: string
+          board_game_id: string
+          created_at: string | null
+          id: string
+          normalized_alias: string
+        }
+        Insert: {
+          alias: string
+          alias_type?: string
+          board_game_id: string
+          created_at?: string | null
+          id?: string
+          normalized_alias: string
+        }
+        Update: {
+          alias?: string
+          alias_type?: string
+          board_game_id?: string
+          created_at?: string | null
+          id?: string
+          normalized_alias?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "board_game_aliases_board_game_id_fkey"
+            columns: ["board_game_id"]
+            isOneToOne: false
+            referencedRelation: "board_games_catalog"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      board_games_catalog: {
+        Row: {
+          average_rental_value: number | null
+          bgg_ranking: number | null
+          bgg_rating: number | null
+          created_at: string | null
+          current_game_value: number | null
+          id: string
+          is_available: boolean | null
+          max_players: number | null
+          max_playtime: number | null
+          min_players: number | null
+          min_playtime: number | null
+          min_price_new: number | null
+          min_price_used: number | null
+          name: string
+          new_count: number | null
+          normalized_name: string | null
+          own_count: number | null
+          playing_time: number | null
+          raw_json: Json | null
+          search_text: string | null
+          slug: string | null
+          source_name: string
+          source_product_id: number | null
+          source_record_id: number
+          thumbnail_url: string | null
+          type: string
+          updated_at: string | null
+          used_count: number | null
+          weight_complexity: number | null
+          wish_count: number | null
+        }
+        Insert: {
+          average_rental_value?: number | null
+          bgg_ranking?: number | null
+          bgg_rating?: number | null
+          created_at?: string | null
+          current_game_value?: number | null
+          id?: string
+          is_available?: boolean | null
+          max_players?: number | null
+          max_playtime?: number | null
+          min_players?: number | null
+          min_playtime?: number | null
+          min_price_new?: number | null
+          min_price_used?: number | null
+          name: string
+          new_count?: number | null
+          normalized_name?: string | null
+          own_count?: number | null
+          playing_time?: number | null
+          raw_json?: Json | null
+          search_text?: string | null
+          slug?: string | null
+          source_name?: string
+          source_product_id?: number | null
+          source_record_id: number
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string | null
+          used_count?: number | null
+          weight_complexity?: number | null
+          wish_count?: number | null
+        }
+        Update: {
+          average_rental_value?: number | null
+          bgg_ranking?: number | null
+          bgg_rating?: number | null
+          created_at?: string | null
+          current_game_value?: number | null
+          id?: string
+          is_available?: boolean | null
+          max_players?: number | null
+          max_playtime?: number | null
+          min_players?: number | null
+          min_playtime?: number | null
+          min_price_new?: number | null
+          min_price_used?: number | null
+          name?: string
+          new_count?: number | null
+          normalized_name?: string | null
+          own_count?: number | null
+          playing_time?: number | null
+          raw_json?: Json | null
+          search_text?: string | null
+          slug?: string | null
+          source_name?: string
+          source_product_id?: number | null
+          source_record_id?: number
+          thumbnail_url?: string | null
+          type?: string
+          updated_at?: string | null
+          used_count?: number | null
+          weight_complexity?: number | null
+          wish_count?: number | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
           amount: number | null
@@ -702,6 +836,48 @@ export type Database = {
           target_audience_json?: Json | null
           title?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      catalog_import_runs: {
+        Row: {
+          created_at: string | null
+          failed_records: number | null
+          file_name: string | null
+          finished_at: string | null
+          id: string
+          imported_records: number | null
+          logs_json: Json | null
+          source_name: string
+          started_at: string | null
+          status: string
+          total_records: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          failed_records?: number | null
+          file_name?: string | null
+          finished_at?: string | null
+          id?: string
+          imported_records?: number | null
+          logs_json?: Json | null
+          source_name?: string
+          started_at?: string | null
+          status?: string
+          total_records?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          failed_records?: number | null
+          file_name?: string | null
+          finished_at?: string | null
+          id?: string
+          imported_records?: number | null
+          logs_json?: Json | null
+          source_name?: string
+          started_at?: string | null
+          status?: string
+          total_records?: number | null
         }
         Relationships: []
       }
@@ -4168,6 +4344,32 @@ export type Database = {
           read_ct: number
         }[]
       }
+      search_board_games: {
+        Args: {
+          game_type_filter?: string
+          result_limit?: number
+          search_query: string
+        }
+        Returns: {
+          bgg_rating: number
+          id: string
+          is_available: boolean
+          max_players: number
+          max_playtime: number
+          min_players: number
+          min_playtime: number
+          name: string
+          playing_time: number
+          similarity_score: number
+          slug: string
+          thumbnail_url: string
+          type: string
+          weight_complexity: number
+        }[]
+      }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+      unaccent: { Args: { "": string }; Returns: string }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user" | "advisor"
