@@ -7,12 +7,16 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16">
-      {/* BG effects */}
+    <section
+      className="relative min-h-[100vh] flex items-center justify-center overflow-hidden pt-16"
+      style={{ background: "var(--gradient-hero)" }}
+    >
+      {/* Decorative blobs */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-1/4 left-1/4 h-[500px] w-[500px] rounded-full bg-primary/6 blur-[180px]" />
-        <div className="absolute bottom-1/3 right-1/4 h-[400px] w-[400px] rounded-full bg-secondary/5 blur-[150px]" />
-        <div className="absolute inset-0 bg-[linear-gradient(hsl(270_55%_50%/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(270_55%_50%/0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
+        <div className="absolute top-1/4 left-1/4 h-[500px] w-[500px] rounded-full bg-plum-200/20 blur-[180px]" />
+        <div className="absolute bottom-1/3 right-1/4 h-[400px] w-[400px] rounded-full bg-coral-200/20 blur-[150px]" />
+        <div className="absolute top-1/2 right-1/3 h-[350px] w-[350px] rounded-full bg-gold-200/15 blur-[140px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(hsl(270_48%_49%/0.03)_1px,transparent_1px),linear-gradient(90deg,hsl(270_48%_49%/0.03)_1px,transparent_1px)] bg-[size:80px_80px]" />
       </div>
 
       <div className="container relative mx-auto px-4 text-center">
@@ -25,7 +29,7 @@ export function HeroSection() {
         </motion.div>
 
         <motion.h1
-          className="mx-auto max-w-5xl text-4xl font-display font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl"
+          className="mx-auto max-w-5xl text-4xl font-display font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl text-foreground"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1 }}
@@ -83,7 +87,7 @@ export function HeroSection() {
         </motion.div>
 
         <motion.p
-          className="mt-16 text-xs text-muted-foreground/40 tracking-[0.15em] uppercase"
+          className="mt-16 text-xs text-muted-foreground/50 tracking-[0.15em] uppercase"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.8 }}

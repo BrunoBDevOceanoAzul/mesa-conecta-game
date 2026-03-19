@@ -18,9 +18,10 @@ const profiles = [
     ],
     cta: "Encontrar mesas",
     ctaPath: "/explorar",
-    accentColor: "text-primary",
-    accentBg: "bg-primary/10",
-    iconBg: "bg-primary/15",
+    iconColor: "text-plum-500",
+    iconBg: "bg-plum-50",
+    dotColor: "bg-plum-400",
+    ctaColor: "text-plum-500",
   },
   {
     id: "mestres",
@@ -36,9 +37,10 @@ const profiles = [
     ],
     cta: "Criar perfil de mestre",
     ctaPath: "/cadastro",
-    accentColor: "text-secondary",
-    accentBg: "bg-secondary/10",
-    iconBg: "bg-secondary/15",
+    iconColor: "text-gold-500",
+    iconBg: "bg-gold-50",
+    dotColor: "bg-gold-400",
+    ctaColor: "text-gold-500",
     anchor: "mestres",
   },
   {
@@ -55,9 +57,10 @@ const profiles = [
     ],
     cta: "Cadastrar luderia",
     ctaPath: "/cadastro",
-    accentColor: "text-accent",
-    accentBg: "bg-accent/10",
-    iconBg: "bg-accent/15",
+    iconColor: "text-teal-500",
+    iconBg: "bg-teal-50",
+    dotColor: "bg-teal-400",
+    ctaColor: "text-teal-500",
     anchor: "lojas",
   },
   {
@@ -74,9 +77,10 @@ const profiles = [
     ],
     cta: "Anunciar na HIVIUM",
     ctaPath: "/cadastro",
-    accentColor: "text-primary",
-    accentBg: "bg-primary/10",
-    iconBg: "bg-primary/15",
+    iconColor: "text-coral-400",
+    iconBg: "bg-coral-50",
+    dotColor: "bg-coral-400",
+    ctaColor: "text-coral-500",
   },
 ];
 
@@ -106,14 +110,14 @@ export function ProfilesSection() {
             <motion.div
               key={p.id}
               id={p.anchor}
-              className="group rounded-2xl border border-border bg-card/60 p-7 md:p-8 transition-all duration-300 hover:border-primary/20 hover:bg-card"
+              className="group rounded-2xl border border-border bg-card p-7 md:p-8 transition-all duration-300 hover:border-plum-200 hover:shadow-md"
               initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.08 }}
             >
               <div className={`inline-flex h-12 w-12 items-center justify-center rounded-xl ${p.iconBg} mb-5`}>
-                <p.icon className={`h-6 w-6 ${p.accentColor}`} />
+                <p.icon className={`h-6 w-6 ${p.iconColor}`} />
               </div>
               <h3 className="text-xl font-display font-bold text-foreground mb-2 leading-tight">
                 {p.headline}
@@ -122,12 +126,12 @@ export function ProfilesSection() {
               <ul className="space-y-2.5 mb-6">
                 {p.features.map((f) => (
                   <li key={f} className="flex items-center gap-2.5 text-sm text-muted-foreground">
-                    <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${p.accentBg.replace('/10', '')}`} />
+                    <div className={`h-1.5 w-1.5 rounded-full shrink-0 ${p.dotColor}`} />
                     {f}
                   </li>
                 ))}
               </ul>
-              <Button variant="ghost" size="sm" onClick={() => navigate(p.ctaPath)} className={`${p.accentColor} hover:bg-transparent px-0`}>
+              <Button variant="ghost" size="sm" onClick={() => navigate(p.ctaPath)} className={`${p.ctaColor} hover:bg-transparent px-0`}>
                 {p.cta} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </motion.div>

@@ -8,16 +8,19 @@ export function CTASection() {
   const navigate = useNavigate();
 
   return (
-    <section className="py-28 md:py-36 border-t border-border/50">
+    <section
+      className="py-28 md:py-36 border-t border-border/50"
+      style={{ background: "var(--gradient-community)" }}
+    >
       <div className="container mx-auto px-4">
         <motion.div
-          className="relative mx-auto max-w-3xl rounded-3xl border border-primary/15 bg-card/80 p-12 md:p-20 text-center overflow-hidden"
+          className="relative mx-auto max-w-3xl rounded-3xl border border-plum-100 bg-card p-12 md:p-20 text-center overflow-hidden shadow-lg"
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
         >
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px w-1/3 bg-gradient-to-r from-transparent via-secondary/20 to-transparent" />
+          <div className="absolute top-0 left-1/2 -translate-x-1/2 h-px w-2/3 bg-gradient-to-r from-transparent via-plum-300/40 to-transparent" />
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-px w-1/3 bg-gradient-to-r from-transparent via-gold-300/30 to-transparent" />
 
           <div className="relative">
             <span className="section-label">Pronto?</span>
@@ -36,7 +39,7 @@ export function CTASection() {
                 Entrar no ecossistema
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button variant="hero-outline" size="lg" onClick={() => navigate("/explorar")}>
+              <Button variant="hero-outline" size="xl" onClick={() => navigate("/explorar")}>
                 Explorar mesas
               </Button>
             </div>
@@ -51,7 +54,7 @@ export function CTASection() {
                 <Instagram className="h-3.5 w-3.5" />
                 Siga {getInstagramHandle()} no Instagram
               </a>
-              <p className="text-xs text-muted-foreground/40">
+              <p className="text-xs text-muted-foreground/50">
                 Sem cartão. Sem compromisso. Comece agora.
               </p>
             </div>

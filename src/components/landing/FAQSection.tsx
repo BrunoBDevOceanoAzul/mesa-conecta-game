@@ -55,7 +55,7 @@ export function FAQSection() {
           {faqs.map((faq, i) => (
             <motion.div
               key={i}
-              className="rounded-xl border border-border bg-card/50 overflow-hidden"
+              className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-sm transition-shadow"
               initial={{ opacity: 0, y: 10 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}

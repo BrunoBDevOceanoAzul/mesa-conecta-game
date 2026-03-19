@@ -7,24 +7,32 @@ const steps = [
     title: "Crie sua conta",
     desc: "Jogador, mestre, loja ou marca. 30 segundos.",
     detail: "Sem cartão",
+    iconColor: "text-plum-500",
+    iconBg: "bg-plum-50",
   },
   {
     icon: Sliders,
     title: "Calibre seu perfil",
     desc: "Gostos, sistemas, cidade e estilo. O algoritmo faz o resto.",
     detail: "600+ sistemas",
+    iconColor: "text-coral-400",
+    iconBg: "bg-coral-50",
   },
   {
     icon: Search,
     title: "Receba matches curados",
     desc: "Mesas ranqueadas por aderência. Score visível.",
     detail: "Matchmaking real",
+    iconColor: "text-gold-500",
+    iconBg: "bg-gold-50",
   },
   {
     icon: CalendarCheck,
     title: "Reserve e jogue",
     desc: "Vaga garantida em 2 cliques. CRM atualizado. Agenda sincronizada.",
     detail: "Fluxo integrado",
+    iconColor: "text-teal-500",
+    iconBg: "bg-teal-50",
   },
 ];
 
@@ -55,16 +63,16 @@ export function HowItWorksSection() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.1 }}
             >
-              <div className="rounded-2xl border border-border bg-card/50 p-6 h-full transition-all duration-300 group-hover:border-primary/25 group-hover:bg-card">
-                <span className="text-5xl font-display font-bold text-muted/30 block mb-4 select-none leading-none">
+              <div className="rounded-2xl border border-border bg-card p-6 h-full transition-all duration-300 group-hover:border-plum-200 group-hover:shadow-md">
+                <span className="text-5xl font-display font-bold text-plum-100 block mb-4 select-none leading-none">
                   0{i + 1}
                 </span>
-                <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-                  <s.icon className="h-5 w-5 text-primary" />
+                <div className={`mb-4 flex h-11 w-11 items-center justify-center rounded-xl ${s.iconBg}`}>
+                  <s.icon className={`h-5 w-5 ${s.iconColor}`} />
                 </div>
                 <h3 className="font-display font-semibold text-base text-foreground mb-2">{s.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed mb-4">{s.desc}</p>
-                <span className="inline-flex rounded-full bg-muted/50 px-3 py-1 text-[11px] text-muted-foreground font-medium">
+                <span className="inline-flex rounded-full bg-plum-50 px-3 py-1 text-[11px] text-plum-500 font-medium">
                   {s.detail}
                 </span>
               </div>

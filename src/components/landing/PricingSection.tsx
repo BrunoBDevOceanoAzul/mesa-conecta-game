@@ -55,7 +55,6 @@ const featureFlagLabel = (key: string, value: unknown): string => {
   return labels[key] || key.replace(/_/g, " ");
 };
 
-// Determine highlight/badge based on sort_order (higher = premium)
 const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?: string }> = {
   player_free: {},
   player_adventurer: {},
@@ -103,14 +102,14 @@ export function PricingSection() {
         </motion.div>
 
         {/* Tabs */}
-        <div className="flex justify-center gap-1 mb-14 bg-muted/30 rounded-xl p-1 max-w-xs mx-auto">
+        <div className="flex justify-center gap-1 mb-14 bg-plum-50 rounded-xl p-1 max-w-xs mx-auto">
           {tabs.map((t) => (
             <button
               key={t.role}
               onClick={() => setActiveRole(t.role)}
               className={`flex-1 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
                 activeRole === t.role
-                  ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20"
+                  ? "bg-primary text-primary-foreground shadow-md shadow-primary/20"
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
@@ -132,8 +131,8 @@ export function PricingSection() {
                 key={plan.id}
                 className={`relative rounded-2xl border p-8 transition-all ${
                   meta.highlight
-                    ? "border-primary/30 bg-card shadow-xl shadow-primary/5"
-                    : "border-border bg-card/50"
+                    ? "border-plum-200 bg-card shadow-xl shadow-plum-200/20"
+                    : "border-border bg-card"
                 }`}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -167,16 +166,16 @@ export function PricingSection() {
                 <ul className="mt-8 space-y-3">
                   {features.map((f) => (
                     <li key={f} className="flex items-start gap-3 text-sm text-muted-foreground">
-                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <Check className="h-4 w-4 text-teal-500 shrink-0 mt-0.5" />
                       {f}
                     </li>
                   ))}
                 </ul>
 
                 {meta.boostNote && (
-                  <div className="mt-5 flex items-center gap-2 rounded-lg border border-primary/10 bg-primary/5 px-3 py-2">
-                    <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
-                    <span className="text-[11px] text-primary/80">{meta.boostNote}</span>
+                  <div className="mt-5 flex items-center gap-2 rounded-lg border border-plum-100 bg-plum-50 px-3 py-2">
+                    <Sparkles className="h-3.5 w-3.5 text-plum-400 shrink-0" />
+                    <span className="text-[11px] text-plum-500">{meta.boostNote}</span>
                   </div>
                 )}
 
@@ -188,7 +187,6 @@ export function PricingSection() {
                     if (plan.price_monthly === 0) {
                       navigate("/cadastro");
                     } else {
-                      // Extract base code (remove interval suffix for monthly plans)
                       const baseCode = plan.code;
                       navigate(`/checkout?plan=${baseCode}&role=${plan.role}`);
                     }
