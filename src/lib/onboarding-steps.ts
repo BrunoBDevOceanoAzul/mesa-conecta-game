@@ -33,18 +33,35 @@ export interface OnboardingStep {
   min?: number;
   max?: number;
   placeholder?: string;
+  /** Only show this step when the given field has one of the listed values */
+  conditionalOn?: { field: string; values: string[] };
 }
 
 // ─── JOGADOR ───────────────────────────────────────────
 export const playerSteps: OnboardingStep[] = [
   {
+    id: "player-format",
+    title: "Como você prefere jogar?",
+    subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
+    microcopy: "Vamos personalizar sua jornada com base no formato que faz mais sentido para você.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Online", icon: "Monitor", description: "De qualquer lugar, sem limite geográfico" },
+      { label: "Presencial", icon: "MapPin", description: "Nada supera estar junto na mesa" },
+      { label: "Híbrido", icon: "Blend", description: "O melhor dos dois mundos" },
+    ],
+    required: true,
+  },
+  {
     id: "player-city",
-    title: "Onde você joga ou gostaria de jogar?",
-    subtitle: "Sua localização nos ajuda a encontrar mesas perto de você",
-    microcopy: "Você pode ajustar isso depois.",
+    title: "Em que cidade ou região você quer viver essa experiência?",
+    subtitle: "Usamos isso para mostrar mesas presenciais próximas de você",
+    microcopy: "Você também verá opções online quando fizerem sentido. Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
-    required: true,
+    required: false,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "player-availability",
@@ -115,7 +132,7 @@ export const playerSteps: OnboardingStep[] = [
   },
   {
     id: "player-session-format",
-    title: "Como você prefere jogar?",
+    title: "Que formato de mesa combina mais com você?",
     subtitle: "One-shot, campanha ou tanto faz?",
     type: "cards-single",
     field: "session_format_pref",
@@ -123,19 +140,6 @@ export const playerSteps: OnboardingStep[] = [
       { label: "One-shot", icon: "Zap", description: "Uma sessão completa" },
       { label: "Campanha", icon: "Map", description: "Histórias longas e contínuas" },
       { label: "Tanto faz", icon: "Shuffle", description: "Ambos me agradam" },
-    ],
-    required: false,
-  },
-  {
-    id: "player-format",
-    title: "Qual formato combina mais com sua rotina?",
-    subtitle: "Presencial, online ou híbrido?",
-    type: "cards-single",
-    field: "preferred_format",
-    options: [
-      { label: "Presencial", icon: "MapPin", description: "Nada supera estar junto" },
-      { label: "Online", icon: "Monitor", description: "De qualquer lugar" },
-      { label: "Híbrido", icon: "Blend", description: "O melhor dos dois" },
     ],
     required: false,
   },
@@ -184,12 +188,28 @@ export const playerSteps: OnboardingStep[] = [
 // ─── MESTRE ───────────────────────────────────────────
 export const gmSteps: OnboardingStep[] = [
   {
+    id: "gm-format",
+    title: "Como você prefere abrir suas mesas?",
+    subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
+    microcopy: "Vamos adaptar a plataforma ao seu estilo de operação.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Online", icon: "Monitor", description: "Mestrar de qualquer lugar" },
+      { label: "Presencial", icon: "MapPin", description: "Mesas com presença física" },
+      { label: "Híbrido", icon: "Blend", description: "Flexibilidade total" },
+    ],
+    required: true,
+  },
+  {
     id: "gm-city",
-    title: "Onde você atua?",
-    subtitle: "Jogadores próximos encontram você mais fácil",
+    title: "Em que cidade ou região você atua?",
+    subtitle: "Jogadores próximos encontram você mais facilmente",
+    microcopy: "Sua presença online também será visível. Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
-    required: true,
+    required: false,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "gm-systems",
@@ -317,12 +337,28 @@ export const gmSteps: OnboardingStep[] = [
 // ─── LOJA / LUDERIA ──────────────────────────────────
 export const storeSteps: OnboardingStep[] = [
   {
+    id: "store-format",
+    title: "Como sua operação acontece?",
+    subtitle: "A HIVIUM conecta experiências presenciais, híbridas e online.",
+    microcopy: "Vamos adaptar a plataforma à realidade da sua casa.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Presencial", icon: "MapPin", description: "Operação 100% local" },
+      { label: "Híbrido", icon: "Blend", description: "Local + experiências online" },
+      { label: "Online", icon: "Monitor", description: "Também quero explorar o digital" },
+    ],
+    required: true,
+  },
+  {
     id: "store-city",
-    title: "Onde sua operação acontece?",
+    title: "Onde sua casa está localizada?",
     subtitle: "Jogadores e mestres encontram você no mapa",
+    microcopy: "Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
     required: true,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "store-capacity",
@@ -476,12 +512,12 @@ export const stepsMap: Record<RoleKey, OnboardingStep[]> = {
 export const roleInfo: Record<RoleKey, { title: string; description: string; icon: string }> = {
   jogador: {
     title: "Jogador",
-    description: "Encontre mesas que combinam com seu estilo, agenda e orçamento.",
+    description: "Descubra mesas online, presenciais ou híbridas que combinam com seu estilo.",
     icon: "Dice5",
   },
   mestre: {
     title: "Mestre",
-    description: "Organize campanhas, atraia jogadores certos e cresça com mais recorrência.",
+    description: "Organize mesas, atraia jogadores certos e cresça — online ou presencialmente.",
     icon: "BookOpen",
   },
   loja: {

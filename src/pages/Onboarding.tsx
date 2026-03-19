@@ -77,7 +77,13 @@ export default function Onboarding() {
     load();
   }, [user]);
 
-  const steps = stepsMap[role];
+  const allSteps = stepsMap[role];
+  // Filter steps based on conditional logic (e.g., skip city for online-only users)
+  const steps = allSteps.filter((s) => {
+    if (!s.conditionalOn) return true;
+    const depValue = answers[s.conditionalOn.field];
+    return s.conditionalOn.values.includes(depValue as string);
+  });
 
   const handleChange = useCallback((field: string, value: unknown) => {
     setAnswers((prev) => ({ ...prev, [field]: value }));
@@ -254,7 +260,7 @@ export default function Onboarding() {
           <TransitionScreen
             key="transition-start"
             headline="Vamos calibrar seu perfil"
-            subtext="Em poucos passos, a HIVIUM ajusta a experiência ao seu ritmo e ao tipo de mesa que faz sentido para você."
+            subtext="Em poucos passos, a HIVIUM personaliza mesas online, presenciais e híbridas ao seu ritmo."
             onComplete={() => setPhase("steps")}
             duration={2400}
           />
