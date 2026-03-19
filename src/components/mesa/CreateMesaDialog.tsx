@@ -14,6 +14,7 @@ import { toast } from "@/hooks/use-toast";
 import { RPG_SYSTEMS } from "@/data/rpg-systems";
 import { MesaAiTextAssistant } from "./MesaAiTextAssistant";
 import { MesaAiCoverGenerator } from "./MesaAiCoverGenerator";
+import { BoardGameSearch, type BoardGame } from "@/components/shared/BoardGameSearch";
 
 interface CreateMesaDialogProps {
   onCreated?: () => void;
