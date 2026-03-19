@@ -5,6 +5,7 @@ import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+import { resolveRedirect } from "@/lib/auth-redirect";
 import logoImg from "@/assets/hivium-logo.png";
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -16,36 +17,6 @@ function GoogleIcon({ className }: { className?: string }) {
       <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
     </svg>
   );
-}
-
-async function redirectAfterAuth(navigate: ReturnType<typeof useNavigate>) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  // Check admin first
-  const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: user.id });
-  if (isAdmin) {
-    navigate("/admin");
-    return;
-  }
-
-  const role = user.user_metadata?.role || "player";
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("city")
-    .eq("user_id", user.id)
-    .single();
-  if (!profile?.city) {
-    navigate("/onboarding/" + (role === "player" ? "jogador" : role === "gm" ? "mestre" : role === "store" ? "loja" : "jogador"));
-  } else {
-    const roleToDash: Record<string, string> = {
-      player: "/dashboard/jogador",
-      gm: "/dashboard/mestre",
-      store: "/dashboard/loja",
-      brand: "/dashboard/marca",
-    };
-    navigate(roleToDash[role] || "/dashboard/jogador");
-  }
 }
 
 export default function Login() {
@@ -62,7 +33,7 @@ export default function Login() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
       const isUnconfirmed = error.message.toLowerCase().includes("email not confirmed");
       toast({
@@ -77,7 +48,10 @@ export default function Login() {
       setLoading(false);
       return;
     }
-    await redirectAfterAuth(navigate);
+    if (data.user) {
+      const dest = await resolveRedirect(data.user.id, data.user.user_metadata?.role);
+      navigate(dest);
+    }
     setLoading(false);
   };
 
@@ -88,25 +62,21 @@ export default function Login() {
         redirect_uri: window.location.origin + "/~oauth",
       });
       if (result?.error) {
-        toast({
-          title: "Erro com Google",
-          description: "Falha na autenticação. Tente novamente.",
-          variant: "destructive",
-        });
+        toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
         setGoogleLoading(false);
         return;
       }
-      // If not redirected (popup flow completed), session is already set
+      // Popup flow completed (not redirected) — session is already set
       if (!result?.redirected) {
-        await redirectAfterAuth(navigate);
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          const dest = await resolveRedirect(user.id, user.user_metadata?.role);
+          navigate(dest);
+        }
       }
-      // If redirected, OAuthCallback page will handle navigation
-    } catch (err) {
-      toast({
-        title: "Erro com Google",
-        description: "Falha na autenticação. Tente novamente.",
-        variant: "destructive",
-      });
+      // If redirected, OAuthCallback handles everything
+    } catch {
+      toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
     } finally {
       setGoogleLoading(false);
     }
