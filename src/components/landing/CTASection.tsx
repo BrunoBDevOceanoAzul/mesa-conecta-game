@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function CTASection() {
   const navigate = useNavigate();
