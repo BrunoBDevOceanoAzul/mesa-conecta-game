@@ -39,6 +39,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const lastSeenInterval = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     // Set up auth state listener FIRST
@@ -48,8 +49,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Handle email confirmation redirect
+        // Track sign-in session
         if (event === "SIGNED_IN" && session?.user) {
+          const provider = session.user.app_metadata?.provider || "email";
+          trackSignIn(session.user.id, provider);
+
           const currentPath = window.location.pathname;
           const isPublicPage = ["/", "/login", "/cadastro", "/reset-password", "/~oauth"].includes(currentPath);
           
@@ -76,6 +80,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             }
           }
         }
+
+        // Track sign-out
+        if (event === "SIGNED_OUT") {
+          if (lastSeenInterval.current) {
+            clearInterval(lastSeenInterval.current);
+            lastSeenInterval.current = null;
+          }
+        }
       }
     );
 
@@ -84,9 +96,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+
+      // Start last_seen heartbeat for existing sessions
+      if (session?.user) {
+        lastSeenInterval.current = setInterval(() => {
+          updateLastSeen(session.user.id);
+        }, 5 * 60 * 1000); // every 5 min
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
+    };
   }, []);
 
   const signOut = async () => {
