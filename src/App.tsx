@@ -30,6 +30,7 @@ import MestrePublicProfile from "./pages/MestrePublicProfile";
 import LojaPublicProfile from "./pages/LojaPublicProfile";
 import Notifications from "./pages/Notifications";
 import Interesse from "./pages/Interesse";
+import Messages from "./pages/Messages";
 import AdminPainel from "./pages/admin/AdminPainel";
 import AdminInsights from "./pages/admin/AdminInsights";
 import AdminUsers from "./pages/admin/AdminUsers";
