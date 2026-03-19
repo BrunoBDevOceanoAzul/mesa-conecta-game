@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
@@ -19,7 +20,7 @@ import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
 } from "lucide-react";
 
 type Mesa = {
@@ -78,19 +79,32 @@ export default function TableDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [existingBooking, setExistingBooking] = useState(false);
   const eligibility = useReviewEligibility(id);
+
+  // Check if user already has a booking for this mesa
+  useEffect(() => {
+    if (!user || !id) return;
+    supabase
+      .from("bookings")
+      .select("id")
+      .eq("game_table_id", id)
+      .eq("player_user_id", user.id)
+      .neq("status", "canceled")
+      .maybeSingle()
+      .then(({ data }) => setExistingBooking(!!data));
+  }, [user, id, bookingSuccess]);
 
   // Handle return from Stripe Checkout
   useEffect(() => {
     const bookingStatus = searchParams.get("booking");
     if (bookingStatus === "success") {
       setBookingSuccess(true);
-      // Clean URL
+      setExistingBooking(true);
       searchParams.delete("booking");
       searchParams.delete("booking_id");
       setSearchParams(searchParams, { replace: true });
     } else if (bookingStatus === "canceled") {
-      // Canceled booking — could clean up pending booking here
       searchParams.delete("booking");
       searchParams.delete("booking_id");
       setSearchParams(searchParams, { replace: true });
@@ -179,17 +193,44 @@ export default function TableDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       </div>
 
-      {/* Booking success banner */}
-      {bookingSuccess && (
-        <div className="mb-4 rounded-xl border border-secondary/30 bg-secondary/10 p-4 flex items-center gap-3">
-          <div className="h-10 w-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
-            <Sparkles className="h-5 w-5 text-secondary" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-foreground">Pagamento confirmado! 🎉</p>
-            <p className="text-xs text-muted-foreground">Sua vaga na mesa <strong>{mesa.title}</strong> foi reservada com sucesso.</p>
-          </div>
-        </div>
+      {/* Booking Success Dialog */}
+      {bookingSuccess && mesa && (
+        <Dialog open={bookingSuccess} onOpenChange={setBookingSuccess}>
+          <DialogContent className="sm:max-w-md text-center">
+            <div className="flex flex-col items-center gap-4 py-4">
+              <div className="h-20 w-20 rounded-full bg-secondary/10 flex items-center justify-center">
+                <Sparkles className="h-10 w-10 text-secondary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-display font-bold text-foreground">Vaga Reservada! 🎉</h2>
+                <p className="text-sm text-muted-foreground">
+                  Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.
+                </p>
+              </div>
+              <div className="rounded-xl bg-muted/50 border border-border p-4 w-full space-y-2 text-left">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Mestre</span>
+                  <span className="font-medium text-foreground">{mesa.gm_name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Data</span>
+                  <span className="font-medium text-foreground">
+                    {new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor pago</span>
+                  <span className="font-medium text-foreground">
+                    {mesa.min_price === 0 ? "Grátis" : `R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`}
+                  </span>
+                </div>
+              </div>
+              <Button variant="hero" size="lg" className="w-full" onClick={() => setBookingSuccess(false)}>
+                Entendido — preparar para a aventura!
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
@@ -413,7 +454,11 @@ export default function TableDetail() {
               )}
 
               {/* Reserve button */}
-              {mesa.status === "aberta" && mesa.seats_available > 0 ? (
+              {existingBooking ? (
+                <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
+                  <Check className="h-4 w-4" /> Você já está nesta mesa
+                </Button>
+              ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
                 <Button variant="hero" size="lg" className="w-full text-base" onClick={() => {
                   if (!user) {
                     navigate("/login");
@@ -421,7 +466,9 @@ export default function TableDetail() {
                   }
                   setBookingOpen(true);
                 }}>
-                  Reservar Vaga
+                  {mesa.min_price > 0
+                    ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                    : "Reservar Vaga — Grátis"}
                 </Button>
               ) : (
                 <Button variant="outline" size="lg" className="w-full" disabled>
@@ -429,9 +476,11 @@ export default function TableDetail() {
                 </Button>
               )}
 
-              <p className="text-[11px] text-muted-foreground text-center">
-                Pagamento seguro via Stripe
-              </p>
+              {!existingBooking && mesa.min_price > 0 && (
+                <p className="text-[11px] text-muted-foreground text-center">
+                  Pagamento seguro via Stripe • sem surpresas
+                </p>
+              )}
 
               {/* Chat with GM */}
               <StartChatButton
