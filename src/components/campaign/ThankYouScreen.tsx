@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Instagram, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/hivium-logo.png";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function ThankYouScreen() {
   const shareUrl = window.location.origin + "/interesse";
