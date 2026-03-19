@@ -334,22 +334,28 @@ function SelectField<T extends string>({ label, value, options, onChange }: {
   );
 }
 
-function PricePill({ label, value, highlight, accent }: { label: string; value: number; highlight?: boolean; accent?: boolean }) {
+function PricePill({ label, value, highlight, accent, onClick }: { label: string; value: number; highlight?: boolean; accent?: boolean; onClick?: () => void }) {
   return (
-    <div className={`rounded-xl border p-4 text-center transition-all ${
-      highlight
-        ? "border-primary/30 bg-primary/5 shadow-sm"
-        : accent
-          ? "border-secondary/20 bg-secondary/5"
-          : "border-border bg-card"
-    }`}>
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={!onClick}
+      className={`rounded-xl border p-4 text-center transition-all ${
+        highlight
+          ? "border-primary/30 bg-primary/5 shadow-sm"
+          : accent
+            ? "border-secondary/20 bg-secondary/5"
+            : "border-border bg-card"
+      } ${onClick ? "cursor-pointer hover:ring-2 hover:ring-primary/30 active:scale-95" : ""}`}
+    >
       <p className={`text-xl font-display font-bold ${
         highlight ? "text-primary" : accent ? "text-secondary" : "text-foreground"
       }`}>
         R${value}
       </p>
       <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider">{label}</p>
-    </div>
+      {onClick && <p className="text-[9px] text-primary mt-1 font-medium">Usar preço</p>}
+    </button>
   );
 }
 
