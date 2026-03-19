@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { MesaCard } from "@/components/shared/MesaCard";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Users, Store, Calendar, Sparkles, ArrowRight,
   Wifi, Wind, Coffee, Accessibility, DoorOpen, Star,
-  Award, ChevronRight, Clock, Gamepad2, Building2
+  Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText
 } from "lucide-react";
 
 const featureIcons: Record<string, any> = {
