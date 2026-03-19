@@ -33,6 +33,8 @@ export interface OnboardingStep {
   min?: number;
   max?: number;
   placeholder?: string;
+  /** Only show this step when the given field has one of the listed values */
+  conditionalOn?: { field: string; values: string[] };
 }
 
 // ─── JOGADOR ───────────────────────────────────────────
