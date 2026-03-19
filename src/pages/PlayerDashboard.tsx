@@ -132,6 +132,9 @@ export default function PlayerDashboard() {
           </div>
         )}
 
+        {/* Pending reviews */}
+        <PendingReviewsBanner />
+
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">
           {[
