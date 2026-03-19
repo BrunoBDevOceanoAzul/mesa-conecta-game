@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Share2, Copy, Check, MessageCircle, Send, Facebook, Twitter } from "lucide-react";
+import { Share2, Copy, Check, MessageCircle, Send, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -15,9 +15,11 @@ interface SharePostModalProps {
 
 const CHANNELS = [
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, color: "text-green-500", urlFn: (url: string, text: string) => `https://wa.me/?text=${encodeURIComponent(text + " " + url)}` },
+  { key: "instagram", label: "Instagram", icon: Instagram, color: "text-pink-500", urlFn: null },
   { key: "telegram", label: "Telegram", icon: Send, color: "text-blue-400", urlFn: (url: string, text: string) => `https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}` },
   { key: "facebook", label: "Facebook", icon: Facebook, color: "text-blue-500", urlFn: (url: string) => `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}` },
   { key: "twitter", label: "X / Twitter", icon: Twitter, color: "text-foreground", urlFn: (url: string, text: string) => `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}` },
+  { key: "linkedin", label: "LinkedIn", icon: Linkedin, color: "text-sky-600", urlFn: (url: string) => `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}` },
   { key: "discord", label: "Discord", icon: Copy, color: "text-indigo-400", urlFn: null },
 ] as const;
 

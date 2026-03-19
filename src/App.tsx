@@ -39,6 +39,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminCampaign from "./pages/admin/AdminCampaign";
 import AdminReviews from "./pages/admin/AdminReviews";
+import AdminSocialPublisher from "./pages/admin/AdminSocialPublisher";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 const queryClient = new QueryClient();
 
@@ -89,6 +90,7 @@ const App = () => (
               <Route path="/admin/configuracoes" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSettings /></ProtectedRoute>} />
               <Route path="/admin/campanha" element={<ProtectedRoute allowedRoles={["admin"]}><AdminCampaign /></ProtectedRoute>} />
               <Route path="/admin/reviews" element={<ProtectedRoute allowedRoles={["admin"]}><AdminReviews /></ProtectedRoute>} />
+              <Route path="/admin/social" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSocialPublisher /></ProtectedRoute>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </ErrorBoundary>

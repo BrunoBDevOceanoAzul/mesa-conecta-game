@@ -68,6 +68,63 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_share_links: {
+        Row: {
+          admin_user_id: string
+          ai_generated_text: string | null
+          channels: string[]
+          clicks: number
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          original_url: string
+          short_code: string
+          title: string
+          updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          admin_user_id: string
+          ai_generated_text?: string | null
+          channels?: string[]
+          clicks?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          original_url: string
+          short_code: string
+          title: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          admin_user_id?: string
+          ai_generated_text?: string | null
+          channels?: string[]
+          clicks?: number
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          original_url?: string
+          short_code?: string
+          title?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           actor_email: string | null
