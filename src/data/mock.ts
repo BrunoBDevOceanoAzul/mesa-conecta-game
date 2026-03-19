@@ -1,4 +1,4 @@
-export type UserRole = 'player' | 'gm' | 'store' | 'brand';
+export type UserRole = 'player' | 'gm' | 'store' | 'brand' | 'admin';
 
 export interface MockTable {
   id: string;

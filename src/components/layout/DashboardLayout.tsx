@@ -23,6 +23,7 @@ const roleLabels: Record<UserRole, string> = {
   gm: "Mestre",
   store: "Luderia",
   brand: "Marca",
+  admin: "Administrador",
 };
 
 export function DashboardLayout({
