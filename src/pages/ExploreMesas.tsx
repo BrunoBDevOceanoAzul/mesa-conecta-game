@@ -290,13 +290,12 @@ export default function ExploreMesas() {
                 </div>
               </div>
 
-              {/* Price */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Faixa de preço</label>
+                <label className="field-label mb-1.5 block">Faixa de preço</label>
                 <select
                   value={filterPriceRange}
                   onChange={(e) => setFilterPriceRange(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="field-input"
                 >
                   <option value="">Qualquer preço</option>
                   {PRICE_RANGES.map((r) => (
