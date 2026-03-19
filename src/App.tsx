@@ -76,6 +76,7 @@ const App = () => (
               <Route path="/explorar" element={<ExploreMesas />} />
               <Route path="/buscar" element={<ExploreMesas />} />
               <Route path="/mesa/:id" element={<TableDetail />} />
+              <Route path="/mesa/:id/ficha" element={<MesaCharacterSheet />} />
               <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
               <Route path="/loja/:slug" element={<LojaPublicProfile />} />
               {/* Admin routes */}
