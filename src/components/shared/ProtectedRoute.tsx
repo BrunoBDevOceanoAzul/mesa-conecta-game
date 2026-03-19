@@ -27,14 +27,24 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     const checkAccess = async () => {
       try {
         const [profileRes, adminRes] = await Promise.all([
-          supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+          supabase.from("profiles").select("role, can_play, can_gm").eq("user_id", user.id).maybeSingle(),
           allowedRoles.includes("admin")
             ? supabase.rpc("is_admin", { _user_id: user.id })
             : Promise.resolve({ data: false }),
         ]);
 
-        setUserRole(profileRes.data?.role || null);
+        const profile = profileRes.data;
+        // Effective roles: primary role + hybrid capabilities
+        const effectiveRoles: string[] = [];
+        if (profile?.role) effectiveRoles.push(profile.role);
+        if (profile?.can_play && !effectiveRoles.includes("player")) effectiveRoles.push("player");
+        if (profile?.can_gm && !effectiveRoles.includes("gm")) effectiveRoles.push("gm");
+
+        setUserRole(profile?.role || null);
         setIsAdmin(!!adminRes.data);
+
+        // Store effective roles for access check
+        (window as any).__hiviumEffectiveRoles = effectiveRoles;
       } catch (err) {
         console.warn("[ProtectedRoute] Error checking access:", err);
         setError(true);
@@ -65,9 +75,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   // Role-based guard
   if (allowedRoles) {
+    const effectiveRoles: string[] = (window as any).__hiviumEffectiveRoles || (userRole ? [userRole] : []);
     const hasAccess =
       (allowedRoles.includes("admin") && isAdmin) ||
-      (userRole && allowedRoles.includes(userRole));
+      effectiveRoles.some(r => allowedRoles.includes(r));
 
     if (!hasAccess) {
       const roleRoutes: Record<string, string> = {

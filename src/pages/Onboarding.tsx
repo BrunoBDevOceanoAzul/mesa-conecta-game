@@ -31,7 +31,7 @@ export default function Onboarding() {
   const { toast } = useToast();
 
   const [phase, setPhase] = useState<Phase>(paramRole ? "steps" : "welcome");
-  const [role, setRole] = useState<RoleKey>((paramRole as RoleKey) || "jogador");
+  const [role, setRole] = useState<RoleKey | null>(paramRole ? (paramRole as RoleKey) : null);
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [answers, setAnswers] = useState<Record<string, unknown>>({});
@@ -64,9 +64,14 @@ export default function Onboarding() {
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (Object.keys(loaded).length > 0) setAnswers(loaded);
-          if (data.role) setRole(data.role as RoleKey);
+          if (data.role) {
+            setRole(data.role as RoleKey);
+          } else {
+            // No role selected yet — ensure we show profile selection
+            setPhase("profile");
+          }
           const step = (data as any).onboarding_step;
-          if (typeof step === "number" && step > 0) setCurrent(step);
+          if (typeof step === "number" && step > 0 && data.role) setCurrent(step);
         }
       } catch {
         // Silent
@@ -77,7 +82,8 @@ export default function Onboarding() {
     load();
   }, [user]);
 
-  const allSteps = stepsMap[role];
+  const effectiveRole: RoleKey = role || "jogador";
+  const allSteps = stepsMap[effectiveRole];
   // Filter steps based on conditional logic (e.g., skip city for online-only users)
   const steps = allSteps.filter((s) => {
     if (!s.conditionalOn) return true;
@@ -124,7 +130,7 @@ export default function Onboarding() {
     try {
       await supabase
         .from("profiles")
-        .update({ onboarding_step: stepNum, role } as any)
+        .update({ onboarding_step: stepNum, role: effectiveRole } as any)
         .eq("user_id", user.id);
     } catch {
       // Silent
@@ -136,7 +142,7 @@ export default function Onboarding() {
     setSaving(true);
 
     try {
-      const badges = generateBadges(role, {
+      const badges = generateBadges(effectiveRole, {
         ...answers,
         availability_days: availability.days,
         availability_times: availability.times,
@@ -144,7 +150,7 @@ export default function Onboarding() {
       const badgeLabels = badges.map((b) => b.label);
 
       const profileData: Record<string, unknown> = {
-        role,
+        role: effectiveRole,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
@@ -181,7 +187,7 @@ export default function Onboarding() {
 
       if (error) throw error;
 
-      if (role === "loja") {
+      if (effectiveRole === "loja") {
         const storeData: Record<string, unknown> = {
           owner_id: user.id,
           name: (answers.city as string) || "Minha Luderia",
@@ -228,7 +234,7 @@ export default function Onboarding() {
       loja: "/dashboard/loja",
       marca: "/boost",
     };
-    navigate(dashMap[role] || "/dashboard/jogador");
+    navigate(dashMap[effectiveRole] || "/dashboard/jogador");
   };
 
   const step = steps[current];
@@ -302,7 +308,7 @@ export default function Onboarding() {
         {phase === "review" && (
           <ReviewScreen
             key="review"
-            role={role}
+            role={effectiveRole}
             answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
             onEdit={goToStep}
             onConfirm={finishOnboarding}
@@ -323,7 +329,7 @@ export default function Onboarding() {
         {phase === "mapped" && (
           <ProfileMappedScreen
             key="mapped"
-            role={role}
+            role={effectiveRole}
             answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
             onContinue={handleContinueToDashboard}
           />

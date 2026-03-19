@@ -3157,6 +3157,80 @@ export type Database = {
           },
         ]
       }
+      user_discounts: {
+        Row: {
+          amount_off: number | null
+          applies_to_plan_id: string | null
+          applies_to_role: string | null
+          created_at: string
+          created_by_admin_id: string | null
+          currency: string | null
+          discount_coupon_id: string | null
+          discount_type: string
+          duration_in_months: number | null
+          duration_type: string
+          ends_at: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          percent_off: number | null
+          source_type: string
+          starts_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_off?: number | null
+          applies_to_plan_id?: string | null
+          applies_to_role?: string | null
+          created_at?: string
+          created_by_admin_id?: string | null
+          currency?: string | null
+          discount_coupon_id?: string | null
+          discount_type?: string
+          duration_in_months?: number | null
+          duration_type?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          percent_off?: number | null
+          source_type?: string
+          starts_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_off?: number | null
+          applies_to_plan_id?: string | null
+          applies_to_role?: string | null
+          created_at?: string
+          created_by_admin_id?: string | null
+          currency?: string | null
+          discount_coupon_id?: string | null
+          discount_type?: string
+          duration_in_months?: number | null
+          duration_type?: string
+          ends_at?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          percent_off?: number | null
+          source_type?: string
+          starts_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_discounts_discount_coupon_id_fkey"
+            columns: ["discount_coupon_id"]
+            isOneToOne: false
+            referencedRelation: "discount_coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string

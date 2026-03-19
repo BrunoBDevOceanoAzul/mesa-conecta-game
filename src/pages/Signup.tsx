@@ -107,7 +107,7 @@ export default function Signup() {
       if (!result?.redirected) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
-          const dest = await resolveRedirect(user.id, user.user_metadata?.role);
+          const dest = await resolveRedirect(user.id);
           navigate(dest);
         }
       }

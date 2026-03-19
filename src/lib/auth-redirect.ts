@@ -15,7 +15,7 @@ const roleToDash: Record<string, string> = {
   brand: "/dashboard/marca",
 };
 
-export async function resolveRedirect(userId: string, fallbackRole?: string): Promise<string> {
+export async function resolveRedirect(userId: string, _fallbackRole?: string): Promise<string> {
   try {
     // Check admin role first
     let isAdmin = false;
@@ -30,21 +30,26 @@ export async function resolveRedirect(userId: string, fallbackRole?: string): Pr
     // Fetch profile — may not exist yet for brand-new users (trigger delay)
     const { data: profile } = await supabase
       .from("profiles")
-      .select("city, role, onboarding_completed")
+      .select("role, onboarding_completed, can_play, can_gm")
       .eq("user_id", userId)
       .maybeSingle();
 
-    const role = profile?.role || fallbackRole || "player";
+    const role = profile?.role;
 
-    // If onboarding not completed or no city, send to onboarding
+    // If no role has been chosen yet, send to onboarding profile selection
+    if (!role) {
+      return "/onboarding";
+    }
+
+    // If onboarding not completed, send to role-specific onboarding
     if (!profile?.onboarding_completed) {
-      return roleToOnboarding[role] || "/onboarding/jogador";
+      return roleToOnboarding[role] || "/onboarding";
     }
 
     return roleToDash[role] || "/dashboard/jogador";
   } catch (err) {
     console.warn("[auth-redirect] Error resolving redirect:", err);
-    // Safe fallback — send to onboarding which will handle profile loading
-    return roleToOnboarding[fallbackRole || "player"] || "/onboarding/jogador";
+    // Safe fallback — send to generic onboarding which will handle role selection
+    return "/onboarding";
   }
 }
