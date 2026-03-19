@@ -295,15 +295,8 @@ export default function Signup() {
                 })}
               </div>
 
-              {/* Extra roles link */}
               <p className="text-center text-[11px] text-muted-foreground/60 mt-4">
-                Lojas e marcas?{" "}
-                <button
-                  onClick={() => {/* Could expand to show store/brand options */}}
-                  className="text-primary/70 hover:text-primary underline"
-                >
-                  Clique aqui
-                </button>
+                Você poderá ajustar seu perfil depois.
               </p>
 
               <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors block mx-auto">
