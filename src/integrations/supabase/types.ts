@@ -1417,6 +1417,96 @@ export type Database = {
         }
         Relationships: []
       }
+      interest_leads: {
+        Row: {
+          city: string | null
+          cluster_label: string | null
+          common_answers_json: Json | null
+          created_at: string
+          early_adopter_interest: string | null
+          email: string
+          gm_answers_json: Json | null
+          high_intent_lead: boolean | null
+          id: string
+          instagram: string | null
+          interest_score: number | null
+          likely_founder: boolean | null
+          likely_paid_user: boolean | null
+          name: string
+          player_answers_json: Json | null
+          pricing_sensitivity: string | null
+          primary_role: string | null
+          selected_roles_json: Json
+          state: string | null
+          store_answers_json: Json | null
+          updated_at: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          wants_followup: boolean | null
+          whatsapp: string | null
+          willingness_to_pay: string | null
+        }
+        Insert: {
+          city?: string | null
+          cluster_label?: string | null
+          common_answers_json?: Json | null
+          created_at?: string
+          early_adopter_interest?: string | null
+          email: string
+          gm_answers_json?: Json | null
+          high_intent_lead?: boolean | null
+          id?: string
+          instagram?: string | null
+          interest_score?: number | null
+          likely_founder?: boolean | null
+          likely_paid_user?: boolean | null
+          name: string
+          player_answers_json?: Json | null
+          pricing_sensitivity?: string | null
+          primary_role?: string | null
+          selected_roles_json?: Json
+          state?: string | null
+          store_answers_json?: Json | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          wants_followup?: boolean | null
+          whatsapp?: string | null
+          willingness_to_pay?: string | null
+        }
+        Update: {
+          city?: string | null
+          cluster_label?: string | null
+          common_answers_json?: Json | null
+          created_at?: string
+          early_adopter_interest?: string | null
+          email?: string
+          gm_answers_json?: Json | null
+          high_intent_lead?: boolean | null
+          id?: string
+          instagram?: string | null
+          interest_score?: number | null
+          likely_founder?: boolean | null
+          likely_paid_user?: boolean | null
+          name?: string
+          player_answers_json?: Json | null
+          pricing_sensitivity?: string | null
+          primary_role?: string | null
+          selected_roles_json?: Json
+          state?: string | null
+          store_answers_json?: Json | null
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          wants_followup?: boolean | null
+          whatsapp?: string | null
+          willingness_to_pay?: string | null
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           created_at: string
