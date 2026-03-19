@@ -64,9 +64,14 @@ export default function Onboarding() {
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (Object.keys(loaded).length > 0) setAnswers(loaded);
-          if (data.role) setRole(data.role as RoleKey);
+          if (data.role) {
+            setRole(data.role as RoleKey);
+          } else {
+            // No role selected yet — ensure we show profile selection
+            setPhase("profile");
+          }
           const step = (data as any).onboarding_step;
-          if (typeof step === "number" && step > 0) setCurrent(step);
+          if (typeof step === "number" && step > 0 && data.role) setCurrent(step);
         }
       } catch {
         // Silent
