@@ -26,6 +26,7 @@ type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
+  { label: "Agenda", path: "/agenda", icon: <CalendarDays className="h-4 w-4" /> },
   { label: "Explorar", path: "/explorar", icon: <TrendingUp className="h-4 w-4" /> },
   { label: "Destaque", path: "/boost", icon: <Megaphone className="h-4 w-4" /> },
   { label: "Assinatura", path: "/billing", icon: <DollarSign className="h-4 w-4" /> },

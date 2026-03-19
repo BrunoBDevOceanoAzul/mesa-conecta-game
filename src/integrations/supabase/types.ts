@@ -107,6 +107,105 @@ export type Database = {
         }
         Relationships: []
       }
+      availability_exceptions: {
+        Row: {
+          created_at: string
+          end_time: string | null
+          exception_date: string
+          exception_type: string
+          id: string
+          notes: string | null
+          role: string
+          start_time: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_time?: string | null
+          exception_date: string
+          exception_type?: string
+          id?: string
+          notes?: string | null
+          role?: string
+          start_time?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string | null
+          exception_date?: string
+          exception_type?: string
+          id?: string
+          notes?: string | null
+          role?: string
+          start_time?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      availability_rules: {
+        Row: {
+          accepted_formats_json: Json | null
+          accepted_modalities_json: Json | null
+          availability_type: string
+          created_at: string
+          day_of_week: number | null
+          end_date: string | null
+          end_time: string
+          id: string
+          is_active: boolean
+          notes: string | null
+          role: string
+          rule_type: string
+          start_date: string | null
+          start_time: string
+          timezone: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accepted_formats_json?: Json | null
+          accepted_modalities_json?: Json | null
+          availability_type?: string
+          created_at?: string
+          day_of_week?: number | null
+          end_date?: string | null
+          end_time: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          role?: string
+          rule_type?: string
+          start_date?: string | null
+          start_time: string
+          timezone?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accepted_formats_json?: Json | null
+          accepted_modalities_json?: Json | null
+          availability_type?: string
+          created_at?: string
+          day_of_week?: number | null
+          end_date?: string | null
+          end_time?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          role?: string
+          rule_type?: string
+          start_date?: string | null
+          start_time?: string
+          timezone?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       badge_definitions: {
         Row: {
           category: string
