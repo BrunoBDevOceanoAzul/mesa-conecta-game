@@ -30,13 +30,14 @@ interface DBPlan {
 
 const featureFlagLabel = (key: string, value: unknown): string => {
   const labels: Record<string, string> = {
-    reservation_limit: `Até ${value} reservas/mês`,
+    reservation_limit: value === -1 ? "Reservas ilimitadas" : `Até ${value} reservas/mês`,
     matchmaking: "Matchmaking inteligente",
     history: "Histórico de mesas",
     profile_score: "Perfil de aderência",
     priority_booking: "Prioridade em mesas lotadas",
     exclusive_badge: "Insígnia exclusiva",
     early_access: "Acesso antecipado a eventos",
+    cashback: "Cashback em reservas",
     professional_profile: "Perfil profissional",
     crm: "Mini CRM integrado",
     crm_advanced: "CRM avançado com tags",
@@ -51,6 +52,11 @@ const featureFlagLabel = (key: string, value: unknown): string => {
     reservations: "Gestão de reservas",
     feed_highlight: "Feed destacado",
     dedicated_support: "Suporte dedicado",
+    schedule_management: "Agenda e gestão de horários",
+    ai_text_assist: value === "full" ? "Assistente IA de texto completo" : "Assistente IA de texto",
+    ai_cover_generation: value === -1 ? "Capas com IA ilimitadas" : `Até ${value} capas com IA/mês`,
+    ai_seo_optimization: "Otimização SEO com IA",
+    ai_performance_insights: "Insights de performance com IA",
   };
   return labels[key] || key.replace(/_/g, " ");
 };
