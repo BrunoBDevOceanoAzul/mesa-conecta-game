@@ -130,7 +130,7 @@ export default function Onboarding() {
     try {
       await supabase
         .from("profiles")
-        .update({ onboarding_step: stepNum, role } as any)
+        .update({ onboarding_step: stepNum, role: effectiveRole } as any)
         .eq("user_id", user.id);
     } catch {
       // Silent
