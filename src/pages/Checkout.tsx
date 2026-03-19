@@ -122,6 +122,18 @@ export default function Checkout() {
   );
   const [coupon, setCoupon] = useState<ValidatedCoupon | null>(null);
 
+  // Check if user has any bookings (first mesa = free)
+  useEffect(() => {
+    if (!user) return;
+    supabase
+      .from("bookings")
+      .select("id", { count: "exact", head: true })
+      .eq("player_user_id", user.id)
+      .then(({ count }) => {
+        setIsFirstMesa((count ?? 0) === 0);
+      });
+  }, [user]);
+
   // Fetch plans
   useEffect(() => {
     supabase
@@ -138,7 +150,6 @@ export default function Checkout() {
         if (urlPlanId) {
           const match = fetched.find((p) => p.id === urlPlanId || p.code === urlPlanId);
           if (match) {
-            // If it's an interval variant (e.g. gm_pro_quarterly), resolve to base plan + interval
             const baseSuffixes = ["_quarterly", "_semiannual", "_annual"];
             let baseCode = match.code;
             let interval: BillingInterval = "monthly";
@@ -158,12 +169,12 @@ export default function Checkout() {
       });
   }, []);
 
-  // Derive base plan codes (monthly only, excluding free)
+  // Derive base plan codes — include free plans when it's first mesa
   const basePlans = useMemo(() => {
     return plans.filter(
-      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && p.code !== "player_free"
+      (p) => (p.billing_interval === "monthly" || !p.billing_interval) && (isFirstMesa || p.price_monthly > 0)
     );
-  }, [plans]);
+  }, [plans, isFirstMesa]);
 
   // Filter by role if provided
   const filteredBasePlans = useMemo(() => {
