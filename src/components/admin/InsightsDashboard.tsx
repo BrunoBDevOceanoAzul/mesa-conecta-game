@@ -26,7 +26,7 @@ interface InsightsData {
   topSystems: { name: string; count: number }[];
   topFormats: { name: string; count: number }[];
   topCities: { name: string; count: number }[];
-  budgetDistribution: { range: string; count: number }[];
+  budgetDistribution: { name: string; count: number }[];
   experienceLevels: { name: string; count: number }[];
   // Supply
   gmSystems: { name: string; count: number }[];
