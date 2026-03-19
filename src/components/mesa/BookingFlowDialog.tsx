@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Loader2, Check, Sparkles, Crown, Ticket, ArrowRight, AlertTriangle,
+  Loader2, Check, Sparkles, Crown, Ticket, ArrowRight, AlertTriangle, CreditCard,
 } from "lucide-react";
 
 interface BookingFlowDialogProps {
@@ -55,17 +55,17 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   const [errorMsg, setErrorMsg] = useState("");
   const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
 
+  const isPaidMesa = mesa.min_price > 0;
+
   const loadData = useCallback(async () => {
     if (!user || !open) return;
     setStep("loading");
 
     try {
-      // Get current month boundaries
       const now = new Date();
       const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
       const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
 
-      // Parallel: booking count this month, active subscription, player plans
       const [bookingsRes, subRes, plansRes] = await Promise.all([
         supabase
           .from("bookings")
@@ -93,7 +93,6 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       const count = bookingsRes.count ?? 0;
       setBookingCount(count);
 
-      // Determine current plan's reservation limit
       let limit: number | null = null;
       const sub = subRes.data;
 
@@ -112,14 +111,12 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           }
         }
       } else {
-        // No subscription = free tier, default 1 reservation/month
         limit = 1;
         setCurrentPlanName(null);
       }
 
       setReservationLimit(limit);
 
-      // Parse player plans for upgrade suggestions
       const parsed: PlayerPlan[] = ((plansRes.data || []) as any[])
         .filter((p: any) => p.price_monthly > 0)
         .map((p: any) => ({
@@ -131,13 +128,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         }));
       setPlayerPlans(parsed);
 
-      // SuperUsers bypass everything
       if (isSuperUser) {
         setStep("confirm");
         return;
       }
 
-      // Check limit: -1 means unlimited
       if (limit === -1 || limit === null) {
         setStep("confirm");
       } else if (count >= limit) {
@@ -156,12 +151,12 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     if (open) loadData();
   }, [open, loadData]);
 
-  const handleBook = async () => {
+  // Free mesa: direct booking
+  const handleFreeBook = async () => {
     if (!user) return;
     setSubmitting(true);
 
     try {
-      // Check if already booked
       const { data: existing } = await supabase
         .from("bookings")
         .select("id")
@@ -182,16 +177,15 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         gm_user_id: mesa.gm_id,
         seats_reserved: 1,
         status: "confirmed",
-        amount: mesa.min_price * 100,
+        amount: 0,
         currency: "brl",
-        payment_status: isSuperUser ? "bypassed" : mesa.min_price === 0 ? "free" : "pending",
+        payment_status: isSuperUser ? "bypassed" : "free",
         source_type: "platform",
         booked_at: new Date().toISOString(),
       });
 
       if (error) throw error;
 
-      // Decrement seats
       await supabase
         .from("mesas")
         .update({ seats_available: mesa.seats_available - 1 })
@@ -208,12 +202,53 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     }
   };
 
+  // Paid mesa: Stripe Checkout
+  const handlePaidBook = async () => {
+    if (!user) return;
+    setSubmitting(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
+        body: { mesa_id: mesa.id },
+      });
+
+      if (error) throw new Error(error.message || "Erro ao criar checkout");
+      if (data?.error) throw new Error(data.error);
+
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.location.href = data.url;
+      } else {
+        throw new Error("URL de pagamento não retornada");
+      }
+    } catch (err: any) {
+      console.error("[BookingFlow] Checkout error:", err);
+      setErrorMsg(err?.message || "Erro ao iniciar pagamento");
+      setStep("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleBook = () => {
+    if (isPaidMesa && !isSuperUser) {
+      handlePaidBook();
+    } else {
+      handleFreeBook();
+    }
+  };
+
   const handleUpgrade = (planCode: string) => {
     onOpenChange(false);
     navigate(`/checkout?plan=${planCode}&role=player`);
   };
 
   const remainingSlots = reservationLimit && reservationLimit > 0 ? Math.max(0, reservationLimit - bookingCount) : null;
+
+  // Stripe fee breakdown for paid mesas
+  const stripeFee = isPaidMesa ? mesa.min_price * 0.0399 + 0.39 : 0;
+  const platformFee = isPaidMesa ? mesa.min_price * 0.10 : 0;
+  const totalCharged = isPaidMesa ? mesa.min_price : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -231,8 +266,12 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           <>
             <DialogHeader>
               <DialogTitle className="font-display flex items-center gap-2">
-                <Ticket className="h-5 w-5 text-primary" />
-                Confirmar Reserva
+                {isPaidMesa ? (
+                  <CreditCard className="h-5 w-5 text-primary" />
+                ) : (
+                  <Ticket className="h-5 w-5 text-primary" />
+                )}
+                {isPaidMesa ? "Reservar & Pagar" : "Confirmar Reserva"}
               </DialogTitle>
               <DialogDescription>
                 Você está reservando uma vaga na mesa <strong>{mesa.title}</strong>
@@ -253,10 +292,23 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Valor</span>
                   <span className="font-medium text-foreground">
-                    {mesa.min_price === 0 ? "Grátis" : `R$${mesa.min_price}`}
+                    {mesa.min_price === 0 ? "Grátis" : `R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`}
                   </span>
                 </div>
               </div>
+
+              {/* Payment info for paid mesas */}
+              {isPaidMesa && !isSuperUser && (
+                <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
+                  <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
+                    <CreditCard className="h-3.5 w-3.5" />
+                    Pagamento seguro via Stripe
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Ao confirmar, você será redirecionado para o checkout seguro. O valor será cobrado apenas após a confirmação do pagamento.
+                  </p>
+                </div>
+              )}
 
               {/* Remaining reservations info */}
               {!isSuperUser && remainingSlots !== null && (
@@ -285,10 +337,16 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
               >
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
+                ) : isPaidMesa && !isSuperUser ? (
+                  <CreditCard className="h-4 w-4" />
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
-                {submitting ? "Reservando…" : "Confirmar Reserva"}
+                {submitting
+                  ? "Processando…"
+                  : isPaidMesa && !isSuperUser
+                  ? `Pagar R$ ${mesa.min_price.toFixed(2).replace(".", ",")} e Reservar`
+                  : "Confirmar Reserva"}
               </Button>
             </div>
           </>
