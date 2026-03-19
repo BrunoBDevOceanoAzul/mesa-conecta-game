@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, Sparkles } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Instagram } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RoleKey } from "@/lib/onboarding-steps";
 import { generateBadges, generateProfileSummary, type Badge } from "@/lib/badge-generator";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 interface ProfileMappedScreenProps {
   role: RoleKey;
