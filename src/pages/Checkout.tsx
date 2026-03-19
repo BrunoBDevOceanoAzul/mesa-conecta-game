@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { CouponInput } from "@/components/checkout/CouponInput";
@@ -106,12 +106,13 @@ export default function Checkout() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
+  const { planId: urlPlanId } = useParams();
 
   const [plans, setPlans] = useState<DBPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  // Selection state
+  // Selection state — support both /checkout/:planId and /checkout?plan=code
   const planParam = searchParams.get("plan") || "";
   const roleParam = searchParams.get("role") || "";
   const [selectedBasePlan, setSelectedBasePlan] = useState<string>(planParam);
@@ -132,8 +133,25 @@ export default function Checkout() {
         setPlans(fetched);
         setLoading(false);
 
-        // Auto-select from URL params
-        if (planParam) {
+        // Auto-select from URL: /checkout/:planId (UUID) or ?plan=code
+        if (urlPlanId) {
+          const match = fetched.find((p) => p.id === urlPlanId || p.code === urlPlanId);
+          if (match) {
+            // If it's an interval variant (e.g. gm_pro_quarterly), resolve to base plan + interval
+            const baseSuffixes = ["_quarterly", "_semiannual", "_annual"];
+            let baseCode = match.code;
+            let interval: BillingInterval = "monthly";
+            for (const suffix of baseSuffixes) {
+              if (match.code.endsWith(suffix)) {
+                baseCode = match.code.replace(suffix, "");
+                interval = suffix.replace("_", "") as BillingInterval;
+                break;
+              }
+            }
+            setSelectedBasePlan(baseCode);
+            setSelectedInterval(interval);
+          }
+        } else if (planParam) {
           setSelectedBasePlan(planParam);
         }
       });
