@@ -2,6 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
 import { MesaCard } from "@/components/shared/MesaCard";
+import { PendingReviewsBanner } from "@/components/reviews/PendingReviewsBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useSubscription } from "@/hooks/use-subscription";
@@ -130,6 +131,9 @@ export default function PlayerDashboard() {
             </Button>
           </div>
         )}
+
+        {/* Pending reviews */}
+        <PendingReviewsBanner />
 
         {/* Stats */}
         <div className="grid gap-4 md:grid-cols-3">

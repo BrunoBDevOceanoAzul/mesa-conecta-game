@@ -49,7 +49,13 @@ export function ReviewsList({
       .order("created_at", { ascending: false })
       .limit(limit);
 
-    if (reviewedUserId) query = query.eq("reviewed_user_id", reviewedUserId);
+    if (reviewedUserId) {
+      if (reviewType === "store") {
+        query = query.eq("reviewed_store_id", reviewedUserId);
+      } else {
+        query = query.eq("reviewed_user_id", reviewedUserId);
+      }
+    }
     if (reviewedTableId) query = query.eq("reviewed_table_id", reviewedTableId);
     if (reviewType) query = query.eq("review_type", reviewType);
 

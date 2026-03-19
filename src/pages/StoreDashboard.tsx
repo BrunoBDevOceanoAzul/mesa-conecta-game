@@ -1,4 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useEffect, useMemo } from "react";
@@ -20,7 +21,7 @@ import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 type Mesa = Tables<"mesas">;
 type StoreData = Tables<"stores">;
 
-type Tab = "overview" | "space" | "agenda" | "feed";
+type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
@@ -161,6 +162,7 @@ export default function StoreDashboard() {
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
     { key: "agenda", label: "Agenda", icon: <CalendarDays className="h-4 w-4" /> },
+    { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
     { key: "space", label: "Meu Espaço", icon: <Building2 className="h-4 w-4" /> },
     { key: "feed", label: "Feed", icon: <Megaphone className="h-4 w-4" /> },
   ];
@@ -532,6 +534,19 @@ export default function StoreDashboard() {
                 </Button>
               </div>
             </div>
+          </div>
+        )}
+
+        {/* ─── REVIEWS ─── */}
+        {tab === "reviews" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-base font-display font-semibold text-foreground flex items-center gap-2">
+                <Star className="h-5 w-5 text-secondary" /> Avaliações da Luderia
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">Veja o que os jogadores dizem sobre seu espaço.</p>
+            </div>
+            <ReviewsList reviewedUserId={user?.id} reviewType="store" showReputation />
           </div>
         )}
 

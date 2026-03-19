@@ -4,13 +4,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { MesaCard } from "@/components/shared/MesaCard";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Users, Store, Calendar, Sparkles, ArrowRight,
   Wifi, Wind, Coffee, Accessibility, DoorOpen, Star,
-  Award, ChevronRight, Clock, Gamepad2, Building2
+  Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText
 } from "lucide-react";
 
 const featureIcons: Record<string, any> = {
@@ -235,6 +237,17 @@ export default function LojaPublicProfile() {
             </div>
           </section>
         )}
+
+        {/* AVALIAÇÕES */}
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <SectionTitle icon={Star}>Avaliações</SectionTitle>
+            {storeProfile?.average_rating > 0 && (
+              <ReputationBadge rating={storeProfile.average_rating} totalReviews={storeProfile.total_reviews || 0} />
+            )}
+          </div>
+          <ReviewsList reviewedUserId={profile.user_id} reviewType="store" showHeader={false} />
+        </section>
 
         {/* AGENDA / MESAS */}
         <section id="agenda">
