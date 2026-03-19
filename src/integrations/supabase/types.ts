@@ -1265,6 +1265,7 @@ export type Database = {
         Row: {
           address_text: string | null
           approved_at: string | null
+          average_rating: number | null
           city: string | null
           created_at: string
           description: string | null
@@ -1286,12 +1287,14 @@ export type Database = {
           system_name: string
           timezone: string | null
           title: string
+          total_reviews: number | null
           updated_at: string
           venue_name: string | null
         }
         Insert: {
           address_text?: string | null
           approved_at?: string | null
+          average_rating?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
@@ -1313,12 +1316,14 @@ export type Database = {
           system_name: string
           timezone?: string | null
           title: string
+          total_reviews?: number | null
           updated_at?: string
           venue_name?: string | null
         }
         Update: {
           address_text?: string | null
           approved_at?: string | null
+          average_rating?: number | null
           city?: string | null
           created_at?: string
           description?: string | null
@@ -1340,6 +1345,7 @@ export type Database = {
           system_name?: string
           timezone?: string | null
           title?: string
+          total_reviews?: number | null
           updated_at?: string
           venue_name?: string | null
         }
@@ -2375,10 +2381,15 @@ export type Database = {
           comment: string | null
           created_at: string
           id: string
+          is_verified: boolean
           rating: number
           review_type: string | null
+          reviewed_store_id: string | null
+          reviewed_table_id: string | null
           reviewed_user_id: string
           reviewer_user_id: string
+          status: string
+          sub_ratings_json: Json | null
           updated_at: string
         }
         Insert: {
@@ -2386,10 +2397,15 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          is_verified?: boolean
           rating: number
           review_type?: string | null
+          reviewed_store_id?: string | null
+          reviewed_table_id?: string | null
           reviewed_user_id: string
           reviewer_user_id: string
+          status?: string
+          sub_ratings_json?: Json | null
           updated_at?: string
         }
         Update: {
@@ -2397,10 +2413,15 @@ export type Database = {
           comment?: string | null
           created_at?: string
           id?: string
+          is_verified?: boolean
           rating?: number
           review_type?: string | null
+          reviewed_store_id?: string | null
+          reviewed_table_id?: string | null
           reviewed_user_id?: string
           reviewer_user_id?: string
+          status?: string
+          sub_ratings_json?: Json | null
           updated_at?: string
         }
         Relationships: [
@@ -2409,6 +2430,13 @@ export type Database = {
             columns: ["booking_id"]
             isOneToOne: false
             referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewed_table_id_fkey"
+            columns: ["reviewed_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
             referencedColumns: ["id"]
           },
         ]

@@ -4,7 +4,7 @@ import {
   Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
   Megaphone, Plus, Eye, MousePointerClick, DollarSign,
   PieChart, Edit2, Trash2, ChevronDown, Calculator,
-  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2
+  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2, Star
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,9 @@ import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
 import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
+import { useGMReviews } from "@/hooks/use-reviews";
 
 type Mesa = Tables<"mesas">;
 
@@ -31,7 +34,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews";
 
 // Calculator presets (legacy - now using PricingCalculator component)
 
@@ -62,7 +65,7 @@ export default function GMDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
   const displayName = user?.user_metadata?.name || "Mestre";
   const isPremium = sub.isActive;
-
+  const gmReviews = useGMReviews(user?.id);
   // Real mesas
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loadingMesas, setLoadingMesas] = useState(true);
@@ -98,6 +101,7 @@ export default function GMDashboard() {
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
     { key: "progression", label: "Progressão", icon: <Trophy className="h-4 w-4" /> },
+    { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
     { key: "mesas", label: "Minhas Mesas", icon: <Calendar className="h-4 w-4" /> },
     { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
@@ -184,6 +188,26 @@ export default function GMDashboard() {
         {tab === "progression" && (
           <div className="max-w-2xl">
             <ProgressionPanel />
+          </div>
+        )}
+
+        {/* ─── REVIEWS ─── */}
+        {tab === "reviews" && (
+          <div className="space-y-6 max-w-3xl">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-display font-semibold text-foreground">Suas Avaliações</h2>
+                <p className="text-xs text-muted-foreground mt-0.5">O que jogadores dizem sobre suas mesas.</p>
+              </div>
+              {gmReviews.stats.totalReviews > 0 && (
+                <ReputationBadge
+                  rating={gmReviews.stats.avgRating}
+                  totalReviews={gmReviews.stats.totalReviews}
+                  size="lg"
+                />
+              )}
+            </div>
+            <ReviewsList reviewedUserId={user?.id} reviewType="gm" showReputation={false} />
           </div>
         )}
 

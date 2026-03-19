@@ -7,6 +7,8 @@ import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import {
   MapPin, Star, Users, Swords, BookOpen, Calendar,
   Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap,
@@ -232,6 +234,17 @@ export default function MestrePublicProfile() {
             </div>
           </section>
         )}
+
+        {/* AVALIAÇÕES */}
+        <section>
+          <div className="flex items-center justify-between mb-5">
+            <SectionTitle icon={Star}>Avaliações</SectionTitle>
+            {rating > 0 && (
+              <ReputationBadge rating={rating} totalReviews={gmProfile?.total_reviews || 0} />
+            )}
+          </div>
+          <ReviewsList reviewedUserId={profile.user_id} reviewType="gm" showHeader={false} />
+        </section>
 
         {/* MESAS */}
         <section id="mesas">

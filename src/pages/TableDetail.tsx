@@ -8,9 +8,12 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/shared/ShareModal";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
+import { useReviewEligibility } from "@/hooks/use-reviews";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw
+  Loader2, User, Monitor, Home, RefreshCw, Star
 } from "lucide-react";
 
 type Mesa = {
@@ -54,6 +57,8 @@ export default function TableDetail() {
   const { preferences } = useUserPreferences();
   const [mesa, setMesa] = useState<Mesa | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const eligibility = useReviewEligibility(id);
 
   useEffect(() => {
     if (!id) return;
@@ -186,8 +191,28 @@ export default function TableDetail() {
                       {tag}
                     </span>
                   ))}
-                </div>
-              </div>
+            </div>
+
+            {/* Reviews section */}
+            <div className="mt-8">
+              {eligibility.eligible && (
+                <Button
+                  variant="hero"
+                  size="sm"
+                  className="mb-4 gap-2"
+                  onClick={() => setReviewOpen(true)}
+                >
+                  <Star className="h-4 w-4" /> Avaliar esta mesa
+                </Button>
+              )}
+              {eligibility.alreadyReviewed && (
+                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1">
+                  <Star className="h-3 w-3 text-secondary" /> Você já avaliou esta sessão
+                </p>
+              )}
+              <ReviewsList reviewedTableId={id} reviewType="table" />
+            </div>
+          </div>
             )}
           </div>
 
@@ -265,6 +290,20 @@ export default function TableDetail() {
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {eligibility.bookingId && mesa && (
+        <ReviewFormModal
+          open={reviewOpen}
+          onOpenChange={setReviewOpen}
+          bookingId={eligibility.bookingId}
+          reviewedUserId={eligibility.gmUserId || undefined}
+          reviewedTableId={id}
+          reviewType="table"
+          targetName={mesa.title}
+        />
+      )}
+
       <Footer />
     </div>
   );
