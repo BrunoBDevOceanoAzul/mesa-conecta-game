@@ -9,6 +9,7 @@ import { PlayerQuestions } from "./steps/PlayerQuestions";
 import { GMQuestions } from "./steps/GMQuestions";
 import { StoreQuestions } from "./steps/StoreQuestions";
 import { CommonQuestions } from "./steps/CommonQuestions";
+import { PricingPerception } from "./steps/PricingPerception";
 
 type RoleOption = "player" | "gm" | "store";
 
@@ -37,6 +38,7 @@ export function InterestForm({ utm, onSuccess }: Props) {
   const [gmAnswers, setGmAnswers] = useState<Record<string, any>>({});
   const [storeAnswers, setStoreAnswers] = useState<Record<string, any>>({});
   const [commonAnswers, setCommonAnswers] = useState<Record<string, any>>({});
+  const [pricingAnswers, setPricingAnswers] = useState<Record<string, any>>({});
 
   const toggleRole = (r: RoleOption) => {
     setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
@@ -48,6 +50,7 @@ export function InterestForm({ utm, onSuccess }: Props) {
     if (roles.includes("player")) steps.push("player");
     if (roles.includes("gm")) steps.push("gm");
     if (roles.includes("store")) steps.push("store");
+    steps.push("pricing");
     steps.push("common");
     return steps;
   };
@@ -117,6 +120,14 @@ export function InterestForm({ utm, onSuccess }: Props) {
       if (price && price !== "não pagaria") { likelyPaid = true; score += 15; }
     }
 
+    // Pricing perception boost
+    const fairness = pricingAnswers.price_fairness;
+    if (fairness === "Justo" || fairness === "Muito barato") { score += 15; likelyPaid = true; }
+    else if (fairness === "Um pouco caro") score += 5;
+
+    const idealRange = pricingAnswers.ideal_price_range;
+    if (idealRange && !idealRange.toLowerCase().includes("não pagaria")) score += 5;
+
     // Common
     const followup = commonAnswers.followup_conversation;
     if (followup === "sim") score += 10;
@@ -146,7 +157,10 @@ export function InterestForm({ utm, onSuccess }: Props) {
     setLoading(true);
     try {
       const scores = computeScores();
-      const { error } = await supabase.from("interest_leads").insert({
+
+      const wantsTrial = pricingAnswers.preferred_billing === "Usar grátis primeiro e decidir depois";
+
+      const { data: leadData, error } = await supabase.from("interest_leads").insert({
         name: name.trim(),
         email: email.trim().toLowerCase(),
         whatsapp: whatsapp.trim() || null,
@@ -162,8 +176,14 @@ export function InterestForm({ utm, onSuccess }: Props) {
         utm_source: utm.source || null,
         utm_medium: utm.medium || null,
         utm_campaign: utm.campaign || null,
+        pricing_feedback_json: pricingAnswers,
+        price_fairness_label: pricingAnswers.price_fairness || null,
+        preferred_billing_cycle: pricingAnswers.preferred_billing || null,
+        plan_objections_json: pricingAnswers.objections || [],
+        value_drivers_json: pricingAnswers.value_drivers || [],
+        wants_trial: wantsTrial,
         ...scores,
-      } as any);
+      } as any).select("id").single();
 
       if (error) {
         if (error.code === "23505") {
@@ -173,6 +193,23 @@ export function InterestForm({ utm, onSuccess }: Props) {
         }
         return;
       }
+
+      // Save detailed pricing feedback per role
+      if (leadData?.id && pricingAnswers.price_fairness) {
+        const feedbackRows = roles.map((role) => ({
+          lead_id: leadData.id,
+          role_context: role,
+          plan_presented: pricingAnswers.plan_evaluated || "",
+          perceived_price_position: pricingAnswers.price_fairness || null,
+          willingness_to_pay_range: pricingAnswers.ideal_price_range || null,
+          preferred_billing_cycle: pricingAnswers.preferred_billing || null,
+          main_value_drivers: pricingAnswers.value_drivers || [],
+          main_objections: pricingAnswers.objections || [],
+          comment: pricingAnswers.pricing_comment || null,
+        }));
+        await supabase.from("interest_pricing_feedback").insert(feedbackRows as any);
+      }
+
       onSuccess();
     } catch (err: any) {
       toast.error("Erro ao enviar. Tente novamente.");
@@ -275,6 +312,10 @@ export function InterestForm({ utm, onSuccess }: Props) {
             <StoreQuestions answers={storeAnswers} setAnswers={setStoreAnswers} />
           )}
 
+          {currentStepName === "pricing" && (
+            <PricingPerception roles={roles} answers={pricingAnswers} setAnswers={setPricingAnswers} />
+          )}
+
           {currentStepName === "common" && (
             <CommonQuestions answers={commonAnswers} setAnswers={setCommonAnswers} />
           )}
@@ -316,3 +357,4 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
     </div>
   );
 }
+
