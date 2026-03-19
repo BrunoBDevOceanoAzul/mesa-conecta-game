@@ -89,6 +89,8 @@ const ROLE_LABELS: Record<string, string> = {
   gm: "Mestre",
   store: "Loja / Luderia",
   brand: "Marca",
+  admin: "Admin",
+  advisor: "Conselheiro",
 };
 
 const defaultDiscount: DiscountFormData = {
