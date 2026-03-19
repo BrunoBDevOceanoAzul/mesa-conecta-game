@@ -57,6 +57,8 @@ export default function TableDetail() {
   const { preferences } = useUserPreferences();
   const [mesa, setMesa] = useState<Mesa | null>(null);
   const [loading, setLoading] = useState(true);
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const eligibility = useReviewEligibility(id);
 
   useEffect(() => {
     if (!id) return;
