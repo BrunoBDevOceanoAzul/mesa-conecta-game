@@ -77,6 +77,16 @@ export default function PlayerDashboard() {
       .then(({ data }) => {
         setMesas((data as Mesa[]) || []);
       });
+
+    // Fetch my bookings with table info
+    supabase
+      .from("bookings")
+      .select("id, game_table_id, status, game_tables(title, system_name)")
+      .eq("player_user_id", user.id)
+      .in("status", ["confirmed", "pending"])
+      .then(({ data }) => {
+        setMyBookings(data || []);
+      });
   }, [user]);
 
   const displayName = profile?.name || user?.user_metadata?.name || "Aventureiro";
