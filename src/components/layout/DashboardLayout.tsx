@@ -147,7 +147,8 @@ export function DashboardLayout({
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
+            <ChatBadge />
             <NotificationBell />
           </div>
         </header>
