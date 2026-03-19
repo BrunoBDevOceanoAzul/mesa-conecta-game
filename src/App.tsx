@@ -29,10 +29,12 @@ import TermsOfService from "./pages/TermsOfService";
 import MestrePublicProfile from "./pages/MestrePublicProfile";
 import LojaPublicProfile from "./pages/LojaPublicProfile";
 import Notifications from "./pages/Notifications";
+import Interesse from "./pages/Interesse";
 import AdminPainel from "./pages/admin/AdminPainel";
 import AdminInsights from "./pages/admin/AdminInsights";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
+import AdminCampaign from "./pages/admin/AdminCampaign";
 
 const queryClient = new QueryClient();
 
