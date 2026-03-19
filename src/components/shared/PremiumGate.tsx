@@ -1,6 +1,7 @@
 import { Lock, Crown, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { usePrivileges } from "@/hooks/use-privileges";
 
 interface PremiumGateProps {
   /** Feature name shown in the title */
@@ -17,9 +18,11 @@ interface PremiumGateProps {
 /**
  * Wraps premium content and shows a blocking overlay when the user
  * doesn't have an active subscription.
+ * Admin and Advisor always bypass the gate.
  */
 export function PremiumGate({ feature, description, allowed, loading, children }: PremiumGateProps) {
   const navigate = useNavigate();
+  const { isSuperUser } = usePrivileges();
 
   if (loading) {
     return (
@@ -31,7 +34,8 @@ export function PremiumGate({ feature, description, allowed, loading, children }
     );
   }
 
-  if (allowed) return <>{children}</>;
+  // Super users (admin/advisor) always see premium content
+  if (allowed || isSuperUser) return <>{children}</>;
 
   return (
     <div className="relative rounded-2xl border border-border bg-card overflow-hidden">
@@ -62,11 +66,14 @@ export function PremiumGate({ feature, description, allowed, loading, children }
 }
 
 /**
- * Inline banner for premium features — lighter than PremiumGate,
- * useful for showing a CTA inside existing sections.
+ * Inline banner for premium features — lighter than PremiumGate.
  */
 export function PremiumBanner({ message, ctaLabel }: { message?: string; ctaLabel?: string }) {
   const navigate = useNavigate();
+  const { isSuperUser } = usePrivileges();
+
+  // Don't show upgrade banners to super users
+  if (isSuperUser) return null;
 
   return (
     <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 flex items-center gap-3">

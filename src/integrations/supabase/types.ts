@@ -3809,10 +3809,12 @@ export type Database = {
         Returns: boolean
       }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_advisor: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
         Args: { _conversation_id: string; _user_id: string }
         Returns: boolean
       }
+      is_super_user: { Args: { _user_id: string }; Returns: boolean }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -3832,7 +3834,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "advisor"
       billing_interval: "monthly" | "quarterly" | "semiannual" | "annual"
       booking_status:
         | "pending"
@@ -3983,7 +3985,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "advisor"],
       billing_interval: ["monthly", "quarterly", "semiannual", "annual"],
       booking_status: [
         "pending",
