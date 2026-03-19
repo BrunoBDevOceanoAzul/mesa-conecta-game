@@ -237,9 +237,9 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
           <div>
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-3">Faixa de preço por jogador</h3>
             <div className="grid grid-cols-3 gap-3">
-              <PricePill label="Conservador" value={results.conservative} />
-              <PricePill label="Mercado" value={results.market} highlight />
-              <PricePill label="Premium" value={results.premium} accent />
+              <PricePill label="Conservador" value={results.conservative} onClick={onApplyPrice ? () => onApplyPrice(results.conservative, results.conservative) : undefined} />
+              <PricePill label="Mercado" value={results.market} highlight onClick={onApplyPrice ? () => onApplyPrice(results.conservative, results.market) : undefined} />
+              <PricePill label="Premium" value={results.premium} accent onClick={onApplyPrice ? () => onApplyPrice(results.market, results.premium) : undefined} />
             </div>
           </div>
 
