@@ -40,6 +40,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminCampaign from "./pages/admin/AdminCampaign";
 import AdminReviews from "./pages/admin/AdminReviews";
 import AdminSocialPublisher from "./pages/admin/AdminSocialPublisher";
+import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 const queryClient = new QueryClient();
 
