@@ -8,9 +8,12 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/shared/ShareModal";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
+import { useReviewEligibility } from "@/hooks/use-reviews";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw
+  Loader2, User, Monitor, Home, RefreshCw, Star
 } from "lucide-react";
 
 type Mesa = {
