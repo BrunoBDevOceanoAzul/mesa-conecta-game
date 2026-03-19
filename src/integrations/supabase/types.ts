@@ -2511,6 +2511,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          auth_provider: string | null
+          browser: string | null
+          city: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          ip_address: string | null
+          is_active: boolean
+          last_seen_at: string
+          os: string | null
+          session_token_hash: string | null
+          signed_in_at: string
+          signed_out_at: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_provider?: string | null
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean
+          last_seen_at?: string
+          os?: string | null
+          session_token_hash?: string | null
+          signed_in_at?: string
+          signed_out_at?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_provider?: string | null
+          browser?: string | null
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: string | null
+          is_active?: boolean
+          last_seen_at?: string
+          os?: string | null
+          session_token_hash?: string | null
+          signed_in_at?: string
+          signed_out_at?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       wallet_transactions: {
         Row: {
           amount: number
