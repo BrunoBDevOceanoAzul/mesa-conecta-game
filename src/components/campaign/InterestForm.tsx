@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { z } from "zod";
 import { PlayerQuestions } from "./steps/PlayerQuestions";
 import { GMQuestions } from "./steps/GMQuestions";
 import { StoreQuestions } from "./steps/StoreQuestions";
@@ -18,9 +19,41 @@ interface Props {
   onSuccess: () => void;
 }
 
+// ── WhatsApp mask helpers ──
+function formatWhatsApp(raw: string): string {
+  const digits = raw.replace(/\D/g, "").slice(0, 13); // max +55 11 99999-9999 = 13
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `+${digits}`;
+  if (digits.length <= 4) return `+${digits.slice(0, 2)} (${digits.slice(2)}`;
+  if (digits.length <= 9) return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4)}`;
+  return `+${digits.slice(0, 2)} (${digits.slice(2, 4)}) ${digits.slice(4, 9)}-${digits.slice(9)}`;
+}
+
+function stripWhatsApp(formatted: string): string {
+  return formatted.replace(/\D/g, "");
+}
+
+// ── Zod schemas ──
+const identitySchema = z.object({
+  name: z.string().trim().min(2, "Nome deve ter pelo menos 2 caracteres").max(100),
+  email: z.string().trim().email("E-mail inválido").max(255),
+  whatsapp: z.string()
+    .transform((v) => v.replace(/\D/g, ""))
+    .pipe(
+      z.string().refine(
+        (digits) => digits.length === 0 || (digits.length >= 12 && digits.length <= 13),
+        { message: "WhatsApp deve ter DDD + número completo (ex: +55 11 99999-9999)" }
+      )
+    ),
+  city: z.string().max(100).optional(),
+  state: z.string().max(2).optional(),
+  instagram: z.string().max(100).optional(),
+});
+
 export function InterestForm({ utm, onSuccess }: Props) {
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
   // Step 0 — identity
   const [name, setName] = useState("");
@@ -44,6 +77,11 @@ export function InterestForm({ utm, onSuccess }: Props) {
     setRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
   };
 
+  const handleWhatsAppChange = (raw: string) => {
+    setWhatsapp(formatWhatsApp(raw));
+    setFieldErrors((prev) => ({ ...prev, whatsapp: "" }));
+  };
+
   // Build dynamic step list
   const getSteps = () => {
     const steps = ["identity", "role"];
@@ -60,6 +98,21 @@ export function InterestForm({ utm, onSuccess }: Props) {
   const currentStepName = steps[step] || "identity";
   const progress = Math.round(((step + 1) / totalSteps) * 100);
 
+  const validateIdentity = (): boolean => {
+    const result = identitySchema.safeParse({ name, email, whatsapp, city, state, instagram });
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as string;
+        if (!errs[field]) errs[field] = issue.message;
+      });
+      setFieldErrors(errs);
+      return false;
+    }
+    setFieldErrors({});
+    return true;
+  };
+
   const canAdvance = () => {
     if (currentStepName === "identity") return name.trim() && email.trim() && email.includes("@");
     if (currentStepName === "role") return roles.length > 0;
@@ -75,7 +128,6 @@ export function InterestForm({ utm, onSuccess }: Props) {
     let likelyPaid = false;
     let likelyFounder = false;
 
-    // Player scoring
     if (roles.includes("player")) {
       const sub = playerAnswers.subscription_interest;
       if (sub === "sim") { score += 30; highIntent = true; }
@@ -88,7 +140,6 @@ export function InterestForm({ utm, onSuccess }: Props) {
       willingnessToPay = price || "";
     }
 
-    // GM scoring
     if (roles.includes("gm")) {
       const interest = gmAnswers.platform_interest;
       if (interest === "sim") { score += 30; highIntent = true; }
@@ -107,7 +158,6 @@ export function InterestForm({ utm, onSuccess }: Props) {
       if (!willingnessToPay) willingnessToPay = price || "";
     }
 
-    // Store scoring
     if (roles.includes("store")) {
       const interest = storeAnswers.platform_interest;
       if (interest === "sim") { score += 30; highIntent = true; }
@@ -120,7 +170,6 @@ export function InterestForm({ utm, onSuccess }: Props) {
       if (price && price !== "não pagaria") { likelyPaid = true; score += 15; }
     }
 
-    // Pricing perception boost
     const fairness = pricingAnswers.price_fairness;
     if (fairness === "Justo" || fairness === "Muito barato") { score += 15; likelyPaid = true; }
     else if (fairness === "Um pouco caro") score += 5;
@@ -128,13 +177,11 @@ export function InterestForm({ utm, onSuccess }: Props) {
     const idealRange = pricingAnswers.ideal_price_range;
     if (idealRange && !idealRange.toLowerCase().includes("não pagaria")) score += 5;
 
-    // Common
     const followup = commonAnswers.followup_conversation;
     if (followup === "sim") score += 10;
     const updates = commonAnswers.wants_updates;
     if (updates === "sim") score += 5;
 
-    // Cluster
     let cluster = "curioso";
     if (score >= 60) cluster = "early_adopter_forte";
     else if (score >= 40) cluster = "alto_interesse";
@@ -157,13 +204,13 @@ export function InterestForm({ utm, onSuccess }: Props) {
     setLoading(true);
     try {
       const scores = computeScores();
-
       const wantsTrial = pricingAnswers.preferred_billing === "Usar grátis primeiro e decidir depois";
+      const cleanWhatsapp = stripWhatsApp(whatsapp);
 
       const { data: leadData, error } = await supabase.from("interest_leads").insert({
         name: name.trim(),
         email: email.trim().toLowerCase(),
-        whatsapp: whatsapp.trim() || null,
+        whatsapp: cleanWhatsapp ? `+${cleanWhatsapp}` : null,
         city: city.trim() || null,
         state: state.trim() || null,
         instagram: instagram.trim() || null,
@@ -194,7 +241,6 @@ export function InterestForm({ utm, onSuccess }: Props) {
         return;
       }
 
-      // Save detailed pricing feedback per role
       if (leadData?.id && pricingAnswers.price_fairness) {
         const feedbackRows = roles.map((role) => ({
           lead_id: leadData.id,
@@ -220,6 +266,9 @@ export function InterestForm({ utm, onSuccess }: Props) {
   };
 
   const next = () => {
+    if (currentStepName === "identity") {
+      if (!validateIdentity()) return;
+    }
     if (step === totalSteps - 1) {
       handleSubmit();
     } else {
@@ -259,9 +308,24 @@ export function InterestForm({ utm, onSuccess }: Props) {
               <h3 className="text-h3 mb-2">Quem é você?</h3>
               <p className="text-body-sm text-muted-foreground mb-4">Informações básicas para te conhecermos melhor.</p>
 
-              <Field label="Nome *" value={name} onChange={setName} placeholder="Seu nome" />
-              <Field label="E-mail *" value={email} onChange={setEmail} placeholder="seu@email.com" type="email" />
-              <Field label="WhatsApp" value={whatsapp} onChange={setWhatsapp} placeholder="(11) 99999-9999" />
+              <Field label="Nome *" value={name} onChange={setName} placeholder="Seu nome" error={fieldErrors.name} />
+              <Field label="E-mail *" value={email} onChange={setEmail} placeholder="seu@email.com" type="email" error={fieldErrors.email} />
+              <div>
+                <label className="field-label">WhatsApp</label>
+                <Input
+                  type="tel"
+                  value={whatsapp}
+                  onChange={(e) => handleWhatsAppChange(e.target.value)}
+                  placeholder="+55 (11) 99999-9999"
+                  className="mt-1.5"
+                />
+                {fieldErrors.whatsapp && (
+                  <p className="text-xs text-destructive mt-1">{fieldErrors.whatsapp}</p>
+                )}
+                <p className="text-[11px] text-muted-foreground mt-1">
+                  Usamos apenas para validar seu acesso e enviar atualizações importantes.
+                </p>
+              </div>
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Cidade" value={city} onChange={setCity} placeholder="São Paulo" />
                 <Field label="Estado" value={state} onChange={setState} placeholder="SP" />
@@ -341,8 +405,8 @@ export function InterestForm({ utm, onSuccess }: Props) {
   );
 }
 
-function Field({ label, value, onChange, placeholder, type = "text" }: {
-  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
+function Field({ label, value, onChange, placeholder, type = "text", error }: {
+  label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string; error?: string;
 }) {
   return (
     <div>
@@ -352,8 +416,9 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="mt-1.5"
+        className={`mt-1.5 ${error ? "border-destructive" : ""}`}
       />
+      {error && <p className="text-xs text-destructive mt-1">{error}</p>}
     </div>
   );
 }
