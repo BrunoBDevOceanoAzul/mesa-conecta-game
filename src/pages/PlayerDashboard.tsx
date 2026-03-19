@@ -54,7 +54,7 @@ export default function PlayerDashboard() {
   const planLabel = sub.plan?.name || null;
   const [profile, setProfile] = useState<{ name?: string; city?: string; lat?: number; lng?: number } | null>(null);
   const [mesas, setMesas] = useState<Mesa[]>([]);
-
+  const [myBookings, setMyBookings] = useState<any[]>([]);
   useEffect(() => {
     if (!user) return;
     supabase
