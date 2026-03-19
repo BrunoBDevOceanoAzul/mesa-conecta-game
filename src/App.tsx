@@ -64,6 +64,7 @@ const App = () => (
               <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
               <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
               <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/marca" element={<ProtectedRoute allowedRoles={["brand"]}><BrandDashboard /></ProtectedRoute>} />
               <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
               <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
               <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
