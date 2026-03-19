@@ -242,12 +242,18 @@ export default function Checkout() {
     if (!resolvedPlan || !user) return;
     setSubmitting(true);
     try {
-      // Create a subscription record directly for free plans
       const now = new Date();
       const periodEnd = new Date(now);
       periodEnd.setMonth(periodEnd.getMonth() + 1);
 
-      const { error } = await supabase.from("subscriptions").upsert({
+      // Delete any existing free/inactive subscriptions for this user first
+      await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("user_id", user.id)
+        .eq("price_cents", 0);
+
+      const { error } = await supabase.from("subscriptions").insert({
         user_id: user.id,
         plan_id: resolvedPlan.id,
         plan_name: resolvedPlan.name,
@@ -257,7 +263,7 @@ export default function Checkout() {
         current_period_start: now.toISOString(),
         current_period_end: periodEnd.toISOString(),
         cancel_at_period_end: false,
-      }, { onConflict: "user_id" });
+      });
 
       if (error) throw error;
 
