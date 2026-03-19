@@ -536,6 +536,19 @@ export default function StoreDashboard() {
           </div>
         )}
 
+        {/* ─── REVIEWS ─── */}
+        {tab === "reviews" && (
+          <div className="space-y-6">
+            <div>
+              <h2 className="text-base font-display font-semibold text-foreground flex items-center gap-2">
+                <Star className="h-5 w-5 text-secondary" /> Avaliações da Luderia
+              </h2>
+              <p className="text-xs text-muted-foreground mt-1">Veja o que os jogadores dizem sobre seu espaço.</p>
+            </div>
+            <ReviewsList reviewedUserId={user?.id} reviewType="store" showReputation />
+          </div>
+        )}
+
         {/* ─── FEED ─── */}
         {tab === "feed" && (
           <div className="space-y-5">
