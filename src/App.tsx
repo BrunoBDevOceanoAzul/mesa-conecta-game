@@ -43,37 +43,39 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/cadastro" element={<Signup />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/erro" element={<ErrorPage />} />
-            <Route path="/privacidade" element={<PrivacyPolicy />} />
-            <Route path="/termos" element={<TermsOfService />} />
-            <Route path="/~oauth" element={<OAuthCallback />} />
-            <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-            <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
-            <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
-            <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
-            <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
-            <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
-            <Route path="/feed" element={<Feed />} />
-            <Route path="/post/:slug" element={<PostDetail />} />
-            <Route path="/explorar" element={<ExploreMesas />} />
-            <Route path="/buscar" element={<ExploreMesas />} />
-            <Route path="/mesa/:id" element={<TableDetail />} />
-            <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
-            <Route path="/loja/:slug" element={<LojaPublicProfile />} />
-            {/* Admin routes */}
-            <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPainel /></ProtectedRoute>} />
-            <Route path="/admin/insights" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInsights /></ProtectedRoute>} />
-            <Route path="/admin/usuarios" element={<ProtectedRoute allowedRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
-            <Route path="/admin/configuracoes" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSettings /></ProtectedRoute>} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <ErrorBoundary>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/cadastro" element={<Signup />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="/erro" element={<ErrorPage />} />
+              <Route path="/privacidade" element={<PrivacyPolicy />} />
+              <Route path="/termos" element={<TermsOfService />} />
+              <Route path="/~oauth" element={<OAuthCallback />} />
+              <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+              <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
+              <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
+              <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
+              <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
+              <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />
+              <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+              <Route path="/feed" element={<Feed />} />
+              <Route path="/post/:slug" element={<PostDetail />} />
+              <Route path="/explorar" element={<ExploreMesas />} />
+              <Route path="/buscar" element={<ExploreMesas />} />
+              <Route path="/mesa/:id" element={<TableDetail />} />
+              <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
+              <Route path="/loja/:slug" element={<LojaPublicProfile />} />
+              {/* Admin routes */}
+              <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPainel /></ProtectedRoute>} />
+              <Route path="/admin/insights" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInsights /></ProtectedRoute>} />
+              <Route path="/admin/usuarios" element={<ProtectedRoute allowedRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
+              <Route path="/admin/configuracoes" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSettings /></ProtectedRoute>} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </ErrorBoundary>
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

@@ -16,6 +16,7 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const [roleLoading, setRoleLoading] = useState(!!allowedRoles);
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     if (!allowedRoles || !user) {
@@ -24,17 +25,22 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     }
 
     const checkAccess = async () => {
-      const [profileRes, adminRes] = await Promise.all([
-        supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
-        // Check admin via the security definer function
-        allowedRoles.includes("admin")
-          ? supabase.rpc("is_admin", { _user_id: user.id })
-          : Promise.resolve({ data: false }),
-      ]);
+      try {
+        const [profileRes, adminRes] = await Promise.all([
+          supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
+          allowedRoles.includes("admin")
+            ? supabase.rpc("is_admin", { _user_id: user.id })
+            : Promise.resolve({ data: false }),
+        ]);
 
-      setUserRole(profileRes.data?.role || null);
-      setIsAdmin(!!adminRes.data);
-      setRoleLoading(false);
+        setUserRole(profileRes.data?.role || null);
+        setIsAdmin(!!adminRes.data);
+      } catch (err) {
+        console.warn("[ProtectedRoute] Error checking access:", err);
+        setError(true);
+      } finally {
+        setRoleLoading(false);
+      }
     };
 
     checkAccess();
@@ -50,6 +56,11 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   if (!user) {
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  // If there was an error checking roles, redirect to a safe page
+  if (error && allowedRoles) {
+    return <Navigate to="/" replace />;
   }
 
   // Role-based guard
