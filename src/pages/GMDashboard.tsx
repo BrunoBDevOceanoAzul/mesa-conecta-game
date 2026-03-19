@@ -24,8 +24,9 @@ import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { useGMReviews } from "@/hooks/use-reviews";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
+import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 
-type Mesa = Tables<"mesas">;
+type Mesa = any;
 
 const navItems = [
   { label: "Início", path: "/dashboard/mestre", icon: <Crown className="h-4 w-4" /> },
