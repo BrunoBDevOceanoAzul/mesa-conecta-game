@@ -20,6 +20,9 @@ import { IncomeGoalTracker } from "@/components/gm/IncomeGoalTracker";
 import { ShareAnalyticsPanel } from "@/components/gm/ShareAnalyticsPanel";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
+import { ReviewsList } from "@/components/reviews/ReviewsList";
+import { ReputationBadge } from "@/components/reviews/ReputationBadge";
+import { useGMReviews } from "@/hooks/use-reviews";
 
 type Mesa = Tables<"mesas">;
 
