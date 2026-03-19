@@ -357,7 +357,7 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
     </div>
   );
 }
-      <Input
+
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
