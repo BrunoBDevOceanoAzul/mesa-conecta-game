@@ -25,6 +25,7 @@ export default {
       colors: {
         border: "hsl(var(--border))",
         "border-strong": "hsl(var(--border-strong))",
+        "border-warm": "hsl(var(--border-warm))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -137,6 +138,8 @@ export default {
         xl: "var(--shadow-xl)",
         "glow-primary": "var(--glow-primary)",
         "glow-gold": "var(--glow-gold)",
+        "glow-coral": "var(--glow-coral)",
+        "glow-teal": "var(--glow-teal)",
         "glow-primary-strong": "var(--glow-primary-strong)",
         "glow-cta": "var(--glow-cta)",
         none: "none",
@@ -167,8 +170,8 @@ export default {
           to: { opacity: "1", transform: "translateX(0)" },
         },
         "pulse-glow": {
-          "0%, 100%": { boxShadow: "0 0 20px hsl(270 48% 49% / 0.1)" },
-          "50%": { boxShadow: "0 0 40px hsl(270 48% 49% / 0.2)" },
+          "0%, 100%": { boxShadow: "0 0 20px hsl(270 48% 49% / 0.08)" },
+          "50%": { boxShadow: "0 0 40px hsl(270 48% 49% / 0.16)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0)" },
