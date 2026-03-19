@@ -193,8 +193,8 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
       // Decrement seats
       await supabase
-        .from("mesas" as any)
-        .update({ seats_available: mesa.seats_available - 1 } as any)
+        .from("mesas")
+        .update({ seats_available: mesa.seats_available - 1 })
         .eq("id", mesa.id);
 
       setStep("success");

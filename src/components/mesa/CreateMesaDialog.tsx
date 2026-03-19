@@ -296,6 +296,60 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <Input type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="0" />
             </div>
           </div>
+          {/* Stripe fee breakdown */}
+          {Number(minPrice) > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 p-4 -mt-1 space-y-2">
+              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">💰 Simulação de repasse Stripe</p>
+              {(() => {
+                const price = Number(minPrice);
+                const stripeFee = price * 0.0399 + 0.39; // Stripe BR: 3.99% + R$0.39
+                const platformFee = price * 0.10; // 10% HIVIUM take rate
+                const totalFees = stripeFee + platformFee;
+                const gmReceives = price - totalFees;
+                const suggestedPrice = Math.ceil((price + totalFees) / 0.50) * 0.50; // round up
+                return (
+                  <div className="space-y-1.5">
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Valor cobrado do jogador</span>
+                      <span className="font-medium text-foreground">R${price.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Taxa Stripe (3,99% + R$0,39)</span>
+                      <span className="text-destructive font-medium">-R${stripeFee.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Taxa HIVIUM (10%)</span>
+                      <span className="text-destructive font-medium">-R${platformFee.toFixed(2)}</span>
+                    </div>
+                    <div className="border-t border-amber-200 dark:border-amber-800 pt-1.5 flex justify-between text-xs">
+                      <span className="font-semibold text-foreground">Você recebe</span>
+                      <span className="font-bold text-secondary">R${gmReceives.toFixed(2)}</span>
+                    </div>
+                    {suggestedPrice > price && (
+                      <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 p-2.5 flex items-center justify-between">
+                        <div>
+                          <p className="text-[11px] text-primary font-medium">Sugestão: cobre R${suggestedPrice.toFixed(2)}</p>
+                          <p className="text-[10px] text-muted-foreground">Para receber ~R${(suggestedPrice - (suggestedPrice * 0.0399 + 0.39) - suggestedPrice * 0.10).toFixed(2)} líquido</p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="text-xs h-7"
+                          onClick={() => {
+                            setMinPrice(suggestedPrice.toFixed(2));
+                            setMaxPrice(suggestedPrice.toFixed(2));
+                          }}
+                        >
+                          Aplicar
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+          )}
           <p className="text-xs text-muted-foreground -mt-3">
             Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
           </p>

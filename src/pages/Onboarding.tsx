@@ -250,7 +250,17 @@ export default function Onboarding() {
     }
   };
 
-  const handleContinueToDashboard = () => {
+  const handleContinueToDashboard = async () => {
+    // Auto-create Stripe Connect account for GMs and Stores
+    const dbRole = effectiveRole === "mestre" ? "gm" : effectiveRole === "loja" ? "store" : null;
+    if (dbRole && (dbRole === "gm" || dbRole === "store")) {
+      try {
+        await supabase.functions.invoke("create-connect-account");
+      } catch (err) {
+        console.warn("[Onboarding] Connect account auto-creation failed (non-blocking):", err);
+      }
+    }
+
     const dashMap: Record<RoleKey, string> = {
       jogador: "/dashboard/jogador",
       mestre: "/dashboard/mestre",
