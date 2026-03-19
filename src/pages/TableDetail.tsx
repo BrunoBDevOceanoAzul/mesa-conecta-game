@@ -371,7 +371,13 @@ export default function TableDetail() {
 
               {/* Reserve button */}
               {mesa.status === "aberta" && mesa.seats_available > 0 ? (
-                <Button variant="hero" size="lg" className="w-full text-base" onClick={() => navigate(`/checkout/${mesa.id}`)}>
+                <Button variant="hero" size="lg" className="w-full text-base" onClick={() => {
+                  if (!user) {
+                    navigate("/login");
+                    return;
+                  }
+                  setBookingOpen(true);
+                }}>
                   Reservar Vaga
                 </Button>
               ) : (
