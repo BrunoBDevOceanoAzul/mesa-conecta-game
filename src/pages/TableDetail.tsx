@@ -14,6 +14,7 @@ import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useReviewEligibility } from "@/hooks/use-reviews";
 import { PlayerPreparationBlock } from "@/components/mesa/PlayerPreparationBlock";
 import { PreparationSetupPanel } from "@/components/mesa/PreparationSetupPanel";
+import { MesaLiveChat } from "@/components/mesa/MesaLiveChat";
 import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
