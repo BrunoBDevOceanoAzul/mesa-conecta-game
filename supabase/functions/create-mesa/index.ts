@@ -62,7 +62,7 @@ serve(async (req) => {
     const {
       title, description, system, session_type, format,
       city, venue, min_price, max_price, seats_total,
-      start_at, tags, image_url, play_styles, store_id,
+      start_at, end_at, tags, image_url, cover_image_url, play_styles, store_id,
     } = body;
 
     if (!title || !system || !session_type || !format || !start_at) {
