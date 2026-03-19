@@ -244,7 +244,7 @@ export default function LojaPublicProfile() {
           {tables.length > 0 ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {tables.map((t: any) => {
-                const gmName = (t as any).profiles?.display_name || (t as any).profiles?.name || "Mestre";
+              const gmName = "Mestre";
                 return (
                   <MesaCard
                     key={t.id}
