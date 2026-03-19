@@ -65,7 +65,7 @@ export default function GMDashboard() {
   const [tab, setTab] = useState<Tab>("overview");
   const displayName = user?.user_metadata?.name || "Mestre";
   const isPremium = sub.isActive;
-
+  const gmReviews = useGMReviews(user?.id);
   // Real mesas
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loadingMesas, setLoadingMesas] = useState(true);
