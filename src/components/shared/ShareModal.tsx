@@ -132,6 +132,17 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
           </div>
         </div>
 
+        {/* OG Image Preview */}
+        <div className="mb-4 rounded-lg overflow-hidden border border-border bg-muted/30">
+          <img
+            src={ogImageUrl}
+            alt="Preview do link"
+            className="w-full h-auto"
+            onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+          />
+          <p className="px-3 py-1.5 text-[10px] text-muted-foreground">Preview ao compartilhar nas redes sociais</p>
+        </div>
+
         {/* Social channels */}
         <div className="grid grid-cols-2 gap-3 mb-6">
           {channels.map((ch) => (
