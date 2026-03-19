@@ -16,6 +16,7 @@ import PlayerDashboard from "./pages/PlayerDashboard";
 import GMDashboard from "./pages/GMDashboard";
 import StoreDashboard from "./pages/StoreDashboard";
 import Feed from "./pages/Feed";
+import PostDetail from "./pages/PostDetail";
 import ExploreMesas from "./pages/ExploreMesas";
 import TableDetail from "./pages/TableDetail";
 import Checkout from "./pages/Checkout";
