@@ -252,7 +252,7 @@ export default function ExploreMesas() {
 
               {/* Format */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Formato</label>
+                <label className="field-label mb-1.5 block">Formato</label>
                 <div className="flex gap-1.5">
                   {FORMATS.map((f) => (
                     <button
