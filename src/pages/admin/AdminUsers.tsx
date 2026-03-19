@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/sheet";
 import {
   Users, Search, Filter, Eye, Shield, Crown, Store, Gamepad2,
-  CheckCircle2, XCircle, Mail, MapPin, Calendar, CreditCard, Star
+  CheckCircle2, XCircle, Mail, MapPin, Calendar, CreditCard, Star,
+  Trophy, Layers, DollarSign
 } from "lucide-react";
 
 interface UserRow {
