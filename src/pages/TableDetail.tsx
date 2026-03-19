@@ -179,6 +179,19 @@ export default function TableDetail() {
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
       </div>
 
+      {/* Booking success banner */}
+      {bookingSuccess && (
+        <div className="mb-4 rounded-xl border border-secondary/30 bg-secondary/10 p-4 flex items-center gap-3">
+          <div className="h-10 w-10 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+            <Sparkles className="h-5 w-5 text-secondary" />
+          </div>
+          <div>
+            <p className="text-sm font-semibold text-foreground">Pagamento confirmado! 🎉</p>
+            <p className="text-xs text-muted-foreground">Sua vaga na mesa <strong>{mesa.title}</strong> foi reservada com sucesso.</p>
+          </div>
+        </div>
+      )}
+
       <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
         {/* Back */}
         <button
