@@ -4,6 +4,7 @@ import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ChatBadge } from "@/components/chat/ChatBadge";
 import logoImg from "@/assets/hivium-logo.png";
 
 interface NavItem {
