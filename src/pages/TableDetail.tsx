@@ -191,8 +191,28 @@ export default function TableDetail() {
                       {tag}
                     </span>
                   ))}
-                </div>
-              </div>
+            </div>
+
+            {/* Reviews section */}
+            <div className="mt-8">
+              {eligibility.eligible && (
+                <Button
+                  variant="hero"
+                  size="sm"
+                  className="mb-4 gap-2"
+                  onClick={() => setReviewOpen(true)}
+                >
+                  <Star className="h-4 w-4" /> Avaliar esta mesa
+                </Button>
+              )}
+              {eligibility.alreadyReviewed && (
+                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1">
+                  <Star className="h-3 w-3 text-secondary" /> Você já avaliou esta sessão
+                </p>
+              )}
+              <ReviewsList reviewedTableId={id} reviewType="table" />
+            </div>
+          </div>
             )}
           </div>
 
