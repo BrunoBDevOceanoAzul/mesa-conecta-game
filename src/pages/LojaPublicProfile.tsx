@@ -81,7 +81,7 @@ export default function LojaPublicProfile() {
 
     const [storeRes, tablesRes, badgesRes] = await Promise.all([
       supabase.from("store_profiles").select("*").eq("user_id", profile.user_id).maybeSingle(),
-      supabase.from("game_tables").select("*, profiles!game_tables_gm_user_id_fkey(display_name, name)").eq("store_user_id", profile.user_id).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
+      supabase.from("game_tables").select("*").eq("store_user_id", profile.user_id).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
       supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profile.user_id).limit(12),
     ]);
 
