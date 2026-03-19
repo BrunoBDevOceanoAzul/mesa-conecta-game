@@ -8,10 +8,11 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useSubscription } from "@/hooks/use-subscription";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock } from "lucide-react";
+import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 const navItems = [
   { label: "Início", path: "/dashboard/jogador", icon: <Gamepad2 className="h-4 w-4" /> },
