@@ -358,7 +358,6 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
   );
 }
 
-function Field({ label, value, onChange, placeholder, type = "text" }: {
   label: string; value: string; onChange: (v: string) => void; placeholder?: string; type?: string;
 }) {
   return (
