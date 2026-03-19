@@ -1470,6 +1470,63 @@ export type Database = {
         }
         Relationships: []
       }
+      feedback_email_queue: {
+        Row: {
+          created_at: string
+          feedback_type: string
+          game_table_id: string
+          id: string
+          recipient_email: string
+          recipient_user_id: string
+          responded_at: string | null
+          sent_at: string | null
+          status: string
+          table_session_id: string | null
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          feedback_type: string
+          game_table_id: string
+          id?: string
+          recipient_email: string
+          recipient_user_id: string
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string
+          table_session_id?: string | null
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          feedback_type?: string
+          game_table_id?: string
+          id?: string
+          recipient_email?: string
+          recipient_user_id?: string
+          responded_at?: string | null
+          sent_at?: string | null
+          status?: string
+          table_session_id?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_email_queue_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "feedback_email_queue_table_session_id_fkey"
+            columns: ["table_session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       form_performance_metrics: {
         Row: {
           abandonment_rate: number | null
@@ -3085,6 +3142,153 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      session_feedback: {
+        Row: {
+          communication_rating: number | null
+          created_at: string
+          creativity_rating: number | null
+          engagement_rating: number | null
+          favorite_npc: string | null
+          game_table_id: string
+          highlights: string | null
+          id: string
+          improvement_suggestions: string | null
+          is_anonymous: boolean
+          npc_impressions: string | null
+          overall_rating: number
+          player_behavior_notes: string | null
+          player_preparedness: number | null
+          punctuality_rating: number | null
+          review_type: string
+          reviewed_user_id: string
+          reviewer_user_id: string
+          table_session_id: string | null
+          updated_at: string
+          would_play_again: boolean | null
+        }
+        Insert: {
+          communication_rating?: number | null
+          created_at?: string
+          creativity_rating?: number | null
+          engagement_rating?: number | null
+          favorite_npc?: string | null
+          game_table_id: string
+          highlights?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          is_anonymous?: boolean
+          npc_impressions?: string | null
+          overall_rating: number
+          player_behavior_notes?: string | null
+          player_preparedness?: number | null
+          punctuality_rating?: number | null
+          review_type: string
+          reviewed_user_id: string
+          reviewer_user_id: string
+          table_session_id?: string | null
+          updated_at?: string
+          would_play_again?: boolean | null
+        }
+        Update: {
+          communication_rating?: number | null
+          created_at?: string
+          creativity_rating?: number | null
+          engagement_rating?: number | null
+          favorite_npc?: string | null
+          game_table_id?: string
+          highlights?: string | null
+          id?: string
+          improvement_suggestions?: string | null
+          is_anonymous?: boolean
+          npc_impressions?: string | null
+          overall_rating?: number
+          player_behavior_notes?: string | null
+          player_preparedness?: number | null
+          punctuality_rating?: number | null
+          review_type?: string
+          reviewed_user_id?: string
+          reviewer_user_id?: string
+          table_session_id?: string | null
+          updated_at?: string
+          would_play_again?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_feedback_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_feedback_table_session_id_fkey"
+            columns: ["table_session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_npcs: {
+        Row: {
+          created_at: string
+          game_table_id: string
+          gm_notes: string | null
+          gm_user_id: string
+          id: string
+          npc_concept: string | null
+          npc_name: string
+          npc_role: string | null
+          player_impressions_json: Json | null
+          popularity_score: number | null
+          table_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          game_table_id: string
+          gm_notes?: string | null
+          gm_user_id: string
+          id?: string
+          npc_concept?: string | null
+          npc_name: string
+          npc_role?: string | null
+          player_impressions_json?: Json | null
+          popularity_score?: number | null
+          table_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          game_table_id?: string
+          gm_notes?: string | null
+          gm_user_id?: string
+          id?: string
+          npc_concept?: string | null
+          npc_name?: string
+          npc_role?: string | null
+          player_impressions_json?: Json | null
+          popularity_score?: number | null
+          table_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_npcs_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_npcs_table_session_id_fkey"
+            columns: ["table_session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       store_profiles: {
         Row: {
