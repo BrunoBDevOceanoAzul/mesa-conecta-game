@@ -68,8 +68,25 @@ const roleOptions: RoleOption[] = [
     label: "Jogador que também mestra",
     desc: "Jogo com frequência, mas também posso abrir mesas como mestre.",
   },
+  {
+    id: "store",
+    role: "store",
+    canPlay: false,
+    canGm: false,
+    icon: Store,
+    label: "Loja / Luderia",
+    desc: "Quero organizar mesas, eventos e trazer a comunidade para minha casa.",
+  },
+  {
+    id: "brand",
+    role: "brand",
+    canPlay: false,
+    canGm: false,
+    icon: Megaphone,
+    label: "Marca / Patrocinador",
+    desc: "Quero alcançar a comunidade tabletop com campanhas e parcerias.",
+  },
 ];
-
 const roleToDash: Record<string, string> = {
   player: "/onboarding/jogador",
   gm: "/onboarding/mestre",
