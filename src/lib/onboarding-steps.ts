@@ -186,12 +186,28 @@ export const playerSteps: OnboardingStep[] = [
 // ─── MESTRE ───────────────────────────────────────────
 export const gmSteps: OnboardingStep[] = [
   {
+    id: "gm-format",
+    title: "Como você prefere abrir suas mesas?",
+    subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
+    microcopy: "Vamos adaptar a plataforma ao seu estilo de operação.",
+    type: "cards-single",
+    field: "preferred_format",
+    options: [
+      { label: "Online", icon: "Monitor", description: "Mestrar de qualquer lugar" },
+      { label: "Presencial", icon: "MapPin", description: "Mesas com presença física" },
+      { label: "Híbrido", icon: "Blend", description: "Flexibilidade total" },
+    ],
+    required: true,
+  },
+  {
     id: "gm-city",
-    title: "Onde você atua?",
-    subtitle: "Jogadores próximos encontram você mais fácil",
+    title: "Em que cidade ou região você atua?",
+    subtitle: "Jogadores próximos encontram você mais facilmente",
+    microcopy: "Sua presença online também será visível. Pode ajustar depois.",
     type: "city-autocomplete",
     field: "city",
-    required: true,
+    required: false,
+    conditionalOn: { field: "preferred_format", values: ["Presencial", "Híbrido"] },
   },
   {
     id: "gm-systems",
