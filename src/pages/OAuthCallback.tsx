@@ -14,7 +14,6 @@ export default function OAuthCallback() {
 
     const run = async () => {
       try {
-        // Wait for Supabase to exchange tokens from URL hash
         const { data: { session }, error } = await supabase.auth.getSession();
 
         if (error) {
@@ -26,29 +25,27 @@ export default function OAuthCallback() {
         if (session?.user) {
           // Small delay to let the handle_new_user trigger complete
           await new Promise((r) => setTimeout(r, 800));
-          const dest = await resolveRedirect(session.user.id, session.user.user_metadata?.role);
+          const dest = await resolveRedirect(session.user.id);
           navigate(dest, { replace: true });
           return;
         }
 
-        // If no session yet, listen for the auth state change (token exchange in progress)
+        // If no session yet, listen for the auth state change
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
             if (event === "SIGNED_IN" && session?.user) {
               subscription.unsubscribe();
-              // Small delay to let the handle_new_user trigger complete
               await new Promise((r) => setTimeout(r, 800));
               try {
-                const dest = await resolveRedirect(session.user.id, session.user.user_metadata?.role);
+                const dest = await resolveRedirect(session.user.id);
                 navigate(dest, { replace: true });
               } catch {
-                navigate("/onboarding/jogador", { replace: true });
+                navigate("/onboarding", { replace: true });
               }
             }
           }
         );
 
-        // Timeout → back to login
         setTimeout(() => {
           subscription.unsubscribe();
           navigate("/login", { replace: true });
