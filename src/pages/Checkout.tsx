@@ -573,13 +573,23 @@ export default function Checkout() {
                         <p className="text-xs text-muted-foreground line-through">{formatBRL(priceTotal)}</p>
                       )}
                       <p className="text-xl font-display font-bold text-foreground">
-                        {formatBRL(discountedTotal)}
+                        {discountedTotal === 0 ? "Grátis" : formatBRL(discountedTotal)}
                       </p>
                     </div>
                   </div>
 
+                  {/* First mesa free notice */}
+                  {resolvedPlan && resolvedPlan.price_monthly === 0 && isFirstMesa && (
+                    <div className="rounded-lg bg-secondary/10 border border-secondary/20 px-3 py-2 flex items-center gap-2">
+                      <Sparkles className="h-3.5 w-3.5 text-secondary" />
+                      <span className="text-xs text-secondary font-medium">
+                        Sua primeira mesa é por nossa conta! Jogue grátis e conheça a plataforma.
+                      </span>
+                    </div>
+                  )}
+
                   {/* Trial notice */}
-                  {resolvedPlan && resolvedPlan.trial_days && resolvedPlan.trial_days > 0 && (
+                  {resolvedPlan && resolvedPlan.trial_days && resolvedPlan.trial_days > 0 && resolvedPlan.price_monthly > 0 && (
                     <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 flex items-center gap-2">
                       <Calendar className="h-3.5 w-3.5 text-primary" />
                       <span className="text-xs text-primary font-medium">
@@ -611,7 +621,7 @@ export default function Checkout() {
                     variant="gradient"
                     size="lg"
                     className="w-full gap-2"
-                    disabled={submitting || !resolvedPlan?.stripe_price_id}
+                    disabled={submitting || (resolvedPlan?.price_monthly !== 0 && !resolvedPlan?.stripe_price_id)}
                     onClick={handleCheckout}
                   >
                     {submitting ? (
@@ -619,10 +629,15 @@ export default function Checkout() {
                     ) : (
                       <ArrowRight className="h-4 w-4" />
                     )}
-                    {submitting ? "Redirecionando…" : "Finalizar assinatura"}
+                    {submitting
+                      ? "Redirecionando…"
+                      : resolvedPlan?.price_monthly === 0
+                        ? "Ativar plano gratuito"
+                        : "Finalizar assinatura"
+                    }
                   </Button>
 
-                  {!resolvedPlan?.stripe_price_id && resolvedPlan && (
+                  {!resolvedPlan?.stripe_price_id && resolvedPlan && resolvedPlan.price_monthly > 0 && (
                     <p className="text-xs text-destructive text-center">
                       Plano indisponível para este ciclo. Escolha outro.
                     </p>
