@@ -61,6 +61,7 @@ const App = () => (
             <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
             {/* Admin routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPainel /></ProtectedRoute>} />
+            <Route path="/admin/insights" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInsights /></ProtectedRoute>} />
             <Route path="/admin/usuarios" element={<ProtectedRoute allowedRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
             <Route path="/admin/configuracoes" element={<ProtectedRoute allowedRoles={["admin"]}><AdminSettings /></ProtectedRoute>} />
             <Route path="*" element={<NotFound />} />
