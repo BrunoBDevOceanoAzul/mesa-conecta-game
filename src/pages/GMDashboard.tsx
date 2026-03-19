@@ -73,7 +73,7 @@ export default function GMDashboard() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loadingMesas, setLoadingMesas] = useState(true);
 
-  useEffect(() => {
+  const fetchMesas = () => {
     if (!user) return;
     supabase
       .from("mesas")
@@ -84,6 +84,10 @@ export default function GMDashboard() {
         setMesas(data || []);
         setLoadingMesas(false);
       });
+  };
+
+  useEffect(() => {
+    fetchMesas();
   }, [user]);
 
   // Derived stats
