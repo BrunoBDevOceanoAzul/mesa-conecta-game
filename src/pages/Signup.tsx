@@ -139,6 +139,9 @@ export default function Signup() {
     setSelectedId(option.id);
     setLoading(true);
 
+    const canManageStore = option.role === "store";
+    const canManageBrand = option.role === "brand";
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -148,6 +151,8 @@ export default function Signup() {
           role: option.role,
           can_play: option.canPlay,
           can_gm: option.canGm,
+          can_manage_store: canManageStore,
+          can_manage_brand: canManageBrand,
         },
         emailRedirectTo: window.location.origin,
       },
@@ -167,13 +172,18 @@ export default function Signup() {
     }
 
     if (data.session) {
-      // Update profile with can_play/can_gm
+      // Update profile with capabilities
       await supabase
         .from("profiles")
-        .update({ can_play: option.canPlay, can_gm: option.canGm } as any)
+        .update({ 
+          can_play: option.canPlay, 
+          can_gm: option.canGm,
+          can_manage_store: canManageStore,
+          can_manage_brand: canManageBrand,
+        } as any)
         .eq("user_id", data.user!.id);
 
-      navigate(roleToDash[option.role] || "/onboarding/jogador");
+      navigate(roleToDash[option.role] || "/onboarding");
     }
 
     setLoading(false);
