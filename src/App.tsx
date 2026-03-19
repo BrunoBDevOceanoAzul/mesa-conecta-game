@@ -39,7 +39,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminCampaign from "./pages/admin/AdminCampaign";
 import AdminReviews from "./pages/admin/AdminReviews";
-
+import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 const queryClient = new QueryClient();
 
 const App = () => (
