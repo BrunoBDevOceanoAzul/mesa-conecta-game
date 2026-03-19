@@ -226,13 +226,12 @@ export default function ExploreMesas() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {/* System */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Sistema</label>
+                <label className="field-label mb-1.5 block">Sistema</label>
                 <select
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="field-input"
                 >
                   <option value="">Todos os sistemas</option>
                   {availableSystems.map((s) => (
