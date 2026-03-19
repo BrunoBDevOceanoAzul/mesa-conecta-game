@@ -2541,6 +2541,8 @@ export type Database = {
           brand_objective: string | null
           budget_range: string | null
           can_gm: boolean
+          can_manage_brand: boolean
+          can_manage_store: boolean
           can_play: boolean
           city: string | null
           country: string | null
@@ -2599,6 +2601,8 @@ export type Database = {
           brand_objective?: string | null
           budget_range?: string | null
           can_gm?: boolean
+          can_manage_brand?: boolean
+          can_manage_store?: boolean
           can_play?: boolean
           city?: string | null
           country?: string | null
@@ -2657,6 +2661,8 @@ export type Database = {
           brand_objective?: string | null
           budget_range?: string | null
           can_gm?: boolean
+          can_manage_brand?: boolean
+          can_manage_store?: boolean
           can_play?: boolean
           city?: string | null
           country?: string | null
@@ -3162,6 +3168,7 @@ export type Database = {
           amount_off: number | null
           applies_to_plan_id: string | null
           applies_to_role: string | null
+          billing_cycles_remaining: number | null
           created_at: string
           created_by_admin_id: string | null
           currency: string | null
@@ -3174,6 +3181,7 @@ export type Database = {
           is_active: boolean
           notes: string | null
           percent_off: number | null
+          source_reference_id: string | null
           source_type: string
           starts_at: string
           updated_at: string
@@ -3183,6 +3191,7 @@ export type Database = {
           amount_off?: number | null
           applies_to_plan_id?: string | null
           applies_to_role?: string | null
+          billing_cycles_remaining?: number | null
           created_at?: string
           created_by_admin_id?: string | null
           currency?: string | null
@@ -3195,6 +3204,7 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           percent_off?: number | null
+          source_reference_id?: string | null
           source_type?: string
           starts_at?: string
           updated_at?: string
@@ -3204,6 +3214,7 @@ export type Database = {
           amount_off?: number | null
           applies_to_plan_id?: string | null
           applies_to_role?: string | null
+          billing_cycles_remaining?: number | null
           created_at?: string
           created_by_admin_id?: string | null
           currency?: string | null
@@ -3216,6 +3227,7 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           percent_off?: number | null
+          source_reference_id?: string | null
           source_type?: string
           starts_at?: string
           updated_at?: string
