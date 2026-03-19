@@ -34,55 +34,76 @@ export default function OAuthCallback() {
     if (handled.current) return;
     handled.current = true;
 
+    let settled = false;
+    let timeoutId: ReturnType<typeof setTimeout> | null = null;
+    let subscriptionRef: { unsubscribe: () => void } | null = null;
+
+    const finish = async (userId: string) => {
+      if (settled) return;
+      settled = true;
+      if (timeoutId) clearTimeout(timeoutId);
+      if (subscriptionRef) subscriptionRef.unsubscribe();
+
+      setStatus("Preparando seu perfil...");
+      await new Promise((r) => setTimeout(r, 800));
+
+      try {
+        const dest = await applySignupRoleAndRedirect(userId);
+        navigate(dest, { replace: true });
+      } catch {
+        navigate("/onboarding", { replace: true });
+      }
+    };
+
     const run = async () => {
       try {
-        // Try getSession with retry for transient 500/504 errors
-        let session = null;
-        for (let attempt = 0; attempt < 3; attempt++) {
+        setStatus("Validando sessão...");
+
+        // Retry session read to handle transient auth latency
+        for (let attempt = 0; attempt < 4; attempt++) {
           const { data, error } = await supabase.auth.getSession();
-          if (!error && data.session) {
-            session = data.session;
-            break;
+          if (data.session?.user) {
+            await finish(data.session.user.id);
+            return;
           }
           if (error) {
             console.warn(`[OAuthCallback] getSession attempt ${attempt + 1} error:`, error.message);
           }
-          if (attempt < 2) {
+          if (attempt < 3) {
             setStatus("Conectando...");
-            await new Promise((r) => setTimeout(r, 1500 * (attempt + 1)));
+            await new Promise((r) => setTimeout(r, 900 * (attempt + 1)));
           }
         }
 
-        if (session?.user) {
-          setStatus("Preparando seu perfil...");
-          await new Promise((r) => setTimeout(r, 1000));
-          const dest = await applySignupRoleAndRedirect(session.user.id);
-          navigate(dest, { replace: true });
+        // Fallback: user may already be available even when session is delayed
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await finish(user.id);
           return;
         }
 
-        // If no session yet, listen for the auth state change
+        // Listen for delayed auth events
         setStatus("Aguardando autenticação...");
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
           async (event, session) => {
-            if (event === "SIGNED_IN" && session?.user) {
-              subscription.unsubscribe();
-              setStatus("Preparando seu perfil...");
-              await new Promise((r) => setTimeout(r, 1000));
-              try {
-                const dest = await applySignupRoleAndRedirect(session.user.id);
-                navigate(dest, { replace: true });
-              } catch {
-                navigate("/onboarding", { replace: true });
-              }
+            if (
+              session?.user &&
+              (event === "SIGNED_IN" || event === "INITIAL_SESSION" || event === "TOKEN_REFRESHED")
+            ) {
+              await finish(session.user.id);
             }
           }
         );
+        subscriptionRef = subscription;
 
-        setTimeout(() => {
-          subscription.unsubscribe();
+        timeoutId = setTimeout(async () => {
+          const { data } = await supabase.auth.getSession();
+          if (data.session?.user) {
+            await finish(data.session.user.id);
+            return;
+          }
           navigate("/login", { replace: true });
-        }, 20_000);
+        }, 30_000);
       } catch (err) {
         console.warn("[OAuthCallback] Unexpected error:", err);
         navigate("/login", { replace: true });
@@ -90,6 +111,11 @@ export default function OAuthCallback() {
     };
 
     run();
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      if (subscriptionRef) subscriptionRef.unsubscribe();
+    };
   }, [navigate]);
 
   return (
