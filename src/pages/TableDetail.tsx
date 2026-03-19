@@ -78,19 +78,32 @@ export default function TableDetail() {
   const [reviewOpen, setReviewOpen] = useState(false);
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
+  const [existingBooking, setExistingBooking] = useState(false);
   const eligibility = useReviewEligibility(id);
+
+  // Check if user already has a booking for this mesa
+  useEffect(() => {
+    if (!user || !id) return;
+    supabase
+      .from("bookings")
+      .select("id")
+      .eq("game_table_id", id)
+      .eq("player_user_id", user.id)
+      .neq("status", "canceled")
+      .maybeSingle()
+      .then(({ data }) => setExistingBooking(!!data));
+  }, [user, id, bookingSuccess]);
 
   // Handle return from Stripe Checkout
   useEffect(() => {
     const bookingStatus = searchParams.get("booking");
     if (bookingStatus === "success") {
       setBookingSuccess(true);
-      // Clean URL
+      setExistingBooking(true);
       searchParams.delete("booking");
       searchParams.delete("booking_id");
       setSearchParams(searchParams, { replace: true });
     } else if (bookingStatus === "canceled") {
-      // Canceled booking — could clean up pending booking here
       searchParams.delete("booking");
       searchParams.delete("booking_id");
       setSearchParams(searchParams, { replace: true });
