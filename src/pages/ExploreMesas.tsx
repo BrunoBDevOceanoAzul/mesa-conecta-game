@@ -272,7 +272,7 @@ export default function ExploreMesas() {
 
               {/* Session type */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Tipo</label>
+                <label className="field-label mb-1.5 block">Tipo</label>
                 <div className="flex gap-1.5">
                   {SESSION_TYPES.map((t) => (
                     <button
