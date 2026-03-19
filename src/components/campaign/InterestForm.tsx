@@ -358,12 +358,3 @@ function Field({ label, value, onChange, placeholder, type = "text" }: {
   );
 }
 
-        type={type}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder={placeholder}
-        className="mt-1.5"
-      />
-    </div>
-  );
-}
