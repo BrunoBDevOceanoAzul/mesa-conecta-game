@@ -20,7 +20,7 @@ import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
 } from "lucide-react";
 
 type Mesa = {
