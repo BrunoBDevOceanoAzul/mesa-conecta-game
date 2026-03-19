@@ -705,6 +705,81 @@ export type Database = {
         }
         Relationships: []
       }
+      chat_analytics: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          event_type: string
+          game_table_id: string | null
+          id: string
+          metadata_json: Json | null
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          event_type: string
+          game_table_id?: string | null
+          id?: string
+          metadata_json?: Json | null
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          event_type?: string
+          game_table_id?: string | null
+          id?: string
+          metadata_json?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_analytics_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "chat_analytics_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "game_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      chat_quick_replies: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          is_active: boolean
+          label: string
+          role_target: string
+          sort_order: number
+        }
+        Insert: {
+          category?: string
+          content: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label: string
+          role_target?: string
+          sort_order?: number
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          label?: string
+          role_target?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       community_posts: {
         Row: {
           author_id: string
