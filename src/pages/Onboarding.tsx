@@ -79,7 +79,8 @@ export default function Onboarding() {
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (Object.keys(loaded).length > 0) setAnswers(loaded);
           if (data.role) {
-            setRole(data.role as RoleKey);
+            const mapped = dbRoleToRoleKey[data.role] || data.role as RoleKey;
+            setRole(mapped);
           } else {
             // No role selected yet — ensure we show profile selection
             setPhase("profile");
