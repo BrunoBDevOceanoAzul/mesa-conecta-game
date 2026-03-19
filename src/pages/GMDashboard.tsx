@@ -320,14 +320,10 @@ export default function GMDashboard() {
 
 /* ── Sub-components ── */
 
+import { EmptyState } from "@/components/shared/EmptyState";
+
 function EmptyBlock({ icon, text, sub }: { icon: React.ReactNode; text: string; sub: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
-      <div className="mx-auto text-muted-foreground/50 mb-3">{icon}</div>
-      <p className="text-sm font-medium text-muted-foreground">{text}</p>
-      <p className="text-xs text-muted-foreground/70 mt-1">{sub}</p>
-    </div>
-  );
+  return <EmptyState icon={icon} title={text} description={sub} />;
 }
 
 function MesaMiniCard({ mesa }: { mesa: Mesa }) {
