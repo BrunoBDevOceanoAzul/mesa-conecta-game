@@ -5,7 +5,9 @@ import { StatCard } from "@/components/shared/StatCard";
 import { Users, Crown, Store, TrendingUp, MessageSquare, DollarSign, UserCheck, Sparkles } from "lucide-react";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator";
 import AdminLayout from "./AdminLayout";
+import { PricingInsights } from "@/components/admin/PricingInsights";
 
 interface Lead {
   id: string;
