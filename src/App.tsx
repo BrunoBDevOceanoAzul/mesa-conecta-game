@@ -60,7 +60,8 @@ const App = () => (
             <Route path="/explorar" element={<ExploreMesas />} />
             <Route path="/buscar" element={<ExploreMesas />} />
             <Route path="/mesa/:id" element={<TableDetail />} />
-            <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+            <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
+            <Route path="/loja/:slug" element={<LojaPublicProfile />} />
             {/* Admin routes */}
             <Route path="/admin" element={<ProtectedRoute allowedRoles={["admin"]}><AdminPainel /></ProtectedRoute>} />
             <Route path="/admin/insights" element={<ProtectedRoute allowedRoles={["admin"]}><AdminInsights /></ProtectedRoute>} />
