@@ -28,6 +28,37 @@ interface DBPlan {
   founder_slots_used: number;
 }
 
+// Priority order for feature display (lower = shown first)
+const featureOrder: Record<string, number> = {
+  reservation_limit: 1,
+  max_active_mesas: 1,
+  mesas_per_month: 1,
+  matchmaking: 2,
+  professional_profile: 2,
+  store_profile: 2,
+  profile_score: 3,
+  history: 4,
+  crm: 5,
+  crm_advanced: 5,
+  reservations: 6,
+  schedule_management: 7,
+  public_agenda: 8,
+  analytics_basic: 9,
+  analytics_full: 9,
+  ai_text_assist: 10,
+  ai_cover_generation: 11,
+  ai_seo_optimization: 12,
+  ai_performance_insights: 13,
+  boost_access: 14,
+  feed_highlight: 15,
+  priority_booking: 16,
+  exclusive_badge: 17,
+  early_access: 18,
+  cashback: 19,
+  priority_support: 20,
+  dedicated_support: 20,
+};
+
 const featureFlagLabel = (key: string, value: unknown): string => {
   const labels: Record<string, string> = {
     reservation_limit: value === -1 ? "Reservas ilimitadas" : `Até ${value} reservas/mês`,
@@ -44,7 +75,7 @@ const featureFlagLabel = (key: string, value: unknown): string => {
     analytics_basic: "Analytics básico",
     analytics_full: "Analytics completo",
     max_active_mesas: value === -1 ? "Mesas ilimitadas" : `Até ${value} mesas ativas`,
-    boost_access: "Ferramentas de crescimento",
+    boost_access: "Ferramentas de destaque e crescimento",
     priority_support: "Suporte prioritário",
     mesas_per_month: `Até ${value} mesas/mês`,
     store_profile: "Perfil da luderia",
@@ -130,6 +161,7 @@ export function PricingSection() {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
               .filter(([k, v]) => v !== false && k !== "founder_locked")
+              .sort(([a], [b]) => (featureOrder[a] ?? 99) - (featureOrder[b] ?? 99))
               .map(([k, v]) => featureFlagLabel(k, v));
 
             return (
