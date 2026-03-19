@@ -1,0 +1,399 @@
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
+import { usePrivileges } from "@/hooks/use-privileges";
+import { useToast } from "@/hooks/use-toast";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2, Check, Sparkles, Crown, Ticket, ArrowRight, AlertTriangle,
+} from "lucide-react";
+
+interface BookingFlowDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  mesa: {
+    id: string;
+    title: string;
+    gm_id: string;
+    gm_name: string;
+    min_price: number;
+    seats_available: number;
+    seats_total: number;
+  };
+}
+
+interface PlayerPlan {
+  code: string;
+  name: string;
+  reservation_limit: number | null;
+  price_monthly: number;
+  stripe_price_id: string | null;
+}
+
+type FlowStep = "loading" | "confirm" | "limit_reached" | "success" | "error";
+
+export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
+  const { user } = useAuth();
+  const { isSuperUser } = usePrivileges();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+
+  const [step, setStep] = useState<FlowStep>("loading");
+  const [bookingCount, setBookingCount] = useState(0);
+  const [reservationLimit, setReservationLimit] = useState<number | null>(null);
+  const [playerPlans, setPlayerPlans] = useState<PlayerPlan[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
+
+  const loadData = useCallback(async () => {
+    if (!user || !open) return;
+    setStep("loading");
+
+    try {
+      // Get current month boundaries
+      const now = new Date();
+      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+      const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59).toISOString();
+
+      // Parallel: booking count this month, active subscription, player plans
+      const [bookingsRes, subRes, plansRes] = await Promise.all([
+        supabase
+          .from("bookings")
+          .select("id", { count: "exact", head: true })
+          .eq("player_user_id", user.id)
+          .gte("created_at", monthStart)
+          .lte("created_at", monthEnd),
+        supabase
+          .from("subscriptions")
+          .select("plan_id, plan_name, plan_role, status, current_period_end")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .order("created_at", { ascending: false })
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from("plans")
+          .select("code, name, price_monthly, feature_flags, stripe_price_id")
+          .eq("is_active", true)
+          .eq("role", "player")
+          .or("billing_interval.eq.monthly,billing_interval.is.null")
+          .order("sort_order"),
+      ]);
+
+      const count = bookingsRes.count ?? 0;
+      setBookingCount(count);
+
+      // Determine current plan's reservation limit
+      let limit: number | null = null;
+      const sub = subRes.data;
+
+      if (sub && sub.plan_id) {
+        const { data: planData } = await supabase
+          .from("plans")
+          .select("name, feature_flags")
+          .eq("id", sub.plan_id)
+          .maybeSingle();
+        
+        if (planData) {
+          setCurrentPlanName(planData.name);
+          const flags = planData.feature_flags as Record<string, unknown> | null;
+          if (flags?.reservation_limit && typeof flags.reservation_limit === "number") {
+            limit = flags.reservation_limit;
+          }
+        }
+      } else {
+        // No subscription = free tier, default 1 reservation/month
+        limit = 1;
+        setCurrentPlanName(null);
+      }
+
+      setReservationLimit(limit);
+
+      // Parse player plans for upgrade suggestions
+      const parsed: PlayerPlan[] = ((plansRes.data || []) as any[])
+        .filter((p: any) => p.price_monthly > 0)
+        .map((p: any) => ({
+          code: p.code,
+          name: p.name,
+          reservation_limit: (p.feature_flags as any)?.reservation_limit ?? null,
+          price_monthly: p.price_monthly,
+          stripe_price_id: p.stripe_price_id,
+        }));
+      setPlayerPlans(parsed);
+
+      // SuperUsers bypass everything
+      if (isSuperUser) {
+        setStep("confirm");
+        return;
+      }
+
+      // Check limit: -1 means unlimited
+      if (limit === -1 || limit === null) {
+        setStep("confirm");
+      } else if (count >= limit) {
+        setStep("limit_reached");
+      } else {
+        setStep("confirm");
+      }
+    } catch (err) {
+      console.error("[BookingFlow] Error loading data:", err);
+      setErrorMsg("Erro ao carregar dados. Tente novamente.");
+      setStep("error");
+    }
+  }, [user, open, isSuperUser]);
+
+  useEffect(() => {
+    if (open) loadData();
+  }, [open, loadData]);
+
+  const handleBook = async () => {
+    if (!user) return;
+    setSubmitting(true);
+
+    try {
+      // Check if already booked
+      const { data: existing } = await supabase
+        .from("bookings")
+        .select("id")
+        .eq("game_table_id", mesa.id)
+        .eq("player_user_id", user.id)
+        .neq("status", "canceled")
+        .maybeSingle();
+
+      if (existing) {
+        toast({ title: "Já reservado", description: "Você já tem uma reserva nesta mesa.", variant: "destructive" });
+        onOpenChange(false);
+        return;
+      }
+
+      const { error } = await supabase.from("bookings").insert({
+        game_table_id: mesa.id,
+        player_user_id: user.id,
+        gm_user_id: mesa.gm_id,
+        seats_reserved: 1,
+        status: "confirmed",
+        amount: mesa.min_price * 100,
+        currency: "brl",
+        payment_status: isSuperUser ? "bypassed" : mesa.min_price === 0 ? "free" : "pending",
+        source_type: "platform",
+        booked_at: new Date().toISOString(),
+      });
+
+      if (error) throw error;
+
+      // Decrement seats
+      await supabase
+        .from("mesas" as any)
+        .update({ seats_available: mesa.seats_available - 1 } as any)
+        .eq("id", mesa.id);
+
+      setStep("success");
+      toast({ title: "Vaga reservada! 🎉", description: `Você está na mesa "${mesa.title}"` });
+    } catch (err: any) {
+      console.error("[BookingFlow] Booking error:", err);
+      setErrorMsg(err?.message || "Erro ao reservar vaga");
+      setStep("error");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleUpgrade = (planCode: string) => {
+    onOpenChange(false);
+    navigate(`/checkout?plan=${planCode}&role=player`);
+  };
+
+  const remainingSlots = reservationLimit && reservationLimit > 0 ? Math.max(0, reservationLimit - bookingCount) : null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        {/* Loading */}
+        {step === "loading" && (
+          <div className="flex flex-col items-center justify-center py-12 gap-3">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">Verificando sua conta…</p>
+          </div>
+        )}
+
+        {/* Confirm booking */}
+        {step === "confirm" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2">
+                <Ticket className="h-5 w-5 text-primary" />
+                Confirmar Reserva
+              </DialogTitle>
+              <DialogDescription>
+                Você está reservando uma vaga na mesa <strong>{mesa.title}</strong>
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              {/* Booking summary */}
+              <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Mesa</span>
+                  <span className="font-medium text-foreground">{mesa.title}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Mestre</span>
+                  <span className="font-medium text-foreground">{mesa.gm_name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor</span>
+                  <span className="font-medium text-foreground">
+                    {mesa.min_price === 0 ? "Grátis" : `R$${mesa.min_price}`}
+                  </span>
+                </div>
+              </div>
+
+              {/* Remaining reservations info */}
+              {!isSuperUser && remainingSlots !== null && (
+                <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 flex items-center gap-2">
+                  <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <span className="text-xs text-primary font-medium">
+                    {remainingSlots - 1 === 0
+                      ? "Esta é sua última reserva gratuita deste mês"
+                      : `Você ainda tem ${remainingSlots - 1} reserva(s) disponíveis este mês`}
+                  </span>
+                </div>
+              )}
+
+              {isSuperUser && (
+                <Badge variant="outline" className="text-xs gap-1">
+                  <Crown className="h-3 w-3" /> Admin — sem limites
+                </Badge>
+              )}
+
+              <Button
+                variant="gradient"
+                size="lg"
+                className="w-full gap-2"
+                disabled={submitting}
+                onClick={handleBook}
+              >
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Check className="h-4 w-4" />
+                )}
+                {submitting ? "Reservando…" : "Confirmar Reserva"}
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Limit reached — suggest upgrade */}
+        {step === "limit_reached" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2 text-amber-600">
+                <AlertTriangle className="h-5 w-5" />
+                Limite de reservas atingido
+              </DialogTitle>
+              <DialogDescription>
+                {currentPlanName
+                  ? `Seu plano ${currentPlanName} permite ${reservationLimit} reserva(s)/mês e você já usou todas.`
+                  : `Você já usou sua reserva gratuita deste mês.`}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              <p className="text-sm text-muted-foreground">
+                Faça upgrade para continuar jogando! Confira os planos disponíveis:
+              </p>
+
+              <div className="space-y-2">
+                {playerPlans
+                  .filter((p) => {
+                    if (!reservationLimit) return true;
+                    return (p.reservation_limit ?? 0) > reservationLimit || p.reservation_limit === -1;
+                  })
+                  .map((plan) => (
+                    <button
+                      key={plan.code}
+                      onClick={() => handleUpgrade(plan.code)}
+                      className="w-full rounded-xl border border-border bg-card hover:border-primary/40 hover:bg-primary/5 transition-all p-4 text-left flex items-center justify-between gap-3"
+                    >
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{plan.name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {plan.reservation_limit === -1
+                            ? "Reservas ilimitadas"
+                            : `Até ${plan.reservation_limit} reservas/mês`}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-display font-bold text-primary">
+                          R${(plan.price_monthly / 100).toFixed(2).replace(".", ",")}
+                        </span>
+                        <ArrowRight className="h-4 w-4 text-primary" />
+                      </div>
+                    </button>
+                  ))}
+              </div>
+
+              <Button variant="ghost" className="w-full" onClick={() => onOpenChange(false)}>
+                Voltar
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Success */}
+        {step === "success" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2 text-secondary">
+                <Check className="h-5 w-5" />
+                Vaga reservada!
+              </DialogTitle>
+            </DialogHeader>
+            <div className="text-center py-6 space-y-4">
+              <div className="h-16 w-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto">
+                <Sparkles className="h-8 w-8 text-secondary" />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Você está confirmado na mesa <strong>{mesa.title}</strong>. Prepare-se para a aventura!
+              </p>
+              <Button variant="hero" onClick={() => onOpenChange(false)}>
+                Entendido
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Error */}
+        {step === "error" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display text-destructive">Erro</DialogTitle>
+            </DialogHeader>
+            <div className="py-4 space-y-4">
+              <p className="text-sm text-muted-foreground">{errorMsg}</p>
+              <div className="flex gap-2">
+                <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                  Fechar
+                </Button>
+                <Button className="flex-1" onClick={loadData}>
+                  Tentar novamente
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
