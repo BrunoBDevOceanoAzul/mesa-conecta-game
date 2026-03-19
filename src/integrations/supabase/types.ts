@@ -4344,6 +4344,29 @@ export type Database = {
           read_ct: number
         }[]
       }
+      search_board_games: {
+        Args: {
+          game_type_filter?: string
+          result_limit?: number
+          search_query: string
+        }
+        Returns: {
+          bgg_rating: number
+          id: string
+          is_available: boolean
+          max_players: number
+          max_playtime: number
+          min_players: number
+          min_playtime: number
+          name: string
+          playing_time: number
+          similarity_score: number
+          slug: string
+          thumbnail_url: string
+          type: string
+          weight_complexity: number
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       unaccent: { Args: { "": string }; Returns: string }
