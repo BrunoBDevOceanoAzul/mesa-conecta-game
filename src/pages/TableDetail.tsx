@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReviewFormModal } from "@/components/reviews/ReviewFormModal";
+import { StartChatButton } from "@/components/chat/StartChatButton";
 import { useReviewEligibility } from "@/hooks/use-reviews";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
@@ -279,6 +280,21 @@ export default function TableDetail() {
               <p className="text-[11px] text-muted-foreground text-center">
                 Pagamento simulado para MVP
               </p>
+
+              {/* Chat with GM */}
+              <StartChatButton
+                targetUserId={mesa.gm_id}
+                targetName={mesa.gm_name}
+                conversationType="gm_player"
+                relatedTableId={mesa.id}
+                subject={`Conversa sobre: ${mesa.title}`}
+                variant="outline"
+                size="default"
+                label="Falar com o mestre"
+                otherRoleLabel="gm"
+                myRoleLabel="player"
+                className="w-full"
+              />
 
               {/* Share button */}
               <ShareButton

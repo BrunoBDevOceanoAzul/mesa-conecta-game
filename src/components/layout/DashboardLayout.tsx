@@ -4,6 +4,7 @@ import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
+import { ChatBadge } from "@/components/chat/ChatBadge";
 import logoImg from "@/assets/hivium-logo.png";
 
 interface NavItem {
@@ -146,7 +147,8 @@ export function DashboardLayout({
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-1">
+            <ChatBadge />
             <NotificationBell />
           </div>
         </header>
