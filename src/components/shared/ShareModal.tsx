@@ -70,6 +70,8 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
     return data;
   };
 
+  const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=${entityType}&id=${entityId}`;
+
   const handleShare = async (channel: string) => {
     setGenerating(true);
     await saveShareLink(channel);

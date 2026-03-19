@@ -86,7 +86,18 @@ export default function TableDetail() {
       .eq("id", id)
       .single()
       .then(({ data }) => {
-        if (data) setMesa(data as Mesa);
+        if (data) {
+          setMesa(data as Mesa);
+          // Dynamic OG meta tags for social sharing crawlers
+          const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
+          document.querySelector('meta[property="og:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
+          document.querySelector('meta[property="og:description"]')?.setAttribute("content", data.description?.substring(0, 160) || "Encontre sua próxima aventura na HIVIUM");
+          document.querySelector('meta[property="og:image"]')?.setAttribute("content", ogUrl);
+          document.querySelector('meta[property="og:url"]')?.setAttribute("content", `${window.location.origin}/mesa/${id}`);
+          document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
+          document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", data.description?.substring(0, 160) || "Encontre sua próxima aventura na HIVIUM");
+          document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", ogUrl);
+        }
         setLoading(false);
       });
   }, [id]);
