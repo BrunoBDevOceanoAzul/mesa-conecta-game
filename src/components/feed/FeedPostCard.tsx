@@ -240,20 +240,24 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         )}
 
         {/* Actions */}
-        <div className="flex items-center gap-4 pt-3 border-t border-border">
+        <div className="flex items-center gap-4 pt-3 border-t border-border" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={handleLike}
             className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? "text-primary font-semibold" : "text-muted-foreground hover:text-primary"}`}
           >
             <Heart className={`h-4 w-4 ${liked ? "fill-primary" : ""}`} /> {likesCount > 0 ? likesCount : ""}
           </button>
-          <button
-            onClick={handleShare}
-            disabled={sharing}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors ml-auto"
-          >
-            <Share2 className="h-4 w-4" /> Compartilhar
-          </button>
+          <MessageCircle
+            className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+            onClick={handlePostClick}
+          />
+          <div className="ml-auto">
+            <SharePostModal
+              postId={post.id}
+              postSlug={post.slug || null}
+              postTitle={post.title}
+            />
+          </div>
         </div>
       </div>
     </div>
