@@ -200,6 +200,36 @@ ${platformContext}`;
         userPrompt = `${mesaContext}\n\nGere 3 prompts de imagem (em inglês) para capa de aventura de RPG. Cada um com estilo visual diferente. Os prompts devem gerar imagens no formato landscape (16:9), com qualidade de poster cinematográfico, sem texto na imagem. Considere o sistema de RPG, o tom da aventura e o público-alvo.`;
         break;
 
+      case "generate_social_post":
+        tools = [{
+          type: "function",
+          function: {
+            name: "social_post",
+            description: "Generate social media post text for sharing a link",
+            parameters: {
+              type: "object",
+              properties: {
+                text: { type: "string", description: "Post text optimized for social media sharing, engaging and with call-to-action. Max 280 chars." },
+              },
+              required: ["text"],
+              additionalProperties: false,
+            },
+          },
+        }];
+        toolChoice = { type: "function", function: { name: "social_post" } };
+        userPrompt = `Crie um texto curto e impactante para compartilhar nas redes sociais (${(channels || []).join(", ")}). 
+Título do conteúdo: "${title || ""}"
+Descrição: "${description || ""}"
+URL: ${url || ""}
+
+O texto deve ser:
+- Engajante e com call-to-action claro
+- Usar emojis relevantes mas com moderação
+- Máximo 280 caracteres
+- Incluir hashtags relevantes ao RPG/tabletop
+- Escrito em português brasileiro`;
+        break;
+
       default:
         throw new Error(`Unknown action: ${action}`);
     }
