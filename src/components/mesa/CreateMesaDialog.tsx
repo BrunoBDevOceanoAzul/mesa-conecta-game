@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { RPG_SYSTEMS } from "@/data/rpg-systems";
+import { MesaAiTextAssistant } from "./MesaAiTextAssistant";
+import { MesaAiCoverGenerator } from "./MesaAiCoverGenerator";
 
 interface CreateMesaDialogProps {
   onCreated?: () => void;
@@ -50,22 +52,14 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [endAt, setEndAt] = useState("");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
 
   const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setSystem("");
-    setSessionType("one-shot");
-    setFormat("presencial");
-    setCity("");
-    setVenue("");
-    setMinPrice("");
-    setMaxPrice("");
-    setSeatsTotal("5");
-    setStartAt("");
-    setEndAt("");
-    setCoverFile(null);
-    setCoverPreview(null);
+    setTitle(""); setDescription(""); setSystem("");
+    setSessionType("one-shot"); setFormat("presencial");
+    setCity(""); setVenue(""); setMinPrice(""); setMaxPrice("");
+    setSeatsTotal("5"); setStartAt(""); setEndAt("");
+    setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,15 +71,22 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     }
     setCoverFile(file);
     setCoverPreview(URL.createObjectURL(file));
+    setCoverUrl(null);
   };
 
   const removeCover = () => {
-    setCoverFile(null);
-    setCoverPreview(null);
+    setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
+  const handleAiCoverSelect = (url: string) => {
+    setCoverUrl(url);
+    setCoverPreview(url);
+    setCoverFile(null);
+  };
+
   const uploadCover = async (): Promise<string | null> => {
+    if (coverUrl) return coverUrl; // AI-generated, already uploaded
     if (!coverFile || !user) return null;
     const ext = coverFile.name.split(".").pop() || "jpg";
     const path = `${user.id}/${Date.now()}.${ext}`;
@@ -97,40 +98,28 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
   const handleSubmit = async () => {
     if (!user || !title.trim() || !system || !startAt) return;
-
-    // Validate end_at > start_at
     if (endAt && new Date(endAt) <= new Date(startAt)) {
       toast({ title: "Horário inválido", description: "O término deve ser após o início.", variant: "destructive" });
       return;
     }
-
     setLoading(true);
-
     try {
-      let coverUrl: string | null = null;
-      if (coverFile) {
-        coverUrl = await uploadCover();
-      }
+      let finalCoverUrl: string | null = null;
+      if (coverFile || coverUrl) finalCoverUrl = await uploadCover();
 
       const { data, error } = await supabase.functions.invoke("create-mesa", {
         body: {
-          title: title.trim(),
-          description: description.trim() || null,
-          system,
-          session_type: sessionType,
-          format,
-          city: city.trim() || null,
-          venue: venue.trim() || null,
-          min_price: Number(minPrice) || 0,
-          max_price: Number(maxPrice) || Number(minPrice) || 0,
+          title: title.trim(), description: description.trim() || null,
+          system, session_type: sessionType, format,
+          city: city.trim() || null, venue: venue.trim() || null,
+          min_price: Number(minPrice) || 0, max_price: Number(maxPrice) || Number(minPrice) || 0,
           seats_total: Number(seatsTotal) || 5,
           start_at: new Date(startAt).toISOString(),
           end_at: endAt ? new Date(endAt).toISOString() : null,
           store_id: role === "store" ? storeId || user.id : null,
-          cover_image_url: coverUrl,
+          cover_image_url: finalCoverUrl,
         },
       });
-
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
@@ -140,16 +129,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           ? "Produto e preço criados no Stripe automaticamente."
           : "Mesa publicada sem cobrança via Stripe.",
       });
-
-      resetForm();
-      setOpen(false);
-      onCreated?.();
+      resetForm(); setOpen(false); onCreated?.();
     } catch (err: any) {
-      toast({
-        title: "Erro ao criar mesa",
-        description: err.message || "Tente novamente.",
-        variant: "destructive",
-      });
+      toast({ title: "Erro ao criar mesa", description: err.message || "Tente novamente.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
@@ -157,7 +139,6 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
   const canSubmit = title.trim() && system && startAt && !loading;
 
-  // Calculate duration display
   const durationText = startAt && endAt ? (() => {
     const diff = (new Date(endAt).getTime() - new Date(startAt).getTime()) / 60000;
     if (diff <= 0) return null;
@@ -193,25 +174,31 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <div className="relative rounded-xl overflow-hidden border border-border group">
                 <img src={coverPreview} alt="Preview" className="w-full h-40 object-cover" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                  <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>
-                    Trocar
-                  </Button>
-                  <Button size="sm" variant="destructive" onClick={removeCover}>
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>Trocar</Button>
+                  <Button size="sm" variant="destructive" onClick={removeCover}><X className="h-4 w-4" /></Button>
                 </div>
               </div>
             ) : (
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full h-32 rounded-xl border-2 border-dashed border-border hover:border-plum-300 bg-muted/30 hover:bg-plum-50/50 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-plum-500"
+                className="w-full h-28 rounded-xl border-2 border-dashed border-border hover:border-plum-300 bg-muted/30 hover:bg-plum-50/50 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-plum-500"
               >
                 <ImagePlus className="h-6 w-6" />
-                <span className="text-xs font-medium">Adicione uma imagem</span>
+                <span className="text-xs font-medium">Adicione uma imagem manualmente</span>
               </button>
             )}
           </div>
+
+          {/* AI Cover Generator */}
+          <MesaAiCoverGenerator
+            title={title}
+            description={description}
+            system={system}
+            sessionType={sessionType}
+            format={format}
+            onSelectCover={handleAiCoverSelect}
+          />
 
           {/* Title */}
           <div>
@@ -225,9 +212,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             <Select value={system} onValueChange={setSystem}>
               <SelectTrigger><SelectValue placeholder="Escolha o sistema" /></SelectTrigger>
               <SelectContent>
-                {RPG_SYSTEMS.map((s) => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
+                {RPG_SYSTEMS.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
               </SelectContent>
             </Select>
           </div>
@@ -239,9 +224,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <Select value={sessionType} onValueChange={setSessionType}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {SESSION_TYPES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                  ))}
+                  {SESSION_TYPES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
@@ -250,15 +233,13 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <Select value={format} onValueChange={setFormat}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  {FORMATS.map((f) => (
-                    <SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>
-                  ))}
+                  {FORMATS.map((f) => (<SelectItem key={f.value} value={f.value}>{f.label}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
           </div>
 
-          {/* Location (conditional) */}
+          {/* Location */}
           {format !== "online" && (
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -293,7 +274,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
           </div>
 
-          {/* Date & Time block */}
+          {/* Date & Time */}
           <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
             <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Data e Horário</p>
             <div className="grid grid-cols-2 gap-3">
@@ -303,18 +284,11 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               </div>
               <div>
                 <Label>Término previsto</Label>
-                <Input
-                  type="datetime-local"
-                  value={endAt}
-                  onChange={(e) => setEndAt(e.target.value)}
-                  min={startAt || undefined}
-                />
+                <Input type="datetime-local" value={endAt} onChange={(e) => setEndAt(e.target.value)} min={startAt || undefined} />
               </div>
             </div>
             {durationText && (
-              <p className="text-xs text-plum-500 font-medium">
-                ⏱ Duração estimada: {durationText}
-              </p>
+              <p className="text-xs text-plum-500 font-medium">⏱ Duração estimada: {durationText}</p>
             )}
           </div>
 
@@ -328,6 +302,17 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               className="min-h-[80px]"
             />
           </div>
+
+          {/* AI Text Assistant */}
+          <MesaAiTextAssistant
+            title={title}
+            description={description}
+            system={system}
+            sessionType={sessionType}
+            format={format}
+            onApplyTitle={setTitle}
+            onApplyDescription={setDescription}
+          />
 
           <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full gap-2">
             {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Swords className="h-4 w-4" />}
