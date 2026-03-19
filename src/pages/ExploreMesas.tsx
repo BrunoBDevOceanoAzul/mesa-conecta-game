@@ -242,7 +242,7 @@ export default function ExploreMesas() {
 
               {/* City */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Cidade</label>
+                <label className="field-label mb-1.5 block">Cidade</label>
                 <CityAutocomplete
                   value={filterCity}
                   onChange={(city) => setFilterCity(city)}
