@@ -329,7 +329,7 @@ export default function Onboarding() {
         {phase === "mapped" && (
           <ProfileMappedScreen
             key="mapped"
-            role={role}
+            role={effectiveRole}
             answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
             onContinue={handleContinueToDashboard}
           />
