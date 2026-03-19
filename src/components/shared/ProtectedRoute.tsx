@@ -75,9 +75,10 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
 
   // Role-based guard
   if (allowedRoles) {
+    const effectiveRoles: string[] = (window as any).__hiviumEffectiveRoles || (userRole ? [userRole] : []);
     const hasAccess =
       (allowedRoles.includes("admin") && isAdmin) ||
-      (userRole && allowedRoles.includes(userRole));
+      effectiveRoles.some(r => allowedRoles.includes(r));
 
     if (!hasAccess) {
       const roleRoutes: Record<string, string> = {
