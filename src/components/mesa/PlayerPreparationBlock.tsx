@@ -57,7 +57,7 @@ export function PlayerPreparationBlock({
             .select("schema_json")
             .eq("id", flow.form_template_id)
             .single();
-          if (ft) setSections((ft.schema_json || []) as FormSection[]);
+          if (ft) setSections((ft.schema_json || []) as unknown as FormSection[]);
         }
 
         // Load player submission

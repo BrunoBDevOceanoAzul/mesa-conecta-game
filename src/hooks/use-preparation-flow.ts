@@ -109,7 +109,7 @@ export function usePreparationFlow(gameTableId: string | null) {
         if (data) {
           setFlow({
             ...data,
-            materials_json: (data.materials_json || []) as MaterialItem[],
+            materials_json: (data.materials_json || []) as unknown as MaterialItem[],
           });
         }
         setLoading(false);

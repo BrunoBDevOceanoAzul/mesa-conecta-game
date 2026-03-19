@@ -58,10 +58,10 @@ export function PreparationSetupPanel({
               .eq("id", data.form_template_id)
               .single()
               .then(({ data: ft }) => {
-                if (ft) setSections((ft.schema_json || []) as FormSection[]);
+              if (ft) setSections((ft.schema_json || []) as unknown as FormSection[]);
               });
           }
-          setMaterials((data.materials_json || []) as MaterialItem[]);
+          setMaterials((data.materials_json || []) as unknown as MaterialItem[]);
         } else if (template) {
           // Use template defaults
           setSections(template.default_character_form_json);
