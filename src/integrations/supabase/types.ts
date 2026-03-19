@@ -2219,6 +2219,8 @@ export type Database = {
           brand_category: string | null
           brand_objective: string | null
           budget_range: string | null
+          can_gm: boolean
+          can_play: boolean
           city: string | null
           country: string | null
           cover_image_url: string | null
@@ -2275,6 +2277,8 @@ export type Database = {
           brand_category?: string | null
           brand_objective?: string | null
           budget_range?: string | null
+          can_gm?: boolean
+          can_play?: boolean
           city?: string | null
           country?: string | null
           cover_image_url?: string | null
@@ -2331,6 +2335,8 @@ export type Database = {
           brand_category?: string | null
           brand_objective?: string | null
           budget_range?: string | null
+          can_gm?: boolean
+          can_play?: boolean
           city?: string | null
           country?: string | null
           cover_image_url?: string | null

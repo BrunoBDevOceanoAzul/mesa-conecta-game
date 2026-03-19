@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Gamepad2, Crown, Store, Megaphone, Loader2, ArrowRight } from "lucide-react";
+import { Gamepad2, Crown, Store, Megaphone, Loader2, ArrowRight, Swords, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
 import { resolveRedirect } from "@/lib/auth-redirect";
-import type { UserRole } from "@/data/mock";
 import logoImg from "@/assets/hivium-logo.png";
 import { motion, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils";
 
 function GoogleIcon({ className }: { className?: string }) {
   return (
@@ -21,14 +21,56 @@ function GoogleIcon({ className }: { className?: string }) {
   );
 }
 
-const roles: { role: UserRole; icon: typeof Gamepad2; label: string; desc: string }[] = [
-  { role: "player", icon: Gamepad2, label: "Jogador", desc: "Encontrar e jogar em mesas" },
-  { role: "gm", icon: Crown, label: "Mestre", desc: "Narrar e gerenciar mesas" },
-  { role: "store", icon: Store, label: "Luderia", desc: "Organizar eventos e mesas" },
-  { role: "brand", icon: Megaphone, label: "Marca", desc: "Anunciar para a comunidade" },
+interface RoleOption {
+  id: string;
+  role: string;       // saved to DB as primary_role
+  canPlay: boolean;
+  canGm: boolean;
+  icon: typeof Gamepad2;
+  label: string;
+  desc: string;
+}
+
+const roleOptions: RoleOption[] = [
+  {
+    id: "player",
+    role: "player",
+    canPlay: true,
+    canGm: false,
+    icon: Gamepad2,
+    label: "Jogador",
+    desc: "Quero encontrar mesas, campanhas e grupos para jogar.",
+  },
+  {
+    id: "gm",
+    role: "gm",
+    canPlay: false,
+    canGm: true,
+    icon: Crown,
+    label: "Mestre",
+    desc: "Quero criar mesas, conduzir sessões e encontrar jogadores.",
+  },
+  {
+    id: "gm_player",
+    role: "gm",
+    canPlay: true,
+    canGm: true,
+    icon: Swords,
+    label: "Mestre que também joga",
+    desc: "Quero mestrar, mas também participar de mesas como jogador.",
+  },
+  {
+    id: "player_gm",
+    role: "player",
+    canPlay: true,
+    canGm: true,
+    icon: Users,
+    label: "Jogador que também mestra",
+    desc: "Jogo com frequência, mas também posso abrir mesas como mestre.",
+  },
 ];
 
-const roleToDash: Record<UserRole, string> = {
+const roleToDash: Record<string, string> = {
   player: "/onboarding/jogador",
   gm: "/onboarding/mestre",
   store: "/onboarding/loja",
@@ -43,7 +85,7 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -62,7 +104,6 @@ export default function Signup() {
         setGoogleLoading(false);
         return;
       }
-      // Popup flow completed
       if (!result?.redirected) {
         const { data: { user } } = await supabase.auth.getUser();
         if (user) {
@@ -70,7 +111,6 @@ export default function Signup() {
           navigate(dest);
         }
       }
-      // If redirected, OAuthCallback handles everything
     } catch {
       toast({ title: "Erro com Google", description: "Falha na autenticação. Tente novamente.", variant: "destructive" });
     } finally {
@@ -78,15 +118,20 @@ export default function Signup() {
     }
   };
 
-  const handleRoleSelect = async (role: UserRole) => {
-    setSelectedRole(role);
+  const handleRoleSelect = async (option: RoleOption) => {
+    setSelectedId(option.id);
     setLoading(true);
 
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: { name, role },
+        data: {
+          name,
+          role: option.role,
+          can_play: option.canPlay,
+          can_gm: option.canGm,
+        },
         emailRedirectTo: window.location.origin,
       },
     });
@@ -94,7 +139,7 @@ export default function Signup() {
     if (error) {
       toast({ title: "Erro ao criar conta", description: error.message, variant: "destructive" });
       setLoading(false);
-      setSelectedRole(null);
+      setSelectedId(null);
       return;
     }
 
@@ -105,7 +150,13 @@ export default function Signup() {
     }
 
     if (data.session) {
-      navigate(roleToDash[role]);
+      // Update profile with can_play/can_gm
+      await supabase
+        .from("profiles")
+        .update({ can_play: option.canPlay, can_gm: option.canGm } as any)
+        .eq("user_id", data.user!.id);
+
+      navigate(roleToDash[option.role] || "/onboarding/jogador");
     }
 
     setLoading(false);
@@ -120,10 +171,12 @@ export default function Signup() {
             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">
-            {step === "info" ? "Crie sua conta" : "Escolha seu perfil"}
+            {step === "info" ? "Crie sua conta" : "Como você quer usar a HIVIUM?"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            {step === "info" ? "Junte-se ao ecossistema tabletop mais inteligente do Brasil." : "Isso define sua experiência. Pode mudar depois."}
+            {step === "info"
+              ? "Junte-se ao ecossistema tabletop mais inteligente do Brasil."
+              : "Escolha o que melhor te define. Isso personaliza toda a experiência."}
           </p>
         </div>
 
@@ -166,30 +219,67 @@ export default function Signup() {
           ) : (
             <motion.div key="role" initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -10 }} transition={{ duration: 0.2 }}>
               <div className="grid gap-3">
-                {roles.map((r) => (
-                  <button
-                    key={r.role}
-                    onClick={() => handleRoleSelect(r.role)}
-                    disabled={loading}
-                    className={`flex items-center gap-4 rounded-xl border p-4 text-left transition-all ${
-                      selectedRole === r.role ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/20"
-                    } ${loading ? "opacity-60 cursor-not-allowed" : ""}`}
-                  >
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10">
-                      {loading && selectedRole === r.role ? (
-                        <Loader2 className="h-5 w-5 text-primary animate-spin" />
-                      ) : (
-                        <r.icon className="h-5 w-5 text-primary" />
+                {roleOptions.map((opt, i) => {
+                  const isSelected = selectedId === opt.id;
+                  return (
+                    <motion.button
+                      key={opt.id}
+                      initial={{ opacity: 0, y: 16 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.06 }}
+                      onClick={() => handleRoleSelect(opt)}
+                      disabled={loading}
+                      className={cn(
+                        "group relative flex items-center gap-4 rounded-2xl border p-5 text-left transition-all duration-300",
+                        isSelected
+                          ? "border-primary bg-primary/8 shadow-[0_0_20px_hsl(var(--primary)_/_0.1)]"
+                          : "border-border/60 bg-card/50 hover:border-primary/30 hover:bg-card/80",
+                        loading && !isSelected && "opacity-50 pointer-events-none"
                       )}
-                    </div>
-                    <div>
-                      <div className="font-display font-semibold text-foreground text-sm">{r.label}</div>
-                      <div className="text-xs text-muted-foreground">{r.desc}</div>
-                    </div>
-                  </button>
-                ))}
+                    >
+                      {/* Selection indicator */}
+                      <div className={cn(
+                        "absolute top-3 right-3 h-5 w-5 rounded-full border-2 transition-all duration-200 flex items-center justify-center",
+                        isSelected
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground/20"
+                      )}>
+                        {isSelected && (
+                          loading
+                            ? <Loader2 className="h-3 w-3 text-primary-foreground animate-spin" />
+                            : <div className="h-2 w-2 rounded-full bg-primary-foreground" />
+                        )}
+                      </div>
+
+                      <div className={cn(
+                        "flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl transition-all duration-300",
+                        isSelected
+                          ? "bg-primary/15 text-primary shadow-[0_0_15px_hsl(var(--primary)_/_0.12)]"
+                          : "bg-primary/8 text-primary group-hover:bg-primary/12"
+                      )}>
+                        <opt.icon className="h-5 w-5" />
+                      </div>
+                      <div className="flex-1 min-w-0 pr-6">
+                        <h3 className="font-display font-bold text-foreground text-[15px]">{opt.label}</h3>
+                        <p className="text-[13px] text-muted-foreground mt-0.5 leading-snug">{opt.desc}</p>
+                      </div>
+                    </motion.button>
+                  );
+                })}
               </div>
-              <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors">
+
+              {/* Extra roles link */}
+              <p className="text-center text-[11px] text-muted-foreground/60 mt-4">
+                Lojas e marcas?{" "}
+                <button
+                  onClick={() => {/* Could expand to show store/brand options */}}
+                  className="text-primary/70 hover:text-primary underline"
+                >
+                  Clique aqui
+                </button>
+              </p>
+
+              <button onClick={() => setStep("info")} className="mt-4 text-xs text-muted-foreground hover:text-foreground transition-colors block mx-auto">
                 ← Voltar
               </button>
             </motion.div>
