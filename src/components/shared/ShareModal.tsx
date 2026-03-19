@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Share2, Copy, Check, MessageCircle, Send, Facebook,
-  Twitter, Link2, X
+  Twitter, Link2, X, Instagram, Linkedin
 } from "lucide-react";
 
 interface ShareModalProps {
@@ -17,9 +17,11 @@ interface ShareModalProps {
 
 const channels = [
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, color: "bg-green-600 hover:bg-green-700" },
+  { key: "instagram", label: "Instagram", icon: Instagram, color: "bg-gradient-to-br from-purple-600 to-pink-500 hover:from-purple-700 hover:to-pink-600" },
   { key: "telegram", label: "Telegram", icon: Send, color: "bg-blue-500 hover:bg-blue-600" },
   { key: "facebook", label: "Facebook", icon: Facebook, color: "bg-blue-700 hover:bg-blue-800" },
   { key: "twitter", label: "X / Twitter", icon: Twitter, color: "bg-foreground/80 hover:bg-foreground" },
+  { key: "linkedin", label: "LinkedIn", icon: Linkedin, color: "bg-sky-700 hover:bg-sky-800" },
   { key: "discord", label: "Discord", icon: MessageCircle, color: "bg-indigo-600 hover:bg-indigo-700" },
 ];
 
