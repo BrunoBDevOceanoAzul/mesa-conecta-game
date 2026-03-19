@@ -82,7 +82,8 @@ export default function Onboarding() {
     load();
   }, [user]);
 
-  const allSteps = stepsMap[role];
+  const effectiveRole: RoleKey = role || "jogador";
+  const allSteps = stepsMap[effectiveRole];
   // Filter steps based on conditional logic (e.g., skip city for online-only users)
   const steps = allSteps.filter((s) => {
     if (!s.conditionalOn) return true;
