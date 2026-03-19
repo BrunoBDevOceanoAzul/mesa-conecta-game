@@ -4,7 +4,7 @@ import {
   Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
   Megaphone, Plus, Eye, MousePointerClick, DollarSign,
   PieChart, Edit2, Trash2, ChevronDown, Calculator,
-  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2
+  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2, Star
 } from "lucide-react";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
