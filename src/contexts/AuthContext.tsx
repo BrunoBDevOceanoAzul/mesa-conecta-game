@@ -112,6 +112,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signOut = async () => {
+    if (user) await trackSignOut(user.id);
     await supabase.auth.signOut();
   };
 
