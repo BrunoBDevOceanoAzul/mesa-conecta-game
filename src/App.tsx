@@ -76,6 +76,8 @@ const App = () => (
               <Route path="/post/:slug" element={<PostDetail />} />
               <Route path="/explorar" element={<ExploreMesas />} />
               <Route path="/buscar" element={<ExploreMesas />} />
+              <Route path="/checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
+              <Route path="/checkout/:planId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
               <Route path="/mesa/:id" element={<TableDetail />} />
               <Route path="/mesa/:id/ficha" element={<MesaCharacterSheet />} />
               <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
