@@ -10,45 +10,45 @@
 
 @layer base {
   :root {
-    /* ─── Core Palette ─── */
-    --background: 260 20% 5%;
-    --foreground: 45 15% 92%;
+    /* ─── Core Palette — Lighter & More Readable ─── */
+    --background: 255 14% 11%;
+    --foreground: 40 12% 93%;
 
-    --card: 260 16% 8%;
-    --card-foreground: 45 15% 92%;
+    --card: 255 12% 14%;
+    --card-foreground: 40 12% 93%;
 
-    --popover: 260 18% 7%;
-    --popover-foreground: 45 15% 92%;
+    --popover: 255 13% 13%;
+    --popover-foreground: 40 12% 93%;
 
-    --primary: 270 52% 48%;
+    --primary: 270 52% 52%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 42 78% 50%;
-    --secondary-foreground: 260 20% 5%;
+    --secondary: 42 72% 52%;
+    --secondary-foreground: 255 14% 11%;
 
-    --muted: 260 14% 12%;
-    --muted-foreground: 260 8% 48%;
+    --muted: 255 10% 18%;
+    --muted-foreground: 255 8% 55%;
 
-    --accent: 42 78% 50%;
-    --accent-foreground: 260 20% 5%;
+    --accent: 42 72% 52%;
+    --accent-foreground: 255 14% 11%;
 
-    --destructive: 0 62% 48%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 152 52% 42%;
+    --success: 152 48% 45%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 88% 50%;
-    --warning-foreground: 260 20% 5%;
+    --warning: 38 82% 52%;
+    --warning-foreground: 255 14% 11%;
 
-    --info: 210 56% 52%;
+    --info: 210 52% 55%;
     --info-foreground: 0 0% 100%;
 
     /* ─── Borders & Inputs ─── */
-    --border: 260 12% 14%;
-    --border-strong: 260 10% 22%;
-    --input: 260 14% 12%;
-    --ring: 270 52% 48%;
+    --border: 255 10% 20%;
+    --border-strong: 255 8% 28%;
+    --input: 255 10% 18%;
+    --ring: 270 52% 52%;
 
     /* ─── Radius Scale ─── */
     --radius: 0.75rem;
@@ -59,19 +59,19 @@
     --radius-full: 9999px;
 
     /* ─── Sidebar ─── */
-    --sidebar-background: 260 18% 6%;
-    --sidebar-foreground: 45 15% 92%;
-    --sidebar-primary: 270 52% 48%;
+    --sidebar-background: 255 14% 12%;
+    --sidebar-foreground: 40 12% 93%;
+    --sidebar-primary: 270 52% 52%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 260 14% 11%;
-    --sidebar-accent-foreground: 45 15% 92%;
-    --sidebar-border: 260 14% 11%;
-    --sidebar-ring: 270 52% 48%;
+    --sidebar-accent: 255 10% 17%;
+    --sidebar-accent-foreground: 40 12% 93%;
+    --sidebar-border: 255 10% 17%;
+    --sidebar-ring: 270 52% 52%;
 
     /* ─── Surfaces ─── */
-    --surface: 260 16% 9%;
-    --surface-hover: 260 14% 12%;
-    --surface-elevated: 260 14% 11%;
+    --surface: 255 12% 15%;
+    --surface-hover: 255 10% 19%;
+    --surface-elevated: 255 10% 17%;
 
     /* ─── Gradients — Refined HIVIUM Palette v2 ─── */
     --gradient-primary: linear-gradient(135deg, hsl(272 45% 44%) 0%, hsl(276 42% 50%) 50%, hsl(42 60% 52%) 100%);
