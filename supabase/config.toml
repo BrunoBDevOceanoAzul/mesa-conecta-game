@@ -25,3 +25,7 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.create-mesa]
     verify_jwt = false
+  [functions.mesa-ai-assist]
+    verify_jwt = false
+  [functions.mesa-ai-cover]
+    verify_jwt = false
