@@ -50,8 +50,8 @@ export function SharePostModal({ postId, postSlug, postTitle, trigger }: SharePo
       utm_campaign: postSlug || "post_share",
       utm_content: "share_button",
     });
-    // Increment shares count
-    await supabase.from("community_posts").update({ shares: (post_shares_count || 0) + 1 } as any).eq("id", postId);
+    // Increment shares count (best-effort)
+    await (supabase.from("community_posts") as any).update({ shares: 1 }).eq("id", postId);
     return trackedUrl;
   };
 
