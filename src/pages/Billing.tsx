@@ -207,16 +207,12 @@ export default function Billing() {
         </div>
 
         {/* ─── Tabs ─── */}
-        <div className="flex gap-1 rounded-2xl bg-muted/30 border border-border p-1.5">
+        <div className="dash-tabs">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 rounded-xl px-5 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                tab === t.key
-                  ? "bg-card text-foreground shadow-md shadow-primary/5 border border-border"
-                  : "text-muted-foreground hover:text-foreground border border-transparent"
-              }`}
+              className={tab === t.key ? "dash-tab-active" : "dash-tab-inactive"}
             >
               {t.icon}
               {t.label}

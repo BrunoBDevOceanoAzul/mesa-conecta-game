@@ -33,35 +33,12 @@ const navItems = [
 const DEFAULT_LIMITS = { mesasPerMonth: 4, feedHighlight: false };
 
 
-function StatCard({ icon, label, value, sub, accent }: { icon: React.ReactNode; label: string; value: string; sub?: string; accent?: boolean }) {
-  return (
-    <div className={`group relative overflow-hidden rounded-xl border p-5 transition-all hover:shadow-lg ${accent ? "border-secondary/30 bg-secondary/5 hover:shadow-secondary/10" : "border-border bg-card hover:shadow-primary/5 hover:border-primary/20"}`}>
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
-          {sub && <p className="mt-0.5 text-[10px] text-muted-foreground">{sub}</p>}
-        </div>
-        <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${accent ? "bg-secondary/15 text-secondary" : "bg-primary/10 text-primary"}`}>
-          {icon}
-        </div>
-      </div>
-      <div className={`absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r opacity-0 transition-opacity group-hover:opacity-100 ${accent ? "from-secondary/40 to-accent/40" : "from-primary/40 to-secondary/40"}`} />
-    </div>
-  );
-}
+import { StatCard } from "@/components/shared/StatCard";
+
+import { EmptyState } from "@/components/shared/EmptyState";
 
 function EmptyBlock({ icon, text, sub, action, onAction }: { icon: React.ReactNode; text: string; sub: string; action?: string; onAction?: () => void }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
-      <div className="mx-auto text-muted-foreground/50 mb-3">{icon}</div>
-      <p className="text-sm font-medium text-muted-foreground">{text}</p>
-      <p className="text-xs text-muted-foreground/70 mt-1">{sub}</p>
-      {action && onAction && (
-        <Button variant="outline" size="sm" className="mt-4" onClick={onAction}>{action}</Button>
-      )}
-    </div>
-  );
+  return <EmptyState icon={icon} title={text} description={sub} action={action} onAction={onAction} />;
 }
 
 export default function StoreDashboard() {
@@ -210,14 +187,12 @@ export default function StoreDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
+        <div className="dash-tabs">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={tab === t.key ? "dash-tab-active" : "dash-tab-inactive"}
             >
               {t.icon}
               {t.label}
@@ -480,15 +455,14 @@ export default function StoreDashboard() {
                   <FormInput label="Website / Instagram" value={storeWebsite} onChange={setStoreWebsite} placeholder="https://..." icon={<Globe className="h-4 w-4" />} />
                 </div>
 
-                {/* Description */}
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Descrição</label>
+                  <label className="field-label mb-1.5 block">Descrição</label>
                   <textarea
                     value={storeDescription}
                     onChange={(e) => setStoreDescription(e.target.value)}
                     placeholder="Conte sobre o ambiente, diferenciais, o que a luderia oferece..."
                     rows={3}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="field-input resize-none"
                   />
                 </div>
 
@@ -639,15 +613,15 @@ function FormInput({ label, value, onChange, placeholder, icon }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground mb-1.5 block">{label}</label>
-      <div className="flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+      <label className="field-label mb-1.5 block">{label}</label>
+      <div className="flex items-center rounded-lg border border-border bg-surface focus-within:ring-2 focus-within:ring-ring/50 focus-within:border-primary/40 transition-all">
         {icon && <span className="pl-3 text-muted-foreground">{icon}</span>}
         <input
           type="text"
           value={value}
           onChange={(e) => onChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground outline-none"
+          className="w-full bg-transparent px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none"
         />
       </div>
     </div>

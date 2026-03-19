@@ -53,27 +53,7 @@ interface CRMLead {
   lastContact: string;
 }
 
-function StatCard({ icon, label, value, trend }: { icon: React.ReactNode; label: string; value: string; trend?: string }) {
-  return (
-    <div className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:shadow-primary/5 hover:border-primary/20">
-      <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{label}</p>
-          <p className="mt-2 text-2xl font-display font-bold text-foreground">{value}</p>
-          {trend && (
-            <p className="mt-1 text-xs text-green-500 flex items-center gap-1">
-              <TrendingUp className="h-3 w-3" /> {trend}
-            </p>
-          )}
-        </div>
-        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
-          {icon}
-        </div>
-      </div>
-      <div className="absolute bottom-0 left-0 h-0.5 w-full bg-gradient-to-r from-primary/40 to-secondary/40 opacity-0 transition-opacity group-hover:opacity-100" />
-    </div>
-  );
-}
+import { StatCard } from "@/components/shared/StatCard";
 
 export default function GMDashboard() {
   const { user } = useAuth();
@@ -141,16 +121,12 @@ export default function GMDashboard() {
         </div>
 
         {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
+        <div className="dash-tabs">
           {tabs.map((t) => (
             <button
               key={t.key}
               onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                tab === t.key
-                  ? "bg-card text-foreground shadow-sm"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={tab === t.key ? "dash-tab-active" : "dash-tab-inactive"}
             >
               {t.icon}
               {t.label}
@@ -344,14 +320,10 @@ export default function GMDashboard() {
 
 /* ── Sub-components ── */
 
+import { EmptyState } from "@/components/shared/EmptyState";
+
 function EmptyBlock({ icon, text, sub }: { icon: React.ReactNode; text: string; sub: string }) {
-  return (
-    <div className="rounded-xl border border-dashed border-border bg-card/50 p-10 text-center">
-      <div className="mx-auto text-muted-foreground/50 mb-3">{icon}</div>
-      <p className="text-sm font-medium text-muted-foreground">{text}</p>
-      <p className="text-xs text-muted-foreground/70 mt-1">{sub}</p>
-    </div>
-  );
+  return <EmptyState icon={icon} title={text} description={sub} />;
 }
 
 function MesaMiniCard({ mesa }: { mesa: Mesa }) {
@@ -440,8 +412,8 @@ function CalcInput({ label, value, onChange, min, max, prefix, suffix }: {
 }) {
   return (
     <div>
-      <label className="text-xs font-medium text-muted-foreground">{label}</label>
-      <div className="mt-1.5 flex items-center rounded-lg border border-border bg-background focus-within:ring-2 focus-within:ring-primary/30 transition-all">
+      <label className="field-label">{label}</label>
+      <div className="mt-1.5 flex items-center rounded-lg border border-border bg-surface focus-within:ring-2 focus-within:ring-ring/50 focus-within:border-primary/40 transition-all">
         {prefix && <span className="pl-3 text-sm text-muted-foreground">{prefix}</span>}
         <input
           type="number"

@@ -194,7 +194,7 @@ export default function ExploreMesas() {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar por título, sistema, mestre ou cidade..."
-              className="w-full rounded-xl border border-border bg-card pl-10 pr-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              className="field-input !rounded-xl pl-10 pr-4 py-3"
             />
           </div>
           <Button
@@ -226,13 +226,12 @@ export default function ExploreMesas() {
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {/* System */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Sistema</label>
+                <label className="field-label mb-1.5 block">Sistema</label>
                 <select
                   value={filterSystem}
                   onChange={(e) => setFilterSystem(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="field-input"
                 >
                   <option value="">Todos os sistemas</option>
                   {availableSystems.map((s) => (
@@ -243,7 +242,7 @@ export default function ExploreMesas() {
 
               {/* City */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Cidade</label>
+                <label className="field-label mb-1.5 block">Cidade</label>
                 <CityAutocomplete
                   value={filterCity}
                   onChange={(city) => setFilterCity(city)}
@@ -253,7 +252,7 @@ export default function ExploreMesas() {
 
               {/* Format */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Formato</label>
+                <label className="field-label mb-1.5 block">Formato</label>
                 <div className="flex gap-1.5">
                   {FORMATS.map((f) => (
                     <button
@@ -273,7 +272,7 @@ export default function ExploreMesas() {
 
               {/* Session type */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Tipo</label>
+                <label className="field-label mb-1.5 block">Tipo</label>
                 <div className="flex gap-1.5">
                   {SESSION_TYPES.map((t) => (
                     <button
@@ -291,13 +290,12 @@ export default function ExploreMesas() {
                 </div>
               </div>
 
-              {/* Price */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Faixa de preço</label>
+                <label className="field-label mb-1.5 block">Faixa de preço</label>
                 <select
                   value={filterPriceRange}
                   onChange={(e) => setFilterPriceRange(e.target.value)}
-                  className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="field-input"
                 >
                   <option value="">Qualquer preço</option>
                   {PRICE_RANGES.map((r) => (
@@ -308,7 +306,7 @@ export default function ExploreMesas() {
 
               {/* Date */}
               <div>
-                <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Data</label>
+                <label className="field-label mb-1.5 block">Data</label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
