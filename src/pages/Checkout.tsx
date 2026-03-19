@@ -280,8 +280,14 @@ export default function Checkout() {
   async function handleCheckout() {
     if (!resolvedPlan || !user) return;
 
-    // Free plan — activate directly without Stripe
-    if (resolvedPlan.price_monthly === 0) {
+    // SuperUsers (admin/advisor) skip free plan — go straight to Stripe if plan has a stripe_price_id
+    // Free plan — activate directly without Stripe (only for non-superusers or plans without stripe_price_id)
+    if (resolvedPlan.price_monthly === 0 && !isSuperUser) {
+      return handleFreePlan();
+    }
+
+    // SuperUsers on free plan: activate directly since they don't need to pay
+    if (resolvedPlan.price_monthly === 0 && isSuperUser) {
       return handleFreePlan();
     }
 
