@@ -129,7 +129,8 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
 
   return (
     <div
-      className={`group rounded-xl border transition-all duration-200 ${
+      onClick={handlePostClick}
+      className={`group rounded-xl border transition-all duration-200 cursor-pointer ${
         post.is_sponsored
           ? "border-secondary/25 bg-card shadow-lg shadow-secondary/5"
           : "border-border bg-card hover:border-border-strong"
