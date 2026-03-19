@@ -181,7 +181,11 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             ) : (
               <button
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setTimeout(() => fileInputRef.current?.click(), 0);
+                }}
                 className="w-full h-28 rounded-xl border-2 border-dashed border-border hover:border-plum-300 bg-muted/30 hover:bg-plum-50/50 transition-all flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-plum-500"
               >
                 <ImagePlus className="h-6 w-6" />
