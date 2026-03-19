@@ -161,6 +161,7 @@ export function PricingSection() {
             const meta = planMeta[plan.code] || {};
             const features = Object.entries(plan.feature_flags || {})
               .filter(([k, v]) => v !== false && k !== "founder_locked")
+              .sort(([a], [b]) => (featureOrder[a] ?? 99) - (featureOrder[b] ?? 99))
               .map(([k, v]) => featureFlagLabel(k, v));
 
             return (
