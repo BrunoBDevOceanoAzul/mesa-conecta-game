@@ -50,12 +50,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Handle email confirmation redirect
         if (event === "SIGNED_IN" && session?.user) {
           const currentPath = window.location.pathname;
-          // Only redirect if user is on a public/landing page (not already in app)
           const isPublicPage = ["/", "/login", "/cadastro", "/reset-password", "/~oauth"].includes(currentPath);
           
           if (isPublicPage) {
+            // Check admin role first
+            const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: session.user.id });
+            
+            if (isAdmin) {
+              window.location.href = "/admin";
+              return;
+            }
+
             const role = session.user.user_metadata?.role || "player";
-            // Check if user has completed onboarding (has city set)
             const { data: profile } = await supabase
               .from("profiles")
               .select("city")

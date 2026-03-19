@@ -18,6 +18,10 @@ const roleToDash: Record<string, string> = {
 };
 
 async function resolveRedirect(userId: string, fallbackRole: string): Promise<string> {
+  // Check admin first
+  const { data: isAdmin } = await supabase.rpc("is_admin", { _user_id: userId });
+  if (isAdmin) return "/admin";
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("city, role")
