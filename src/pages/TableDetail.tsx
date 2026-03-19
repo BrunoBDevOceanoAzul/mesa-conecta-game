@@ -262,7 +262,31 @@ export default function TableDetail() {
               </div>
             )}
 
-            {/* Reviews section */}
+            {/* Preparation Block - Player View */}
+            {user && user.id !== mesa.gm_id && (
+              <PlayerPreparationBlock
+                gameTableId={mesa.id}
+                tableTitle={mesa.title}
+                systemName={mesa.system}
+              />
+            )}
+
+            {/* Preparation Setup - GM View */}
+            {user && user.id === mesa.gm_id && (
+              <div className="space-y-4">
+                <PreparationSetupPanel
+                  gameTableId={mesa.id}
+                  systemName={mesa.system}
+                  tableTitle={mesa.title}
+                />
+                <GMSubmissionsTracker
+                  gameTableId={mesa.id}
+                  tableTitle={mesa.title}
+                />
+              </div>
+            )}
+
+
             <div className="mt-8">
               {eligibility.eligible && (
                 <Button variant="hero" size="sm" className="mb-4 gap-2" onClick={() => setReviewOpen(true)}>
