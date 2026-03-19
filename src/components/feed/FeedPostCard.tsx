@@ -95,21 +95,17 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
     }
   };
 
-  const handleShare = async () => {
-    setSharing(true);
-    const url = `${window.location.origin}/feed?post=${post.id}`;
-    try {
-      await navigator.clipboard.writeText(url);
-      toast({ title: "Link copiado!", description: "Compartilhe onde quiser." });
-      // Track share
-      await supabase.from("community_posts").update({ shares: post.shares + 1 }).eq("id", post.id);
-    } catch {
-      toast({ title: "Erro ao copiar", variant: "destructive" });
-    }
-    setSharing(false);
+  const handleShare = () => {
+    // Delegate to SharePostModal — handled via the button below
   };
 
-  const handleAuthorClick = () => {
+  const handlePostClick = () => {
+    const target = post.slug || post.id;
+    navigate(`/post/${target}`);
+  };
+
+  const handleAuthorClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
     if (post.author_role === "gm" && post.author_slug) {
       navigate(`/mestre/${post.author_slug}`);
     } else if (post.author_role === "store" && post.author_slug) {
