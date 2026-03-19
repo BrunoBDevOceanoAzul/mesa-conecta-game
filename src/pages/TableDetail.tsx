@@ -263,6 +263,15 @@ export default function TableDetail() {
               </div>
             )}
 
+            {/* Live Chat */}
+            {user && (
+              <MesaLiveChat
+                gameTableId={mesa.id}
+                gmUserId={mesa.gm_id}
+                tableTitle={mesa.title}
+              />
+            )}
+
             {/* Preparation Block - Player View */}
             {user && user.id !== mesa.gm_id && (
               <PlayerPreparationBlock
