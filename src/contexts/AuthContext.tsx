@@ -1,5 +1,6 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { trackSignIn, trackSignOut, updateLastSeen } from "@/lib/session-tracker";
 import type { User, Session } from "@supabase/supabase-js";
 
 interface AuthContextType {
