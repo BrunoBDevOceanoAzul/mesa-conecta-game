@@ -27,6 +27,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import MestrePublicProfile from "./pages/MestrePublicProfile";
 import LojaPublicProfile from "./pages/LojaPublicProfile";
+import Notifications from "./pages/Notifications";
 import AdminPainel from "./pages/admin/AdminPainel";
 import AdminInsights from "./pages/admin/AdminInsights";
 import AdminUsers from "./pages/admin/AdminUsers";
