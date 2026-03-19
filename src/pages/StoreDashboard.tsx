@@ -14,7 +14,7 @@ import {
   MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2,
   Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap,
   CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText,
-  UserCheck, BookOpen, Star, Sparkles
+  UserCheck, BookOpen, Star, Sparkles, Instagram
 } from "lucide-react";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
