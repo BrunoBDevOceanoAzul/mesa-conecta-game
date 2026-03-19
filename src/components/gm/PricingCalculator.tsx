@@ -252,7 +252,7 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
           </div>
 
           {/* Goal progress */}
-          {state.monthlyGoal > 0 && (
+          {!compact && state.monthlyGoal > 0 && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-display font-semibold text-foreground flex items-center gap-2">
