@@ -455,15 +455,14 @@ export default function StoreDashboard() {
                   <FormInput label="Website / Instagram" value={storeWebsite} onChange={setStoreWebsite} placeholder="https://..." icon={<Globe className="h-4 w-4" />} />
                 </div>
 
-                {/* Description */}
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground mb-1.5 block">Descrição</label>
+                  <label className="field-label mb-1.5 block">Descrição</label>
                   <textarea
                     value={storeDescription}
                     onChange={(e) => setStoreDescription(e.target.value)}
                     placeholder="Conte sobre o ambiente, diferenciais, o que a luderia oferece..."
                     rows={3}
-                    className="w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    className="field-input resize-none"
                   />
                 </div>
 
