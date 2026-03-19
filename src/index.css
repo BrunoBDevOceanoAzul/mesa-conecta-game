@@ -5,13 +5,13 @@
 @tailwind utilities;
 
 /* ═══════════════════════════════════════════════
-   HIVIUM Design System — Light Premium Fun v1
-   "Diversão sofisticada, comunidade premium"
+   HIVIUM Design System — Light Premium Fun v2
+   Diversão · Descoberta · Comunidade · Sofisticação
    ═══════════════════════════════════════════════ */
 
 @layer base {
   :root {
-    /* ─── Core Palette — Warm Light ─── */
+    /* ─── Core — Warm Light ─── */
     --background: 34 100% 97%;
     --foreground: 280 18% 17%;
 
@@ -21,42 +21,43 @@
     --popover: 0 0% 100%;
     --popover-foreground: 280 18% 17%;
 
-    /* ─── Brand: Ameixa (Plum) ─── */
+    /* ─── Brand Plum ─── */
     --primary: 270 48% 49%;
     --primary-foreground: 0 0% 100%;
 
-    /* ─── Gold: Premium & Valor ─── */
+    /* ─── Gold / Premium ─── */
     --secondary: 38 73% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    /* ─── Muted: Plum-tinted neutrals ─── */
+    /* ─── Muted — Plum tint ─── */
     --muted: 272 40% 96%;
     --muted-foreground: 276 8% 41%;
 
-    /* ─── Accent: Coral Fun ─── */
+    /* ─── Coral / Energia ─── */
     --accent: 349 87% 66%;
     --accent-foreground: 0 0% 100%;
 
     /* ─── Semantic ─── */
-    --destructive: 0 62% 50%;
+    --destructive: 0 56% 52%;
     --destructive-foreground: 0 0% 100%;
 
-    --success: 178 52% 37%;
+    --success: 152 55% 40%;
     --success-foreground: 0 0% 100%;
 
-    --warning: 38 73% 45%;
+    --warning: 38 78% 52%;
     --warning-foreground: 280 18% 17%;
 
-    --info: 176 46% 45%;
+    --info: 210 52% 48%;
     --info-foreground: 0 0% 100%;
 
-    /* ─── Borders & Inputs ─── */
+    /* ─── Borders ─── */
     --border: 280 20% 90%;
     --border-strong: 280 12% 82%;
+    --border-warm: 30 30% 85%;
     --input: 280 20% 90%;
     --ring: 270 48% 49%;
 
-    /* ─── Radius Scale ─── */
+    /* ─── Radius ─── */
     --radius: 0.75rem;
     --radius-sm: 0.5rem;
     --radius-lg: 1rem;
@@ -65,11 +66,11 @@
     --radius-full: 9999px;
 
     /* ─── Sidebar ─── */
-    --sidebar-background: 0 0% 100%;
+    --sidebar-background: 264 60% 97%;
     --sidebar-foreground: 280 18% 17%;
     --sidebar-primary: 270 48% 49%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 272 40% 96%;
+    --sidebar-accent: 272 40% 94%;
     --sidebar-accent-foreground: 280 18% 17%;
     --sidebar-border: 280 20% 90%;
     --sidebar-ring: 270 48% 49%;
@@ -79,7 +80,13 @@
     --surface-hover: 272 40% 96%;
     --surface-elevated: 0 0% 100%;
 
-    /* ─── Gradients — Light HIVIUM ─── */
+    /* ─── Background Variants ─── */
+    --bg-secondary: 33 100% 95%;
+    --bg-tertiary: 264 100% 97%;
+    --bg-soft-fun: 330 100% 98%;
+    --bg-soft-teal: 170 40% 97%;
+
+    /* ─── Gradients ─── */
     --gradient-primary: linear-gradient(135deg, hsl(270 48% 49%) 0%, hsl(38 73% 45%) 100%);
     --gradient-primary-subtle: linear-gradient(135deg, hsl(270 48% 49%) 0%, hsl(270 52% 62%) 60%, hsl(38 68% 54%) 100%);
     --gradient-premium: linear-gradient(135deg, hsl(270 48% 49%) 0%, hsl(38 73% 45%) 100%);
@@ -89,17 +96,22 @@
     --gradient-hero: linear-gradient(135deg, hsl(34 100% 97%) 0%, hsl(264 100% 97%) 45%, hsl(350 100% 97%) 100%);
     --gradient-discovery: linear-gradient(135deg, hsl(270 52% 62%) 0%, hsl(349 87% 66%) 100%);
     --gradient-community: linear-gradient(135deg, hsl(33 100% 95%) 0%, hsl(264 100% 97%) 100%);
+    --gradient-trust: linear-gradient(135deg, hsl(170 40% 97%) 0%, hsl(264 100% 97%) 100%);
+    --gradient-xp: linear-gradient(90deg, hsl(270 48% 49%) 0%, hsl(38 73% 45%) 100%);
     --gradient-surface: linear-gradient(180deg, hsl(34 100% 97%), hsl(33 100% 95%));
+    --gradient-sidebar-active: linear-gradient(135deg, hsl(42 95% 88%) 0%, hsl(272 72% 92%) 100%);
 
-    /* ─── Elevation / Shadows — Light ─── */
+    /* ─── Shadows — Warm & Soft ─── */
     --shadow-sm: 0 1px 3px hsl(280 20% 50% / 0.06), 0 1px 2px hsl(280 20% 50% / 0.04);
     --shadow-md: 0 4px 12px hsl(280 20% 50% / 0.08), 0 2px 4px hsl(280 20% 50% / 0.04);
     --shadow-lg: 0 8px 28px hsl(280 20% 50% / 0.1), 0 4px 8px hsl(280 20% 50% / 0.05);
     --shadow-xl: 0 16px 44px hsl(280 20% 50% / 0.12), 0 6px 12px hsl(280 20% 50% / 0.06);
-    --glow-primary: 0 4px 20px hsl(270 48% 49% / 0.12), 0 1px 3px hsl(280 20% 50% / 0.06);
-    --glow-gold: 0 4px 16px hsl(38 73% 45% / 0.12);
-    --glow-primary-strong: 0 0 28px hsl(270 48% 49% / 0.15), 0 0 56px hsl(270 52% 62% / 0.05);
-    --glow-cta: 0 4px 16px hsl(270 48% 49% / 0.14), 0 8px 32px hsl(270 52% 62% / 0.06);
+    --glow-primary: 0 4px 20px hsl(270 48% 49% / 0.1), 0 1px 3px hsl(280 20% 50% / 0.06);
+    --glow-gold: 0 4px 16px hsl(38 73% 45% / 0.1);
+    --glow-primary-strong: 0 0 28px hsl(270 48% 49% / 0.14), 0 0 56px hsl(270 52% 62% / 0.04);
+    --glow-cta: 0 4px 16px hsl(270 48% 49% / 0.12), 0 8px 32px hsl(270 52% 62% / 0.05);
+    --glow-coral: 0 4px 16px hsl(349 87% 66% / 0.1);
+    --glow-teal: 0 4px 16px hsl(178 52% 37% / 0.1);
   }
 }
 
@@ -158,20 +170,20 @@
     @apply text-[11px] font-semibold tracking-[0.16em] uppercase font-body;
   }
 
-  /* ─── Form field label ─── */
+  /* ─── Form Fields ─── */
   .field-label {
     @apply text-xs font-medium text-muted-foreground uppercase tracking-wider font-body;
   }
   .field-input {
-    @apply mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-ring/50 focus:border-primary/40 transition-all disabled:cursor-not-allowed disabled:opacity-50;
+    @apply mt-1.5 w-full rounded-lg border border-border bg-card px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  /* Pulse glow for CTA buttons */
+  /* CTA glow */
   .cta-glow {
     box-shadow: var(--glow-cta);
   }
   .cta-glow:hover {
-    box-shadow: 0 6px 24px hsl(270 48% 49% / 0.18), 0 12px 44px hsl(270 52% 62% / 0.08);
+    box-shadow: 0 6px 24px hsl(270 48% 49% / 0.16), 0 12px 44px hsl(270 52% 62% / 0.06);
   }
 }
 
@@ -182,12 +194,10 @@
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-primary);
   }
-
   .gradient-text-gold {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-gold);
   }
-
   .gradient-text-discovery {
     @apply bg-clip-text text-transparent;
     background-image: var(--gradient-discovery);
@@ -211,7 +221,7 @@
     padding: 1px;
   }
 
-  /* Card hover effect */
+  /* Card hover */
   .card-hover {
     @apply transition-all duration-300 ease-out;
   }
@@ -220,9 +230,9 @@
     box-shadow: var(--glow-primary);
   }
 
-  /* Glass morphism — light version */
+  /* Glass — light variant */
   .glass {
-    @apply bg-card/80 backdrop-blur-2xl border-b border-border/60;
+    @apply bg-card/85 backdrop-blur-2xl border-b border-border/60;
   }
 
   /* Match badge */
@@ -231,12 +241,12 @@
     @apply text-primary-foreground font-display font-bold rounded-full px-3 py-1 text-sm;
   }
 
-  /* Sponsored card glow */
+  /* Sponsored glow */
   .sponsored-glow {
-    box-shadow: 0 0 0 1px hsl(38 73% 45% / 0.15), 0 0 20px hsl(38 73% 45% / 0.06);
+    box-shadow: 0 0 0 1px hsl(38 73% 45% / 0.12), 0 0 20px hsl(38 73% 45% / 0.06);
   }
 
-  /* Section typography helpers */
+  /* Section helpers */
   .section-heading {
     @apply text-3xl font-display font-bold md:text-5xl lg:text-[3.5rem] leading-[1.08] tracking-tight;
   }
@@ -247,7 +257,7 @@
     @apply text-overline text-primary mb-4 block;
   }
 
-  /* Surface card */
+  /* Surface cards */
   .surface-card {
     @apply rounded-xl border border-border bg-card p-5;
     box-shadow: var(--shadow-sm);
@@ -259,7 +269,7 @@
 
   /* Stat widget */
   .stat-widget {
-    @apply rounded-xl border border-border bg-card p-5 flex flex-col gap-1 transition-all duration-200 hover:border-border-strong;
+    @apply rounded-xl border border-border bg-card p-5 flex flex-col gap-1 transition-all duration-200 hover:border-border-strong hover:shadow-sm;
   }
   .stat-widget .stat-value {
     @apply text-2xl font-display font-bold text-foreground;
@@ -271,38 +281,39 @@
     @apply text-xs font-medium;
   }
 
-  /* Premium role badges */
+  /* ─── Role Badges — Fun but refined ─── */
   .role-badge {
     @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold tracking-wide;
   }
   .role-badge-player {
-    @apply role-badge border;
-    color: hsl(270 48% 49%);
-    background-color: hsl(270 48% 49% / 0.08);
-    border-color: hsl(270 48% 49% / 0.15);
+    @apply role-badge;
+    background-color: #D1F0EC;
+    color: #246F70;
+    border: 1px solid #A5E0D7;
   }
   .role-badge-gm {
-    @apply role-badge border;
-    color: hsl(38 73% 38%);
-    background-color: hsl(38 73% 45% / 0.1);
-    border-color: hsl(38 73% 45% / 0.18);
+    @apply role-badge;
+    background-color: #ECDDFA;
+    color: #64339A;
+    border: 1px solid #D8BCF2;
   }
   .role-badge-store {
-    @apply role-badge border;
-    color: hsl(178 52% 32%);
-    background-color: hsl(178 52% 37% / 0.1);
-    border-color: hsl(178 52% 37% / 0.18);
+    @apply role-badge;
+    background-color: #FFD9DE;
+    color: #D94367;
+    border: 1px solid #FFB1BE;
   }
   .role-badge-brand {
-    @apply role-badge border;
-    color: hsl(349 67% 46%);
-    background-color: hsl(349 87% 66% / 0.08);
-    border-color: hsl(349 87% 66% / 0.16);
+    @apply role-badge;
+    background-color: #FFF8E8;
+    color: #64339A;
+    border: 1px solid #FDEFC4;
   }
   .role-badge-founder {
     @apply role-badge font-bold;
-    background: var(--gradient-gold);
-    color: hsl(0 0% 100%);
+    background: linear-gradient(135deg, #FDEFC4, #ECDDFA);
+    color: #4B2576;
+    border: 1px solid #F7DD86;
   }
   .role-badge-premium {
     @apply role-badge font-bold;
@@ -310,10 +321,10 @@
     color: hsl(0 0% 100%);
   }
   .role-badge-sponsored {
-    @apply role-badge border;
-    color: hsl(38 73% 38%);
-    background-color: hsl(38 73% 45% / 0.06);
-    border-color: hsl(38 73% 45% / 0.18);
+    @apply role-badge;
+    background-color: #FFF1F2;
+    color: #D94367;
+    border: 1px solid #FFB1BE;
   }
 
   /* Empty states */
@@ -330,9 +341,10 @@
     @apply text-body-sm text-muted-foreground max-w-sm;
   }
 
-  /* Dashboard tab bar */
+  /* Dashboard tabs */
   .dash-tabs {
-    @apply flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto;
+    @apply flex gap-1 rounded-xl p-1 overflow-x-auto;
+    background-color: hsl(272 40% 96%);
   }
   .dash-tab {
     @apply flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap;
@@ -342,6 +354,23 @@
   }
   .dash-tab-inactive {
     @apply dash-tab text-muted-foreground hover:text-foreground hover:bg-card/60;
+  }
+
+  /* ─── XP Progress bar ─── */
+  .xp-bar {
+    @apply h-2.5 rounded-full overflow-hidden;
+    background-color: hsl(272 40% 94%);
+  }
+  .xp-bar-fill {
+    @apply h-full rounded-full transition-all duration-500;
+    background-image: var(--gradient-xp);
+  }
+
+  /* ─── Skeleton shimmer — warm lavender ─── */
+  .skeleton-shimmer {
+    @apply animate-shimmer rounded-lg;
+    background: linear-gradient(90deg, hsl(272 40% 96%) 0%, hsl(34 100% 97%) 50%, hsl(272 40% 96%) 100%);
+    background-size: 200% 100%;
   }
 }
 
@@ -353,11 +382,11 @@
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
+  background: hsl(280 20% 86%);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: hsl(276 8% 60%);
 }
 
 /* ─── Selection ─── */

@@ -28,6 +28,14 @@ const roleLabels: Record<UserRole | "admin", string> = {
   admin: "Administrador",
 };
 
+const roleBadgeClass: Record<UserRole | "admin", string> = {
+  player: "role-badge-player",
+  gm: "role-badge-gm",
+  store: "role-badge-store",
+  brand: "role-badge-brand",
+  admin: "role-badge-premium",
+};
+
 export function DashboardLayout({
   children,
   role,
@@ -46,13 +54,13 @@ export function DashboardLayout({
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Sidebar */}
+      {/* Sidebar — lavender-tinted light */}
       <aside
-        className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-border bg-card transform transition-transform lg:translate-x-0 lg:static ${
+        className={`fixed inset-y-0 left-0 z-50 w-60 border-r border-sidebar-border bg-sidebar transform transition-transform lg:translate-x-0 lg:static ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-14 items-center justify-between px-4 border-b border-border">
+        <div className="flex h-14 items-center justify-between px-4 border-b border-sidebar-border">
           <button
             onClick={() => navigate("/")}
             className="flex items-center gap-2.5"
@@ -75,17 +83,17 @@ export function DashboardLayout({
         </div>
 
         <div className="p-3">
-          <div className="flex items-center gap-3 rounded-xl bg-surface p-3 mb-5">
-            <div className="h-9 w-9 rounded-full bg-primary/10 flex items-center justify-center text-sm font-bold text-primary ring-1 ring-primary/12">
+          <div className="flex items-center gap-3 rounded-xl bg-card p-3 mb-5 shadow-sm border border-border">
+            <div className="h-9 w-9 rounded-full bg-plum-100 flex items-center justify-center text-sm font-bold text-plum-600 ring-1 ring-plum-200">
               {userName.charAt(0)}
             </div>
             <div className="min-w-0">
               <div className="text-sm font-medium text-foreground truncate">
                 {userName}
               </div>
-              <div className="text-overline text-muted-foreground mt-0.5">
+              <span className={`${roleBadgeClass[role]} !text-[9px] !px-2 !py-0.5 mt-0.5`}>
                 {roleLabels[role]}
-              </div>
+              </span>
             </div>
           </div>
 
@@ -101,9 +109,10 @@ export function DashboardLayout({
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
                     active
-                      ? "bg-primary/8 text-primary font-medium"
-                      : "text-muted-foreground hover:text-foreground hover:bg-surface-hover"
+                      ? "font-medium text-plum-700 shadow-sm"
+                      : "text-muted-foreground hover:text-foreground hover:bg-card/80"
                   }`}
+                  style={active ? { background: "var(--gradient-sidebar-active)" } : undefined}
                 >
                   {item.icon}
                   {item.label}
@@ -116,7 +125,7 @@ export function DashboardLayout({
         <div className="absolute bottom-3 left-3 right-3">
           <button
             onClick={handleLogout}
-            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-all duration-200"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:text-foreground hover:bg-card/80 transition-all duration-200"
           >
             <LogOut className="h-4 w-4" />
             Sair
@@ -127,14 +136,14 @@ export function DashboardLayout({
       {/* Overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-foreground/10 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Main */}
       <main className="flex-1 min-w-0">
-        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-background/80 backdrop-blur-xl px-4 lg:px-6">
+        <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b border-border bg-card/85 backdrop-blur-xl px-4 lg:px-6">
           <button
             className="lg:hidden text-foreground"
             onClick={() => setSidebarOpen(true)}

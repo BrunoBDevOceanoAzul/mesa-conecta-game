@@ -9,18 +9,18 @@ import { toast } from "@/hooks/use-toast";
 import { SharePostModal } from "@/components/feed/SharePostModal";
 
 const roleBadgeConfig: Record<string, { label: string; className: string }> = {
-  gm: { label: "Mestre", className: "bg-primary/15 text-primary border-primary/20" },
-  store: { label: "Luderia", className: "bg-secondary/15 text-secondary border-secondary/20" },
-  brand: { label: "Marca", className: "bg-info/15 text-info border-info/20" },
-  admin: { label: "HIVIUM", className: "bg-accent/15 text-accent border-accent/20" },
-  player: { label: "Jogador", className: "bg-muted-foreground/15 text-muted-foreground border-muted-foreground/20" },
+  gm: { label: "Mestre", className: "bg-plum-100 text-plum-600 border-plum-200" },
+  store: { label: "Luderia", className: "bg-coral-100 text-coral-500 border-coral-200" },
+  brand: { label: "Marca", className: "bg-gold-50 text-plum-600 border-gold-100" },
+  admin: { label: "HIVIUM", className: "bg-plum-100 text-plum-600 border-plum-200" },
+  player: { label: "Jogador", className: "bg-teal-100 text-teal-600 border-teal-200" },
 };
 
 const postTypeConfig: Record<string, { label: string; className: string }> = {
-  table_announcement: { label: "Nova mesa", className: "bg-primary/10 text-primary" },
-  event: { label: "Evento", className: "bg-secondary/10 text-secondary" },
-  institutional: { label: "Comunidade", className: "bg-accent/10 text-accent" },
-  promotion: { label: "Promoção", className: "bg-warning/10 text-warning" },
+  table_announcement: { label: "Nova mesa", className: "bg-plum-50 text-plum-500" },
+  event: { label: "Evento", className: "bg-coral-50 text-coral-500" },
+  institutional: { label: "Comunidade", className: "bg-teal-50 text-teal-500" },
+  promotion: { label: "Promoção", className: "bg-gold-50 text-gold-500" },
 };
 
 export interface FeedPost {
@@ -44,18 +44,15 @@ export interface FeedPost {
   likes_count: number;
   published_at: string;
   slug?: string | null;
-  // Joined
   author_name?: string;
   author_avatar_url?: string;
   author_slug?: string;
   author_city?: string;
-  // Related table
   table_title?: string;
   table_system?: string;
   table_seats?: number;
   table_start_at?: string;
   table_slug?: string;
-  // User interaction
   user_liked?: boolean;
 }
 
@@ -96,10 +93,6 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
     }
   };
 
-  const handleShare = () => {
-    // Delegate to SharePostModal — handled via the button below
-  };
-
   const handlePostClick = () => {
     const target = post.slug || post.id;
     navigate(`/post/${target}`);
@@ -132,15 +125,15 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
       onClick={handlePostClick}
       className={`group rounded-xl border transition-all duration-200 cursor-pointer ${
         post.is_sponsored
-          ? "border-secondary/25 bg-card shadow-lg shadow-secondary/5"
-          : "border-border bg-card hover:border-border-strong"
+          ? "border-gold-200 bg-card shadow-glow-gold"
+          : "border-border bg-card hover:border-plum-200 hover:shadow-sm"
       }`}
     >
       {/* Sponsored / Type badge strip */}
       {(post.is_sponsored || typeConfig) && (
         <div className="flex items-center gap-2 px-5 pt-4 pb-0">
           {post.is_sponsored && (
-            <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-secondary">
+            <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider text-gold-500">
               <Sparkles className="h-3 w-3" /> {post.sponsor_label || "Em destaque"}
             </span>
           )}
@@ -157,13 +150,13 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         <div className="mb-3 flex items-center gap-3">
           <button
             onClick={handleAuthorClick}
-            className="h-10 w-10 rounded-full bg-primary/12 flex items-center justify-center text-sm font-bold text-primary ring-1 ring-primary/15 hover:ring-primary/30 transition-all shrink-0"
+            className="h-10 w-10 rounded-full bg-plum-50 flex items-center justify-center text-sm font-bold text-plum-500 ring-1 ring-plum-200 hover:ring-plum-300 transition-all shrink-0"
           >
             {post.author_name?.charAt(0) || "?"}
           </button>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <button onClick={handleAuthorClick} className="text-sm font-semibold text-foreground truncate hover:text-primary transition-colors">
+              <button onClick={handleAuthorClick} className="text-sm font-semibold text-foreground truncate hover:text-plum-500 transition-colors">
                 {post.author_name || "Anônimo"}
               </button>
               <span className={`inline-flex items-center text-[10px] font-semibold rounded-full px-2 py-0.5 border ${badge.className}`}>
@@ -201,10 +194,10 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         {post.related_table_id && post.table_title && (
           <button
             onClick={handleTableClick}
-            className="w-full mb-3 rounded-lg border border-border bg-surface/50 p-3 text-left hover:border-primary/30 hover:bg-surface-hover transition-all"
+            className="w-full mb-3 rounded-lg border border-border bg-plum-50/50 p-3 text-left hover:border-plum-200 hover:bg-plum-50 transition-all"
           >
             <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-semibold text-primary">{post.table_system}</span>
+              <span className="text-xs font-semibold text-plum-500">{post.table_system}</span>
               {post.table_seats != null && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
                   <Users className="h-3 w-3" /> {post.table_seats} vagas
@@ -232,7 +225,7 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         {post.tags && post.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-3">
             {post.tags.map((tag) => (
-              <Badge key={tag} variant="secondary" className="text-[10px] bg-muted text-muted-foreground border-0">
+              <Badge key={tag} variant="secondary" className="text-[10px] bg-plum-50 text-plum-400 border-0">
                 {tag}
               </Badge>
             ))}
@@ -243,12 +236,12 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
         <div className="flex items-center gap-4 pt-3 border-t border-border" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={handleLike}
-            className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? "text-primary font-semibold" : "text-muted-foreground hover:text-primary"}`}
+            className={`flex items-center gap-1.5 text-xs transition-colors ${liked ? "text-coral-400 font-semibold" : "text-muted-foreground hover:text-coral-400"}`}
           >
-            <Heart className={`h-4 w-4 ${liked ? "fill-primary" : ""}`} /> {likesCount > 0 ? likesCount : ""}
+            <Heart className={`h-4 w-4 ${liked ? "fill-coral-400" : ""}`} /> {likesCount > 0 ? likesCount : ""}
           </button>
           <MessageCircle
-            className="h-4 w-4 text-muted-foreground hover:text-primary cursor-pointer transition-colors"
+            className="h-4 w-4 text-muted-foreground hover:text-plum-400 cursor-pointer transition-colors"
             onClick={handlePostClick}
           />
           <div className="ml-auto">

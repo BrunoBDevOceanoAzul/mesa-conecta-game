@@ -16,6 +16,8 @@ interface ProfileOption {
   label: string;
   desc: string;
   icon: string;
+  color: string;
+  bg: string;
 }
 
 const options: ProfileOption[] = [
@@ -24,18 +26,24 @@ const options: ProfileOption[] = [
     label: "Jogador",
     desc: "Quero encontrar mesas, campanhas e grupos para jogar.",
     icon: "Dice5",
+    color: "text-teal-500",
+    bg: "bg-teal-50",
   },
   {
     key: "mestre",
     label: "Mestre",
     desc: "Quero criar mesas, conduzir sessões e encontrar jogadores.",
     icon: "BookOpen",
+    color: "text-plum-500",
+    bg: "bg-plum-50",
   },
   {
     key: "loja",
     label: "Loja / Luderia",
     desc: "Quero organizar eventos, agenda e comunidade na minha casa.",
     icon: "Store",
+    color: "text-coral-400",
+    bg: "bg-coral-50",
   },
 ];
 
@@ -46,13 +54,12 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12"
+      style={{ background: "var(--gradient-hero)" }}
     >
-      {/* Ambient glow */}
+      {/* Decorative blob */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full opacity-[0.04]"
-          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
-        />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-plum-200/15 blur-[180px]" />
+        <div className="absolute bottom-1/3 right-1/4 w-[350px] h-[350px] rounded-full bg-coral-200/10 blur-[140px]" />
       </div>
 
       <div className="w-full max-w-lg relative z-10">
@@ -82,13 +89,13 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
                 transition={{ delay: 0.1 + i * 0.08 }}
                 onClick={() => onSelect(opt.key)}
                 className={cn(
-                  "group relative flex items-center gap-4 rounded-2xl border border-border/60 bg-card/50 p-5",
+                  "group relative flex items-center gap-4 rounded-2xl border border-border bg-card p-5",
                   "text-left transition-all duration-300",
-                  "hover:border-primary/40 hover:bg-card/80 hover:shadow-[0_0_30px_hsl(272_60%_58%_/_0.06)]",
+                  "hover:border-plum-200 hover:shadow-md",
                   "active:scale-[0.98]"
                 )}
               >
-                <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-primary/8 text-primary transition-all duration-300 group-hover:bg-primary/12 group-hover:shadow-[0_0_15px_hsl(272_60%_58%_/_0.1)]">
+                <div className={`flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl ${opt.bg} ${opt.color} transition-all duration-300 group-hover:shadow-sm`}>
                   <Icon className="h-6 w-6" />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -99,7 +106,7 @@ export function ProfileSelect({ onSelect }: ProfileSelectProps) {
                     {opt.desc}
                   </p>
                 </div>
-                <ChevronRight className="h-5 w-5 text-muted-foreground/30 shrink-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-primary/60" />
+                <ChevronRight className="h-5 w-5 text-muted-foreground/30 shrink-0 transition-all duration-300 group-hover:translate-x-0.5 group-hover:text-plum-400" />
               </motion.button>
             );
           })}

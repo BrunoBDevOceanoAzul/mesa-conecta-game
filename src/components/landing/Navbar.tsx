@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -107,12 +107,12 @@ export function Navbar() {
           {user ? (
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center gap-2.5 rounded-full p-1 pr-3 hover:bg-surface-hover transition-colors">
-                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
+                <button className="flex items-center gap-2.5 rounded-full p-1 pr-3 hover:bg-plum-50 transition-colors">
+                  <Avatar className="h-8 w-8 ring-2 ring-plum-200">
                     {avatarUrl ? (
                       <AvatarImage src={avatarUrl} alt={userName} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                    <AvatarFallback className="bg-plum-100 text-plum-600 text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -124,14 +124,14 @@ export function Navbar() {
               <PopoverContent align="end" className="w-52 p-2">
                 <button
                   onClick={() => navigate(dashPath)}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-plum-50 transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Meu Painel
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-surface-hover transition-colors"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-plum-50 transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Sair
@@ -143,7 +143,7 @@ export function Navbar() {
               <Button variant="ghost" size="sm" onClick={() => navigate("/login")} className="text-muted-foreground hover:text-foreground">
                 Entrar
               </Button>
-              <Button variant="default" size="sm" onClick={() => navigate("/cadastro")}>
+              <Button variant="gradient" size="sm" onClick={() => navigate("/cadastro")}>
                 Criar conta
               </Button>
             </>
@@ -174,12 +174,12 @@ export function Navbar() {
           <div className="mt-3 flex flex-col gap-2">
             {user ? (
               <>
-                <div className="flex items-center gap-3 rounded-lg bg-surface p-3 mb-2">
-                  <Avatar className="h-9 w-9 ring-2 ring-primary/20">
+                <div className="flex items-center gap-3 rounded-lg bg-plum-50 p-3 mb-2 border border-plum-100">
+                  <Avatar className="h-9 w-9 ring-2 ring-plum-200">
                     {avatarUrl ? (
                       <AvatarImage src={avatarUrl} alt={userName} />
                     ) : null}
-                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
+                    <AvatarFallback className="bg-plum-100 text-plum-600 text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -201,7 +201,7 @@ export function Navbar() {
                 <Button variant="ghost" size="sm" onClick={() => { navigate("/login"); setOpen(false); }}>
                   Entrar
                 </Button>
-                <Button variant="default" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
+                <Button variant="gradient" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
                   Criar conta
                 </Button>
               </>
