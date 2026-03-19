@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/mock";
 import { useAuth } from "@/contexts/AuthContext";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import logoImg from "@/assets/hivium-logo.png";
 
 interface NavItem {
@@ -145,6 +146,9 @@ export function DashboardLayout({
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
+          <div className="ml-auto">
+            <NotificationBell />
+          </div>
         </header>
         <div className="p-4 lg:p-6">{children}</div>
       </main>
