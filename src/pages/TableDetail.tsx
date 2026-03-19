@@ -290,6 +290,20 @@ export default function TableDetail() {
           </div>
         </div>
       </div>
+
+      {/* Review Modal */}
+      {eligibility.bookingId && mesa && (
+        <ReviewFormModal
+          open={reviewOpen}
+          onOpenChange={setReviewOpen}
+          bookingId={eligibility.bookingId}
+          reviewedUserId={eligibility.gmUserId || undefined}
+          reviewedTableId={id}
+          reviewType="table"
+          targetName={mesa.title}
+        />
+      )}
+
       <Footer />
     </div>
   );
