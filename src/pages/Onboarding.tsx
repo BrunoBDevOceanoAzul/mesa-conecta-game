@@ -308,7 +308,7 @@ export default function Onboarding() {
         {phase === "review" && (
           <ReviewScreen
             key="review"
-            role={role}
+            role={effectiveRole}
             answers={{ ...answers, availability_days: availability.days, availability_times: availability.times }}
             onEdit={goToStep}
             onConfirm={finishOnboarding}
