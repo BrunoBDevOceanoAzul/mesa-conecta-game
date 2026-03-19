@@ -234,7 +234,7 @@ export default function Onboarding() {
       loja: "/dashboard/loja",
       marca: "/boost",
     };
-    navigate(dashMap[role] || "/dashboard/jogador");
+    navigate(dashMap[effectiveRole] || "/dashboard/jogador");
   };
 
   const step = steps[current];
