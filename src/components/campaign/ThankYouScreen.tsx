@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { CheckCircle2, Instagram, Share2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/hivium-logo.png";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function ThankYouScreen() {
   const shareUrl = window.location.origin + "/interesse";
@@ -51,8 +52,8 @@ export function ThankYouScreen() {
               variant="outline"
               asChild
             >
-              <a href="https://instagram.com/hivium.gg" target="_blank" rel="noopener noreferrer">
-                <Instagram className="mr-2 h-4 w-4" /> Seguir no Instagram
+              <a href={getInstagramUrl("thank_you")} target="_blank" rel="noopener noreferrer">
+                <Instagram className="mr-2 h-4 w-4" /> Seguir {getInstagramHandle()}
               </a>
             </Button>
           </div>

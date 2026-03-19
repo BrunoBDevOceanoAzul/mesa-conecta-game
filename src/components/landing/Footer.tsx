@@ -1,4 +1,6 @@
+import { Instagram } from "lucide-react";
 import logoImg from "@/assets/hivium-logo.png";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function Footer() {
   return (
@@ -20,9 +22,20 @@ export function Footer() {
             <a href="/privacidade" className="hover:text-foreground transition-colors">Privacidade</a>
           </div>
 
-          <p className="text-[11px] text-muted-foreground/50">
-            © 2026 HIVIUM
-          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href={getInstagramUrl("footer")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Instagram className="h-4 w-4" />
+              {getInstagramHandle()}
+            </a>
+            <p className="text-[11px] text-muted-foreground/50">
+              © 2026 HIVIUM
+            </p>
+          </div>
         </div>
       </div>
     </footer>

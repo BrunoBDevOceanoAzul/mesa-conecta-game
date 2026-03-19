@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function CTASection() {
   const navigate = useNavigate();
@@ -40,9 +41,20 @@ export function CTASection() {
               </Button>
             </div>
 
-            <p className="mt-8 text-xs text-muted-foreground/40">
-              Sem cartão. Sem compromisso. Comece agora.
-            </p>
+            <div className="mt-8 flex flex-col items-center gap-2">
+              <a
+                href={getInstagramUrl("cta_section")}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-foreground transition-colors"
+              >
+                <Instagram className="h-3.5 w-3.5" />
+                Siga {getInstagramHandle()} no Instagram
+              </a>
+              <p className="text-xs text-muted-foreground/40">
+                Sem cartão. Sem compromisso. Comece agora.
+              </p>
+            </div>
           </div>
         </motion.div>
       </div>

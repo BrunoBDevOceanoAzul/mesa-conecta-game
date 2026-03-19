@@ -14,9 +14,10 @@ import {
   MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2,
   Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap,
   CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText,
-  UserCheck, BookOpen, Star, Sparkles
+  UserCheck, BookOpen, Star, Sparkles, Instagram
 } from "lucide-react";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 type Mesa = Tables<"mesas">;
 type StoreData = Tables<"stores">;
@@ -580,6 +581,22 @@ export default function StoreDashboard() {
             />
           </div>
         )}
+
+        {/* Instagram follow */}
+        <div className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
+            <Instagram className="h-5 w-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-medium text-foreground">Siga a HIVIUM no Instagram</p>
+            <p className="text-xs text-muted-foreground">Conecte sua luderia com a comunidade.</p>
+          </div>
+          <a href={getInstagramUrl("store_dashboard")} target="_blank" rel="noopener noreferrer" className="shrink-0">
+            <Button variant="outline" size="sm" className="text-xs gap-1.5">
+              <Instagram className="h-3.5 w-3.5" /> {getInstagramHandle()}
+            </Button>
+          </a>
+        </div>
       </div>
     </DashboardLayout>
   );
