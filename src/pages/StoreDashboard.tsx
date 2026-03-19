@@ -18,9 +18,10 @@ import {
 } from "lucide-react";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
+import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 
-type Mesa = Tables<"mesas">;
-type StoreData = Tables<"stores">;
+type Mesa = any;
+type StoreData = any;
 
 type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
 
@@ -318,9 +319,12 @@ export default function StoreDashboard() {
             <div>
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-base font-display font-semibold text-foreground">Mesas Recentes</h3>
-                <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setTab("agenda")}>
-                  Ver todas <ArrowRight className="h-3 w-3" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  <CreateMesaDialog role="store" storeId={store?.id || user?.id} onCreated={fetchData} />
+                  <Button variant="ghost" size="sm" className="text-xs gap-1" onClick={() => setTab("agenda")}>
+                    Ver todas <ArrowRight className="h-3 w-3" />
+                  </Button>
+                </div>
               </div>
               {mesas.length === 0 ? (
                 <EmptyBlock

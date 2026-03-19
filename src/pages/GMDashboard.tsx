@@ -24,8 +24,9 @@ import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { useGMReviews } from "@/hooks/use-reviews";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
+import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 
-type Mesa = Tables<"mesas">;
+type Mesa = any;
 
 const navItems = [
   { label: "Início", path: "/dashboard/mestre", icon: <Crown className="h-4 w-4" /> },
@@ -72,7 +73,7 @@ export default function GMDashboard() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loadingMesas, setLoadingMesas] = useState(true);
 
-  useEffect(() => {
+  const fetchMesas = () => {
     if (!user) return;
     supabase
       .from("mesas")
@@ -83,6 +84,10 @@ export default function GMDashboard() {
         setMesas(data || []);
         setLoadingMesas(false);
       });
+  };
+
+  useEffect(() => {
+    fetchMesas();
   }, [user]);
 
   // Derived stats
@@ -121,9 +126,7 @@ export default function GMDashboard() {
             </h1>
             <p className="text-sm text-muted-foreground mt-1">Gerencie mesas, leads e métricas do seu negócio.</p>
           </div>
-          <Button variant="hero" size="sm" className="gap-2 self-start">
-            <Plus className="h-4 w-4" /> Nova Mesa
-          </Button>
+          <CreateMesaDialog role="gm" onCreated={fetchMesas} />
         </div>
 
         {/* Tabs */}
@@ -218,9 +221,7 @@ export default function GMDashboard() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-base font-display font-semibold text-foreground">Gestão de Mesas</h2>
-              <Button variant="hero" size="sm" className="gap-2">
-                <Plus className="h-4 w-4" /> Nova Mesa
-              </Button>
+              <CreateMesaDialog role="gm" onCreated={fetchMesas} />
             </div>
             {loadingMesas ? (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">

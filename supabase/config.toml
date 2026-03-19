@@ -23,3 +23,5 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.create-checkout]
     verify_jwt = false
+  [functions.create-mesa]
+    verify_jwt = false
