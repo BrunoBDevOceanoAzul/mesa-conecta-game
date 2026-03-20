@@ -2509,6 +2509,7 @@ export type Database = {
           start_at: string
           status: string
           store_id: string | null
+          store_slot_id: string | null
           stripe_price_id: string | null
           stripe_product_id: string | null
           system: string
@@ -2543,6 +2544,7 @@ export type Database = {
           start_at: string
           status?: string
           store_id?: string | null
+          store_slot_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           system: string
@@ -2577,6 +2579,7 @@ export type Database = {
           start_at?: string
           status?: string
           store_id?: string | null
+          store_slot_id?: string | null
           stripe_price_id?: string | null
           stripe_product_id?: string | null
           system?: string
@@ -2598,6 +2601,13 @@ export type Database = {
             columns: ["store_id"]
             isOneToOne: false
             referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mesas_store_slot_id_fkey"
+            columns: ["store_slot_id"]
+            isOneToOne: false
+            referencedRelation: "store_time_slots"
             referencedColumns: ["id"]
           },
         ]
@@ -3772,6 +3782,63 @@ export type Database = {
           user_id?: string
           venue_name?: string | null
           zip_code?: string | null
+        }
+        Relationships: []
+      }
+      store_time_slots: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          max_seats: number
+          max_tables: number
+          notes: string | null
+          owner_user_id: string
+          recurrence_group_id: string | null
+          recurrence_rule: string | null
+          seats_booked: number
+          slot_date: string
+          start_time: string
+          status: string
+          store_id: string
+          tables_booked: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          max_seats?: number
+          max_tables?: number
+          notes?: string | null
+          owner_user_id: string
+          recurrence_group_id?: string | null
+          recurrence_rule?: string | null
+          seats_booked?: number
+          slot_date: string
+          start_time: string
+          status?: string
+          store_id: string
+          tables_booked?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          max_seats?: number
+          max_tables?: number
+          notes?: string | null
+          owner_user_id?: string
+          recurrence_group_id?: string | null
+          recurrence_rule?: string | null
+          seats_booked?: number
+          slot_date?: string
+          start_time?: string
+          status?: string
+          store_id?: string
+          tables_booked?: number
+          updated_at?: string
         }
         Relationships: []
       }
