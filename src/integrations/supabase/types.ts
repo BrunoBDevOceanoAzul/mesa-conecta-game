@@ -1787,6 +1787,39 @@ export type Database = {
         }
         Relationships: []
       }
+      feature_usage: {
+        Row: {
+          created_at: string
+          feature_key: string
+          id: string
+          last_used_at: string | null
+          period_start: string
+          updated_at: string
+          usage_count: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          feature_key: string
+          id?: string
+          last_used_at?: string | null
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          feature_key?: string
+          id?: string
+          last_used_at?: string | null
+          period_start?: string
+          updated_at?: string
+          usage_count?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       feedback_email_queue: {
         Row: {
           created_at: string
@@ -4425,6 +4458,10 @@ export type Database = {
     Functions: {
       can_use_boost: { Args: { _user_id: string }; Returns: boolean }
       can_use_founder_boost: { Args: { _user_id: string }; Returns: boolean }
+      check_feature_access: {
+        Args: { _feature_key: string; _increment?: boolean }
+        Returns: Json
+      }
       delete_email: {
         Args: { message_id: number; queue_name: string }
         Returns: boolean
