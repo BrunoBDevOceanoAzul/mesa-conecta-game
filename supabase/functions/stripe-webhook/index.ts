@@ -253,6 +253,88 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
       logStep("Booking confirmed after payment", { bookingId, mesaId });
       await auditLog("booking_paid", "booking", bookingId, { mesa_id: mesaId, user_id: userId, session_id: session.id });
+
+      // ─── Send booking confirmation email ───
+      try {
+        // Fetch booking + mesa + player + gm details
+        const { data: booking } = await supabase
+          .from("bookings")
+          .select("player_user_id, gm_user_id, game_table_id, amount, currency, seats_reserved")
+          .eq("id", bookingId)
+          .maybeSingle();
+
+        const { data: mesa } = mesaId
+          ? await supabase.from("mesas").select("title, system, format, session_date, session_time, venue, price_per_seat").eq("id", mesaId).maybeSingle()
+          : { data: null };
+
+        const playerUserId = booking?.player_user_id || userId;
+        const gmUserId = booking?.gm_user_id;
+
+        const [playerRes, gmRes] = await Promise.all([
+          playerUserId ? supabase.from("profiles").select("email, name, display_name").eq("user_id", playerUserId).maybeSingle() : { data: null },
+          gmUserId ? supabase.from("profiles").select("name, display_name").eq("user_id", gmUserId).maybeSingle() : { data: null },
+        ]);
+
+        const playerEmail = playerRes.data?.email || session.customer_details?.email;
+        const playerName = playerRes.data?.display_name || playerRes.data?.name || "Jogador";
+        const gmName = gmRes.data?.display_name || gmRes.data?.name || "Mestre";
+
+        if (playerEmail && mesa) {
+          const siteUrl = "https://sociodotabuleiro.app.br";
+          const mesaUrl = mesaId ? `${siteUrl}/mesa/${mesaId}` : siteUrl;
+
+          const priceStr = mesa.price_per_seat
+            ? `R$${(mesa.price_per_seat / 100).toFixed(2).replace(".", ",")}`
+            : booking?.amount
+              ? `R$${(booking.amount / 100).toFixed(2).replace(".", ",")}`
+              : "Consultar";
+
+          const html = await render(
+            BookingConfirmation({
+              playerName,
+              mesaTitle: mesa.title || "Mesa de RPG",
+              gmName,
+              system: mesa.system || "RPG",
+              date: mesa.session_date || "A definir",
+              time: mesa.session_time || "A definir",
+              venue: mesa.venue || (mesa.format === "online" ? "Online" : "A definir"),
+              format: mesa.format || "Presencial",
+              price: priceStr,
+              mesaUrl,
+              siteUrl,
+            })
+          );
+
+          const messageId = crypto.randomUUID();
+
+          await supabase.from("email_send_log").insert({
+            message_id: messageId,
+            template_name: "booking_confirmation",
+            recipient_email: playerEmail,
+            status: "pending",
+            metadata: { mesa_id: mesaId, booking_id: bookingId },
+          });
+
+          await supabase.rpc("enqueue_email", {
+            queue_name: "transactional_emails",
+            payload: {
+              message_id: messageId,
+              to: playerEmail,
+              from: "HIVIUM <noreply@notify.sociodotabuleiro.app.br>",
+              sender_domain: "notify.sociodotabuleiro.app.br",
+              subject: `Vaga confirmada: ${mesa.title || "Mesa de RPG"}`,
+              html,
+              purpose: "transactional",
+              label: "booking_confirmation",
+              queued_at: new Date().toISOString(),
+            },
+          });
+
+          logStep("Booking confirmation email enqueued", { playerEmail, messageId });
+        }
+      } catch (emailErr) {
+        logStep("WARN: Failed to send booking email (non-blocking)", { error: (emailErr as Error).message });
+      }
     }
   }
 
