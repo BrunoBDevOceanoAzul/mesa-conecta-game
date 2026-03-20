@@ -12,6 +12,15 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 
+interface RevenueByUser {
+  userId: string;
+  name: string;
+  role: string;
+  totalRevenue: number;
+  bookingsCount: number;
+  avgTicket: number;
+}
+
 interface InsightsData {
   totalUsers: number;
   totalPlayers: number;
@@ -22,6 +31,13 @@ interface InsightsData {
   activeSubs: number;
   onboardingRate: number;
   newUsersLast30: number;
+  // Revenue
+  totalPlatformRevenue: number;
+  totalBookingRevenue: number;
+  avgRevenuePerGM: number;
+  avgRevenuePerStore: number;
+  topRevenueGMs: RevenueByUser[];
+  topRevenueStores: RevenueByUser[];
   // Demand
   topSystems: { name: string; count: number }[];
   topFormats: { name: string; count: number }[];
