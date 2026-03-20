@@ -263,7 +263,24 @@ export default function Signup() {
             </div>
           </div>
 
-          <Button variant="gradient" className="w-full h-12 text-[15px] font-semibold" type="submit" disabled={loading || !selectedRole}>
+          {/* LGPD Consent */}
+          <div className="flex items-start gap-3 py-1">
+            <Checkbox
+              id="terms"
+              checked={termsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+              Li e aceito os{" "}
+              <a href="/termos" target="_blank" className="text-primary hover:underline">Termos de Uso</a>
+              {" "}e a{" "}
+              <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade</a>.
+              Autorizo o uso dos meus dados conforme a LGPD.
+            </label>
+          </div>
+
+          <Button variant="gradient" className="w-full h-12 text-[15px] font-semibold" type="submit" disabled={loading || !selectedRole || !termsAccepted}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Criar acesso grátis
           </Button>
