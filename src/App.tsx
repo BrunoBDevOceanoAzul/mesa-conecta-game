@@ -45,6 +45,7 @@ import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import ParaLojas from "./pages/ParaLojas";
 import QuemSomos from "./pages/QuemSomos";
+import Contato from "./pages/Contato";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -67,6 +68,7 @@ const App = () => (
               <Route path="/interesse" element={<Interesse />} />
               <Route path="/para-lojas" element={<ParaLojas />} />
               <Route path="/quem-somos" element={<QuemSomos />} />
+              <Route path="/contato" element={<Contato />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />

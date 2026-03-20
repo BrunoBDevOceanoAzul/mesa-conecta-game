@@ -19,6 +19,8 @@ const navLinks = [
   { label: "Planos", href: "#planos" },
   { label: "FAQ", href: "#faq" },
   { label: "Explorar", href: "/buscar" },
+  { label: "Quem Somos", href: "/quem-somos" },
+  { label: "Contato", href: "/contato" },
 ];
 
 const roleToDash: Record<string, string> = {
