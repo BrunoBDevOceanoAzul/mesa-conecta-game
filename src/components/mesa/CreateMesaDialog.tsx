@@ -138,6 +138,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           end_at: endAt ? new Date(endAt).toISOString() : null,
           store_id: role === "store" ? storeId || user.id : null,
           cover_image_url: finalCoverUrl,
+          store_slot_id: selectedSlotId || null,
         },
       });
       if (error) throw error;
