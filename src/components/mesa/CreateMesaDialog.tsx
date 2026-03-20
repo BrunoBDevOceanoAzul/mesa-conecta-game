@@ -249,6 +249,58 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             </div>
           )}
 
+          {/* Store Slot Picker */}
+          {role === "store" && storeSlots.length > 0 && (
+            <div>
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Vincular a um slot de horário</Label>
+              <p className="text-xs text-muted-foreground mb-2">Selecione um slot para preencher data/hora automaticamente e controlar a ocupação.</p>
+              <div className="space-y-1.5 max-h-40 overflow-y-auto rounded-xl border border-border p-2">
+                {storeSlots.map((slot) => {
+                  const isSelected = selectedSlotId === slot.id;
+                  const isFull = slot.tables_booked >= slot.max_tables;
+                  const d = new Date(slot.slot_date + "T00:00:00");
+                  return (
+                    <button
+                      key={slot.id}
+                      type="button"
+                      disabled={isFull}
+                      onClick={() => {
+                        if (isSelected) {
+                          setSelectedSlotId(null);
+                        } else {
+                          setSelectedSlotId(slot.id);
+                          const dateStr = slot.slot_date;
+                          setStartAt(`${dateStr}T${slot.start_time}`);
+                          setEndAt(`${dateStr}T${slot.end_time}`);
+                        }
+                      }}
+                      className={`w-full text-left rounded-lg border px-3 py-2 text-xs transition-colors ${
+                        isSelected
+                          ? "border-primary bg-primary/10 text-primary"
+                          : isFull
+                          ? "border-border bg-muted/30 text-muted-foreground opacity-50 cursor-not-allowed"
+                          : "border-border bg-card hover:border-primary/40 text-foreground"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium flex items-center gap-1.5">
+                          <Clock className="h-3 w-3" />
+                          {d.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}
+                          {" "}• {slot.start_time.slice(0, 5)}–{slot.end_time.slice(0, 5)}
+                        </span>
+                        <span className="flex items-center gap-2">
+                          <span className="flex items-center gap-0.5"><LayoutGrid className="h-3 w-3" />{slot.tables_booked}/{slot.max_tables}</span>
+                          <span className="flex items-center gap-0.5"><Users className="h-3 w-3" />{slot.seats_booked}/{slot.max_seats}</span>
+                        </span>
+                      </div>
+                      {slot.notes && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{slot.notes}</p>}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Title */}
           <div>
             <Label>Título da mesa *</Label>
