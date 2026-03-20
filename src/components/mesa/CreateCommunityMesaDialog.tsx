@@ -82,6 +82,8 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
   };
 
   const uploadCover = async (): Promise<string | null> => {
+    // AI-generated cover already uploaded to storage — use URL directly
+    if (coverPreview && !coverFile && coverPreview.startsWith("http")) return coverPreview;
     if (selectedGame?.thumbnail_url && !coverFile) return selectedGame.thumbnail_url;
     if (!coverFile || !user) return null;
     const ext = coverFile.name.split(".").pop() || "jpg";
