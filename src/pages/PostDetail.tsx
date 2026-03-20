@@ -106,13 +106,63 @@ export default function PostDetail() {
     await supabase.from("community_posts").update({ impressions: (data.impressions || 0) + 1 }).eq("id", data.id);
 
     // Set SEO meta
-    document.title = `${data.title || "Post"} | HIVIUM`;
+    const seoTitle = `${data.title || "Post"} | HIVIUM`;
     const desc = data.content?.substring(0, 155) + "...";
+    document.title = seoTitle;
     setMeta("description", desc);
-    setMeta("og:title", `${data.title || profile?.name || "Post"} | HIVIUM`);
+    setMeta("og:title", seoTitle);
     setMeta("og:description", desc);
     setMeta("og:url", window.location.href);
     setMeta("og:type", "article");
+    if (data.image_url) setMeta("og:image", data.image_url);
+    setMeta("twitter:card", data.image_url ? "summary_large_image" : "summary");
+    setMeta("twitter:title", seoTitle);
+    setMeta("twitter:description", desc);
+
+    // Set canonical
+    let canonical = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+    if (!canonical) {
+      canonical = document.createElement("link");
+      canonical.setAttribute("rel", "canonical");
+      document.head.appendChild(canonical);
+    }
+    canonical.setAttribute("href", `https://mesa-conecta-game.lovable.app/post/${data.slug || data.id}`);
+
+    // JSON-LD structured data
+    let ldScript = document.getElementById("post-jsonld") as HTMLScriptElement | null;
+    if (!ldScript) {
+      ldScript = document.createElement("script");
+      ldScript.id = "post-jsonld";
+      ldScript.type = "application/ld+json";
+      document.head.appendChild(ldScript);
+    }
+    ldScript.textContent = JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "BlogPosting",
+      headline: data.title || "Post",
+      description: desc,
+      image: data.image_url || undefined,
+      datePublished: data.published_at,
+      dateModified: data.updated_at,
+      author: {
+        "@type": "Person",
+        name: profile?.name || "Usuário HIVIUM",
+        url: profile?.slug ? `https://mesa-conecta-game.lovable.app/mestre/${profile.slug}` : undefined,
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "HIVIUM",
+        url: "https://mesa-conecta-game.lovable.app",
+      },
+      mainEntityOfPage: {
+        "@type": "WebPage",
+        "@id": `https://mesa-conecta-game.lovable.app/post/${data.slug || data.id}`,
+      },
+      interactionStatistic: [
+        { "@type": "InteractionCounter", interactionType: "https://schema.org/LikeAction", userInteractionCount: data.likes_count || 0 },
+        { "@type": "InteractionCounter", interactionType: "https://schema.org/ShareAction", userInteractionCount: data.shares || 0 },
+      ],
+    });
 
     // Fetch related posts
     fetchRelated(data.author_id, data.id, data.tags || []);

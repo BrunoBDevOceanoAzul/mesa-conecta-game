@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { MessageCircle, Sparkles, Filter, Loader2 } from "lucide-react";
@@ -23,6 +23,12 @@ export default function Feed() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("all");
+
+  useEffect(() => {
+    document.title = "Blog & Comunidade | HIVIUM — RPG e Jogos de Mesa";
+    const meta = document.querySelector('meta[name="description"]');
+    if (meta) meta.setAttribute("content", "Descubra posts, eventos e novidades do ecossistema HIVIUM. Mestres, luderias e jogadores compartilham experiências.");
+  }, []);
 
   const filters = (() => {
     const tab = FILTER_TABS.find((t) => t.key === activeFilter);
