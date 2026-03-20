@@ -27,15 +27,15 @@ export function ProfileCouponBanner() {
 
     supabase
       .from("profiles")
-      .select("city, bio, preferred_systems, play_style, avatar_url, onboarding_completed, role")
+      .select("city, bio, preferred_systems, avatar_url, onboarding_completed, role")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (!data) return;
-        // Only show if user has a role (did initial signup)
         if (!data.role) return;
 
-        const fields = [data.city, data.bio, data.preferred_systems?.length, data.play_style?.length, data.avatar_url];
+        const d = data as any;
+        const fields = [d.city, d.bio, d.preferred_systems?.length, d.avatar_url];
         const filled = fields.filter(Boolean).length;
         const pct = Math.round((filled / fields.length) * 100);
 
