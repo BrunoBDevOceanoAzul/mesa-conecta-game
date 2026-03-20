@@ -25,6 +25,7 @@ export default function AdminPainel() {
     { key: "coupons", label: "Cupons", icon: <Gift className="h-4 w-4" /> },
     { key: "golive", label: "Go-Live", icon: <CheckCircle2 className="h-4 w-4" /> },
     { key: "tickets", label: "Suporte", icon: <LifeBuoy className="h-4 w-4" /> },
+    { key: "blocklist", label: "Blocklist", icon: <Ban className="h-4 w-4" /> },
   ];
 
   return (
