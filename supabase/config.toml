@@ -33,3 +33,5 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.gm-content-studio]
     verify_jwt = false
+  [functions.admin-cancel-booking]
+    verify_jwt = false
