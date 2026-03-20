@@ -157,6 +157,8 @@ export function StoreManager() {
       phone: form.phone.trim() || null,
       website: form.website.trim() || null,
       instagram: form.instagram.trim() || null,
+      cnpj: form.cnpj.trim() || null,
+      ecommerce_url: form.ecommerce_url.trim() || null,
       description: form.description.trim() || null,
       google_place_id: form.google_place_id.trim() || null,
     };
