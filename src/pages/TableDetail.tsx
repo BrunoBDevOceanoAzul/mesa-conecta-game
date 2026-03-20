@@ -49,6 +49,8 @@ type Mesa = {
   play_styles: string[] | null;
   image_url: string | null;
   cover_image_url: string | null;
+  mesa_type: string;
+  board_game_id: string | null;
 };
 
 const formatIcons: Record<string, typeof Monitor> = {
