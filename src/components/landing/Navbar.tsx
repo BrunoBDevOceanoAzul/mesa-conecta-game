@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Instagram } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Popover,
@@ -171,6 +172,15 @@ export function Navbar() {
               {l.label}
             </a>
           ))}
+          <a
+            href={getInstagramUrl("navbar_mobile")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 py-2.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Instagram className="h-4 w-4" />
+            {getInstagramHandle()}
+          </a>
           <div className="mt-3 flex flex-col gap-2">
             {user ? (
               <>
