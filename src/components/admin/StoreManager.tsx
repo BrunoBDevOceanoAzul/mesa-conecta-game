@@ -16,6 +16,7 @@ import {
 interface StoreRow {
   id: string;
   name: string;
+  slug: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -25,6 +26,7 @@ interface StoreRow {
   simultaneous_tables: number | null;
   phone: string | null;
   website: string | null;
+  instagram: string | null;
   description: string | null;
   google_place_id: string | null;
   owner_id: string;
@@ -33,6 +35,7 @@ interface StoreRow {
 
 const emptyForm = {
   name: "",
+  slug: "",
   address: "",
   city: "",
   state: "",
@@ -42,6 +45,7 @@ const emptyForm = {
   simultaneous_tables: 4,
   phone: "",
   website: "",
+  instagram: "",
   description: "",
   google_place_id: "",
   owner_id: "",
