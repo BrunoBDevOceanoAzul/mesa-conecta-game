@@ -44,6 +44,7 @@ import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import ParaLojas from "./pages/ParaLojas";
+import QuemSomos from "./pages/QuemSomos";
 const queryClient = new QueryClient();
 
 const App = () => (
