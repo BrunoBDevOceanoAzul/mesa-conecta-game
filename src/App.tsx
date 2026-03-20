@@ -43,6 +43,7 @@ import AdminSocialPublisher from "./pages/admin/AdminSocialPublisher";
 import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
+import ParaLojas from "./pages/ParaLojas";
 const queryClient = new QueryClient();
 
 const App = () => (
