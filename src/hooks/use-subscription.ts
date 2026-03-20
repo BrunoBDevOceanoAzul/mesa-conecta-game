@@ -77,6 +77,7 @@ export function useSubscription(): SubscriptionState {
   const [allPlans, setAllPlans] = useState<Plan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [inTrial, setInTrial] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!user) {
