@@ -4128,6 +4128,7 @@ export type Database = {
           created_at: string
           description: string | null
           game_catalog: string[] | null
+          google_place_id: string | null
           id: string
           lat: number | null
           lng: number | null
@@ -4136,6 +4137,7 @@ export type Database = {
           owner_id: string
           phone: string | null
           simultaneous_tables: number | null
+          state: string | null
           ticket_avg: string | null
           updated_at: string
           website: string | null
@@ -4148,6 +4150,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           game_catalog?: string[] | null
+          google_place_id?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -4156,6 +4159,7 @@ export type Database = {
           owner_id: string
           phone?: string | null
           simultaneous_tables?: number | null
+          state?: string | null
           ticket_avg?: string | null
           updated_at?: string
           website?: string | null
@@ -4168,6 +4172,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           game_catalog?: string[] | null
+          google_place_id?: string | null
           id?: string
           lat?: number | null
           lng?: number | null
@@ -4176,6 +4181,7 @@ export type Database = {
           owner_id?: string
           phone?: string | null
           simultaneous_tables?: number | null
+          state?: string | null
           ticket_avg?: string | null
           updated_at?: string
           website?: string | null
