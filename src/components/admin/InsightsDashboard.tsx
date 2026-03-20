@@ -123,6 +123,67 @@ export function InsightsDashboard() {
     const bookings = bookingsRes.data || [];
     const subs = subsRes.data || [];
     const onbSessions = onbRes.data || [];
+    const payments = paymentsRes.data || [];
+
+    // ─── Revenue Analysis ───
+    const paidBookings = bookings.filter((b: any) => b.payment_status === "paid" && b.amount > 0);
+    const totalBookingRevenue = paidBookings.reduce((sum: number, b: any) => sum + (b.amount || 0), 0);
+
+    // Subscription revenue
+    const activePaidSubs = subs.filter((s: any) => s.status === "active");
+    const totalSubRevenue = activePaidSubs.reduce((sum: number, s: any) => sum + (s.price_cents || 0), 0);
+    const totalPlatformRevenue = totalBookingRevenue + totalSubRevenue;
+
+    // Revenue per GM
+    const gmRevenueMap: Record<string, { total: number; count: number }> = {};
+    paidBookings.forEach((b: any) => {
+      if (b.gm_user_id) {
+        if (!gmRevenueMap[b.gm_user_id]) gmRevenueMap[b.gm_user_id] = { total: 0, count: 0 };
+        gmRevenueMap[b.gm_user_id].total += b.amount || 0;
+        gmRevenueMap[b.gm_user_id].count += 1;
+      }
+    });
+
+    // Revenue per Store
+    const storeRevenueMap: Record<string, { total: number; count: number }> = {};
+    paidBookings.forEach((b: any) => {
+      if (b.store_user_id) {
+        if (!storeRevenueMap[b.store_user_id]) storeRevenueMap[b.store_user_id] = { total: 0, count: 0 };
+        storeRevenueMap[b.store_user_id].total += b.amount || 0;
+        storeRevenueMap[b.store_user_id].count += 1;
+      }
+    });
+
+    const profileNameMap = new Map(profiles.map((p: any) => [p.user_id, p.name || "Sem nome"]));
+
+    const topRevenueGMs: RevenueByUser[] = Object.entries(gmRevenueMap)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10)
+      .map(([userId, data]) => ({
+        userId,
+        name: profileNameMap.get(userId) || "Mestre",
+        role: "gm",
+        totalRevenue: data.total,
+        bookingsCount: data.count,
+        avgTicket: data.count > 0 ? Math.round(data.total / data.count) : 0,
+      }));
+
+    const topRevenueStores: RevenueByUser[] = Object.entries(storeRevenueMap)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10)
+      .map(([userId, data]) => ({
+        userId,
+        name: profileNameMap.get(userId) || "Loja",
+        role: "store",
+        totalRevenue: data.total,
+        bookingsCount: data.count,
+        avgTicket: data.count > 0 ? Math.round(data.total / data.count) : 0,
+      }));
+
+    const gmCount = Object.keys(gmRevenueMap).length;
+    const storeCount = Object.keys(storeRevenueMap).length;
+    const avgRevenuePerGM = gmCount > 0 ? Math.round(Object.values(gmRevenueMap).reduce((s, v) => s + v.total, 0) / gmCount) : 0;
+    const avgRevenuePerStore = storeCount > 0 ? Math.round(Object.values(storeRevenueMap).reduce((s, v) => s + v.total, 0) / storeCount) : 0;
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
