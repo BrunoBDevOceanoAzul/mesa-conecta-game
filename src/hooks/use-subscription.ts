@@ -121,7 +121,7 @@ export function useSubscription(): SubscriptionState {
 
   const now = new Date();
   const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end) : null;
-  const isActive = !!subscription && subscription.status === "active" && !!periodEnd && periodEnd > now;
+  const isActive = inTrial || (!!subscription && subscription.status === "active" && !!periodEnd && periodEnd > now);
   const daysRemaining = periodEnd ? Math.max(0, Math.ceil((periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
 
   let status: SubscriptionStatus = "none";
