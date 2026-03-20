@@ -142,7 +142,7 @@ export default function ParaLojas() {
             {benefits.map((b, i) => (
               <motion.div
                 key={b.title}
-                className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-teal-200 hover:shadow-md"
+                className="rounded-2xl border border-border bg-card p-6 transition-all duration-300 hover:border-primary/30 hover:shadow-md"
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, amount: 0.2 }}
