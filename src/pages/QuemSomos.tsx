@@ -103,8 +103,8 @@ export default function QuemSomos() {
             transition={{ duration: 0.6, ease: easeOut }}
           >
             {/* Avatar placeholder — initials */}
-            <div className="shrink-0 h-36 w-36 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <span className="font-display text-5xl font-bold text-primary">BB</span>
+            <div className="shrink-0 h-36 w-36 rounded-2xl overflow-hidden border border-primary/20">
+              <img src={founderImg} alt="Bruno Bisogni, Fundador da HIVIUM" className="h-full w-full object-cover object-top" />
             </div>
 
             <div className="flex-1 text-center md:text-left">
