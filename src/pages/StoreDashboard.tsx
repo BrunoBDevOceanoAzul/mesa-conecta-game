@@ -1,4 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";

@@ -77,7 +77,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             onClick={onStart}
             className="px-12 text-base h-13"
           >
-            Começar
+            Completar perfil
           </Button>
         </motion.div>
 
@@ -87,7 +87,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           transition={{ delay: 1.1, duration: 0.8 }}
           className="mt-8 text-xs text-muted-foreground/35"
         >
-          Leva cerca de 3 minutos · Você pode ajustar tudo depois
+          Leva cerca de 3 minutos · Seu perfil fica mais inteligente com mais informações
         </motion.p>
       </div>
     </motion.div>
