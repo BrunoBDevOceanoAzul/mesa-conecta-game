@@ -2450,8 +2450,42 @@ export type Database = {
         }
         Relationships: []
       }
+      mesa_engagement_metrics: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          mesa_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          mesa_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          mesa_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesa_engagement_metrics_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mesas: {
         Row: {
+          address: string | null
+          board_game_id: string | null
           city: string | null
           cover_image_url: string | null
           created_at: string
@@ -2462,8 +2496,12 @@ export type Database = {
           gm_name: string
           id: string
           image_url: string | null
+          lat: number | null
+          lng: number | null
           max_price: number | null
+          mesa_type: string
           min_price: number | null
+          organizer_name: string | null
           play_styles: string[] | null
           seats_available: number
           seats_total: number
@@ -2480,6 +2518,8 @@ export type Database = {
           venue: string | null
         }
         Insert: {
+          address?: string | null
+          board_game_id?: string | null
           city?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -2490,8 +2530,12 @@ export type Database = {
           gm_name: string
           id?: string
           image_url?: string | null
+          lat?: number | null
+          lng?: number | null
           max_price?: number | null
+          mesa_type?: string
           min_price?: number | null
+          organizer_name?: string | null
           play_styles?: string[] | null
           seats_available?: number
           seats_total?: number
@@ -2508,6 +2552,8 @@ export type Database = {
           venue?: string | null
         }
         Update: {
+          address?: string | null
+          board_game_id?: string | null
           city?: string | null
           cover_image_url?: string | null
           created_at?: string
@@ -2518,8 +2564,12 @@ export type Database = {
           gm_name?: string
           id?: string
           image_url?: string | null
+          lat?: number | null
+          lng?: number | null
           max_price?: number | null
+          mesa_type?: string
           min_price?: number | null
+          organizer_name?: string | null
           play_styles?: string[] | null
           seats_available?: number
           seats_total?: number
@@ -2536,6 +2586,13 @@ export type Database = {
           venue?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "mesas_board_game_id_fkey"
+            columns: ["board_game_id"]
+            isOneToOne: false
+            referencedRelation: "board_games_catalog"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "mesas_store_id_fkey"
             columns: ["store_id"]

@@ -10,7 +10,8 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useSubscription } from "@/hooks/use-subscription";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram, BookOpen } from "lucide-react";
+import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram, BookOpen, Plus } from "lucide-react";
+import { CreateCommunityMesaDialog } from "@/components/mesa/CreateCommunityMesaDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useNavigate } from "react-router-dom";
@@ -119,9 +120,16 @@ export default function PlayerDashboard() {
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <ProfileCompletionBanner />
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
-          <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
+            <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
+          </div>
+          <CreateCommunityMesaDialog>
+            <Button variant="hero" size="sm" className="gap-2 shrink-0">
+              <Plus className="h-4 w-4" /> Organizar Mesa
+            </Button>
+          </CreateCommunityMesaDialog>
         </div>
 
         {/* Plan badge */}
