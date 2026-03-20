@@ -24,7 +24,7 @@ import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 type Mesa = any;
 type StoreData = any;
 
-type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
+type Tab = "overview" | "space" | "agenda" | "feed" | "reviews" | "export";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
