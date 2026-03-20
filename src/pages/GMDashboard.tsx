@@ -343,6 +343,13 @@ export default function GMDashboard() {
           </PremiumGate>
         )}
 
+        {/* ─── CONTENT STUDIO ─── */}
+        {tab === "studio" && (
+          <div className="max-w-4xl">
+            <ContentStudioPanel mesas={mesas} />
+          </div>
+        )}
+
         {/* Instagram follow */}
         <div className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
