@@ -96,8 +96,8 @@ const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?
   player_free: {},
   player_adventurer: {},
   player_guild: { highlight: true, badge: "Popular" },
-  gm_pro: { boostNote: "Take rate 5–10% por mesa" },
-  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Take rate 5–10% por mesa" },
+  gm_pro: { boostNote: "Take rate 3–6% por mesa" },
+  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Take rate 3–6% por mesa" },
   store_base: { boostNote: "Take rate ~5% por reserva" },
   store_growth: { highlight: true, badge: "Recomendado", boostNote: "Take rate ~3% por reserva" },
 };
