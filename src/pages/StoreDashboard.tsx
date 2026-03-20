@@ -169,6 +169,8 @@ export default function StoreDashboard() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
+    { key: "analytics", label: "Métricas", icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "ai", label: "IA", icon: <Sparkles className="h-4 w-4" /> },
     { key: "slots", label: "Slots", icon: <Clock className="h-4 w-4" /> },
     { key: "agenda", label: "Agenda", icon: <CalendarDays className="h-4 w-4" /> },
     { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
