@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence } from "framer-motion";
@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { stepsMap, type RoleKey } from "@/lib/onboarding-steps";
+import { roleThemes } from "@/lib/role-themes";
 import { generateBadges } from "@/lib/badge-generator";
 import { WelcomeScreen } from "@/components/onboarding/WelcomeScreen";
 import { ProfileSelect } from "@/components/onboarding/ProfileSelect";
@@ -24,13 +25,11 @@ type Phase =
   | "transition-mapped"
   | "mapped";
 
-// Map DB roles (gm, player, store, brand) to onboarding RoleKeys (mestre, jogador, loja, marca)
 const dbRoleToRoleKey: Record<string, RoleKey> = {
   gm: "mestre",
   player: "jogador",
   store: "loja",
   brand: "marca",
-  // Also accept the RoleKey itself
   mestre: "mestre",
   jogador: "jogador",
   loja: "loja",
@@ -55,7 +54,6 @@ export default function Onboarding() {
   const [saving, setSaving] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
-  // Load existing profile data on mount
   useEffect(() => {
     if (!user) {
       setProfileLoaded(true);
@@ -82,7 +80,6 @@ export default function Onboarding() {
             const mapped = dbRoleToRoleKey[data.role] || data.role as RoleKey;
             setRole(mapped);
           } else {
-            // No role selected yet — ensure we show profile selection
             setPhase("profile");
           }
           const step = (data as any).onboarding_step;
@@ -98,7 +95,6 @@ export default function Onboarding() {
   }, [user]);
 
   const effectiveRole: RoleKey = role || "jogador";
-  // Map UI RoleKey back to DB role for persistence
   const roleKeyToDbRole: Record<string, string> = {
     jogador: "player",
     mestre: "gm",
@@ -107,12 +103,13 @@ export default function Onboarding() {
   };
   const dbRole = roleKeyToDbRole[effectiveRole] || effectiveRole;
   const allSteps = stepsMap[effectiveRole];
-  // Filter steps based on conditional logic (e.g., skip city for online-only users)
   const steps = allSteps.filter((s) => {
     if (!s.conditionalOn) return true;
     const depValue = answers[s.conditionalOn.field];
     return s.conditionalOn.values.includes(depValue as string);
   });
+
+  const theme = roleThemes[effectiveRole];
 
   const handleChange = useCallback((field: string, value: unknown) => {
     setAnswers((prev) => ({ ...prev, [field]: value }));
@@ -251,9 +248,8 @@ export default function Onboarding() {
   };
 
   const handleContinueToDashboard = async () => {
-    // Auto-create Stripe Connect account for GMs and Stores
-    const dbRole = effectiveRole === "mestre" ? "gm" : effectiveRole === "loja" ? "store" : null;
-    if (dbRole && (dbRole === "gm" || dbRole === "store")) {
+    const dbR = effectiveRole === "mestre" ? "gm" : effectiveRole === "loja" ? "store" : null;
+    if (dbR && (dbR === "gm" || dbR === "store")) {
       try {
         await supabase.functions.invoke("create-connect-account");
       } catch (err) {
@@ -272,7 +268,6 @@ export default function Onboarding() {
 
   const step = steps[current];
 
-  // Show loading while auth or profile is loading
   if (authLoading || !profileLoaded) {
     return (
       <div className="min-h-[100dvh] bg-background flex items-center justify-center">
@@ -288,7 +283,7 @@ export default function Onboarding() {
     <div className="min-h-[100dvh] bg-background relative overflow-hidden">
       <AnimatePresence mode="wait">
         {phase === "welcome" && (
-          <WelcomeScreen key="welcome" onStart={() => setPhase("profile")} />
+          <WelcomeScreen key="welcome" onStart={() => setPhase("profile")} role={role} />
         )}
 
         {phase === "profile" && (
@@ -298,10 +293,11 @@ export default function Onboarding() {
         {phase === "transition-start" && (
           <TransitionScreen
             key="transition-start"
-            headline="Vamos calibrar seu perfil"
-            subtext="Em poucos passos, a HIVIUM personaliza mesas online, presenciais e híbridas ao seu ritmo."
+            headline={theme.transitionStart.headline}
+            subtext={theme.transitionStart.subtext}
             onComplete={() => setPhase("steps")}
             duration={2400}
+            role={effectiveRole}
           />
         )}
 
@@ -331,10 +327,11 @@ export default function Onboarding() {
         {phase === "transition-review" && (
           <TransitionScreen
             key="transition-review"
-            headline="Quase lá"
-            subtext="Quanto melhor a calibração, melhores as recomendações da HIVIUM."
+            headline={theme.transitionReview.headline}
+            subtext={theme.transitionReview.subtext}
             onComplete={() => setPhase("review")}
             duration={2000}
+            role={effectiveRole}
           />
         )}
 
@@ -352,10 +349,11 @@ export default function Onboarding() {
         {phase === "transition-mapped" && (
           <TransitionScreen
             key="transition-mapped"
-            headline="Seu perfil está tomando forma"
-            subtext="A HIVIUM já pode personalizar tudo para você."
+            headline={theme.transitionMapped.headline}
+            subtext={theme.transitionMapped.subtext}
             onComplete={() => setPhase("mapped")}
             duration={2200}
+            role={effectiveRole}
           />
         )}
 
