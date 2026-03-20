@@ -96,8 +96,8 @@ const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?
   player_free: {},
   player_adventurer: {},
   player_guild: { highlight: true, badge: "Popular" },
-  gm_pro: { boostNote: "Take rate 5–10% por mesa" },
-  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Take rate 5–10% por mesa" },
+  gm_pro: { boostNote: "Take rate 3–6% por mesa" },
+  gm_pro_plus: { highlight: true, badge: "Popular", boostNote: "Take rate 3–6% por mesa" },
   store_base: { boostNote: "Take rate ~5% por reserva" },
   store_growth: { highlight: true, badge: "Recomendado", boostNote: "Take rate ~3% por reserva" },
 };
@@ -286,8 +286,8 @@ export function PricingSection() {
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
                 {activeRole === "gm" ? (
                   <>
-                    <span>Plano Pro: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
-                    <span>Plano Pro+: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
+                    <span>Plano Pro: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
+                    <span>Plano Pro+: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
                   </>
                 ) : (
                   <>
