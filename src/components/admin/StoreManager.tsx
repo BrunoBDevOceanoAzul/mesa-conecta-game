@@ -333,6 +333,7 @@ export function StoreManager() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nome</th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden md:table-cell">Cidade</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden sm:table-cell">Slug</th>
                   <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden sm:table-cell">Coordenadas</th>
                   <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">Capacidade</th>
                   <th className="px-4 py-3 text-right font-medium text-muted-foreground">Ações</th>
