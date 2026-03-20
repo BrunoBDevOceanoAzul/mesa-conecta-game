@@ -42,7 +42,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews" | "studio";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews" | "studio" | "export";
 
 // Calculator presets (legacy - now using PricingCalculator component)
 
