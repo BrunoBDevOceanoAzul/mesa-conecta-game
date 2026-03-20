@@ -822,6 +822,11 @@ export default function Admin() {
           <CouponManager />
         )}
 
+        {/* ─── STORES ─── */}
+        {tab === "stores" && (
+          <StoreManager />
+        )}
+
         {/* ─── GO-LIVE CHECKLIST ─── */}
         {tab === "golive" && (
           <GoLiveChecklist />
