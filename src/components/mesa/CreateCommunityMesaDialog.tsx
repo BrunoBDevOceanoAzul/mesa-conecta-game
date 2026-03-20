@@ -122,6 +122,33 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
     }
   };
 
+  // AI: Generate cover image
+  const generateAiCover = async () => {
+    if (!title.trim()) {
+      toast({ title: "Preencha o nome da mesa primeiro", variant: "destructive" });
+      return;
+    }
+    setCoverAiLoading(true);
+    try {
+      const gameName = selectedGame?.name || title;
+      const prompt = `A vibrant, inviting board game night scene for "${gameName}". Show a table with the game setup, warm ambient lighting, cozy atmosphere, friends gathering to play`;
+      
+      const { data, error } = await supabase.functions.invoke("mesa-ai-cover", {
+        body: { prompt, style: "colorful board game illustration, warm and inviting, modern flat illustration style" },
+      });
+      if (error) throw error;
+      if (data?.image_url) {
+        setCoverPreview(data.image_url);
+        setCoverFile(null); // AI-generated, URL is already uploaded
+        toast({ title: "Capa gerada! 🎨", description: "Ficou bonita? Pode trocar se quiser." });
+      }
+    } catch (err: any) {
+      toast({ title: "Erro ao gerar capa", description: err.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setCoverAiLoading(false);
+    }
+  };
+
   // Generate share text after creation
   const generateShareText = async (mesaId: string) => {
     setShareLoading(true);
