@@ -37,3 +37,7 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.mesa-community-ai]
     verify_jwt = false
+  [functions.send-resend-email]
+    verify_jwt = false
+  [functions.resend-webhook]
+    verify_jwt = false
