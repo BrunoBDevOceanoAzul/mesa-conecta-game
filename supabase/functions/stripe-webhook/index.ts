@@ -584,6 +584,25 @@ serve(async (req) => {
 
       case "charge.refunded":
         await handleChargeRefunded(event.data.object as Stripe.Charge);
+        // Send refund email
+        try {
+          const ch = event.data.object as Stripe.Charge;
+          const custId = typeof ch.customer === "string" ? ch.customer : ch.customer?.id;
+          if (custId) {
+            const resolved = await resolveUserByCustomerId(custId);
+            if (resolved) {
+              const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+              const refundAmountStr = `R$${((ch.amount_refunded ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+              const html = await render(RefundProcessed({
+                userName: prof?.display_name || prof?.name || "Usuário",
+                amount: refundAmountStr,
+                date: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+                reason: "Reembolso processado conforme solicitado.",
+              }));
+              await enqueueTransactionalEmail(resolved.email, `Reembolso processado — ${refundAmountStr}`, html, "refund_processed", { charge_id: ch.id });
+            }
+          }
+        } catch (e) { logStep("WARN: refund email failed", { error: (e as Error).message }); }
         break;
 
       case "account.updated": {
