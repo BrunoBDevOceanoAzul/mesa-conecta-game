@@ -484,9 +484,10 @@ serve(async (req) => {
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
+        const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         const { data: existing } = await supabase
           .from("subscriptions")
-          .select("id")
+          .select("id, plan_name, user_id")
           .eq("stripe_subscription_id", sub.id)
           .maybeSingle();
         if (existing) {
@@ -497,6 +498,16 @@ serve(async (req) => {
           }).eq("id", existing.id);
           logStep("Subscription canceled/deleted", { id: existing.id });
           await auditLog("subscription_deleted", "subscription", existing.id, { stripe_sub_id: sub.id });
+
+          // Send cancellation email
+          try {
+            const { data: profile } = await supabase.from("profiles").select("email, display_name, name").eq("user_id", existing.user_id).maybeSingle();
+            if (profile?.email) {
+              const endDate = new Date(sub.current_period_end * 1000).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+              const html = await render(SubscriptionCanceled({ userName: profile.display_name || profile.name || "Usuário", planName: existing.plan_name || "Premium", endDate }));
+              await enqueueTransactionalEmail(profile.email, `Sua assinatura ${existing.plan_name || "Premium"} foi cancelada`, html, "subscription_canceled", { sub_id: sub.id });
+            }
+          } catch (e) { logStep("WARN: cancel email failed", { error: (e as Error).message }); }
         }
         break;
       }
