@@ -3,6 +3,12 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { render } from "npm:@react-email/render@0.0.12";
 import { BookingConfirmation } from "../_shared/email-templates/booking-confirmation.tsx";
+import { NewBookingGM } from "../_shared/email-templates/new-booking-gm.tsx";
+import { SubscriptionWelcome } from "../_shared/email-templates/subscription-welcome.tsx";
+import { SubscriptionCanceled } from "../_shared/email-templates/subscription-canceled.tsx";
+import { PaymentReceipt } from "../_shared/email-templates/payment-receipt.tsx";
+import { PaymentFailed } from "../_shared/email-templates/payment-failed.tsx";
+import { RefundProcessed } from "../_shared/email-templates/refund-processed.tsx";
 
 const logStep = (step: string, details?: any) => {
   const d = details ? ` - ${JSON.stringify(details)}` : "";
@@ -50,6 +56,37 @@ async function auditLog(eventType: string, targetType: string, targetId: string,
     details_json: details,
     source: "stripe-webhook",
   });
+}
+
+// ─── Email Helper ──────────────────────────────────────────
+
+const SENDER_DOMAIN = "notify.sociodotabuleiro.app.br";
+const FROM_ADDR = `HIVIUM <noreply@${SENDER_DOMAIN}>`;
+
+async function enqueueTransactionalEmail(recipientEmail: string, subject: string, html: string, label: string, meta: Record<string, unknown> = {}) {
+  const messageId = crypto.randomUUID();
+  await supabase.from("email_send_log").insert({
+    message_id: messageId,
+    template_name: label,
+    recipient_email: recipientEmail,
+    status: "pending",
+    metadata: meta,
+  });
+  await supabase.rpc("enqueue_email", {
+    queue_name: "transactional_emails",
+    payload: {
+      message_id: messageId,
+      to: recipientEmail,
+      from: FROM_ADDR,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      purpose: "transactional",
+      label,
+      queued_at: new Date().toISOString(),
+    },
+  });
+  logStep(`Email enqueued: ${label}`, { recipientEmail, messageId });
 }
 
 // ─── Helpers ───────────────────────────────────────────────
@@ -124,6 +161,19 @@ async function upsertSubscription(sub: Stripe.Subscription) {
     const { data: created } = await supabase.from("subscriptions").insert(payload).select("id").single();
     logStep("Subscription created", { id: created?.id });
     await auditLog("subscription_created", "subscription", created?.id || "", { stripe_sub_id: sub.id, status: payload.status });
+
+    // Send welcome email
+    try {
+      const { data: profile } = await supabase.from("profiles").select("email, display_name, name, role").eq("user_id", resolved.user_id).maybeSingle();
+      if (profile?.email) {
+        const html = await render(SubscriptionWelcome({
+          userName: profile.display_name || profile.name || "Usuário",
+          planName: plan?.name || "Premium",
+          role: profile.role || "player",
+        }));
+        await enqueueTransactionalEmail(profile.email, `Bem-vindo ao plano ${plan?.name || "Premium"}! 🏆`, html, "subscription_welcome", { sub_id: sub.id });
+      }
+    } catch (e) { logStep("WARN: welcome email failed", { error: (e as Error).message }); }
 
     // Increment founder slot counter if applicable
     if (plan?.is_founder_plan) {
@@ -434,9 +484,10 @@ serve(async (req) => {
 
       case "customer.subscription.deleted": {
         const sub = event.data.object as Stripe.Subscription;
+        const customerId = typeof sub.customer === "string" ? sub.customer : sub.customer.id;
         const { data: existing } = await supabase
           .from("subscriptions")
-          .select("id")
+          .select("id, plan_name, user_id")
           .eq("stripe_subscription_id", sub.id)
           .maybeSingle();
         if (existing) {
@@ -447,6 +498,16 @@ serve(async (req) => {
           }).eq("id", existing.id);
           logStep("Subscription canceled/deleted", { id: existing.id });
           await auditLog("subscription_deleted", "subscription", existing.id, { stripe_sub_id: sub.id });
+
+          // Send cancellation email
+          try {
+            const { data: profile } = await supabase.from("profiles").select("email, display_name, name").eq("user_id", existing.user_id).maybeSingle();
+            if (profile?.email) {
+              const endDate = new Date(sub.current_period_end * 1000).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+              const html = await render(SubscriptionCanceled({ userName: profile.display_name || profile.name || "Usuário", planName: existing.plan_name || "Premium", endDate }));
+              await enqueueTransactionalEmail(profile.email, `Sua assinatura ${existing.plan_name || "Premium"} foi cancelada`, html, "subscription_canceled", { sub_id: sub.id });
+            }
+          } catch (e) { logStep("WARN: cancel email failed", { error: (e as Error).message }); }
         }
         break;
       }

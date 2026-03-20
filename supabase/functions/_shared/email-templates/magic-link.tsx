@@ -28,7 +28,7 @@ export const MagicLinkEmail = ({
     <Preview>Seu link de acesso ao HIVIUM</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="HIVIUM" style={logo} />
+        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/hivium-logo.png" width="56" height="56" alt="HIVIUM" style={logo} />
         <Heading style={h1}>Seu link de acesso</Heading>
         <Text style={text}>
           Clique no botão abaixo para entrar no HIVIUM. Este link expira em breve.

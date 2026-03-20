@@ -28,7 +28,7 @@ export const RecoveryEmail = ({
     <Preview>Redefinir sua senha no HIVIUM</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/logo.png" width="48" height="48" alt="HIVIUM" style={logo} />
+        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/hivium-logo.png" width="56" height="56" alt="HIVIUM" style={logo} />
         <Heading style={h1}>Redefinir sua senha</Heading>
         <Text style={text}>
           Recebemos uma solicitação para redefinir sua senha no HIVIUM. Clique no botão abaixo para escolher uma nova senha.
