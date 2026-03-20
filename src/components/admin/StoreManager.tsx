@@ -350,6 +350,15 @@ export function StoreManager() {
                       {store.city || "—"}{store.state ? `, ${store.state}` : ""}
                     </td>
                     <td className="px-4 py-3 text-center hidden sm:table-cell">
+                      {store.slug ? (
+                        <a href={`/loja/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                          {store.slug}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-center hidden sm:table-cell">
                       {store.lat && store.lng ? (
                         <span className="inline-flex items-center gap-1 text-xs text-green-600">
                           <MapPin className="h-3 w-3" /> OK
