@@ -30,9 +30,6 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
-    const supabaseUrl = Deno.env.get("SUPABASE_URL");
-    const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    if (!supabaseUrl || !serviceKey) throw new Error("Supabase env vars missing");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
@@ -47,7 +44,7 @@ serve(async (req) => {
     // Get profile to check role and onboarding status
     const { data: profile } = await supabase
       .from("profiles")
-      .select("role, onboarding_completed, display_name, email, city, country")
+      .select("role, onboarding_completed, display_name, name, email, city, country")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -62,60 +59,76 @@ serve(async (req) => {
     // Check if connected account already exists
     const { data: existing } = await supabase
       .from("connected_accounts")
-      .select("id, stripe_connected_account_id, onboarding_status")
+      .select("id, stripe_connected_account_id, onboarding_status, charges_enabled, payouts_enabled")
       .eq("user_id", user.id)
       .maybeSingle();
 
     if (existing?.stripe_connected_account_id) {
       logStep("Account already exists", { accountId: existing.stripe_connected_account_id });
 
-      // Generate a fresh onboarding link if not yet verified
-      if (existing.onboarding_status !== "verified") {
-        const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-        const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
-
-        const accountLink = await stripe.accountLinks.create({
-          account: existing.stripe_connected_account_id,
-          refresh_url: `${origin}/dashboard/${profile.role === "gm" ? "mestre" : "loja"}?connect=refresh`,
-          return_url: `${origin}/dashboard/${profile.role === "gm" ? "mestre" : "loja"}?connect=complete`,
-          type: "account_onboarding",
-        });
-
-        await supabase.from("connected_accounts").update({
-          onboarding_url: accountLink.url,
-        }).eq("id", existing.id);
-
-        return new Response(JSON.stringify({
-          already_exists: true,
-          stripe_account_id: existing.stripe_connected_account_id,
-          onboarding_url: accountLink.url,
-          onboarding_status: existing.onboarding_status,
-        }), {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-
       return new Response(JSON.stringify({
         already_exists: true,
         stripe_account_id: existing.stripe_connected_account_id,
         onboarding_status: existing.onboarding_status,
+        charges_enabled: existing.charges_enabled,
+        payouts_enabled: existing.payouts_enabled,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Create Stripe Connect Express account
+    // Create Stripe Connect Custom account (platform-managed, zero friction)
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
 
+    const displayName = profile.display_name || profile.name || undefined;
+    const accountEmail = user.email || profile.email || undefined;
+
     const account = await stripe.accounts.create({
-      type: "express",
       country: "BR",
-      email: user.email || profile.email || undefined,
+      email: accountEmail,
+      controller: {
+        losses: { payments: "application" },
+        fees: { payer: "application" },
+        requirement_collection: "application",
+        stripe_dashboard: { type: "none" },
+      },
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
       },
       business_type: profile.role === "store" ? "company" : "individual",
+      ...(profile.role !== "store" && displayName
+        ? {
+            individual: {
+              email: accountEmail,
+              first_name: displayName.split(" ")[0] || displayName,
+              last_name: displayName.split(" ").slice(1).join(" ") || undefined,
+            },
+          }
+        : {}),
+      ...(profile.role === "store" && displayName
+        ? {
+            company: {
+              name: displayName,
+            },
+            business_profile: {
+              name: displayName,
+              mcc: "5945", // Hobby, Toy, and Game Shops
+              url: `https://sociodotabuleiro.app.br`,
+            },
+          }
+        : {
+            business_profile: {
+              mcc: "7941", // Recreation Services
+              url: `https://sociodotabuleiro.app.br`,
+            },
+          }),
+      tos_acceptance: {
+        date: Math.floor(Date.now() / 1000),
+        ip: req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+            req.headers.get("cf-connecting-ip") ||
+            "0.0.0.0",
+      },
       metadata: {
         hivium_user_id: user.id,
         hivium_role: profile.role || "",
@@ -123,38 +136,55 @@ serve(async (req) => {
       },
     });
 
-    logStep("Stripe Connect account created", { accountId: account.id });
+    logStep("Custom Connect account created", { accountId: account.id });
 
-    // Generate onboarding link
-    const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
-    const dashPath = profile.role === "gm" ? "mestre" : "loja";
-
-    const accountLink = await stripe.accountLinks.create({
-      account: account.id,
-      refresh_url: `${origin}/dashboard/${dashPath}?connect=refresh`,
-      return_url: `${origin}/dashboard/${dashPath}?connect=complete`,
-      type: "account_onboarding",
-    });
+    // Determine initial status based on account state
+    let onboardingStatus = "pending";
+    if (account.charges_enabled && account.payouts_enabled) {
+      onboardingStatus = "verified";
+    } else if (account.details_submitted) {
+      onboardingStatus = "submitted";
+    }
 
     // Save to database
     await supabase.from("connected_accounts").insert({
       user_id: user.id,
       role: profile.role || "",
       stripe_connected_account_id: account.id,
-      stripe_account_type: "express",
-      onboarding_status: "not_started",
-      onboarding_url: accountLink.url,
+      stripe_account_type: "custom",
+      onboarding_status: onboardingStatus,
+      onboarding_url: null,
       country: "BR",
       currency: "BRL",
+      charges_enabled: account.charges_enabled ?? false,
+      payouts_enabled: account.payouts_enabled ?? false,
+      details_submitted: account.details_submitted ?? false,
       capabilities_json: account.capabilities || {},
+      requirements_json: account.requirements || {},
     });
 
-    logStep("Connected account saved to DB");
+    logStep("Connected account saved to DB", { status: onboardingStatus });
+
+    // Audit log
+    await supabase.from("audit_log").insert({
+      event_type: "connect_account_created",
+      actor_id: user.id,
+      actor_email: user.email,
+      target_type: "connected_account",
+      target_id: account.id,
+      details_json: {
+        account_type: "custom",
+        role: profile.role,
+        status: onboardingStatus,
+      },
+      source: "create-connect-account",
+    });
 
     return new Response(JSON.stringify({
       stripe_account_id: account.id,
-      onboarding_url: accountLink.url,
-      onboarding_status: "not_started",
+      onboarding_status: onboardingStatus,
+      charges_enabled: account.charges_enabled,
+      payouts_enabled: account.payouts_enabled,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

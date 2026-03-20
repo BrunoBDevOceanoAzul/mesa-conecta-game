@@ -35,7 +35,7 @@ export function useConnectedAccount() {
 
   useEffect(() => { fetchAccount(); }, [fetchAccount]);
 
-  const createOrGetOnboardingLink = useCallback(async () => {
+  const ensureAccount = useCallback(async () => {
     if (!user) return null;
     setCreating(true);
 
@@ -43,7 +43,7 @@ export function useConnectedAccount() {
       const { data, error } = await supabase.functions.invoke("create-connect-account");
       if (error) throw error;
       await fetchAccount();
-      return data?.onboarding_url || null;
+      return data;
     } catch (err) {
       console.error("Failed to create connect account:", err);
       return null;
@@ -54,7 +54,7 @@ export function useConnectedAccount() {
 
   const isReady = account?.charges_enabled && account?.payouts_enabled;
   const isPending = account && !isReady;
-  const needsOnboarding = !account || account.onboarding_status === "not_started";
+  const needsCreation = !account;
 
   return {
     loading,
@@ -62,8 +62,8 @@ export function useConnectedAccount() {
     creating,
     isReady,
     isPending,
-    needsOnboarding,
-    createOrGetOnboardingLink,
+    needsCreation,
+    ensureAccount,
     refresh: fetchAccount,
   };
 }
