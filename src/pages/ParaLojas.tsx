@@ -148,8 +148,8 @@ export default function ParaLojas() {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ delay: i * 0.07 }}
               >
-                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-teal-50 mb-4">
-                  <b.icon className="h-5 w-5 text-teal-600" />
+                <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-muted mb-4">
+                  <b.icon className="h-5 w-5 text-primary" />
                 </div>
                 <h3 className="font-display font-bold text-foreground mb-2">{b.title}</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">{b.desc}</p>
