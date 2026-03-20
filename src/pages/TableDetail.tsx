@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ export default function TableDetail() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useAuth();
+  const { toast } = useToast();
   const { preferences } = useUserPreferences();
   const [mesa, setMesa] = useState<Mesa | null>(null);
   const [loading, setLoading] = useState(true);
@@ -80,6 +82,7 @@ export default function TableDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [existingBooking, setExistingBooking] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = useReviewEligibility(id);
 
   // Check if user already has a booking for this mesa
@@ -459,14 +462,46 @@ export default function TableDetail() {
                   <Check className="h-4 w-4" /> Você já está nesta mesa
                 </Button>
               ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
-                <Button variant="hero" size="lg" className="w-full text-base" onClick={() => {
-                  if (!user) {
-                    navigate("/login");
-                    return;
-                  }
-                  setBookingOpen(true);
-                }}>
-                  {mesa.min_price > 0
+                <Button
+                  variant="hero"
+                  size="lg"
+                  className="w-full text-base"
+                  disabled={checkoutLoading}
+                  onClick={async () => {
+                    if (!user) {
+                      navigate("/login");
+                      return;
+                    }
+                    if (mesa.min_price > 0) {
+                      // Go directly to Stripe Checkout
+                      setCheckoutLoading(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
+                          body: { mesa_id: mesa.id },
+                        });
+                        if (error) throw new Error(error.message || "Erro ao criar checkout");
+                        if (data?.error) throw new Error(data.error);
+                        if (data?.url) {
+                          window.location.href = data.url;
+                        } else {
+                          throw new Error("URL de pagamento não retornada");
+                        }
+                      } catch (err: any) {
+                        console.error("[TableDetail] Checkout error:", err);
+                        toast({ title: "Erro no checkout", description: err?.message || "Tente novamente.", variant: "destructive" });
+                        setCheckoutLoading(false);
+                      }
+                    } else {
+                      setBookingOpen(true);
+                    }
+                  }}
+                >
+                  {checkoutLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  {checkoutLoading
+                    ? "Redirecionando…"
+                    : mesa.min_price > 0
                     ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
                     : "Reservar Vaga — Grátis"}
                 </Button>
