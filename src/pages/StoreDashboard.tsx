@@ -446,6 +446,11 @@ export default function StoreDashboard() {
           </div>
         )}
 
+        {/* ─── SLOTS ─── */}
+        {tab === "slots" && (
+          <StoreSlotManager storeId={store?.id || user?.id || ""} />
+        )}
+
         {/* ─── SPACE MANAGEMENT ─── */}
         {tab === "space" && (
           <div className="max-w-2xl space-y-6">
