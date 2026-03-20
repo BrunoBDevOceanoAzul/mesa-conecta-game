@@ -32,6 +32,7 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
   const [shareText, setShareText] = useState("");
   const [shareLoading, setShareLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [coverAiLoading, setCoverAiLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedGame, setSelectedGame] = useState<BoardGame | null>(null);
