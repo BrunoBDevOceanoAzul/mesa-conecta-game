@@ -118,9 +118,10 @@ serve(async (req) => {
     if (bookingError) throw new Error(`Failed to create booking: ${bookingError.message}`);
     logStep("Pending booking created", { bookingId: booking.id });
 
-    // Build Checkout Session params
+    // Build Checkout Session params with PIX + Card
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
+      payment_method_types: ["card", "pix"],
       line_items: [{ price: mesa.stripe_price_id, quantity: 1 }],
       mode: "payment",
       success_url: `${origin}/mesa/${mesa.id}?booking=success&booking_id=${booking.id}`,
