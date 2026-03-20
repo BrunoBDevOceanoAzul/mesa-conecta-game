@@ -382,6 +382,26 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
           logStep("Booking confirmation email enqueued", { playerEmail, messageId });
         }
+
+        // ─── Notify GM about new booking ───
+        if (gmUserId && mesa) {
+          const { data: gmProfile } = await supabase.from("profiles").select("email, display_name, name").eq("user_id", gmUserId).maybeSingle();
+          if (gmProfile?.email) {
+            const seatsLeft = mesa.price_per_seat ? 0 : 0; // will fetch below
+            const { data: mesaFresh } = await supabase.from("mesas").select("seats_available").eq("id", mesaId!).maybeSingle();
+            const gmHtml = await render(NewBookingGM({
+              gmName: gmProfile.display_name || gmProfile.name || "Mestre",
+              playerName,
+              mesaTitle: mesa.title || "Mesa de RPG",
+              date: mesa.session_date || "A definir",
+              time: mesa.session_time || "A definir",
+              seatsRemaining: mesaFresh?.seats_available ?? 0,
+              mesaId: mesaId || "",
+            }));
+            await enqueueTransactionalEmail(gmProfile.email, `Nova reserva: ${playerName} em "${mesa.title}"`, gmHtml, "new_booking_gm", { mesa_id: mesaId, booking_id: bookingId });
+            logStep("GM booking notification email enqueued", { gmEmail: gmProfile.email });
+          }
+        }
       } catch (emailErr) {
         logStep("WARN: Failed to send booking email (non-blocking)", { error: (emailErr as Error).message });
       }
@@ -521,6 +541,26 @@ serve(async (req) => {
             const sub = await stripe.subscriptions.retrieve(subId);
             await upsertSubscription(sub);
           }
+          // Send payment receipt email
+          try {
+            const custId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+            if (custId) {
+              const resolved = await resolveUserByCustomerId(custId);
+              if (resolved) {
+                const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+                const amountStr = `R$${((inv.amount_paid ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+                const paidDate = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+                const html = await render(PaymentReceipt({
+                  userName: prof?.display_name || prof?.name || "Usuário",
+                  amount: amountStr,
+                  date: paidDate,
+                  invoiceNumber: inv.number || inv.id,
+                  description: `Fatura ${inv.number || inv.id}`,
+                }));
+                await enqueueTransactionalEmail(resolved.email, `Recibo de pagamento — ${amountStr}`, html, "payment_receipt", { invoice_id: inv.id });
+              }
+            }
+          } catch (e) { logStep("WARN: payment receipt email failed", { error: (e as Error).message }); }
         }
         break;
 
@@ -541,11 +581,48 @@ serve(async (req) => {
               await auditLog("subscription_past_due", "subscription", localSub.id, {});
             }
           }
+          // Send payment failed email
+          try {
+            const custId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+            if (custId) {
+              const resolved = await resolveUserByCustomerId(custId);
+              if (resolved) {
+                const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+                const amountStr = `R$${((inv.amount_due ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+                const html = await render(PaymentFailed({
+                  userName: prof?.display_name || prof?.name || "Usuário",
+                  amount: amountStr,
+                  invoiceNumber: inv.number || inv.id,
+                  nextRetryDate: new Date(Date.now() + 3 * 86400000).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+                }));
+                await enqueueTransactionalEmail(resolved.email, `Falha no pagamento — ${amountStr}`, html, "payment_failed", { invoice_id: inv.id });
+              }
+            }
+          } catch (e) { logStep("WARN: payment failed email failed", { error: (e as Error).message }); }
         }
         break;
 
       case "charge.refunded":
         await handleChargeRefunded(event.data.object as Stripe.Charge);
+        // Send refund email
+        try {
+          const ch = event.data.object as Stripe.Charge;
+          const custId = typeof ch.customer === "string" ? ch.customer : ch.customer?.id;
+          if (custId) {
+            const resolved = await resolveUserByCustomerId(custId);
+            if (resolved) {
+              const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+              const refundAmountStr = `R$${((ch.amount_refunded ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+              const html = await render(RefundProcessed({
+                userName: prof?.display_name || prof?.name || "Usuário",
+                amount: refundAmountStr,
+                date: new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+                reason: "Reembolso processado conforme solicitado.",
+              }));
+              await enqueueTransactionalEmail(resolved.email, `Reembolso processado — ${refundAmountStr}`, html, "refund_processed", { charge_id: ch.id });
+            }
+          }
+        } catch (e) { logStep("WARN: refund email failed", { error: (e as Error).message }); }
         break;
 
       case "account.updated": {
