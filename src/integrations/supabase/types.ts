@@ -2600,6 +2600,45 @@ export type Database = {
           },
         ]
       }
+      mesa_selected_expansions: {
+        Row: {
+          added_by_user_id: string
+          created_at: string
+          expansion_id: string
+          id: string
+          mesa_id: string
+        }
+        Insert: {
+          added_by_user_id: string
+          created_at?: string
+          expansion_id: string
+          id?: string
+          mesa_id: string
+        }
+        Update: {
+          added_by_user_id?: string
+          created_at?: string
+          expansion_id?: string
+          id?: string
+          mesa_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesa_selected_expansions_expansion_id_fkey"
+            columns: ["expansion_id"]
+            isOneToOne: false
+            referencedRelation: "board_games_catalog"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "mesa_selected_expansions_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mesas: {
         Row: {
           address: string | null
