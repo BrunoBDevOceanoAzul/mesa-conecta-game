@@ -64,6 +64,7 @@ export default function AdminPainel() {
         {subTab === "coupons" && <CouponManager />}
         {subTab === "golive" && <GoLiveChecklist />}
         {subTab === "tickets" && <TicketManagement />}
+        {subTab === "blocklist" && <BlocklistManager />}
       </div>
     </AdminLayout>
   );
