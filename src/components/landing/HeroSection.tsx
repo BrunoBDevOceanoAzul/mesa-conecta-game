@@ -57,7 +57,7 @@ export function HeroSection() {
           </motion.p>
 
           <motion.div
-            className="mt-12 flex flex-col items-start gap-4 sm:flex-row"
+            className="mt-8 sm:mt-12 flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:gap-4"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
