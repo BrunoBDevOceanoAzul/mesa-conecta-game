@@ -133,8 +133,14 @@ export function StoreManager() {
     }
     setSaving(true);
 
+    // Auto-generate slug from name if empty
+    const autoSlug = form.slug.trim() || form.name.trim().toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
     const payload: any = {
       name: form.name.trim(),
+      slug: autoSlug,
       address: form.address.trim() || null,
       city: form.city.trim() || null,
       state: form.state.trim() || null,
@@ -144,6 +150,7 @@ export function StoreManager() {
       simultaneous_tables: form.simultaneous_tables,
       phone: form.phone.trim() || null,
       website: form.website.trim() || null,
+      instagram: form.instagram.trim() || null,
       description: form.description.trim() || null,
       google_place_id: form.google_place_id.trim() || null,
     };
