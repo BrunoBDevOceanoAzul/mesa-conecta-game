@@ -5,6 +5,7 @@ import { Gamepad2, Crown, Store, Loader2, Eye, EyeOff, Sparkles } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import logoImg from "@/assets/hivium-logo.png";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
