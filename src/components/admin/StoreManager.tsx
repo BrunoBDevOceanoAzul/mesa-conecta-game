@@ -222,6 +222,19 @@ export function StoreManager() {
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nome da luderia" />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Slug (URL)</Label>
+                  <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-gerado do nome" />
+                  <p className="text-[10px] text-muted-foreground mt-0.5">/loja/{form.slug || "..."}</p>
+                </div>
+                <div>
+                  <Label>Instagram</Label>
+                  <Input value={form.instagram} onChange={(e) => setForm((f) => ({ ...f, instagram: e.target.value }))} placeholder="@luderia" />
+                </div>
+              </div>
+              </div>
+
               <div>
                 <Label>Endereço (Google Places)</Label>
                 <AddressAutocomplete
