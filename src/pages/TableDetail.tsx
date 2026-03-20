@@ -129,6 +129,14 @@ export default function TableDetail() {
       .then(({ data }) => {
         if (data) {
           setMesa(data as Mesa);
+          // Track page view metric
+          if (user) {
+            supabase.from("mesa_engagement_metrics").insert({
+              mesa_id: id,
+              user_id: user.id,
+              event_type: "view",
+            }).then(() => {});
+          }
           // Dynamic OG meta tags for social sharing crawlers
           const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
           document.querySelector('meta[property="og:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
