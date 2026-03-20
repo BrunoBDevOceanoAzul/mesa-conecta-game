@@ -80,6 +80,10 @@ export function CouponManager() {
       toast({ title: "Preencha nome e código", variant: "destructive" });
       return;
     }
+    if (!/^[a-zA-Z0-9\-_]+$/.test(formCode)) {
+      toast({ title: "Código inválido", description: "Use apenas letras, números, - e _ (sem espaços ou caracteres especiais como %).", variant: "destructive" });
+      return;
+    }
 
     setCreating(true);
     const { data, error } = await supabase.functions.invoke("manage-coupons", {
