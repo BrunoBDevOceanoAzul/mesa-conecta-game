@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { trackStoreEvent } from "@/lib/store-tracking";
 import { useAuth } from "@/contexts/AuthContext";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { MesaCard } from "@/components/shared/MesaCard";
