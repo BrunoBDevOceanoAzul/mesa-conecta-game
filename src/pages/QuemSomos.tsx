@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Instagram, Linkedin, ExternalLink } from "lucide-react";
+import founderImg from "@/assets/founder-bruno.png";
 
 const INSTAGRAM_URL = "https://www.instagram.com/brunobisogni2/";
 const LINKEDIN_URL = "https://www.linkedin.com/in/brunobisogni";
