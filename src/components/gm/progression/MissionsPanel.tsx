@@ -1,19 +1,19 @@
 import { Target, CheckCircle2, Circle, ArrowRight } from "lucide-react";
 import { useXpConfig } from "@/hooks/use-xp-config";
-import type { XpEvent } from "@/hooks/use-master-progression";
+import { useNavigate } from "react-router-dom";
 
-/** Maps action_type → a user-friendly mission description */
-const MISSION_MAP: Record<string, { label: string; description: string }> = {
-  onboarding_completed: { label: "Primeira Calibração", description: "Complete o processo de entrada na HIVIUM" },
-  first_table_created: { label: "Mesa Inaugural", description: "Publique sua primeira mesa na plataforma" },
-  third_table_created: { label: "Tríade Completa", description: "Publique 3 mesas ativas" },
-  first_booking: { label: "Primeira Convocação", description: "Receba sua primeira reserva de jogador" },
-  table_filled: { label: "Sessão Lotada", description: "Lote uma mesa inteira" },
-  positive_review: { label: "Reconhecimento", description: "Receba uma avaliação positiva" },
+/** Maps action_type → a user-friendly mission description + route */
+const MISSION_MAP: Record<string, { label: string; description: string; route?: string }> = {
+  onboarding_completed: { label: "Primeira Calibração", description: "Complete o processo de entrada na HIVIUM", route: "/onboarding" },
+  first_table_created: { label: "Mesa Inaugural", description: "Publique sua primeira mesa na plataforma", route: "/dashboard/mestre" },
+  third_table_created: { label: "Tríade Completa", description: "Publique 3 mesas ativas", route: "/dashboard/mestre" },
+  first_booking: { label: "Primeira Convocação", description: "Receba sua primeira reserva de jogador", route: "/explorar" },
+  table_filled: { label: "Sessão Lotada", description: "Lote uma mesa inteira", route: "/dashboard/mestre" },
+  positive_review: { label: "Reconhecimento", description: "Receba uma avaliação positiva", route: "/dashboard/mestre" },
   active_30_days: { label: "Operação Contínua", description: "30 dias ativos na plataforma" },
   active_90_days: { label: "Veterano", description: "90 dias de operação contínua" },
-  post_published: { label: "Voz na Câmara", description: "Publique conteúdo no feed" },
-  campaign_completed: { label: "Campanha Encerrada", description: "Complete uma campanha de destaque" },
+  post_published: { label: "Voz na Câmara", description: "Publique conteúdo no feed", route: "/feed" },
+  campaign_completed: { label: "Campanha Encerrada", description: "Complete uma campanha de destaque", route: "/dashboard/boost" },
 };
 
 interface Props {
@@ -22,6 +22,7 @@ interface Props {
 
 export function MissionsPanel({ completedActions }: Props) {
   const { actions } = useXpConfig();
+  const navigate = useNavigate();
 
   const missions = actions
     .filter((a) => MISSION_MAP[a.type])
@@ -44,7 +45,12 @@ export function MissionsPanel({ completedActions }: Props) {
         <div className="space-y-2 mb-4">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground mb-2">Próximas missões</p>
           {pending.slice(0, 5).map((m) => (
-            <div key={m.type} className="flex items-center gap-3 rounded-lg px-3 py-2.5 bg-muted/30 border border-border/50">
+            <button
+              key={m.type}
+              onClick={() => m.mission.route && navigate(m.mission.route)}
+              disabled={!m.mission.route}
+              className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 bg-muted/30 border border-border/50 text-left transition-all hover:bg-muted/60 hover:border-primary/20 hover:shadow-sm disabled:cursor-default disabled:hover:bg-muted/30 disabled:hover:border-border/50 disabled:hover:shadow-none"
+            >
               <Circle className="h-4 w-4 text-muted-foreground/50 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="text-xs font-medium text-foreground">{m.mission.label}</p>
@@ -52,9 +58,9 @@ export function MissionsPanel({ completedActions }: Props) {
               </div>
               <div className="flex items-center gap-1 shrink-0">
                 <span className="text-[10px] font-bold text-secondary">+{m.xp} XP</span>
-                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                {m.mission.route && <ArrowRight className="h-3 w-3 text-muted-foreground" />}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       )}
