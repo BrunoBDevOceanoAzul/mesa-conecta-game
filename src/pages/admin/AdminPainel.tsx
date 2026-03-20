@@ -70,6 +70,7 @@ export default function AdminPainel() {
         {subTab === "tickets" && <TicketManagement />}
         {subTab === "blocklist" && <BlocklistManager />}
         {subTab === "ambassadors" && <AmbassadorManager />}
+        {subTab === "images" && <SiteImageManager />}
       </div>
     </AdminLayout>
   );
