@@ -141,7 +141,7 @@ export function MesaLiveChat({ gameTableId, gmUserId, tableTitle }: MesaLiveChat
     const text = content || msgInput;
     if (!text.trim() || sending) return;
     if (containsProfanity(text)) {
-      toast({ title: "Conteúdo inadequado", description: PROFANITY_WARNING, variant: "destructive" });
+      toast.error(PROFANITY_WARNING);
       return;
     }
     setMsgInput("");
