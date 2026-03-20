@@ -67,6 +67,7 @@ export default function AdminPainel() {
         {subTab === "golive" && <GoLiveChecklist />}
         {subTab === "tickets" && <TicketManagement />}
         {subTab === "blocklist" && <BlocklistManager />}
+        {subTab === "ambassadors" && <AmbassadorManager />}
       </div>
     </AdminLayout>
   );
