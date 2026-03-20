@@ -90,17 +90,25 @@ export default function TableDetail() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = useReviewEligibility(id);
 
-  // Check if user already has a booking for this mesa
+  // Check if user has a CONFIRMED booking (paid or free) for this mesa
   useEffect(() => {
     if (!user || !id) return;
     supabase
       .from("bookings")
-      .select("id")
+      .select("id, status, payment_status")
       .eq("game_table_id", id)
       .eq("player_user_id", user.id)
       .neq("status", "canceled")
       .maybeSingle()
-      .then(({ data }) => setExistingBooking(!!data));
+      .then(({ data }) => {
+        // Only show as confirmed if payment succeeded or it's a free booking
+        const isConfirmed = data && (
+          data.payment_status === "paid" ||
+          data.status === "confirmed" ||
+          data.status === "completed"
+        );
+        setExistingBooking(!!isConfirmed);
+      });
   }, [user, id, bookingSuccess]);
 
   // Handle return from Stripe Checkout
