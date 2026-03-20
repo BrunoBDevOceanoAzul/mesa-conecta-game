@@ -11,9 +11,10 @@ import { TicketManagement } from "@/components/admin/TicketManagement";
 import { BlocklistManager } from "@/components/admin/BlocklistManager";
 import { AmbassadorManager } from "@/components/admin/AmbassadorManager";
 import { SiteImageManager } from "@/components/admin/SiteImageManager";
+import { SiteContentManager } from "@/components/admin/SiteContentManager";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images";
+type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images" | "content";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
