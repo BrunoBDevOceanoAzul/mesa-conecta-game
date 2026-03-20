@@ -3984,6 +3984,41 @@ export type Database = {
         }
         Relationships: []
       }
+      store_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          metadata_json: Json | null
+          store_id: string
+          visitor_user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          metadata_json?: Json | null
+          store_id: string
+          visitor_user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          metadata_json?: Json | null
+          store_id?: string
+          visitor_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "store_events_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       store_profiles: {
         Row: {
           address_line: string | null
@@ -4130,13 +4165,16 @@ export type Database = {
           game_catalog: string[] | null
           google_place_id: string | null
           id: string
+          instagram: string | null
           lat: number | null
           lng: number | null
+          logo_url: string | null
           name: string
           opening_days: string[] | null
           owner_id: string
           phone: string | null
           simultaneous_tables: number | null
+          slug: string | null
           state: string | null
           ticket_avg: string | null
           updated_at: string
@@ -4152,13 +4190,16 @@ export type Database = {
           game_catalog?: string[] | null
           google_place_id?: string | null
           id?: string
+          instagram?: string | null
           lat?: number | null
           lng?: number | null
+          logo_url?: string | null
           name: string
           opening_days?: string[] | null
           owner_id: string
           phone?: string | null
           simultaneous_tables?: number | null
+          slug?: string | null
           state?: string | null
           ticket_avg?: string | null
           updated_at?: string
@@ -4174,13 +4215,16 @@ export type Database = {
           game_catalog?: string[] | null
           google_place_id?: string | null
           id?: string
+          instagram?: string | null
           lat?: number | null
           lng?: number | null
+          logo_url?: string | null
           name?: string
           opening_days?: string[] | null
           owner_id?: string
           phone?: string | null
           simultaneous_tables?: number | null
+          slug?: string | null
           state?: string | null
           ticket_avg?: string | null
           updated_at?: string

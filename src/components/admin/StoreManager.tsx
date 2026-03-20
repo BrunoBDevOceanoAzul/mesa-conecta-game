@@ -16,6 +16,7 @@ import {
 interface StoreRow {
   id: string;
   name: string;
+  slug: string | null;
   address: string | null;
   city: string | null;
   state: string | null;
@@ -25,6 +26,7 @@ interface StoreRow {
   simultaneous_tables: number | null;
   phone: string | null;
   website: string | null;
+  instagram: string | null;
   description: string | null;
   google_place_id: string | null;
   owner_id: string;
@@ -33,6 +35,7 @@ interface StoreRow {
 
 const emptyForm = {
   name: "",
+  slug: "",
   address: "",
   city: "",
   state: "",
@@ -42,6 +45,7 @@ const emptyForm = {
   simultaneous_tables: 4,
   phone: "",
   website: "",
+  instagram: "",
   description: "",
   google_place_id: "",
   owner_id: "",
@@ -81,6 +85,7 @@ export function StoreManager() {
     setEditingId(store.id);
     setForm({
       name: store.name || "",
+      slug: store.slug || "",
       address: store.address || "",
       city: store.city || "",
       state: store.state || "",
@@ -90,6 +95,7 @@ export function StoreManager() {
       simultaneous_tables: store.simultaneous_tables || 4,
       phone: store.phone || "",
       website: store.website || "",
+      instagram: store.instagram || "",
       description: store.description || "",
       google_place_id: store.google_place_id || "",
       owner_id: store.owner_id || "",
@@ -127,8 +133,14 @@ export function StoreManager() {
     }
     setSaving(true);
 
+    // Auto-generate slug from name if empty
+    const autoSlug = form.slug.trim() || form.name.trim().toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+
     const payload: any = {
       name: form.name.trim(),
+      slug: autoSlug,
       address: form.address.trim() || null,
       city: form.city.trim() || null,
       state: form.state.trim() || null,
@@ -138,6 +150,7 @@ export function StoreManager() {
       simultaneous_tables: form.simultaneous_tables,
       phone: form.phone.trim() || null,
       website: form.website.trim() || null,
+      instagram: form.instagram.trim() || null,
       description: form.description.trim() || null,
       google_place_id: form.google_place_id.trim() || null,
     };
@@ -207,6 +220,18 @@ export function StoreManager() {
               <div>
                 <Label>Nome *</Label>
                 <Input value={form.name} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} placeholder="Nome da luderia" />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label>Slug (URL)</Label>
+                  <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-gerado do nome" />
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{`/loja/${form.slug || "..."}`}</p>
+                </div>
+                <div>
+                  <Label>Instagram</Label>
+                  <Input value={form.instagram} onChange={(e) => setForm((f) => ({ ...f, instagram: e.target.value }))} placeholder="@luderia" />
+                </div>
               </div>
 
               <div>
@@ -308,6 +333,7 @@ export function StoreManager() {
                 <tr>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground">Nome</th>
                   <th className="px-4 py-3 text-left font-medium text-muted-foreground hidden md:table-cell">Cidade</th>
+                  <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden sm:table-cell">Slug</th>
                   <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden sm:table-cell">Coordenadas</th>
                   <th className="px-4 py-3 text-center font-medium text-muted-foreground hidden lg:table-cell">Capacidade</th>
                   <th className="px-4 py-3 text-right font-medium text-muted-foreground">Ações</th>
@@ -322,6 +348,15 @@ export function StoreManager() {
                     </td>
                     <td className="px-4 py-3 hidden md:table-cell text-foreground">
                       {store.city || "—"}{store.state ? `, ${store.state}` : ""}
+                    </td>
+                    <td className="px-4 py-3 text-center hidden sm:table-cell">
+                      {store.slug ? (
+                        <a href={`/loja/${store.slug}`} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline">
+                          {store.slug}
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-center hidden sm:table-cell">
                       {store.lat && store.lng ? (
@@ -375,7 +410,7 @@ function AddressAutocomplete({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const debounceRef = useState<ReturnType<typeof setTimeout> | null>(null);
-  const containerRef = useState<HTMLDivElement | null>(null);
+  // containerRef not used in this pattern
 
   useEffect(() => {
     setQuery(value || "");

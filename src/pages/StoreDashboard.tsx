@@ -22,11 +22,13 @@ import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
 import { StoreSlotManager } from "@/components/store/StoreSlotManager";
+import { StoreAnalyticsPanel } from "@/components/store/StoreAnalyticsPanel";
+import { StoreAiPanel } from "@/components/store/StoreAiPanel";
 
 type Mesa = any;
 type StoreData = any;
 
-type Tab = "overview" | "space" | "agenda" | "slots" | "feed" | "reviews" | "export";
+type Tab = "overview" | "space" | "agenda" | "slots" | "feed" | "reviews" | "analytics" | "ai" | "export";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
@@ -167,6 +169,8 @@ export default function StoreDashboard() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
+    { key: "analytics", label: "Métricas", icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "ai", label: "IA", icon: <Sparkles className="h-4 w-4" /> },
     { key: "slots", label: "Slots", icon: <Clock className="h-4 w-4" /> },
     { key: "agenda", label: "Agenda", icon: <CalendarDays className="h-4 w-4" /> },
     { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
@@ -596,6 +600,21 @@ export default function StoreDashboard() {
               sub="Publique sobre eventos, promoções e novidades da sua luderia."
             />
           </div>
+        )}
+
+        {/* ─── ANALYTICS ─── */}
+        {tab === "analytics" && store && (
+          <StoreAnalyticsPanel storeId={store.id} storeSlug={store.slug} />
+        )}
+
+        {/* ─── AI ─── */}
+        {tab === "ai" && (
+          <StoreAiPanel
+            storeName={storeName}
+            city={storeCity}
+            description={storeDescription}
+            capacity={storeCapacity}
+          />
         )}
 
         {/* ─── EXPORT / REPORTS ─── */}

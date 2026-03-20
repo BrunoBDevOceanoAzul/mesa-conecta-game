@@ -41,3 +41,5 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.resend-webhook]
     verify_jwt = false
+  [functions.store-ai-content]
+    verify_jwt = false
