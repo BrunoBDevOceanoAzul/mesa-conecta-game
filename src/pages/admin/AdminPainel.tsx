@@ -73,6 +73,7 @@ export default function AdminPainel() {
         {subTab === "blocklist" && <BlocklistManager />}
         {subTab === "ambassadors" && <AmbassadorManager />}
         {subTab === "images" && <SiteImageManager />}
+        {subTab === "content" && <SiteContentManager />}
       </div>
     </AdminLayout>
   );
