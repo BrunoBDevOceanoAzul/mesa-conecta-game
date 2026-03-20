@@ -54,7 +54,7 @@ export default function OAuthCallback() {
         const dest = await applySignupRoleAndRedirect(userId);
         navigate(dest, { replace: true });
       } catch {
-        navigate("/onboarding", { replace: true });
+        navigate("/explorar", { replace: true });
       }
     };
 
