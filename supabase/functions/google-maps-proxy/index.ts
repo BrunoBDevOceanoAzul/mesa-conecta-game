@@ -48,18 +48,22 @@ Deno.serve(async (req) => {
 
     if (action === "autocomplete") {
       const url = "https://places.googleapis.com/v1/places:autocomplete";
+      const body: any = {
+        input,
+        includedRegionCodes: ["br"],
+        languageCode: "pt-BR",
+      };
+      // Only restrict to localities for city searches; allow all types for address searches
+      if (!input.includes(",") && input.length < 20) {
+        body.includedPrimaryTypes = ["locality", "administrative_area_level_2"];
+      }
       const response = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY,
         },
-        body: JSON.stringify({
-          input,
-          includedPrimaryTypes: ["locality", "administrative_area_level_2"],
-          includedRegionCodes: ["br"],
-          languageCode: "pt-BR",
-        }),
+        body: JSON.stringify(body),
       });
       const data = await response.json();
 
