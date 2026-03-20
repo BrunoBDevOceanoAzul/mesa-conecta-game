@@ -82,10 +82,11 @@ export default function LojaPublicProfile() {
       return;
     }
 
-    const [storeRes, tablesRes, badgesRes] = await Promise.all([
+    const [storeRes, tablesRes, badgesRes, storeDataRes] = await Promise.all([
       supabase.from("store_profiles").select("*").eq("user_id", profile.user_id).maybeSingle(),
       supabase.from("game_tables").select("*").eq("store_user_id", profile.user_id).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
       supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profile.user_id).limit(12),
+      supabase.from("stores").select("id, slug").eq("owner_id", profile.user_id).maybeSingle(),
     ]);
 
     setData({
@@ -95,6 +96,11 @@ export default function LojaPublicProfile() {
       badges: badgesRes.data || [],
     });
     setLoading(false);
+
+    // Track page view
+    if (storeDataRes.data?.id) {
+      trackStoreEvent(storeDataRes.data.id, "page_view", { slug, referrer: document.referrer || null });
+    }
   }
 
   if (loading) return <LoadingSkeleton />;
