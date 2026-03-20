@@ -74,6 +74,10 @@ export default function Signup() {
       toast({ title: "Selecione seu perfil", description: "Escolha como você quer usar a HIVIUM.", variant: "destructive" });
       return;
     }
+    if (!termsAccepted) {
+      toast({ title: "Aceite os termos", description: "Você precisa aceitar os termos e a política de privacidade.", variant: "destructive" });
+      return;
+    }
     setLoading(true);
     try {
       const { data, error } = await supabase.auth.signUp({
