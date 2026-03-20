@@ -27,6 +27,17 @@ import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
 import { CartAbandonmentPanel } from "@/components/gm/CartAbandonmentPanel";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Mesa = any;
 
