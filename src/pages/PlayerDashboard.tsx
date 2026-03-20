@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
+import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
 import { MesaCard } from "@/components/shared/MesaCard";
@@ -117,6 +118,7 @@ export default function PlayerDashboard() {
   return (
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
+        <ProfileCompletionBanner />
         <div>
           <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
           <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>

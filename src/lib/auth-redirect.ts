@@ -1,12 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const roleToOnboarding: Record<string, string> = {
-  player: "/onboarding/jogador",
-  gm: "/onboarding/mestre",
-  store: "/onboarding/loja",
-  brand: "/onboarding",
-};
-
 const roleToDash: Record<string, string> = {
   admin: "/admin",
   player: "/dashboard/jogador",
@@ -27,7 +20,7 @@ export async function resolveRedirect(userId: string, _fallbackRole?: string): P
     }
     if (isAdmin) return "/admin";
 
-    // Fetch profile — may not exist yet for brand-new users (trigger delay)
+    // Fetch profile
     const { data: profile } = await supabase
       .from("profiles")
       .select("role, onboarding_completed, can_play, can_gm")
@@ -36,20 +29,15 @@ export async function resolveRedirect(userId: string, _fallbackRole?: string): P
 
     const role = profile?.role;
 
-    // If no role has been chosen yet, send to onboarding profile selection
+    // No role yet → send to signup to pick one
     if (!role) {
-      return "/onboarding";
+      return "/cadastro";
     }
 
-    // If onboarding not completed, send to role-specific onboarding
-    if (!profile?.onboarding_completed) {
-      return roleToOnboarding[role] || "/onboarding";
-    }
-
-    return roleToDash[role] || "/onboarding";
+    // Go directly to dashboard — no more mandatory onboarding gate
+    return roleToDash[role] || "/explorar";
   } catch (err) {
     console.warn("[auth-redirect] Error resolving redirect:", err);
-    // Safe fallback — send to generic onboarding which will handle role selection
-    return "/onboarding";
+    return "/explorar";
   }
 }

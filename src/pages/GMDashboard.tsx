@@ -1,4 +1,5 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
+import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import {
   Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
@@ -123,6 +124,7 @@ export default function GMDashboard() {
   return (
     <DashboardLayout role="gm" navItems={navItems} userName={displayName}>
       <div className="space-y-6">
+        <ProfileCompletionBanner />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
