@@ -252,7 +252,7 @@ export default function GMDashboard() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {mesas.map((m) => (
-                  <MesaManageCard key={m.id} mesa={m} />
+                  <MesaManageCard key={m.id} mesa={m} onDeleted={fetchMesas} />
                 ))}
               </div>
             )}
