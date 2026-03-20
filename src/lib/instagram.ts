@@ -5,7 +5,7 @@
  */
 
 const INSTAGRAM_HANDLE = "hivium";
-const INSTAGRAM_BASE = `https://instagram.com/${INSTAGRAM_HANDLE}`;
+const INSTAGRAM_BASE = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
 
 export type InstagramSource =
   | "footer"
