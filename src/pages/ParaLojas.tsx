@@ -184,7 +184,7 @@ export default function ParaLojas() {
                 viewport={{ once: true, amount: 0.2 }}
                 transition={{ delay: i * 0.1 }}
               >
-                <span className="font-display text-2xl font-bold text-teal-500 shrink-0 w-10">{s.n}</span>
+                <span className="font-display text-2xl font-bold text-primary shrink-0 w-10">{s.n}</span>
                 <div>
                   <h3 className="font-display font-bold text-foreground">{s.title}</h3>
                   <p className="text-sm text-muted-foreground mt-1">{s.desc}</p>
