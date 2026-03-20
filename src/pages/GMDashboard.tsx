@@ -29,6 +29,7 @@ import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
 import { CartAbandonmentPanel } from "@/components/gm/CartAbandonmentPanel";
 import { toast } from "sonner";
+import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
 import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
 
 type Mesa = any;
