@@ -80,6 +80,7 @@ export default function TableDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [existingBooking, setExistingBooking] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = useReviewEligibility(id);
 
   // Check if user already has a booking for this mesa
