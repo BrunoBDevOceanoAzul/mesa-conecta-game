@@ -363,6 +363,40 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             </div>
           )}
 
+          {/* Value Proposition */}
+          <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-4">
+            <h3 className="text-sm font-display font-semibold text-foreground">
+              💎 Por que pagar pela HIVIUM?
+            </h3>
+            <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
+              <p>
+                <strong className="text-foreground">Menor custo do mercado.</strong> Plataformas concorrentes cobram de 15% a 20% por mesa vendida. A HIVIUM cobra apenas <strong className="text-primary">{PLATFORM_FEE_MIN}–{PLATFORM_FEE_MAX}%</strong> de taxa de intermediação — até 5x menos que a concorrência.
+              </p>
+              <p>
+                <strong className="text-foreground">Mais ferramentas, mais autonomia.</strong> Com a assinatura você acessa CRM de jogadores, calculadora de precificação inteligente, automação de reservas, analytics de desempenho, campanhas de destaque e estúdio IA — tudo integrado em um lugar só. Nenhum concorrente entrega esse nível de ferramenta por esse preço.
+              </p>
+              <p>
+                <strong className="text-foreground">Você ganha mais por mesa.</strong> Compare: em outras plataformas, uma mesa de R$50/jogador com 5 jogadores te deixa com R$200–R$212. Na HIVIUM com PIX, você recebe até <strong className="text-primary">R${(50 * 5 * (1 - PLATFORM_FEE_MIN / 100 - STRIPE_PIX_PERCENT / 100)).toFixed(0)}</strong> — quase R$40 a mais por sessão.
+              </p>
+              <p>
+                <strong className="text-foreground">Assinatura que se paga sozinha.</strong> O plano Pro custa R$19,90/mês. Com 1 mesa paga você já recupera o investimento. Toda mesa adicional é lucro direto no seu bolso.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 pt-2">
+              <div className="rounded-lg border border-border bg-card p-3 text-center">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider">Concorrentes</p>
+                <p className="text-lg font-bold text-destructive">15–20%</p>
+                <p className="text-[10px] text-muted-foreground">taxa por mesa</p>
+              </div>
+              <div className="rounded-lg border border-primary/30 bg-primary/10 p-3 text-center">
+                <p className="text-[10px] text-primary uppercase tracking-wider font-medium">HIVIUM</p>
+                <p className="text-lg font-bold text-primary">{PLATFORM_FEE_MIN}–{PLATFORM_FEE_MAX}%</p>
+                <p className="text-[10px] text-muted-foreground">taxa por mesa</p>
+              </div>
+            </div>
+          </div>
+
           <p className="text-[11px] text-muted-foreground leading-relaxed">
             Referência de mercado: R$30–40/jogador/sessão (campanha online). Ajuste conforme formato, curadoria e experiência. Valores são estimativas — adapte ao seu contexto.
           </p>
