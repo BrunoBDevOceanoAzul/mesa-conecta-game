@@ -1,13 +1,13 @@
 import { useConnectedAccount } from "@/hooks/use-connected-account";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
-  Wallet, CheckCircle2, Clock, AlertTriangle, ArrowRight, Loader2, ExternalLink,
+  Wallet, CheckCircle2, Clock, AlertTriangle, Loader2, RefreshCw,
 } from "lucide-react";
 
 const statusLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  not_started: { label: "Não configurada", color: "bg-muted text-muted-foreground border-border", icon: <Wallet className="h-3.5 w-3.5" /> },
-  pending: { label: "Pendente de ativação", color: "bg-yellow-500/15 text-yellow-400 border-yellow-500/25", icon: <Clock className="h-3.5 w-3.5" /> },
+  not_started: { label: "Criando conta…", color: "bg-muted text-muted-foreground border-border", icon: <Clock className="h-3.5 w-3.5" /> },
+  pending: { label: "Ativação em andamento", color: "bg-yellow-500/15 text-yellow-400 border-yellow-500/25", icon: <Clock className="h-3.5 w-3.5" /> },
   submitted: { label: "Em análise", color: "bg-blue-500/15 text-blue-400 border-blue-500/25", icon: <Clock className="h-3.5 w-3.5" /> },
   verified: { label: "Pronta para receber", color: "bg-green-500/15 text-green-400 border-green-500/25", icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   restricted: { label: "Restrita", color: "bg-orange-500/15 text-orange-400 border-orange-500/25", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
@@ -15,7 +15,7 @@ const statusLabels: Record<string, { label: string; color: string; icon: React.R
 };
 
 export function ConnectStatusBlock() {
-  const { loading, account, creating, isReady, isPending, needsOnboarding, createOrGetOnboardingLink } = useConnectedAccount();
+  const { loading, account, creating, isReady, needsCreation, ensureAccount, refresh } = useConnectedAccount();
 
   if (loading) {
     return (
@@ -29,11 +29,6 @@ export function ConnectStatusBlock() {
   const status = account?.onboarding_status || "not_started";
   const cfg = statusLabels[status] || statusLabels.not_started;
 
-  async function handleSetup() {
-    const url = await createOrGetOnboardingLink();
-    if (url) window.open(url, "_blank");
-  }
-
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
       <div className="p-5 space-y-4">
@@ -45,10 +40,10 @@ export function ConnectStatusBlock() {
             </h3>
             <p className="text-xs text-muted-foreground mt-1">
               {isReady
-                ? "Sua conta está pronta para receber pagamentos das reservas."
-                : isPending
-                ? "Conclua a configuração para começar a receber pelas reservas."
-                : "Ative seu recebimento para receber pelas reservas na plataforma."}
+                ? "Sua conta está pronta. Pagamentos são transferidos automaticamente."
+                : needsCreation
+                ? "Sua conta de recebimento será criada automaticamente."
+                : "Sua conta está sendo ativada pelo sistema de pagamentos."}
             </p>
           </div>
           <Badge variant="outline" className={`${cfg.color} gap-1.5 px-2.5 py-1 text-[10px]`}>
@@ -66,22 +61,32 @@ export function ConnectStatusBlock() {
           </div>
         )}
 
-        {/* CTA */}
-        {!isReady && (
+        {/* Auto-create if missing */}
+        {needsCreation && (
           <Button
-            variant={needsOnboarding ? "hero" : "outline"}
+            variant="hero"
             size="sm"
             className="w-full gap-2"
-            onClick={handleSetup}
+            onClick={ensureAccount}
             disabled={creating}
           >
             {creating ? (
-              <><Loader2 className="h-4 w-4 animate-spin" /> Configurando…</>
-            ) : needsOnboarding ? (
-              <><ArrowRight className="h-4 w-4" /> Ative seu recebimento</>
+              <><Loader2 className="h-4 w-4 animate-spin" /> Criando conta…</>
             ) : (
-              <><ExternalLink className="h-4 w-4" /> Concluir configuração de recebimento</>
+              <><Wallet className="h-4 w-4" /> Criar conta de recebimento</>
             )}
+          </Button>
+        )}
+
+        {/* Refresh for pending accounts */}
+        {account && !isReady && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full gap-2"
+            onClick={refresh}
+          >
+            <RefreshCw className="h-4 w-4" /> Atualizar status
           </Button>
         )}
 
@@ -89,7 +94,7 @@ export function ConnectStatusBlock() {
           <div className="rounded-lg bg-green-500/5 border border-green-500/20 px-4 py-3 flex items-center gap-3">
             <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
             <p className="text-xs text-green-400">
-              Sua conta está pronta para receber. Pagamentos das reservas serão transferidos automaticamente.
+              Pagamentos das reservas são transferidos automaticamente para sua conta.
             </p>
           </div>
         )}
