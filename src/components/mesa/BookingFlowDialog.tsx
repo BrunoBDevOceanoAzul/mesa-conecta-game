@@ -231,7 +231,8 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   };
 
   const handleBook = () => {
-    if (isPaidMesa && !isSuperUser) {
+    if (isPaidMesa) {
+      // Always go through Stripe for paid mesas, even for admins
       handlePaidBook();
     } else {
       handleFreeBook();
