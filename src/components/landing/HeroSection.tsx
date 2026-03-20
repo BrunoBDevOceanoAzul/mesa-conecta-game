@@ -8,7 +8,7 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[100vh] flex items-center overflow-hidden pt-16">
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-20 pb-12 sm:pt-16 sm:pb-0">
       {/* Background image */}
       <div className="absolute inset-0">
         <img
