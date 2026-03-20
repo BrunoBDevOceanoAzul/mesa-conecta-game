@@ -371,6 +371,42 @@ export type Database = {
         }
         Relationships: []
       }
+      blocklist: {
+        Row: {
+          block_type: string
+          blocked_by_user_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          reason: string | null
+          target_email: string | null
+          target_user_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          block_type?: string
+          blocked_by_user_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          block_type?: string
+          blocked_by_user_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          reason?: string | null
+          target_email?: string | null
+          target_user_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       board_game_aliases: {
         Row: {
           alias: string
