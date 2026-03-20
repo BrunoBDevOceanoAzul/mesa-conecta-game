@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon, FileText } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
@@ -11,9 +11,10 @@ import { TicketManagement } from "@/components/admin/TicketManagement";
 import { BlocklistManager } from "@/components/admin/BlocklistManager";
 import { AmbassadorManager } from "@/components/admin/AmbassadorManager";
 import { SiteImageManager } from "@/components/admin/SiteImageManager";
+import { SiteContentManager } from "@/components/admin/SiteContentManager";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images";
+type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images" | "content";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
@@ -30,6 +31,7 @@ export default function AdminPainel() {
     { key: "blocklist", label: "Blocklist", icon: <Ban className="h-4 w-4" /> },
     { key: "ambassadors", label: "Embaixadores", icon: <Users className="h-4 w-4" /> },
     { key: "images", label: "Imagens", icon: <ImageIcon className="h-4 w-4" /> },
+    { key: "content", label: "Conteúdo", icon: <FileText className="h-4 w-4" /> },
   ];
 
   return (
@@ -71,6 +73,7 @@ export default function AdminPainel() {
         {subTab === "blocklist" && <BlocklistManager />}
         {subTab === "ambassadors" && <AmbassadorManager />}
         {subTab === "images" && <SiteImageManager />}
+        {subTab === "content" && <SiteContentManager />}
       </div>
     </AdminLayout>
   );
