@@ -241,6 +241,68 @@ export function PricingSection() {
             );
           })}
         </div>
+
+        {/* Fee explanation for GM and Store */}
+        {(activeRole === "gm" || activeRole === "store") && (
+          <motion.div
+            className="mt-10 max-w-3xl mx-auto rounded-2xl border border-border bg-card p-6 sm:p-8"
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <div className="flex items-center gap-2.5 mb-5">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
+                <Sparkles className="h-4 w-4 text-secondary" />
+              </div>
+              <h3 className="text-base font-display font-semibold text-foreground">Como funcionam as taxas</h3>
+            </div>
+
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Toda reserva paga passa pela Stripe, que cobra uma taxa de processamento. Além disso, a HIVIUM aplica uma taxa de intermediação (take rate) que varia conforme seu plano. Veja a comparação:
+            </p>
+
+            <div className="grid sm:grid-cols-2 gap-4 mb-5">
+              {/* Card */}
+              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">Cartão de Crédito</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Taxa Stripe: <span className="font-semibold text-foreground">3,99% + R$0,39</span></p>
+              </div>
+              {/* PIX */}
+              <div className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4 text-secondary" />
+                  <span className="text-sm font-medium text-foreground">PIX</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">Menor taxa</span>
+                </div>
+                <p className="text-xs text-muted-foreground">Taxa Stripe: <span className="font-semibold text-foreground">1,45%</span></p>
+              </div>
+            </div>
+
+            <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 space-y-2">
+              <p className="text-sm font-medium text-foreground">Taxa de intermediação HIVIUM</p>
+              <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
+                {activeRole === "gm" ? (
+                  <>
+                    <span>Plano Pro: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
+                    <span>Plano Pro+: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Plano Base: <span className="font-semibold text-foreground">~5%</span> por reserva</span>
+                    <span>Plano Growth: <span className="font-semibold text-foreground">~3%</span> por reserva</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <p className="text-[11px] text-muted-foreground/70 mt-4 leading-relaxed">
+              O repasse (split) é automático via Stripe Connect: o valor da reserva vai direto para sua conta conectada, já descontadas as taxas. Quanto maior seu plano, menor a taxa de intermediação.
+            </p>
+          </motion.div>
+        )}
       </div>
     </section>
   );
