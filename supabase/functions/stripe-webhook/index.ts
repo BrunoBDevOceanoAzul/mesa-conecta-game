@@ -521,6 +521,26 @@ serve(async (req) => {
             const sub = await stripe.subscriptions.retrieve(subId);
             await upsertSubscription(sub);
           }
+          // Send payment receipt email
+          try {
+            const custId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+            if (custId) {
+              const resolved = await resolveUserByCustomerId(custId);
+              if (resolved) {
+                const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+                const amountStr = `R$${((inv.amount_paid ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+                const paidDate = new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" });
+                const html = await render(PaymentReceipt({
+                  userName: prof?.display_name || prof?.name || "Usuário",
+                  amount: amountStr,
+                  date: paidDate,
+                  invoiceNumber: inv.number || inv.id,
+                  description: `Fatura ${inv.number || inv.id}`,
+                }));
+                await enqueueTransactionalEmail(resolved.email, `Recibo de pagamento — ${amountStr}`, html, "payment_receipt", { invoice_id: inv.id });
+              }
+            }
+          } catch (e) { logStep("WARN: payment receipt email failed", { error: (e as Error).message }); }
         }
         break;
 
