@@ -26,6 +26,7 @@ import { useGMReviews } from "@/hooks/use-reviews";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
+import { CartAbandonmentPanel } from "@/components/gm/CartAbandonmentPanel";
 
 type Mesa = any;
 
