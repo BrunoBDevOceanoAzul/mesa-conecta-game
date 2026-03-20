@@ -20,6 +20,7 @@ import {
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
+import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
 
 type Mesa = any;
 type StoreData = any;
