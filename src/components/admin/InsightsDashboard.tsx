@@ -405,7 +405,96 @@ export function InsightsDashboard() {
         </div>
       </section>
 
-      {/* BLOCK 2 — Demand Insights */}
+      {/* BLOCK 1.5 — Revenue */}
+      <section>
+        <h2 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-secondary" /> Faturamento da Plataforma
+        </h2>
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4 mb-6">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Receita Total</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.totalPlatformRevenue / 100).toFixed(2).replace(".", ",")}
+            </div>
+            <p className="text-[10px] text-muted-foreground">Reservas + Assinaturas</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Receita Reservas</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.totalBookingRevenue / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Média por Mestre</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.avgRevenuePerGM / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Média por Loja</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.avgRevenuePerStore / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Top GMs by Revenue */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Crown className="h-4 w-4 text-secondary" /> Top Mestres por Faturamento
+            </h3>
+            {data.topRevenueGMs.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topRevenueGMs.map((gm, i) => (
+                  <div key={gm.userId} className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{gm.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{gm.bookingsCount} reservas · ticket médio R${(gm.avgTicket / 100).toFixed(2).replace(".", ",")}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-display font-bold text-secondary">
+                      R${(gm.totalRevenue / 100).toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Top Stores by Revenue */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Store className="h-4 w-4 text-accent" /> Top Lojas por Faturamento
+            </h3>
+            {data.topRevenueStores.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topRevenueStores.map((store, i) => (
+                  <div key={store.userId} className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{store.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{store.bookingsCount} reservas · ticket médio R${(store.avgTicket / 100).toFixed(2).replace(".", ",")}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-display font-bold text-accent">
+                      R${(store.totalRevenue / 100).toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section>
         <h2 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-info" /> Insights da Demanda
