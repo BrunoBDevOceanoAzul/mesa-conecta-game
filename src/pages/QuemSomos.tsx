@@ -10,12 +10,22 @@ const timelineEvents = [
   {
     year: "2022",
     label: "A Centelha",
-    text: "Nasce a Sócio do Tabuleiro — uma loja de aluguel de jogos de tabuleiro. Não era só um negócio. Era a convicção de que pessoas sentadas ao redor de uma mesa podem criar algo que nenhum algoritmo replica: conexão real.",
+    text: "Nasce a Sócio do Tabuleiro — uma loja de aluguel de jogos de tabuleiro em Campinas. Não era só um negócio. Era a convicção de que pessoas sentadas ao redor de uma mesa podem criar algo que nenhum algoritmo replica: conexão real.",
   },
   {
-    year: "2023",
+    year: "Jul 2023",
+    label: "O MVP",
+    text: "A plataforma ganha vida: aluguel de jogos premium com entrega via motoboy, locadores recebendo 85% direto na carteira. De Gloomhaven a Catan, o catálogo cresce — e com ele, a comunidade.",
+  },
+  {
+    year: "Out 2023",
+    label: "A Voz do Nicho",
+    text: "Participação no episódio #26 do podcast 'É a Minha Vez!' (Viver de Jogo). A primeira vez contando a história para o ecossistema — dúvidas, tropeços e aprendizados expostos sem filtro.",
+  },
+  {
+    year: "Nov 2023",
     label: "O Cadinho",
-    text: "Turma Summer 2023 do Founder Institute São Paulo. Pessoas que marcaram profundamente a trajetória da empresa e do fundador. Um dos períodos mais transformadores — onde paixão encontrou método, e método encontrou propósito.",
+    text: "Turma Summer 2023 do Founder Institute São Paulo. Pitch final no Inova Habitat. Pessoas que marcaram profundamente a trajetória da empresa e do fundador. Um dos períodos mais transformadores — onde paixão encontrou método.",
   },
   {
     year: "Mar 2024",
@@ -24,7 +34,7 @@ const timelineEvents = [
   },
   {
     year: "Jul 2024",
-    label: "A Redesenho",
+    label: "O Redesenho",
     text: "Primeira turma mundial de Advisor de Startup pelo Founder Institute São Paulo. Foi aqui que o negócio foi redesenhado por completo — modelo, visão, proposta de valor. Mais que uma empresa, uma tese sobre comunidade.",
   },
   {
@@ -35,7 +45,7 @@ const timelineEvents = [
   {
     year: "2025",
     label: "HIVIUM Beta",
-    text: "A HIVIUM nasce da Sócio do Tabuleiro, da comunidade, dos aprendizados, dos erros e da insistência em não desistir. Uma plataforma para criar, organizar e fortalecer comunidades de RPG e jogos de tabuleiro. Ainda é o começo — e é exatamente isso que o torna emocionante.",
+    text: "A HIVIUM nasce da Sócio do Tabuleiro — do aluguel de jogos ao ecossistema completo para RPG e board games. Match de perfil, agendamento de mesas, gamificação, pagamento integrado. Ainda é o começo — e é exatamente isso que o torna emocionante.",
   },
 ];
 
