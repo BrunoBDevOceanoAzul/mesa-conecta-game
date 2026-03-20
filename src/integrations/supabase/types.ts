@@ -4598,6 +4598,10 @@ export type Database = {
         Args: { _plan_role?: string; _user_id: string }
         Returns: boolean
       }
+      increment_slot_occupancy: {
+        Args: { _seats?: number; _slot_id: string }
+        Returns: undefined
+      }
       is_admin: { Args: { _user_id: string }; Returns: boolean }
       is_advisor: { Args: { _user_id: string }; Returns: boolean }
       is_conversation_participant: {
