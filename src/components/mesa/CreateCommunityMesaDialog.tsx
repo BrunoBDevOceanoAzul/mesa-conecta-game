@@ -32,6 +32,7 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
   const [shareText, setShareText] = useState("");
   const [shareLoading, setShareLoading] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [coverAiLoading, setCoverAiLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [selectedGame, setSelectedGame] = useState<BoardGame | null>(null);
@@ -81,6 +82,8 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
   };
 
   const uploadCover = async (): Promise<string | null> => {
+    // AI-generated cover already uploaded to storage — use URL directly
+    if (coverPreview && !coverFile && coverPreview.startsWith("http")) return coverPreview;
     if (selectedGame?.thumbnail_url && !coverFile) return selectedGame.thumbnail_url;
     if (!coverFile || !user) return null;
     const ext = coverFile.name.split(".").pop() || "jpg";
@@ -118,6 +121,33 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
       toast({ title: "Erro ao gerar descrição", description: err.message || "Tente novamente.", variant: "destructive" });
     } finally {
       setAiLoading(false);
+    }
+  };
+
+  // AI: Generate cover image
+  const generateAiCover = async () => {
+    if (!title.trim()) {
+      toast({ title: "Preencha o nome da mesa primeiro", variant: "destructive" });
+      return;
+    }
+    setCoverAiLoading(true);
+    try {
+      const gameName = selectedGame?.name || title;
+      const prompt = `A vibrant, inviting board game night scene for "${gameName}". Show a table with the game setup, warm ambient lighting, cozy atmosphere, friends gathering to play`;
+      
+      const { data, error } = await supabase.functions.invoke("mesa-ai-cover", {
+        body: { prompt, style: "colorful board game illustration, warm and inviting, modern flat illustration style" },
+      });
+      if (error) throw error;
+      if (data?.image_url) {
+        setCoverPreview(data.image_url);
+        setCoverFile(null); // AI-generated, URL is already uploaded
+        toast({ title: "Capa gerada! 🎨", description: "Ficou bonita? Pode trocar se quiser." });
+      }
+    } catch (err: any) {
+      toast({ title: "Erro ao gerar capa", description: err.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setCoverAiLoading(false);
     }
   };
 
@@ -486,27 +516,58 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
 
           {/* Cover Image */}
           <div>
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
-              Capa <span className="font-normal">(opcional)</span>
-            </Label>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                Capa <span className="font-normal">(opcional)</span>
+              </Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={generateAiCover}
+                disabled={coverAiLoading || !title.trim()}
+                className="h-7 gap-1.5 text-xs text-primary hover:text-primary/80 px-2"
+              >
+                {coverAiLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                {coverAiLoading ? "Gerando capa..." : "Gerar com IA"}
+              </Button>
+            </div>
             <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleCoverSelect} />
             {coverPreview ? (
               <div className="relative rounded-xl overflow-hidden border border-border group">
                 <img src={coverPreview} alt="Preview" className="w-full h-32 object-cover" />
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                   <Button size="sm" variant="secondary" onClick={() => fileInputRef.current?.click()}>Trocar</Button>
+                  <Button size="sm" variant="ghost" className="text-white" onClick={generateAiCover} disabled={coverAiLoading}>
+                    {coverAiLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                  </Button>
                   <Button size="sm" variant="destructive" onClick={removeCover}><X className="h-4 w-4" /></Button>
                 </div>
               </div>
             ) : (
-              <button
-                type="button"
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 transition-all flex items-center justify-center gap-2 text-muted-foreground hover:text-primary text-sm"
-              >
-                <ImagePlus className="h-5 w-5" />
-                Adicionar foto
-              </button>
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="flex-1 h-20 rounded-xl border-2 border-dashed border-border hover:border-primary/40 bg-muted/30 transition-all flex items-center justify-center gap-2 text-muted-foreground hover:text-primary text-sm"
+                >
+                  <ImagePlus className="h-5 w-5" />
+                  Upload
+                </button>
+                <button
+                  type="button"
+                  onClick={generateAiCover}
+                  disabled={coverAiLoading || !title.trim()}
+                  className="flex-1 h-20 rounded-xl border-2 border-dashed border-primary/30 hover:border-primary/60 bg-primary/5 transition-all flex items-center justify-center gap-2 text-primary text-sm disabled:opacity-50"
+                >
+                  {coverAiLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
+                  {coverAiLoading ? "Gerando..." : "Capa IA"}
+                </button>
+              </div>
             )}
           </div>
 
