@@ -401,7 +401,7 @@ function AddressAutocomplete({
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const debounceRef = useState<ReturnType<typeof setTimeout> | null>(null);
-  const containerRef = useState<HTMLDivElement | null>(null);
+  // containerRef not used in this pattern
 
   useEffect(() => {
     setQuery(value || "");
