@@ -121,6 +121,8 @@ export default function PlayerDashboard() {
   return (
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
+        <TrialBanner />
+        <ProfileCouponBanner />
         <ProfileCompletionBanner />
         <div className="flex items-center justify-between">
           <div>

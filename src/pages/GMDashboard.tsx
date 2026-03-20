@@ -128,6 +128,8 @@ export default function GMDashboard() {
   return (
     <DashboardLayout role="gm" navItems={navItems} userName={displayName}>
       <div className="space-y-6">
+        <TrialBanner />
+        <ProfileCouponBanner />
         <ProfileCompletionBanner />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
