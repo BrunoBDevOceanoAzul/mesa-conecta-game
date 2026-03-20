@@ -26,7 +26,7 @@ import { StoreSlotManager } from "@/components/store/StoreSlotManager";
 type Mesa = any;
 type StoreData = any;
 
-type Tab = "overview" | "space" | "agenda" | "feed" | "reviews" | "export";
+type Tab = "overview" | "space" | "agenda" | "slots" | "feed" | "reviews" | "export";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
