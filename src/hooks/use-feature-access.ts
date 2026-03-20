@@ -38,7 +38,7 @@ export function useFeatureAccess() {
         return { allowed: true, usage: 0, limit: -1, remaining: -1 };
       }
 
-      return data as FeatureAccessResult;
+      return data as unknown as FeatureAccessResult;
     } catch (err) {
       console.warn("[useFeatureAccess] Unexpected error:", err);
       return { allowed: true, usage: 0, limit: -1, remaining: -1 };
