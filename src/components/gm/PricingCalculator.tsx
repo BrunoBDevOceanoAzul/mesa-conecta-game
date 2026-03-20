@@ -88,6 +88,9 @@ interface CalculatorState {
   platformFee: number;
 }
 
+const PLATFORM_FEE_MIN = 3;
+const PLATFORM_FEE_MAX = 5;
+
 const defaultState: CalculatorState = {
   prepHours: 2,
   sessionHours: 4,
@@ -100,7 +103,7 @@ const defaultState: CalculatorState = {
   monthlyGoal: 2000,
   mesasPerMonth: 4,
   extraCosts: 0,
-  platformFee: 10,
+  platformFee: PLATFORM_FEE_MIN,
 };
 
 const presets = [
