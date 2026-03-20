@@ -9,6 +9,7 @@ import { PenSquare, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { containsProfanity, PROFANITY_WARNING } from "@/lib/profanity-filter";
 
 interface CreatePostDialogProps {
   onCreated?: () => void;
