@@ -1,10 +1,15 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, Sparkles, Instagram } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Instagram, Dice5, BookOpen, Store, Megaphone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { RoleKey } from "@/lib/onboarding-steps";
 import { generateBadges, generateProfileSummary, type Badge } from "@/lib/badge-generator";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
+import { roleThemes } from "@/lib/role-themes";
+
+const iconMap: Record<string, React.FC<{ className?: string }>> = {
+  Dice5, BookOpen, Store, Megaphone, Sparkles,
+};
 
 interface ProfileMappedScreenProps {
   role: RoleKey;
@@ -22,6 +27,8 @@ const badgeColors: Record<Badge["color"], string> = {
 export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMappedScreenProps) {
   const badges = generateBadges(role, answers);
   const summary = generateProfileSummary(role, answers);
+  const theme = roleThemes[role];
+  const Icon = iconMap[theme.iconName] || CheckCircle2;
 
   return (
     <motion.div
@@ -29,21 +36,21 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
       animate={{ opacity: 1 }}
       className="min-h-[100dvh] flex flex-col items-center justify-center px-6 py-12"
     >
-      {/* Ambient glow — celebratory */}
+      {/* Ambient glow — role-themed, celebratory */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.07 }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(272 60% 58%), transparent 70%)" }}
+          style={{ background: `radial-gradient(circle, ${theme.glowHsl}, transparent 70%)` }}
         />
         <motion.div
           initial={{ scale: 0.6, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.05 }}
           transition={{ duration: 1.8, delay: 0.3 }}
           className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(38 88% 55%), transparent 70%)" }}
+          style={{ background: `radial-gradient(circle, ${theme.secondaryGlowHsl}, transparent 70%)` }}
         />
       </div>
 
@@ -75,7 +82,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           transition={{ delay: 0.35 }}
           className="text-3xl md:text-4xl font-display font-bold text-foreground tracking-tight"
         >
-          Perfil calibrado
+          {theme.mappedTitle}
         </motion.h1>
 
         <motion.p
@@ -84,7 +91,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           transition={{ delay: 0.5 }}
           className="mt-4 text-muted-foreground text-[15px] leading-relaxed max-w-sm mx-auto"
         >
-          Agora a HIVIUM pode recomendar mesas, conexões e oportunidades com muito mais aderência ao seu perfil.
+          {theme.mappedSubtitle}
         </motion.p>
 
         {/* Summary card */}
@@ -95,7 +102,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
           className="mt-8 p-6 rounded-2xl border border-border/40 bg-card/30 backdrop-blur-sm text-left"
         >
           <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="h-3.5 w-3.5 text-secondary" />
+            <Icon className="h-3.5 w-3.5 text-secondary" />
             <span className="text-[11px] font-semibold text-secondary uppercase tracking-[0.15em]">
               Resumo do perfil
             </span>
@@ -142,7 +149,7 @@ export function ProfileMappedScreen({ role, answers, onContinue }: ProfileMapped
             onClick={onContinue}
             className="px-10 text-base h-13 gap-2"
           >
-            Entrar no dashboard <ArrowRight className="h-4 w-4" />
+            {theme.mappedCta} <ArrowRight className="h-4 w-4" />
           </Button>
           <a
             href={getInstagramUrl("onboarding_mapped")}

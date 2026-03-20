@@ -1,5 +1,7 @@
 import { motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
+import type { RoleKey } from "@/lib/onboarding-steps";
+import { roleThemes } from "@/lib/role-themes";
 
 interface TransitionScreenProps {
   headline: string;
@@ -7,9 +9,13 @@ interface TransitionScreenProps {
   onComplete: () => void;
   /** ms before auto-advancing */
   duration?: number;
+  role?: RoleKey | null;
 }
 
-export function TransitionScreen({ headline, subtext, onComplete, duration = 2200 }: TransitionScreenProps) {
+export function TransitionScreen({ headline, subtext, onComplete, duration = 2200, role }: TransitionScreenProps) {
+  const theme = role ? roleThemes[role] : null;
+  const glowColor = theme?.glowHsl || "hsl(270 55% 50%)";
+
   // Auto-advance after duration
   setTimeout(onComplete, duration);
 
@@ -21,14 +27,14 @@ export function TransitionScreen({ headline, subtext, onComplete, duration = 220
       transition={{ duration: 0.5 }}
       className="min-h-[100dvh] flex flex-col items-center justify-center px-6"
     >
-      {/* Ambient */}
+      {/* Ambient — role-colored */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.06 }}
           transition={{ duration: 1.2 }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] rounded-full"
-          style={{ background: "radial-gradient(circle, hsl(270 55% 50%), transparent 70%)" }}
+          style={{ background: `radial-gradient(circle, ${glowColor}, transparent 70%)` }}
         />
       </div>
 
