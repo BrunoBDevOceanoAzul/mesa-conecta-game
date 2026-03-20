@@ -58,6 +58,37 @@ async function auditLog(eventType: string, targetType: string, targetId: string,
   });
 }
 
+// ─── Email Helper ──────────────────────────────────────────
+
+const SENDER_DOMAIN = "notify.sociodotabuleiro.app.br";
+const FROM_ADDR = `HIVIUM <noreply@${SENDER_DOMAIN}>`;
+
+async function enqueueTransactionalEmail(recipientEmail: string, subject: string, html: string, label: string, meta: Record<string, unknown> = {}) {
+  const messageId = crypto.randomUUID();
+  await supabase.from("email_send_log").insert({
+    message_id: messageId,
+    template_name: label,
+    recipient_email: recipientEmail,
+    status: "pending",
+    metadata: meta,
+  });
+  await supabase.rpc("enqueue_email", {
+    queue_name: "transactional_emails",
+    payload: {
+      message_id: messageId,
+      to: recipientEmail,
+      from: FROM_ADDR,
+      sender_domain: SENDER_DOMAIN,
+      subject,
+      html,
+      purpose: "transactional",
+      label,
+      queued_at: new Date().toISOString(),
+    },
+  });
+  logStep(`Email enqueued: ${label}`, { recipientEmail, messageId });
+}
+
 // ─── Helpers ───────────────────────────────────────────────
 
 async function resolveUserByCustomerId(customerId: string): Promise<{ user_id: string; email: string } | null> {
