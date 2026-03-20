@@ -45,6 +45,10 @@ export function CreatePostDialog({ onCreated }: CreatePostDialogProps) {
 
   const handleSubmit = async () => {
     if (!user || !profile || !content.trim()) return;
+    if (containsProfanity(content) || containsProfanity(title)) {
+      toast({ title: "Conteúdo inadequado", description: PROFANITY_WARNING, variant: "destructive" });
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.from("community_posts").insert({
       author_id: user.id,

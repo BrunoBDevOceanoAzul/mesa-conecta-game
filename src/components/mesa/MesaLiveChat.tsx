@@ -139,6 +139,10 @@ export function MesaLiveChat({ gameTableId, gmUserId, tableTitle }: MesaLiveChat
   const handleSend = async (content?: string) => {
     const text = content || msgInput;
     if (!text.trim() || sending) return;
+    if (containsProfanity(text)) {
+      toast({ title: "Conteúdo inadequado", description: PROFANITY_WARNING, variant: "destructive" });
+      return;
+    }
     setMsgInput("");
     setShowQuickReplies(false);
     await sendMessage(text);
