@@ -10,8 +10,14 @@ export interface XpAction {
 }
 
 export const XP_ACTIONS: XpAction[] = [
-  { type: "onboarding_completed", label: "Onboarding concluído", xp: 50, description: "Complete o processo de entrada na plataforma" },
+  // GM first-tier missions
+  { type: "profile_completed", label: "Perfil completo", xp: 50, description: "Complete todas as informações do seu perfil" },
   { type: "first_table_created", label: "Primeira mesa publicada", xp: 80, description: "Publique sua primeira mesa na HIVIUM" },
+  { type: "used_pricing_calculator", label: "Calculadora utilizada", xp: 30, description: "Use a calculadora de precificação para definir seu preço" },
+  { type: "stripe_account_linked", label: "Conta Stripe vinculada", xp: 60, description: "Crie e vincule sua conta Stripe para receber pagamentos" },
+  { type: "first_session_completed", label: "Primeira sessão rodada", xp: 100, description: "Complete sua primeira sessão com jogadores" },
+  // GM progression missions
+  { type: "onboarding_completed", label: "Onboarding concluído", xp: 50, description: "Complete o processo de entrada na plataforma" },
   { type: "third_table_created", label: "3 mesas publicadas", xp: 120, description: "Publique 3 mesas na plataforma" },
   { type: "first_booking", label: "Primeira reserva", xp: 100, description: "Receba sua primeira reserva de jogador" },
   { type: "table_filled", label: "Mesa lotada", xp: 150, description: "Lote uma mesa inteira" },
@@ -23,6 +29,9 @@ export const XP_ACTIONS: XpAction[] = [
   { type: "active_30_days", label: "30 dias ativos", xp: 120, description: "Opere por 30 dias na plataforma" },
   { type: "active_90_days", label: "90 dias ativos", xp: 250, description: "Opere por 90 dias contínuos" },
   { type: "subscription_renewed", label: "Assinatura renovada", xp: 90, description: "Renove sua assinatura mensal" },
+  // Player first-tier missions
+  { type: "player_profile_completed", label: "Perfil completo (Jogador)", xp: 50, description: "Complete todas as informações do seu perfil de jogador" },
+  { type: "player_first_session", label: "Primeira mesa jogada", xp: 80, description: "Participe de uma sessão completa como jogador" },
 ];
 
 export interface XpTier {
