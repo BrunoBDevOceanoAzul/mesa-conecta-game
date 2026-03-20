@@ -5,6 +5,7 @@ import { Gamepad2, Crown, Store, Loader2, Eye, EyeOff, Sparkles } from "lucide-r
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable/index";
 import { useToast } from "@/hooks/use-toast";
+import { Checkbox } from "@/components/ui/checkbox";
 import logoImg from "@/assets/hivium-logo.png";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
@@ -52,6 +53,7 @@ export default function Signup() {
   const [showPw, setShowPw] = useState(false);
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   const roleConfig = roleOptions.find((r) => r.value === selectedRole);
 
@@ -70,6 +72,10 @@ export default function Signup() {
     e.preventDefault();
     if (!selectedRole) {
       toast({ title: "Selecione seu perfil", description: "Escolha como você quer usar a HIVIUM.", variant: "destructive" });
+      return;
+    }
+    if (!termsAccepted) {
+      toast({ title: "Aceite os termos", description: "Você precisa aceitar os termos e a política de privacidade.", variant: "destructive" });
       return;
     }
     setLoading(true);
@@ -104,11 +110,13 @@ export default function Signup() {
       }
 
       if (data.session) {
-        // Mark onboarding as completed (lightweight entry — no heavy onboarding)
+        // Mark onboarding as completed + LGPD consent
         await supabase.from("profiles").update({
           onboarding_completed: true,
           onboarding_step: 99,
           whatsapp: normalizePhone(whatsapp),
+          terms_accepted_at: new Date().toISOString(),
+          terms_version: "1.0",
         } as any).eq("user_id", data.user!.id);
 
         navigate(roleToDashboard[selectedRole] || "/explorar");
@@ -123,6 +131,10 @@ export default function Signup() {
   const handleGoogle = async () => {
     if (!selectedRole) {
       toast({ title: "Selecione seu perfil", description: "Escolha como você quer usar a HIVIUM antes de continuar.", variant: "destructive" });
+      return;
+    }
+    if (!termsAccepted) {
+      toast({ title: "Aceite os termos", description: "Você precisa aceitar os termos e a política de privacidade.", variant: "destructive" });
       return;
     }
     setGoogleLoading(true);
@@ -251,7 +263,24 @@ export default function Signup() {
             </div>
           </div>
 
-          <Button variant="gradient" className="w-full h-12 text-[15px] font-semibold" type="submit" disabled={loading || !selectedRole}>
+          {/* LGPD Consent */}
+          <div className="flex items-start gap-3 py-1">
+            <Checkbox
+              id="terms"
+              checked={termsAccepted}
+              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+              className="mt-0.5"
+            />
+            <label htmlFor="terms" className="text-xs text-muted-foreground leading-relaxed cursor-pointer">
+              Li e aceito os{" "}
+              <a href="/termos" target="_blank" className="text-primary hover:underline">Termos de Uso</a>
+              {" "}e a{" "}
+              <a href="/privacidade" target="_blank" className="text-primary hover:underline">Política de Privacidade</a>.
+              Autorizo o uso dos meus dados conforme a LGPD.
+            </label>
+          </div>
+
+          <Button variant="gradient" className="w-full h-12 text-[15px] font-semibold" type="submit" disabled={loading || !selectedRole || !termsAccepted}>
             {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
             Criar acesso grátis
           </Button>

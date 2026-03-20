@@ -19,6 +19,9 @@ import { PreparationSetupPanel } from "@/components/mesa/PreparationSetupPanel";
 import { MesaLiveChat } from "@/components/mesa/MesaLiveChat";
 import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
+import { MesaParticipants } from "@/components/mesa/MesaParticipants";
+import { MesaFeed } from "@/components/mesa/MesaFeed";
+import { BoardGameExpansions } from "@/components/mesa/BoardGameExpansions";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
   Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
@@ -46,6 +49,8 @@ type Mesa = {
   play_styles: string[] | null;
   image_url: string | null;
   cover_image_url: string | null;
+  mesa_type: string;
+  board_game_id: string | null;
 };
 
 const formatIcons: Record<string, typeof Monitor> = {
@@ -124,6 +129,14 @@ export default function TableDetail() {
       .then(({ data }) => {
         if (data) {
           setMesa(data as Mesa);
+          // Track page view metric
+          if (user) {
+            supabase.from("mesa_engagement_metrics").insert({
+              mesa_id: id,
+              user_id: user.id,
+              event_type: "view",
+            }).then(() => {});
+          }
           // Dynamic OG meta tags for social sharing crawlers
           const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
           document.querySelector('meta[property="og:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
@@ -352,37 +365,55 @@ export default function TableDetail() {
               </div>
             )}
 
-            {/* Live Chat */}
-            {user && (
-              <MesaLiveChat
-                gameTableId={mesa.id}
-                gmUserId={mesa.gm_id}
-                tableTitle={mesa.title}
-              />
-            )}
-
-            {/* Preparation Block - Player View */}
-            {user && user.id !== mesa.gm_id && (
-              <PlayerPreparationBlock
-                gameTableId={mesa.id}
-                tableTitle={mesa.title}
-                systemName={mesa.system}
-              />
-            )}
-
-            {/* Preparation Setup - GM View */}
-            {user && user.id === mesa.gm_id && (
-              <div className="space-y-4">
-                <PreparationSetupPanel
-                  gameTableId={mesa.id}
-                  systemName={mesa.system}
-                  tableTitle={mesa.title}
+            {/* Board Game: show participants, expansions, feed — no character sheets */}
+            {mesa.mesa_type === "community" || mesa.board_game_id ? (
+              <>
+                <MesaParticipants
+                  mesaId={mesa.id}
+                  organizerId={mesa.gm_id}
+                  seatsTotal={mesa.seats_total}
+                  seatsAvailable={mesa.seats_available}
                 />
-                <GMSubmissionsTracker
-                  gameTableId={mesa.id}
-                  tableTitle={mesa.title}
-                />
-              </div>
+                {mesa.board_game_id && (
+                  <BoardGameExpansions gameName={mesa.system} />
+                )}
+                <MesaFeed mesaId={mesa.id} mesaTitle={mesa.title} />
+              </>
+            ) : (
+              <>
+                {/* RPG: show live chat, preparation blocks, character sheets */}
+                {user && (
+                  <MesaLiveChat
+                    gameTableId={mesa.id}
+                    gmUserId={mesa.gm_id}
+                    tableTitle={mesa.title}
+                  />
+                )}
+
+                {/* Preparation Block - Player View */}
+                {user && user.id !== mesa.gm_id && (
+                  <PlayerPreparationBlock
+                    gameTableId={mesa.id}
+                    tableTitle={mesa.title}
+                    systemName={mesa.system}
+                  />
+                )}
+
+                {/* Preparation Setup - GM View */}
+                {user && user.id === mesa.gm_id && (
+                  <div className="space-y-4">
+                    <PreparationSetupPanel
+                      gameTableId={mesa.id}
+                      systemName={mesa.system}
+                      tableTitle={mesa.title}
+                    />
+                    <GMSubmissionsTracker
+                      gameTableId={mesa.id}
+                      tableTitle={mesa.title}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
 
