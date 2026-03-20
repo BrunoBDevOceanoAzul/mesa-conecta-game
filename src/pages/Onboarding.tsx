@@ -148,9 +148,38 @@ export default function Onboarding() {
   const saveProgress = async (stepNum: number) => {
     if (!user) return;
     try {
+      const partialData: Record<string, unknown> = {
+        onboarding_step: stepNum,
+        role: dbRole,
+        city: answers.city || null,
+        lat: coords.lat || null,
+        lng: coords.lng || null,
+        preferred_systems: answers.preferred_systems || [],
+        play_styles: answers.play_styles || [],
+        experience_level: answers.experience_level || null,
+        preferred_format: answers.preferred_format || null,
+        budget_range: answers.budget_range || null,
+        session_format_pref: answers.session_format_pref || null,
+        availability_days: availability.days,
+        availability_times: availability.times,
+        themes_liked: answers.themes_liked || [],
+        themes_avoided: answers.themes_avoided || [],
+        avoided_notes: avoidedNotes || null,
+        narrative_styles: answers.narrative_styles || [],
+        years_mastering: answers.years_mastering || null,
+        max_players: answers.max_players || null,
+        target_audience: answers.target_audience || null,
+        mesa_formats: answers.mesa_formats || [],
+        special_services: answers.special_services || [],
+        brand_category: answers.brand_category || null,
+        brand_objective: answers.brand_objective || null,
+        brand_audience: answers.brand_audience || [],
+        brand_budget: answers.brand_budget || null,
+      };
+
       await supabase
         .from("profiles")
-        .update({ onboarding_step: stepNum, role: dbRole } as any)
+        .update(partialData as any)
         .eq("user_id", user.id);
     } catch {
       // Silent
