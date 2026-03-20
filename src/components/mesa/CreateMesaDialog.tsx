@@ -56,6 +56,22 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+  const [storeSlots, setStoreSlots] = useState<any[]>([]);
+
+  // Fetch available store slots when role is store
+  useEffect(() => {
+    if (role !== "store" || !storeId || !open) return;
+    supabase
+      .from("store_time_slots")
+      .select("*")
+      .eq("store_id", storeId)
+      .eq("status", "available")
+      .gte("slot_date", new Date().toISOString().split("T")[0])
+      .order("slot_date")
+      .order("start_time")
+      .then(({ data }) => setStoreSlots(data || []));
+  }, [role, storeId, open]);
 
   const resetForm = () => {
     setTitle(""); setDescription(""); setSystem("");
@@ -63,6 +79,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setCity(""); setVenue(""); setMinPrice(""); setMaxPrice("");
     setSeatsTotal("5"); setStartAt(""); setEndAt("");
     setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
+    setSelectedSlotId(null);
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
