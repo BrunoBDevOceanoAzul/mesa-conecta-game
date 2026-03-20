@@ -363,7 +363,14 @@ export default function GMDashboard() {
           </div>
         )}
 
-        {/* Instagram follow */}
+        {/* ─── EXPORT / REPORTS ─── */}
+        {tab === "export" && (
+          <div className="max-w-3xl">
+            <ExportReportsPanel role="gm" />
+          </div>
+        )}
+
+
         <div className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
             <Instagram className="h-5 w-5 text-primary" />
