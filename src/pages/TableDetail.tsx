@@ -375,7 +375,7 @@ export default function TableDetail() {
                   seatsAvailable={mesa.seats_available}
                 />
                 {mesa.board_game_id && (
-                  <BoardGameExpansions gameName={mesa.system} />
+                  <BoardGameExpansions gameName={mesa.system} mesaId={mesa.id} gmId={mesa.gm_id} />
                 )}
                 <MesaFeed mesaId={mesa.id} mesaTitle={mesa.title} />
               </>
