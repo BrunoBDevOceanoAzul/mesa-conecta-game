@@ -61,6 +61,7 @@ export default function AdminPainel() {
         {subTab === "gamification" && <GamificationConfig />}
         {subTab === "coupons" && <CouponManager />}
         {subTab === "golive" && <GoLiveChecklist />}
+        {subTab === "tickets" && <TicketManagement />}
       </div>
     </AdminLayout>
   );
