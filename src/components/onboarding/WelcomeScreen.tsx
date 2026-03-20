@@ -51,9 +51,9 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           transition={{ delay: 0.4, duration: 0.6 }}
           className="text-3xl md:text-4xl font-display font-bold text-foreground leading-[1.15] tracking-tight"
         >
-          Vamos calibrar
+          Complete seu perfil e
           <br />
-          <span className="gradient-text">sua experiência</span>
+          <span className="gradient-text">melhore sua experiência</span>
         </motion.h1>
 
         <motion.p
@@ -62,7 +62,7 @@ export function WelcomeScreen({ onStart }: WelcomeScreenProps) {
           transition={{ delay: 0.6, duration: 0.6 }}
           className="mt-5 text-muted-foreground text-[15px] leading-relaxed max-w-sm mx-auto"
         >
-          Em poucos passos, a HIVIUM entende seu estilo e organiza a experiência ideal para você.
+          Adicione mais contexto para receber recomendações mais aderentes e desbloquear recursos personalizados.
         </motion.p>
 
         <motion.div
