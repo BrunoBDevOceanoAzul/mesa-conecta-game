@@ -338,14 +338,14 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
               >
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
-                ) : isPaidMesa && !isSuperUser ? (
+                ) : isPaidMesa ? (
                   <CreditCard className="h-4 w-4" />
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
                 {submitting
-                  ? "Processando…"
-                  : isPaidMesa && !isSuperUser
+                  ? "Redirecionando ao pagamento…"
+                  : isPaidMesa
                   ? `Pagar R$ ${mesa.min_price.toFixed(2).replace(".", ",")} e Reservar`
                   : "Confirmar Reserva"}
               </Button>
