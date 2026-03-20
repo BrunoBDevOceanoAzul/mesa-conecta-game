@@ -27,6 +27,8 @@ interface StoreRow {
   phone: string | null;
   website: string | null;
   instagram: string | null;
+  cnpj: string | null;
+  ecommerce_url: string | null;
   description: string | null;
   google_place_id: string | null;
   owner_id: string;
@@ -46,6 +48,8 @@ const emptyForm = {
   phone: "",
   website: "",
   instagram: "",
+  cnpj: "",
+  ecommerce_url: "",
   description: "",
   google_place_id: "",
   owner_id: "",
@@ -96,6 +100,8 @@ export function StoreManager() {
       phone: store.phone || "",
       website: store.website || "",
       instagram: store.instagram || "",
+      cnpj: store.cnpj || "",
+      ecommerce_url: store.ecommerce_url || "",
       description: store.description || "",
       google_place_id: store.google_place_id || "",
       owner_id: store.owner_id || "",
@@ -151,6 +157,8 @@ export function StoreManager() {
       phone: form.phone.trim() || null,
       website: form.website.trim() || null,
       instagram: form.instagram.trim() || null,
+      cnpj: form.cnpj.trim() || null,
+      ecommerce_url: form.ecommerce_url.trim() || null,
       description: form.description.trim() || null,
       google_place_id: form.google_place_id.trim() || null,
     };
@@ -280,8 +288,19 @@ export function StoreManager() {
                   <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="(11) 99999-9999" />
                 </div>
                 <div>
+                  <Label>CNPJ</Label>
+                  <Input value={form.cnpj} onChange={(e) => setForm((f) => ({ ...f, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
                   <Label>Website</Label>
                   <Input value={form.website} onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} placeholder="https://..." />
+                </div>
+                <div>
+                  <Label>E-commerce (se separado)</Label>
+                  <Input value={form.ecommerce_url} onChange={(e) => setForm((f) => ({ ...f, ecommerce_url: e.target.value }))} placeholder="https://loja.luderia.com.br" />
                 </div>
               </div>
 
