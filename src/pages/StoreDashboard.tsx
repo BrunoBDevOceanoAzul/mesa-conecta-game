@@ -20,11 +20,12 @@ import {
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
+import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
 
 type Mesa = any;
 type StoreData = any;
 
-type Tab = "overview" | "space" | "agenda" | "feed" | "reviews";
+type Tab = "overview" | "space" | "agenda" | "feed" | "reviews" | "export";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
@@ -169,6 +170,7 @@ export default function StoreDashboard() {
     { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
     { key: "space", label: "Meu Espaço", icon: <Building2 className="h-4 w-4" /> },
     { key: "feed", label: "Feed", icon: <Megaphone className="h-4 w-4" /> },
+    { key: "export", label: "Relatórios", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
   return (
@@ -589,7 +591,14 @@ export default function StoreDashboard() {
           </div>
         )}
 
-        {/* Instagram follow */}
+        {/* ─── EXPORT / REPORTS ─── */}
+        {tab === "export" && (
+          <div className="max-w-3xl">
+            <ExportReportsPanel role="store" />
+          </div>
+        )}
+
+
         <div className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10">
             <Instagram className="h-5 w-5 text-primary" />

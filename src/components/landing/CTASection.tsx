@@ -14,7 +14,7 @@ export function CTASection() {
     >
       <div className="container mx-auto px-4">
         <motion.div
-          className="relative mx-auto max-w-3xl rounded-3xl border border-plum-100 bg-card p-12 md:p-20 text-center overflow-hidden shadow-lg"
+          className="relative mx-auto max-w-3xl rounded-3xl border border-plum-100 bg-card p-8 sm:p-12 md:p-20 text-center overflow-hidden shadow-lg"
           initial={{ opacity: 0, scale: 0.97 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -25,7 +25,7 @@ export function CTASection() {
           <div className="relative">
             <span className="section-label">Pronto?</span>
 
-            <h2 className="text-3xl font-display font-bold md:text-5xl text-foreground leading-tight mt-2">
+            <h2 className="text-2xl font-display font-bold sm:text-3xl md:text-5xl text-foreground leading-tight mt-2">
               A mesa certa existe.<br />
               <span className="gradient-text">Ela só precisa te encontrar.</span>
             </h2>

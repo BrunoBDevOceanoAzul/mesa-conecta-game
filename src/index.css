@@ -374,6 +374,50 @@
   }
 }
 
+/* ─── Mobile Responsive Fixes ─── */
+@media (max-width: 640px) {
+  .section-heading {
+    font-size: 1.75rem !important;
+    line-height: 1.15 !important;
+  }
+
+  .dash-tabs {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .dash-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Safe area insets for notched phones */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* ─── Touch targets ─── */
+@media (pointer: coarse) {
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .dash-tab {
+    min-height: 40px;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar {
   width: 5px;
@@ -394,3 +438,9 @@
   background: hsl(270 48% 49% / 0.15);
   color: hsl(280 18% 17%);
 }
+
+/* ─── Overscroll behavior ─── */
+html {
+  overscroll-behavior-y: none;
+}
+

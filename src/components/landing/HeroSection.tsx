@@ -8,7 +8,7 @@ export function HeroSection() {
   const navigate = useNavigate();
 
   return (
-    <section className="relative min-h-[100vh] flex items-center overflow-hidden pt-16">
+    <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-20 pb-12 sm:pt-16 sm:pb-0">
       {/* Background image */}
       <div className="absolute inset-0">
         <img
@@ -34,7 +34,7 @@ export function HeroSection() {
           </motion.div>
 
           <motion.h1
-            className="max-w-2xl text-4xl font-display font-bold leading-[1.05] tracking-tight sm:text-5xl md:text-6xl lg:text-7xl text-foreground"
+            className="max-w-2xl text-3xl font-display font-bold leading-[1.08] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl text-foreground"
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
@@ -45,7 +45,7 @@ export function HeroSection() {
           </motion.h1>
 
           <motion.p
-            className="mt-8 max-w-xl text-lg text-muted-foreground md:text-xl leading-relaxed"
+            className="mt-6 sm:mt-8 max-w-xl text-base text-muted-foreground sm:text-lg md:text-xl leading-relaxed"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.25 }}
@@ -57,7 +57,7 @@ export function HeroSection() {
           </motion.p>
 
           <motion.div
-            className="mt-12 flex flex-col items-start gap-4 sm:flex-row"
+            className="mt-8 sm:mt-12 flex flex-col items-stretch gap-3 sm:flex-row sm:items-start sm:gap-4"
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
@@ -73,7 +73,7 @@ export function HeroSection() {
 
           {/* Social proof */}
           <motion.div
-            className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-lg"
+            className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 max-w-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}
