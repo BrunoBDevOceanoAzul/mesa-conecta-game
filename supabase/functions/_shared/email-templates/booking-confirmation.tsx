@@ -48,11 +48,9 @@ export function BookingConfirmation({
       <Preview>Sua vaga em "{mesaTitle}" está confirmada!</Preview>
       <Body style={main}>
         <Container style={container}>
-          {logoUrl && (
-            <Section style={logoSection}>
-              <Img src={logoUrl} width="48" height="48" alt="HIVIUM" style={logo} />
-            </Section>
-          )}
+          <Section style={logoSection}>
+            <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/hivium-logo.png" width="56" height="56" alt="HIVIUM" style={logo} />
+          </Section>
 
           <Section style={heroSection}>
             <Text style={heroEmoji}>🎲</Text>
