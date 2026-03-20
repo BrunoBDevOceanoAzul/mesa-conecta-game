@@ -31,3 +31,5 @@ project_id = "kcehwcqdoxvkqakdvhsb"
     verify_jwt = false
   [functions.create-booking-checkout]
     verify_jwt = false
+  [functions.gm-content-studio]
+    verify_jwt = false
