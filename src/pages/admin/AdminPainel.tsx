@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
@@ -10,9 +10,10 @@ import { MesaManagement } from "@/components/admin/MesaManagement";
 import { TicketManagement } from "@/components/admin/TicketManagement";
 import { BlocklistManager } from "@/components/admin/BlocklistManager";
 import { AmbassadorManager } from "@/components/admin/AmbassadorManager";
+import { SiteImageManager } from "@/components/admin/SiteImageManager";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors";
+type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
@@ -28,6 +29,7 @@ export default function AdminPainel() {
     { key: "tickets", label: "Suporte", icon: <LifeBuoy className="h-4 w-4" /> },
     { key: "blocklist", label: "Blocklist", icon: <Ban className="h-4 w-4" /> },
     { key: "ambassadors", label: "Embaixadores", icon: <Users className="h-4 w-4" /> },
+    { key: "images", label: "Imagens", icon: <ImageIcon className="h-4 w-4" /> },
   ];
 
   return (
@@ -68,6 +70,7 @@ export default function AdminPainel() {
         {subTab === "tickets" && <TicketManagement />}
         {subTab === "blocklist" && <BlocklistManager />}
         {subTab === "ambassadors" && <AmbassadorManager />}
+        {subTab === "images" && <SiteImageManager />}
       </div>
     </AdminLayout>
   );
