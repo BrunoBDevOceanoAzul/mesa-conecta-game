@@ -357,37 +357,55 @@ export default function TableDetail() {
               </div>
             )}
 
-            {/* Live Chat */}
-            {user && (
-              <MesaLiveChat
-                gameTableId={mesa.id}
-                gmUserId={mesa.gm_id}
-                tableTitle={mesa.title}
-              />
-            )}
-
-            {/* Preparation Block - Player View */}
-            {user && user.id !== mesa.gm_id && (
-              <PlayerPreparationBlock
-                gameTableId={mesa.id}
-                tableTitle={mesa.title}
-                systemName={mesa.system}
-              />
-            )}
-
-            {/* Preparation Setup - GM View */}
-            {user && user.id === mesa.gm_id && (
-              <div className="space-y-4">
-                <PreparationSetupPanel
-                  gameTableId={mesa.id}
-                  systemName={mesa.system}
-                  tableTitle={mesa.title}
+            {/* Board Game: show participants, expansions, feed — no character sheets */}
+            {mesa.mesa_type === "community" || mesa.board_game_id ? (
+              <>
+                <MesaParticipants
+                  mesaId={mesa.id}
+                  organizerId={mesa.gm_id}
+                  seatsTotal={mesa.seats_total}
+                  seatsAvailable={mesa.seats_available}
                 />
-                <GMSubmissionsTracker
-                  gameTableId={mesa.id}
-                  tableTitle={mesa.title}
-                />
-              </div>
+                {mesa.board_game_id && (
+                  <BoardGameExpansions gameName={mesa.system} />
+                )}
+                <MesaFeed mesaId={mesa.id} mesaTitle={mesa.title} />
+              </>
+            ) : (
+              <>
+                {/* RPG: show live chat, preparation blocks, character sheets */}
+                {user && (
+                  <MesaLiveChat
+                    gameTableId={mesa.id}
+                    gmUserId={mesa.gm_id}
+                    tableTitle={mesa.title}
+                  />
+                )}
+
+                {/* Preparation Block - Player View */}
+                {user && user.id !== mesa.gm_id && (
+                  <PlayerPreparationBlock
+                    gameTableId={mesa.id}
+                    tableTitle={mesa.title}
+                    systemName={mesa.system}
+                  />
+                )}
+
+                {/* Preparation Setup - GM View */}
+                {user && user.id === mesa.gm_id && (
+                  <div className="space-y-4">
+                    <PreparationSetupPanel
+                      gameTableId={mesa.id}
+                      systemName={mesa.system}
+                      tableTitle={mesa.title}
+                    />
+                    <GMSubmissionsTracker
+                      gameTableId={mesa.id}
+                      tableTitle={mesa.title}
+                    />
+                  </div>
+                )}
+              </>
             )}
 
 
