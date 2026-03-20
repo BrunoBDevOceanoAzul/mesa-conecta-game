@@ -15,8 +15,9 @@ import { RARITY_CONFIG, CATEGORY_LABELS, XP_TIERS } from "@/lib/xp-config";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
 import { GoLiveChecklist } from "@/components/admin/GoLiveChecklist";
+import { StoreManager } from "@/components/admin/StoreManager";
 
-type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons" | "golive";
+type AdminTab = "overview" | "founders" | "eligibility" | "campaigns" | "billing" | "gamification" | "coupons" | "stores" | "golive";
 
 const navItems = [
   { label: "Painel", path: "/admin", icon: <BarChart3 className="h-4 w-4" /> },
@@ -326,6 +327,7 @@ export default function Admin() {
     { key: "founders", label: "Founders", icon: <Gift className="h-4 w-4" /> },
     { key: "eligibility", label: "Elegibilidade", icon: <Sparkles className="h-4 w-4" /> },
     { key: "campaigns", label: "Destaques", icon: <TrendingUp className="h-4 w-4" /> },
+    { key: "stores", label: "Luderias", icon: <Store className="h-4 w-4" /> },
     { key: "golive", label: "Go-Live", icon: <CheckCircle2 className="h-4 w-4" /> },
   ];
 
@@ -819,6 +821,11 @@ export default function Admin() {
         {/* ─── COUPONS ─── */}
         {tab === "coupons" && (
           <CouponManager />
+        )}
+
+        {/* ─── STORES ─── */}
+        {tab === "stores" && (
+          <StoreManager />
         )}
 
         {/* ─── GO-LIVE CHECKLIST ─── */}
