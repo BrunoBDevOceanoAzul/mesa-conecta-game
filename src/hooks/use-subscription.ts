@@ -125,7 +125,9 @@ export function useSubscription(): SubscriptionState {
   const daysRemaining = periodEnd ? Math.max(0, Math.ceil((periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
 
   let status: SubscriptionStatus = "none";
-  if (subscription) {
+  if (inTrial && !subscription) {
+    status = "trial";
+  } else if (subscription) {
     if (subscription.status === "active" && periodEnd && periodEnd > now) {
       status = subscription.cancel_at_period_end ? "canceled" : "active";
     } else if (subscription.status === "active" && periodEnd && periodEnd <= now) {
