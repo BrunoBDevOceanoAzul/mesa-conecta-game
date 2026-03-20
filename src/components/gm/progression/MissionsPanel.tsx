@@ -4,8 +4,14 @@ import { useNavigate } from "react-router-dom";
 
 /** Maps action_type → a user-friendly mission description + route */
 const MISSION_MAP: Record<string, { label: string; description: string; route?: string }> = {
-  onboarding_completed: { label: "Primeira Calibração", description: "Complete o processo de entrada na HIVIUM", route: "/onboarding" },
+  // GM first-tier missions
+  profile_completed: { label: "Perfil Calibrado", description: "Complete todas as informações do seu perfil", route: "/onboarding" },
   first_table_created: { label: "Mesa Inaugural", description: "Publique sua primeira mesa na plataforma", route: "/dashboard/mestre" },
+  used_pricing_calculator: { label: "Precificação Inteligente", description: "Use a calculadora para definir seu preço ideal", route: "/dashboard/mestre" },
+  stripe_account_linked: { label: "Conta de Recebimento", description: "Vincule sua conta Stripe para receber pagamentos", route: "/dashboard/mestre" },
+  first_session_completed: { label: "Primeira Sessão", description: "Rode sua primeira sessão com jogadores" },
+  // GM progression missions
+  onboarding_completed: { label: "Primeira Calibração", description: "Complete o processo de entrada na HIVIUM", route: "/onboarding" },
   third_table_created: { label: "Tríade Completa", description: "Publique 3 mesas ativas", route: "/dashboard/mestre" },
   first_booking: { label: "Primeira Convocação", description: "Receba sua primeira reserva de jogador", route: "/explorar" },
   table_filled: { label: "Sessão Lotada", description: "Lote uma mesa inteira", route: "/dashboard/mestre" },
@@ -14,6 +20,9 @@ const MISSION_MAP: Record<string, { label: string; description: string; route?: 
   active_90_days: { label: "Veterano", description: "90 dias de operação contínua" },
   post_published: { label: "Voz na Câmara", description: "Publique conteúdo no feed", route: "/feed" },
   campaign_completed: { label: "Campanha Encerrada", description: "Complete uma campanha de destaque", route: "/dashboard/boost" },
+  // Player first-tier missions
+  player_profile_completed: { label: "Perfil Completo", description: "Complete todas as informações do seu perfil de jogador", route: "/onboarding" },
+  player_first_session: { label: "Primeira Aventura", description: "Participe de uma sessão completa como jogador", route: "/explorar" },
 };
 
 interface Props {
