@@ -170,6 +170,7 @@ export default function StoreDashboard() {
     { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
     { key: "space", label: "Meu Espaço", icon: <Building2 className="h-4 w-4" /> },
     { key: "feed", label: "Feed", icon: <Megaphone className="h-4 w-4" /> },
+    { key: "export", label: "Relatórios", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
   return (

@@ -120,6 +120,7 @@ export default function GMDashboard() {
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
     { key: "analytics", label: "Atribuição", icon: <BarChart3 className="h-4 w-4" /> },
     { key: "studio", label: "Estúdio IA", icon: <Zap className="h-4 w-4" /> },
+    { key: "export", label: "Relatórios", icon: <BarChart3 className="h-4 w-4" /> },
   ];
 
   return (
