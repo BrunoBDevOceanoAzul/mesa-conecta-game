@@ -3,6 +3,12 @@ import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { render } from "npm:@react-email/render@0.0.12";
 import { BookingConfirmation } from "../_shared/email-templates/booking-confirmation.tsx";
+import { NewBookingGM } from "../_shared/email-templates/new-booking-gm.tsx";
+import { SubscriptionWelcome } from "../_shared/email-templates/subscription-welcome.tsx";
+import { SubscriptionCanceled } from "../_shared/email-templates/subscription-canceled.tsx";
+import { PaymentReceipt } from "../_shared/email-templates/payment-receipt.tsx";
+import { PaymentFailed } from "../_shared/email-templates/payment-failed.tsx";
+import { RefundProcessed } from "../_shared/email-templates/refund-processed.tsx";
 
 const logStep = (step: string, details?: any) => {
   const d = details ? ` - ${JSON.stringify(details)}` : "";
