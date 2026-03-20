@@ -172,6 +172,15 @@ export function Navbar() {
               {l.label}
             </a>
           ))}
+          <a
+            href={getInstagramUrl("navbar_mobile")}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 py-2.5 text-sm text-muted-foreground hover:text-foreground"
+          >
+            <Instagram className="h-4 w-4" />
+            {getInstagramHandle()}
+          </a>
           <div className="mt-3 flex flex-col gap-2">
             {user ? (
               <>
