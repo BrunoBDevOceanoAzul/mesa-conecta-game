@@ -561,6 +561,24 @@ serve(async (req) => {
               await auditLog("subscription_past_due", "subscription", localSub.id, {});
             }
           }
+          // Send payment failed email
+          try {
+            const custId = typeof inv.customer === "string" ? inv.customer : inv.customer?.id;
+            if (custId) {
+              const resolved = await resolveUserByCustomerId(custId);
+              if (resolved) {
+                const { data: prof } = await supabase.from("profiles").select("display_name, name").eq("user_id", resolved.user_id).maybeSingle();
+                const amountStr = `R$${((inv.amount_due ?? 0) / 100).toFixed(2).replace(".", ",")}`;
+                const html = await render(PaymentFailed({
+                  userName: prof?.display_name || prof?.name || "Usuário",
+                  amount: amountStr,
+                  invoiceNumber: inv.number || inv.id,
+                  nextRetryDate: new Date(Date.now() + 3 * 86400000).toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }),
+                }));
+                await enqueueTransactionalEmail(resolved.email, `Falha no pagamento — ${amountStr}`, html, "payment_failed", { invoice_id: inv.id });
+              }
+            }
+          } catch (e) { logStep("WARN: payment failed email failed", { error: (e as Error).message }); }
         }
         break;
 
