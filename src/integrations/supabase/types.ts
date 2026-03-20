@@ -2482,6 +2482,88 @@ export type Database = {
           },
         ]
       }
+      mesa_feed_posts: {
+        Row: {
+          author_id: string
+          author_name: string
+          content: string
+          created_at: string
+          id: string
+          mesa_id: string
+          post_type: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          author_name?: string
+          content: string
+          created_at?: string
+          id?: string
+          mesa_id: string
+          post_type?: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          content?: string
+          created_at?: string
+          id?: string
+          mesa_id?: string
+          post_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesa_feed_posts_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mesa_participants: {
+        Row: {
+          created_at: string
+          display_name: string
+          id: string
+          joined_at: string
+          mesa_id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          joined_at?: string
+          mesa_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string
+          id?: string
+          joined_at?: string
+          mesa_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesa_participants_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mesas: {
         Row: {
           address: string | null
@@ -3328,6 +3410,7 @@ export type Database = {
           state: string | null
           target_audience: string | null
           terms_accepted_at: string | null
+          terms_version: string | null
           themes_avoided: string[] | null
           themes_liked: string[] | null
           updated_at: string
@@ -3388,6 +3471,7 @@ export type Database = {
           state?: string | null
           target_audience?: string | null
           terms_accepted_at?: string | null
+          terms_version?: string | null
           themes_avoided?: string[] | null
           themes_liked?: string[] | null
           updated_at?: string
@@ -3448,6 +3532,7 @@ export type Database = {
           state?: string | null
           target_audience?: string | null
           terms_accepted_at?: string | null
+          terms_version?: string | null
           themes_avoided?: string[] | null
           themes_liked?: string[] | null
           updated_at?: string
