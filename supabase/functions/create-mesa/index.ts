@@ -63,6 +63,7 @@ serve(async (req) => {
       title, description, system, session_type, format,
       city, venue, min_price, max_price, seats_total,
       start_at, end_at, tags, image_url, cover_image_url, play_styles, store_id,
+      store_slot_id,
     } = body;
 
     if (!title || !system || !session_type || !format || !start_at) {
@@ -137,6 +138,7 @@ serve(async (req) => {
       play_styles: play_styles || [],
       stripe_product_id: stripeProductId,
       stripe_price_id: stripePriceId,
+      store_slot_id: store_slot_id || null,
     };
 
     const { data: mesa, error: insertError } = await supabase
@@ -148,6 +150,13 @@ serve(async (req) => {
     if (insertError) throw new Error(`Failed to create mesa: ${insertError.message}`);
 
     logStep("Mesa created", { mesaId: mesa.id });
+
+    // Update store slot occupancy if linked
+    if (store_slot_id) {
+      await supabase.rpc("increment_slot_occupancy", { _slot_id: store_slot_id, _seats: Number(seats_total) || 5 })
+        .then(() => logStep("Slot occupancy updated"))
+        .catch((e: any) => logStep("WARN: Could not update slot", { error: e.message }));
+    }
 
     return new Response(JSON.stringify({
       id: mesa.id,

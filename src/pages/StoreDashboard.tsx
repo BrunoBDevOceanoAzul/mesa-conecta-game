@@ -21,11 +21,12 @@ import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
+import { StoreSlotManager } from "@/components/store/StoreSlotManager";
 
 type Mesa = any;
 type StoreData = any;
 
-type Tab = "overview" | "space" | "agenda" | "feed" | "reviews" | "export";
+type Tab = "overview" | "space" | "agenda" | "slots" | "feed" | "reviews" | "export";
 
 const navItems = [
   { label: "Início", path: "/dashboard/loja", icon: <Store className="h-4 w-4" /> },
@@ -166,6 +167,7 @@ export default function StoreDashboard() {
 
   const tabs: { key: Tab; label: string; icon: React.ReactNode }[] = [
     { key: "overview", label: "Visão Geral", icon: <PieChart className="h-4 w-4" /> },
+    { key: "slots", label: "Slots", icon: <Clock className="h-4 w-4" /> },
     { key: "agenda", label: "Agenda", icon: <CalendarDays className="h-4 w-4" /> },
     { key: "reviews", label: "Avaliações", icon: <Star className="h-4 w-4" /> },
     { key: "space", label: "Meu Espaço", icon: <Building2 className="h-4 w-4" /> },
@@ -442,6 +444,11 @@ export default function StoreDashboard() {
             </div>
             </>)}
           </div>
+        )}
+
+        {/* ─── SLOTS ─── */}
+        {tab === "slots" && (
+          <StoreSlotManager storeId={store?.id || user?.id || ""} />
         )}
 
         {/* ─── SPACE MANAGEMENT ─── */}
