@@ -9,6 +9,7 @@ import { PenSquare, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
+import { containsProfanity, PROFANITY_WARNING } from "@/lib/profanity-filter";
 
 interface CreatePostDialogProps {
   onCreated?: () => void;
@@ -44,6 +45,10 @@ export function CreatePostDialog({ onCreated }: CreatePostDialogProps) {
 
   const handleSubmit = async () => {
     if (!user || !profile || !content.trim()) return;
+    if (containsProfanity(content) || containsProfanity(title)) {
+      toast({ title: "Conteúdo inadequado", description: PROFANITY_WARNING, variant: "destructive" });
+      return;
+    }
     setLoading(true);
     const { error } = await supabase.from("community_posts").insert({
       author_id: user.id,
