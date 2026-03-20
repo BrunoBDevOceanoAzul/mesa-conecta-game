@@ -25,6 +25,7 @@ import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { useGMReviews } from "@/hooks/use-reviews";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
+import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
 
 type Mesa = any;
 
@@ -37,7 +38,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <Megaphone className="h-4 w-4" /> },
 ];
 
-type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews";
+type Tab = "overview" | "mesas" | "crm" | "calc" | "progression" | "analytics" | "reviews" | "studio";
 
 // Calculator presets (legacy - now using PricingCalculator component)
 
@@ -113,6 +114,7 @@ export default function GMDashboard() {
     { key: "crm", label: "CRM / Leads", icon: <Users className="h-4 w-4" /> },
     { key: "calc", label: "Calculadora", icon: <Calculator className="h-4 w-4" /> },
     { key: "analytics", label: "Atribuição", icon: <BarChart3 className="h-4 w-4" /> },
+    { key: "studio", label: "Estúdio IA", icon: <Zap className="h-4 w-4" /> },
   ];
 
   return (
@@ -339,6 +341,13 @@ export default function GMDashboard() {
           >
             <ShareAnalyticsPanel />
           </PremiumGate>
+        )}
+
+        {/* ─── CONTENT STUDIO ─── */}
+        {tab === "studio" && (
+          <div className="max-w-4xl">
+            <ContentStudioPanel mesas={mesas} />
+          </div>
         )}
 
         {/* Instagram follow */}
