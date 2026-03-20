@@ -28,16 +28,7 @@ import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
 import { CartAbandonmentPanel } from "@/components/gm/CartAbandonmentPanel";
 import { toast } from "sonner";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
 
 type Mesa = any;
 
@@ -422,24 +413,10 @@ function MesaMiniCard({ mesa }: { mesa: Mesa }) {
 }
 
 function MesaManageCard({ mesa, onDeleted }: { mesa: Mesa; onDeleted?: () => void }) {
-  const [showDelete, setShowDelete] = useState(false);
-  const [deleting, setDeleting] = useState(false);
+  const [showTicket, setShowTicket] = useState(false);
   const filled = mesa.seats_total - mesa.seats_available;
   const pct = Math.round((filled / mesa.seats_total) * 100);
   const date = new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
-
-  const handleDelete = async () => {
-    setDeleting(true);
-    const { error } = await supabase.from("mesas").delete().eq("id", mesa.id);
-    if (error) {
-      toast.error("Erro ao excluir mesa: " + error.message);
-    } else {
-      toast.success("Mesa excluída com sucesso.");
-      onDeleted?.();
-    }
-    setDeleting(false);
-    setShowDelete(false);
-  };
 
   return (
     <>
@@ -486,39 +463,25 @@ function MesaManageCard({ mesa, onDeleted }: { mesa: Mesa; onDeleted?: () => voi
             <Edit2 className="h-3 w-3" /> Editar
           </button>
           <button
-            onClick={() => setShowDelete(true)}
+            onClick={() => setShowTicket(true)}
             className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
           >
-            <Trash2 className="h-3 w-3" /> Excluir
+            <Trash2 className="h-3 w-3" /> Solicitar Exclusão
           </button>
         </div>
       </div>
 
-      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <Trash2 className="h-5 w-5" /> Excluir Mesa
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              Tem certeza que deseja excluir <strong>"{mesa.title}"</strong>? Esta ação é permanente e não pode ser desfeita.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-              disabled={deleting}
-              onClick={(e) => {
-                e.preventDefault();
-                handleDelete();
-              }}
-            >
-              {deleting ? "Excluindo..." : "Confirmar Exclusão"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <CreateTicketDialog
+        open={showTicket}
+        onOpenChange={setShowTicket}
+        defaults={{
+          subject: `Solicitar exclusão da mesa: ${mesa.title}`,
+          description: `Solicito a exclusão da mesa "${mesa.title}" (Sistema: ${mesa.system}, Data: ${date}).\n\nMotivo: `,
+          category: "exclusao_mesa",
+          relatedEntityType: "mesa",
+          relatedEntityId: mesa.id,
+        }}
+      />
     </>
   );
 }
