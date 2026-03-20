@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
