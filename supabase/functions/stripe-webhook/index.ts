@@ -304,6 +304,12 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
       logStep("Booking confirmed after payment", { bookingId, mesaId });
       await auditLog("booking_paid", "booking", bookingId, { mesa_id: mesaId, user_id: userId, session_id: session.id });
 
+      // Mark cart abandonment as recovered
+      await supabase.from("cart_abandonments")
+        .update({ status: "recovered", recovered_at: new Date().toISOString() })
+        .eq("booking_id", bookingId)
+        .eq("status", "abandoned");
+
       // ─── Send booking confirmation email ───
       try {
         // Fetch booking + mesa + player + gm details

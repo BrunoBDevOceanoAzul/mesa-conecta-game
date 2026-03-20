@@ -161,6 +161,28 @@ serve(async (req) => {
       .update({ stripe_checkout_session_id: session.id })
       .eq("id", booking.id);
 
+    // Track cart abandonment (will be marked recovered on successful payment)
+    const { data: playerProfile } = await supabase
+      .from("profiles")
+      .select("display_name, name, email")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    await supabase.from("cart_abandonments").insert({
+      player_user_id: user.id,
+      player_email: user.email || playerProfile?.email || null,
+      player_name: playerProfile?.display_name || playerProfile?.name || null,
+      mesa_id: mesa.id,
+      mesa_title: mesa.title,
+      gm_user_id: mesa.gm_id,
+      booking_id: booking.id,
+      stripe_checkout_session_id: session.id,
+      amount_cents: Math.round(mesa.min_price * 100),
+      currency: "brl",
+      status: "abandoned",
+    });
+    logStep("Cart abandonment tracked", { bookingId: booking.id });
+
     // Audit
     await supabase.from("audit_log").insert({
       event_type: "booking_checkout_initiated",
