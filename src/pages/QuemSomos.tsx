@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Instagram, Linkedin, ExternalLink } from "lucide-react";
+import founderImg from "@/assets/founder-bruno.png";
 
 const INSTAGRAM_URL = "https://www.instagram.com/brunobisogni2/";
 const LINKEDIN_URL = "https://www.linkedin.com/in/brunobisogni";
@@ -102,8 +103,8 @@ export default function QuemSomos() {
             transition={{ duration: 0.6, ease: easeOut }}
           >
             {/* Avatar placeholder — initials */}
-            <div className="shrink-0 h-36 w-36 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <span className="font-display text-5xl font-bold text-primary">BB</span>
+            <div className="shrink-0 h-36 w-36 rounded-2xl overflow-hidden border border-primary/20">
+              <img src={founderImg} alt="Bruno Bisogni, Fundador da HIVIUM" className="h-full w-full object-cover object-top" />
             </div>
 
             <div className="flex-1 text-center md:text-left">
