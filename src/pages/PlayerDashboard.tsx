@@ -1,5 +1,7 @@
 import { useEffect, useState, useMemo } from "react";
 import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
+import { ProfileCouponBanner } from "@/components/shared/ProfileCouponBanner";
+import { TrialBanner } from "@/components/shared/TrialBanner";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
 import { MesaCard } from "@/components/shared/MesaCard";
