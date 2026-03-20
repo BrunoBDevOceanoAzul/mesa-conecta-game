@@ -95,6 +95,8 @@ export function useSubscription(): SubscriptionState {
 
     setUserRole(profileRes.data?.role || null);
     setAllPlans((plansRes.data || []) as unknown as Plan[]);
+    const trialData = trialRes.data as { in_trial?: boolean } | null;
+    setInTrial(!!trialData?.in_trial);
     setPayments((paymentsRes.data as Payment[]) || []);
 
     const sub = subRes.data as Subscription | null;
