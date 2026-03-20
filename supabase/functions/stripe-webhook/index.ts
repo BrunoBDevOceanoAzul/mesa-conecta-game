@@ -162,6 +162,19 @@ async function upsertSubscription(sub: Stripe.Subscription) {
     logStep("Subscription created", { id: created?.id });
     await auditLog("subscription_created", "subscription", created?.id || "", { stripe_sub_id: sub.id, status: payload.status });
 
+    // Send welcome email
+    try {
+      const { data: profile } = await supabase.from("profiles").select("email, display_name, name, role").eq("user_id", resolved.user_id).maybeSingle();
+      if (profile?.email) {
+        const html = await render(SubscriptionWelcome({
+          userName: profile.display_name || profile.name || "Usuário",
+          planName: plan?.name || "Premium",
+          role: profile.role || "player",
+        }));
+        await enqueueTransactionalEmail(profile.email, `Bem-vindo ao plano ${plan?.name || "Premium"}! 🏆`, html, "subscription_welcome", { sub_id: sub.id });
+      }
+    } catch (e) { logStep("WARN: welcome email failed", { error: (e as Error).message }); }
+
     // Increment founder slot counter if applicable
     if (plan?.is_founder_plan) {
       await supabase
