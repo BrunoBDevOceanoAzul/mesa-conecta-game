@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Loader2, Copy, FileText, Instagram, MessageSquare } from "lucide-react";
+import { StoreAiImagePanel } from "./StoreAiImagePanel";
 
 interface StoreAiPanelProps {
   storeName: string;
@@ -47,48 +48,56 @@ export function StoreAiPanel({ storeName, city, description, capacity }: StoreAi
   ];
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-base font-display font-semibold text-foreground flex items-center gap-2">
-        <Sparkles className="h-5 w-5 text-primary" />
-        Estúdio IA da Luderia
-      </h3>
+    <div className="space-y-8">
+      {/* ─── Text Content Studio ─── */}
+      <div className="space-y-4">
+        <h3 className="text-base font-display font-semibold text-foreground flex items-center gap-2">
+          <Sparkles className="h-5 w-5 text-primary" />
+          Estúdio IA — Textos
+        </h3>
 
-      <div className="grid gap-3 sm:grid-cols-3">
-        {actions.map((a) => (
-          <button
-            key={a.type}
-            onClick={() => generate(a.type)}
-            disabled={loading}
-            className={`rounded-xl border p-4 text-left transition-all hover:scale-[1.01] active:scale-[0.98] ${
-              activeType === a.type ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
-            }`}
-          >
-            <div className="flex items-center gap-2 mb-1">
-              {a.icon}
-              <span className="text-sm font-medium text-foreground">{a.label}</span>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {actions.map((a) => (
+            <button
+              key={a.type}
+              onClick={() => generate(a.type)}
+              disabled={loading}
+              className={`rounded-xl border p-4 text-left transition-all hover:scale-[1.01] active:scale-[0.98] ${
+                activeType === a.type ? "border-primary bg-primary/5" : "border-border bg-card hover:border-primary/30"
+              }`}
+            >
+              <div className="flex items-center gap-2 mb-1">
+                {a.icon}
+                <span className="text-sm font-medium text-foreground">{a.label}</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">{a.desc}</p>
+            </button>
+          ))}
+        </div>
+
+        {loading && (
+          <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+            Gerando conteúdo com IA...
+          </div>
+        )}
+
+        {result && !loading && (
+          <div className="space-y-2">
+            <Textarea value={result} readOnly rows={8} className="text-sm" />
+            <div className="flex justify-end gap-2">
+              <Button variant="outline" size="sm" onClick={copy} className="gap-1.5">
+                <Copy className="h-3.5 w-3.5" /> Copiar
+              </Button>
             </div>
-            <p className="text-[11px] text-muted-foreground">{a.desc}</p>
-          </button>
-        ))}
+          </div>
+        )}
       </div>
 
-      {loading && (
-        <div className="flex items-center gap-2 py-4 text-sm text-muted-foreground">
-          <Loader2 className="h-4 w-4 animate-spin" />
-          Gerando conteúdo com IA...
-        </div>
-      )}
-
-      {result && !loading && (
-        <div className="space-y-2">
-          <Textarea value={result} readOnly rows={8} className="text-sm" />
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" size="sm" onClick={copy} className="gap-1.5">
-              <Copy className="h-3.5 w-3.5" /> Copiar
-            </Button>
-          </div>
-        </div>
-      )}
+      {/* ─── Image Generator ─── */}
+      <div className="border-t border-border pt-6">
+        <StoreAiImagePanel storeName={storeName} city={city} />
+      </div>
     </div>
   );
 }
