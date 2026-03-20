@@ -92,7 +92,7 @@ serve(async (req) => {
       // Create Stripe promotion code
       const promoParams: Stripe.PromotionCodeCreateParams = {
         coupon: stripeCoupon.id,
-        code: public_code.toUpperCase(),
+        code: sanitizedCode,
         active: true,
       };
       if (max_redemptions) promoParams.max_redemptions = max_redemptions;
