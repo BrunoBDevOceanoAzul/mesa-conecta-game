@@ -248,9 +248,28 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             <CalcInput label="Custos extras" value={state.extraCosts} onChange={(v) => update({ extraCosts: v })} min={0} max={1000} prefix="R$" />
           </div>
 
-          <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
-            <span className="text-xs text-muted-foreground">Margem da plataforma</span>
-            <span className="text-sm font-semibold text-foreground">{state.platformFee}%</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
+              <span className="text-xs text-muted-foreground">Taxa HIVIUM (lançamento)</span>
+              <span className="text-sm font-semibold text-foreground">{state.platformFee}%</span>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => update({ platformFee: PLATFORM_FEE_MIN })}
+                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${state.platformFee === PLATFORM_FEE_MIN ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
+              >
+                {PLATFORM_FEE_MIN}% — Lançamento
+              </button>
+              <button
+                onClick={() => update({ platformFee: PLATFORM_FEE_MAX })}
+                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${state.platformFee === PLATFORM_FEE_MAX ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
+              >
+                {PLATFORM_FEE_MAX}% — Padrão
+              </button>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              🚀 Taxa de lançamento: apenas {PLATFORM_FEE_MIN}% nos primeiros meses. Concorrentes cobram 15–20%.
+            </p>
           </div>
         </div>
 
