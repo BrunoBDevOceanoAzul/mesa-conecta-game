@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
@@ -9,9 +9,10 @@ import { BookingManagement } from "@/components/admin/BookingManagement";
 import { MesaManagement } from "@/components/admin/MesaManagement";
 import { TicketManagement } from "@/components/admin/TicketManagement";
 import { BlocklistManager } from "@/components/admin/BlocklistManager";
+import { AmbassadorManager } from "@/components/admin/AmbassadorManager";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist";
+type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
