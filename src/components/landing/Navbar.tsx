@@ -202,7 +202,7 @@ export function Navbar() {
                   Entrar
                 </Button>
                 <Button variant="gradient" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
-                  Criar conta
+                  Entrar grátis
                 </Button>
               </>
             )}

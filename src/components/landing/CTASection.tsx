@@ -36,7 +36,7 @@ export function CTASection() {
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <Button variant="gradient" size="xl" onClick={() => navigate("/cadastro")}>
-                Entrar no ecossistema
+                Criar acesso grátis
                 <ArrowRight className="h-5 w-5" />
               </Button>
               <Button variant="hero-outline" size="xl" onClick={() => navigate("/explorar")}>
