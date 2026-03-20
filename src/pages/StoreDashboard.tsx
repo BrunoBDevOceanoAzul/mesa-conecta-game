@@ -1,5 +1,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
+import { ProfileCouponBanner } from "@/components/shared/ProfileCouponBanner";
+import { TrialBanner } from "@/components/shared/TrialBanner";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -182,6 +184,8 @@ export default function StoreDashboard() {
   return (
     <DashboardLayout role="store" navItems={navItems} userName={displayName}>
       <div className="space-y-6">
+        <TrialBanner />
+        <ProfileCouponBanner />
         <ProfileCompletionBanner />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

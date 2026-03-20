@@ -4927,6 +4927,7 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_trial_status: { Args: { _user_id: string }; Returns: Json }
       has_active_subscription: {
         Args: { _plan_role?: string; _user_id: string }
         Returns: boolean

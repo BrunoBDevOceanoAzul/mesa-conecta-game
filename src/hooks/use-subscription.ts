@@ -77,6 +77,7 @@ export function useSubscription(): SubscriptionState {
   const [allPlans, setAllPlans] = useState<Plan[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [inTrial, setInTrial] = useState(false);
 
   const fetchData = useCallback(async () => {
     if (!user) {
@@ -84,15 +85,18 @@ export function useSubscription(): SubscriptionState {
       return;
     }
 
-    const [profileRes, subRes, plansRes, paymentsRes] = await Promise.all([
+    const [profileRes, subRes, plansRes, paymentsRes, trialRes] = await Promise.all([
       supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
       supabase.from("subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("plans").select("*").eq("is_active", true).order("sort_order"),
       supabase.from("payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.rpc("get_trial_status", { _user_id: user.id }),
     ]);
 
     setUserRole(profileRes.data?.role || null);
     setAllPlans((plansRes.data || []) as unknown as Plan[]);
+    const trialData = trialRes.data as { in_trial?: boolean } | null;
+    setInTrial(!!trialData?.in_trial);
     setPayments((paymentsRes.data as Payment[]) || []);
 
     const sub = subRes.data as Subscription | null;
@@ -117,11 +121,13 @@ export function useSubscription(): SubscriptionState {
 
   const now = new Date();
   const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end) : null;
-  const isActive = !!subscription && subscription.status === "active" && !!periodEnd && periodEnd > now;
+  const isActive = inTrial || (!!subscription && subscription.status === "active" && !!periodEnd && periodEnd > now);
   const daysRemaining = periodEnd ? Math.max(0, Math.ceil((periodEnd.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))) : 0;
 
   let status: SubscriptionStatus = "none";
-  if (subscription) {
+  if (inTrial && !subscription) {
+    status = "trial";
+  } else if (subscription) {
     if (subscription.status === "active" && periodEnd && periodEnd > now) {
       status = subscription.cancel_at_period_end ? "canceled" : "active";
     } else if (subscription.status === "active" && periodEnd && periodEnd <= now) {

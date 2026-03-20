@@ -31,13 +31,13 @@ export function ProfileCompletionBanner() {
 
     supabase
       .from("profiles")
-      .select("city, bio, preferred_systems, play_style, avatar_url")
+      .select("city, bio, preferred_systems, avatar_url")
       .eq("user_id", user.id)
       .maybeSingle()
       .then(({ data }) => {
         if (!data) return;
-        const p = data as ProfileData;
-        const fields = [p.city, p.bio, p.preferred_systems?.length, p.play_style?.length, p.avatar_url];
+        const p = data as any;
+        const fields = [p.city, p.bio, p.preferred_systems?.length, p.avatar_url];
         const filled = fields.filter(Boolean).length;
         const pct = Math.round((filled / fields.length) * 100);
         setPercent(pct);
