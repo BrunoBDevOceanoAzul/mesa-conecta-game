@@ -63,6 +63,7 @@ serve(async (req) => {
       title, description, system, session_type, format,
       city, venue, min_price, max_price, seats_total,
       start_at, end_at, tags, image_url, cover_image_url, play_styles, store_id,
+      store_slot_id,
     } = body;
 
     if (!title || !system || !session_type || !format || !start_at) {
