@@ -12,6 +12,15 @@ import {
   PieChart, Pie, Cell
 } from "recharts";
 
+interface RevenueByUser {
+  userId: string;
+  name: string;
+  role: string;
+  totalRevenue: number;
+  bookingsCount: number;
+  avgTicket: number;
+}
+
 interface InsightsData {
   totalUsers: number;
   totalPlayers: number;
@@ -22,6 +31,13 @@ interface InsightsData {
   activeSubs: number;
   onboardingRate: number;
   newUsersLast30: number;
+  // Revenue
+  totalPlatformRevenue: number;
+  totalBookingRevenue: number;
+  avgRevenuePerGM: number;
+  avgRevenuePerStore: number;
+  topRevenueGMs: RevenueByUser[];
+  topRevenueStores: RevenueByUser[];
   // Demand
   topSystems: { name: string; count: number }[];
   topFormats: { name: string; count: number }[];
@@ -89,14 +105,15 @@ export function InsightsDashboard() {
 
   async function fetchInsights() {
     setLoading(true);
-    const [profilesRes, playerRes, gmRes, tablesRes, bookingsRes, subsRes, onbRes] = await Promise.all([
-      supabase.from("profiles").select("user_id, role, city, created_at, onboarding_completed"),
+    const [profilesRes, playerRes, gmRes, tablesRes, bookingsRes, subsRes, onbRes, paymentsRes] = await Promise.all([
+      supabase.from("profiles").select("user_id, role, city, created_at, onboarding_completed, name"),
       supabase.from("player_profiles").select("preferred_systems_json, preferred_styles_json, format_preference, budget_min, budget_max, experience_level, user_id"),
       supabase.from("gm_profiles").select("systems_mastered_json, narrative_style_json, price_min, price_max, beginner_friendly, max_players_default, accepted_formats_json, user_id"),
       supabase.from("game_tables").select("system_name, city, play_format, session_type, seats_total, status, gm_user_id, created_at"),
-      supabase.from("bookings").select("id, status, created_at"),
-      supabase.from("subscriptions").select("id, status, current_period_end"),
+      supabase.from("bookings").select("id, status, created_at, gm_user_id, store_user_id, amount, payment_status"),
+      supabase.from("subscriptions").select("id, status, current_period_end, price_cents, user_id"),
       supabase.from("onboarding_sessions").select("id, completed_at, user_id"),
+      supabase.from("payments").select("id, user_id, amount, status, payment_type, paid_at"),
     ]);
 
     const profiles = profilesRes.data || [];
@@ -106,6 +123,67 @@ export function InsightsDashboard() {
     const bookings = bookingsRes.data || [];
     const subs = subsRes.data || [];
     const onbSessions = onbRes.data || [];
+    const payments = paymentsRes.data || [];
+
+    // ─── Revenue Analysis ───
+    const paidBookings = bookings.filter((b: any) => b.payment_status === "paid" && b.amount > 0);
+    const totalBookingRevenue = paidBookings.reduce((sum: number, b: any) => sum + (b.amount || 0), 0);
+
+    // Subscription revenue
+    const activePaidSubs = subs.filter((s: any) => s.status === "active");
+    const totalSubRevenue = activePaidSubs.reduce((sum: number, s: any) => sum + (s.price_cents || 0), 0);
+    const totalPlatformRevenue = totalBookingRevenue + totalSubRevenue;
+
+    // Revenue per GM
+    const gmRevenueMap: Record<string, { total: number; count: number }> = {};
+    paidBookings.forEach((b: any) => {
+      if (b.gm_user_id) {
+        if (!gmRevenueMap[b.gm_user_id]) gmRevenueMap[b.gm_user_id] = { total: 0, count: 0 };
+        gmRevenueMap[b.gm_user_id].total += b.amount || 0;
+        gmRevenueMap[b.gm_user_id].count += 1;
+      }
+    });
+
+    // Revenue per Store
+    const storeRevenueMap: Record<string, { total: number; count: number }> = {};
+    paidBookings.forEach((b: any) => {
+      if (b.store_user_id) {
+        if (!storeRevenueMap[b.store_user_id]) storeRevenueMap[b.store_user_id] = { total: 0, count: 0 };
+        storeRevenueMap[b.store_user_id].total += b.amount || 0;
+        storeRevenueMap[b.store_user_id].count += 1;
+      }
+    });
+
+    const profileNameMap = new Map(profiles.map((p: any) => [p.user_id, p.name || "Sem nome"]));
+
+    const topRevenueGMs: RevenueByUser[] = Object.entries(gmRevenueMap)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10)
+      .map(([userId, data]) => ({
+        userId,
+        name: profileNameMap.get(userId) || "Mestre",
+        role: "gm",
+        totalRevenue: data.total,
+        bookingsCount: data.count,
+        avgTicket: data.count > 0 ? Math.round(data.total / data.count) : 0,
+      }));
+
+    const topRevenueStores: RevenueByUser[] = Object.entries(storeRevenueMap)
+      .sort((a, b) => b[1].total - a[1].total)
+      .slice(0, 10)
+      .map(([userId, data]) => ({
+        userId,
+        name: profileNameMap.get(userId) || "Loja",
+        role: "store",
+        totalRevenue: data.total,
+        bookingsCount: data.count,
+        avgTicket: data.count > 0 ? Math.round(data.total / data.count) : 0,
+      }));
+
+    const gmCount = Object.keys(gmRevenueMap).length;
+    const storeCount = Object.keys(storeRevenueMap).length;
+    const avgRevenuePerGM = gmCount > 0 ? Math.round(Object.values(gmRevenueMap).reduce((s, v) => s + v.total, 0) / gmCount) : 0;
+    const avgRevenuePerStore = storeCount > 0 ? Math.round(Object.values(storeRevenueMap).reduce((s, v) => s + v.total, 0) / storeCount) : 0;
 
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
@@ -255,6 +333,12 @@ export function InsightsDashboard() {
       activeSubs,
       onboardingRate,
       newUsersLast30,
+      totalPlatformRevenue,
+      totalBookingRevenue,
+      avgRevenuePerGM,
+      avgRevenuePerStore,
+      topRevenueGMs,
+      topRevenueStores,
       topSystems: toRanked(demandSystems),
       topFormats: toRanked(demandFormats),
       topCities: toRanked(playerCities),
@@ -321,7 +405,96 @@ export function InsightsDashboard() {
         </div>
       </section>
 
-      {/* BLOCK 2 — Demand Insights */}
+      {/* BLOCK 1.5 — Revenue */}
+      <section>
+        <h2 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+          <DollarSign className="h-5 w-5 text-secondary" /> Faturamento da Plataforma
+        </h2>
+        <div className="grid gap-3 grid-cols-2 md:grid-cols-4 mb-6">
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Receita Total</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.totalPlatformRevenue / 100).toFixed(2).replace(".", ",")}
+            </div>
+            <p className="text-[10px] text-muted-foreground">Reservas + Assinaturas</p>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Receita Reservas</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.totalBookingRevenue / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Média por Mestre</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.avgRevenuePerGM / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground mb-1">Média por Loja</p>
+            <div className="text-xl font-display font-bold text-foreground">
+              R${(data.avgRevenuePerStore / 100).toFixed(2).replace(".", ",")}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-2">
+          {/* Top GMs by Revenue */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Crown className="h-4 w-4 text-secondary" /> Top Mestres por Faturamento
+            </h3>
+            {data.topRevenueGMs.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topRevenueGMs.map((gm, i) => (
+                  <div key={gm.userId} className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{gm.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{gm.bookingsCount} reservas · ticket médio R${(gm.avgTicket / 100).toFixed(2).replace(".", ",")}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-display font-bold text-secondary">
+                      R${(gm.totalRevenue / 100).toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Top Stores by Revenue */}
+          <div className="rounded-xl border border-border bg-card p-5">
+            <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Store className="h-4 w-4 text-accent" /> Top Lojas por Faturamento
+            </h3>
+            {data.topRevenueStores.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-8">Nenhum faturamento registrado ainda.</p>
+            ) : (
+              <div className="space-y-2">
+                {data.topRevenueStores.map((store, i) => (
+                  <div key={store.userId} className="flex items-center justify-between rounded-lg bg-muted/30 px-3 py-2.5">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xs font-bold text-muted-foreground w-5">#{i + 1}</span>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">{store.name}</p>
+                        <p className="text-[10px] text-muted-foreground">{store.bookingsCount} reservas · ticket médio R${(store.avgTicket / 100).toFixed(2).replace(".", ",")}</p>
+                      </div>
+                    </div>
+                    <span className="text-sm font-display font-bold text-accent">
+                      R${(store.totalRevenue / 100).toFixed(2).replace(".", ",")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </section>
+
       <section>
         <h2 className="text-lg font-display font-semibold text-foreground mb-4 flex items-center gap-2">
           <TrendingUp className="h-5 w-5 text-info" /> Insights da Demanda

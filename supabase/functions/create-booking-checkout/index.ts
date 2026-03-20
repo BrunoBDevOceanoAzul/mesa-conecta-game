@@ -53,16 +53,26 @@ serve(async (req) => {
     if (mesa.seats_available <= 0) throw new Error("Mesa is full — no seats available");
     if (!mesa.stripe_price_id) throw new Error("Mesa has no Stripe price configured");
 
-    // Check if already booked
+    // Check if already booked (only block on CONFIRMED/COMPLETED bookings, not pending ones)
     const { data: existingBooking } = await supabase
       .from("bookings")
-      .select("id")
+      .select("id, status, payment_status")
       .eq("game_table_id", mesa.id)
       .eq("player_user_id", user.id)
-      .neq("status", "canceled")
+      .in("status", ["confirmed", "completed"])
       .maybeSingle();
 
-    if (existingBooking) throw new Error("You already have a booking for this mesa");
+    if (existingBooking) throw new Error("You already have a confirmed booking for this mesa");
+
+    // Cancel any stale pending bookings from previous attempts
+    await supabase
+      .from("bookings")
+      .update({ status: "canceled", payment_status: "expired" })
+      .eq("game_table_id", mesa.id)
+      .eq("player_user_id", user.id)
+      .eq("status", "pending_payment");
+
+    logStep("Stale pending bookings cleared");
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
