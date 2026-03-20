@@ -138,6 +138,7 @@ serve(async (req) => {
       play_styles: play_styles || [],
       stripe_product_id: stripeProductId,
       stripe_price_id: stripePriceId,
+      store_slot_id: store_slot_id || null,
     };
 
     const { data: mesa, error: insertError } = await supabase
