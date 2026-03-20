@@ -125,6 +125,45 @@ export type Database = {
         }
         Relationships: []
       }
+      ambassadors: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          profile_slug: string | null
+          profile_type: string | null
+          role_label: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          profile_slug?: string | null
+          profile_type?: string | null
+          role_label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          profile_slug?: string | null
+          profile_type?: string | null
+          role_label?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           actor_email: string | null
