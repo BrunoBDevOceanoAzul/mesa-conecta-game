@@ -22,6 +22,8 @@ import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ExportReportsPanel } from "@/components/shared/ExportReportsPanel";
 import { StoreSlotManager } from "@/components/store/StoreSlotManager";
+import { StoreAnalyticsPanel } from "@/components/store/StoreAnalyticsPanel";
+import { StoreAiPanel } from "@/components/store/StoreAiPanel";
 
 type Mesa = any;
 type StoreData = any;
