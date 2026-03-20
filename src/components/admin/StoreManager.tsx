@@ -100,6 +100,8 @@ export function StoreManager() {
       phone: store.phone || "",
       website: store.website || "",
       instagram: store.instagram || "",
+      cnpj: store.cnpj || "",
+      ecommerce_url: store.ecommerce_url || "",
       description: store.description || "",
       google_place_id: store.google_place_id || "",
       owner_id: store.owner_id || "",
