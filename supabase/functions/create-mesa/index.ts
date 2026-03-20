@@ -151,6 +151,13 @@ serve(async (req) => {
 
     logStep("Mesa created", { mesaId: mesa.id });
 
+    // Update store slot occupancy if linked
+    if (store_slot_id) {
+      await supabase.rpc("increment_slot_occupancy", { _slot_id: store_slot_id, _seats: Number(seats_total) || 5 })
+        .then(() => logStep("Slot occupancy updated"))
+        .catch((e: any) => logStep("WARN: Could not update slot", { error: e.message }));
+    }
+
     return new Response(JSON.stringify({
       id: mesa.id,
       stripe_product_id: stripeProductId,
