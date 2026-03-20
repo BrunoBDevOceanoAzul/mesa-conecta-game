@@ -58,6 +58,10 @@ serve(async (req) => {
 
       if (!internal_name || !public_code) throw new Error("internal_name and public_code are required");
 
+      // Sanitize code: Stripe only allows [a-zA-Z0-9\-_]
+      const sanitizedCode = public_code.toUpperCase().replace(/[^A-Z0-9\-_]/g, "");
+      if (!sanitizedCode) throw new Error("Código inválido. Use apenas letras, números, - e _");
+
       // Create Stripe coupon
       const stripeCouponParams: Stripe.CouponCreateParams = {
         name: internal_name,
@@ -88,7 +92,7 @@ serve(async (req) => {
       // Create Stripe promotion code
       const promoParams: Stripe.PromotionCodeCreateParams = {
         coupon: stripeCoupon.id,
-        code: public_code.toUpperCase(),
+        code: sanitizedCode,
         active: true,
       };
       if (max_redemptions) promoParams.max_redemptions = max_redemptions;
@@ -109,7 +113,7 @@ serve(async (req) => {
       const { data: coupon, error: insertError } = await supabase.from("discount_coupons").insert({
         created_by_admin_user_id: userData.user.id,
         internal_name,
-        public_code: public_code.toUpperCase(),
+        public_code: sanitizedCode,
         stripe_coupon_id: stripeCoupon.id,
         stripe_promotion_code_id: promoCode.id,
         discount_type: discount_type || "percent",
