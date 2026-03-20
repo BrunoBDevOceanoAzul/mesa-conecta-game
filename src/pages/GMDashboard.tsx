@@ -27,6 +27,17 @@ import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";
 import { ContentStudioPanel } from "@/components/gm/ContentStudioPanel";
 import { CartAbandonmentPanel } from "@/components/gm/CartAbandonmentPanel";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type Mesa = any;
 
@@ -241,7 +252,7 @@ export default function GMDashboard() {
             ) : (
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {mesas.map((m) => (
-                  <MesaManageCard key={m.id} mesa={m} />
+                  <MesaManageCard key={m.id} mesa={m} onDeleted={fetchMesas} />
                 ))}
               </div>
             )}
@@ -410,59 +421,105 @@ function MesaMiniCard({ mesa }: { mesa: Mesa }) {
   );
 }
 
-function MesaManageCard({ mesa }: { mesa: Mesa }) {
+function MesaManageCard({ mesa, onDeleted }: { mesa: Mesa; onDeleted?: () => void }) {
+  const [showDelete, setShowDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const filled = mesa.seats_total - mesa.seats_available;
   const pct = Math.round((filled / mesa.seats_total) * 100);
   const date = new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    const { error } = await supabase.from("mesas").delete().eq("id", mesa.id);
+    if (error) {
+      toast.error("Erro ao excluir mesa: " + error.message);
+    } else {
+      toast.success("Mesa excluída com sucesso.");
+      onDeleted?.();
+    }
+    setDeleting(false);
+    setShowDelete(false);
+  };
+
   return (
-    <div className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all group">
-      <div className="p-5 space-y-3">
-        <div className="flex items-start justify-between">
-          <div className="min-w-0">
-            <h3 className="text-sm font-semibold text-foreground truncate">{mesa.title}</h3>
-            <p className="text-xs text-muted-foreground mt-0.5">{mesa.system}</p>
+    <>
+      <div className="rounded-xl border border-border bg-card overflow-hidden hover:shadow-lg hover:shadow-primary/5 transition-all group">
+        <div className="p-5 space-y-3">
+          <div className="flex items-start justify-between">
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-foreground truncate">{mesa.title}</h3>
+              <p className="text-xs text-muted-foreground mt-0.5">{mesa.system}</p>
+            </div>
+            <Badge variant={mesa.status === "aberta" ? "default" : "secondary"} className="text-[10px] shrink-0">
+              {mesa.status}
+            </Badge>
           </div>
-          <Badge variant={mesa.status === "aberta" ? "default" : "secondary"} className="text-[10px] shrink-0">
-            {mesa.status}
-          </Badge>
+
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Clock className="h-3 w-3" /> {date}
+            </div>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <Users className="h-3 w-3" /> {filled}/{mesa.seats_total} vagas
+            </div>
+            <div className="flex items-center gap-1.5 text-muted-foreground">
+              <DollarSign className="h-3 w-3" /> R${mesa.min_price || 0}
+            </div>
+            <div className="flex items-center gap-1.5 text-muted-foreground capitalize">
+              <Tag className="h-3 w-3" /> {mesa.format}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-success" : pct >= 50 ? "bg-secondary" : "bg-primary"}`}
+                style={{ width: `${pct}%` }}
+              />
+            </div>
+            <span className="text-[11px] font-medium text-muted-foreground">{pct}%</span>
+          </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2 text-xs">
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Clock className="h-3 w-3" /> {date}
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <Users className="h-3 w-3" /> {filled}/{mesa.seats_total} vagas
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground">
-            <DollarSign className="h-3 w-3" /> R${mesa.min_price || 0}
-          </div>
-          <div className="flex items-center gap-1.5 text-muted-foreground capitalize">
-            <Tag className="h-3 w-3" /> {mesa.format}
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all ${pct >= 80 ? "bg-green-500" : pct >= 50 ? "bg-secondary" : "bg-primary"}`}
-              style={{ width: `${pct}%` }}
-            />
-          </div>
-          <span className="text-[11px] font-medium text-muted-foreground">{pct}%</span>
+        <div className="flex border-t border-border divide-x divide-border opacity-0 group-hover:opacity-100 transition-opacity">
+          <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors">
+            <Edit2 className="h-3 w-3" /> Editar
+          </button>
+          <button
+            onClick={() => setShowDelete(true)}
+            className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors"
+          >
+            <Trash2 className="h-3 w-3" /> Excluir
+          </button>
         </div>
       </div>
 
-      <div className="flex border-t border-border divide-x divide-border opacity-0 group-hover:opacity-100 transition-opacity">
-        <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 transition-colors">
-          <Edit2 className="h-3 w-3" /> Editar
-        </button>
-        <button className="flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/5 transition-colors">
-          <Trash2 className="h-3 w-3" /> Excluir
-        </button>
-      </div>
-    </div>
+      <AlertDialog open={showDelete} onOpenChange={setShowDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" /> Excluir Mesa
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir <strong>"{mesa.title}"</strong>? Esta ação é permanente e não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+            >
+              {deleting ? "Excluindo..." : "Confirmar Exclusão"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
