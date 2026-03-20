@@ -110,11 +110,13 @@ export default function Signup() {
       }
 
       if (data.session) {
-        // Mark onboarding as completed (lightweight entry — no heavy onboarding)
+        // Mark onboarding as completed + LGPD consent
         await supabase.from("profiles").update({
           onboarding_completed: true,
           onboarding_step: 99,
           whatsapp: normalizePhone(whatsapp),
+          terms_accepted_at: new Date().toISOString(),
+          terms_version: "1.0",
         } as any).eq("user_id", data.user!.id);
 
         navigate(roleToDashboard[selectedRole] || "/explorar");
