@@ -85,6 +85,7 @@ export function StoreManager() {
     setEditingId(store.id);
     setForm({
       name: store.name || "",
+      slug: store.slug || "",
       address: store.address || "",
       city: store.city || "",
       state: store.state || "",
@@ -94,6 +95,7 @@ export function StoreManager() {
       simultaneous_tables: store.simultaneous_tables || 4,
       phone: store.phone || "",
       website: store.website || "",
+      instagram: store.instagram || "",
       description: store.description || "",
       google_place_id: store.google_place_id || "",
       owner_id: store.owner_id || "",
