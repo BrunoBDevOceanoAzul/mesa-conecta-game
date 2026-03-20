@@ -121,7 +121,7 @@ serve(async (req) => {
     // Build Checkout Session params with PIX + Card
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: customerId,
-      payment_method_types: ["card", "pix"],
+      payment_method_types: ["card"],
       line_items: [{ price: mesa.stripe_price_id, quantity: 1 }],
       mode: "payment",
       success_url: `${origin}/mesa/${mesa.id}?booking=success&booking_id=${booking.id}`,
