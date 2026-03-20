@@ -67,6 +67,12 @@ const productionMultiplier: Record<ProductionLevel, number> = {
   luxury: 1.6,
 };
 
+// Stripe fee references (Brazil)
+const STRIPE_CARD_PERCENT = 3.99;
+const STRIPE_CARD_FIXED_BRL = 0.39;
+const STRIPE_PIX_PERCENT = 1.45;
+const STRIPE_PIX_FIXED_BRL = 0.0;
+
 interface CalculatorState {
   prepHours: number;
   sessionHours: number;
@@ -94,7 +100,7 @@ const defaultState: CalculatorState = {
   monthlyGoal: 2000,
   mesasPerMonth: 4,
   extraCosts: 0,
-  platformFee: 15,
+  platformFee: 10,
 };
 
 const presets = [
