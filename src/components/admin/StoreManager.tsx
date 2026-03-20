@@ -226,7 +226,7 @@ export function StoreManager() {
                 <div>
                   <Label>Slug (URL)</Label>
                   <Input value={form.slug} onChange={(e) => setForm((f) => ({ ...f, slug: e.target.value }))} placeholder="auto-gerado do nome" />
-                  <p className="text-[10px] text-muted-foreground mt-0.5">/loja/{form.slug || "..."}</p>
+                  <p className="text-[10px] text-muted-foreground mt-0.5">{`/loja/${form.slug || "..."}`}</p>
                 </div>
                 <div>
                   <Label>Instagram</Label>
