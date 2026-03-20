@@ -233,7 +233,6 @@ export function StoreManager() {
                   <Input value={form.instagram} onChange={(e) => setForm((f) => ({ ...f, instagram: e.target.value }))} placeholder="@luderia" />
                 </div>
               </div>
-              </div>
 
               <div>
                 <Label>Endereço (Google Places)</Label>
