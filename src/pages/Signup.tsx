@@ -133,6 +133,10 @@ export default function Signup() {
       toast({ title: "Selecione seu perfil", description: "Escolha como você quer usar a HIVIUM antes de continuar.", variant: "destructive" });
       return;
     }
+    if (!termsAccepted) {
+      toast({ title: "Aceite os termos", description: "Você precisa aceitar os termos e a política de privacidade.", variant: "destructive" });
+      return;
+    }
     setGoogleLoading(true);
     try {
       sessionStorage.setItem("hivium_signup_role", JSON.stringify({
