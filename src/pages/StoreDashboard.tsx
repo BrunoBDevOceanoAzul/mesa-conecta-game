@@ -602,6 +602,21 @@ export default function StoreDashboard() {
           </div>
         )}
 
+        {/* ─── ANALYTICS ─── */}
+        {tab === "analytics" && store && (
+          <StoreAnalyticsPanel storeId={store.id} storeSlug={store.slug} />
+        )}
+
+        {/* ─── AI ─── */}
+        {tab === "ai" && (
+          <StoreAiPanel
+            storeName={storeName}
+            city={storeCity}
+            description={storeDescription}
+            capacity={storeCapacity}
+          />
+        )}
+
         {/* ─── EXPORT / REPORTS ─── */}
         {tab === "export" && (
           <div className="max-w-3xl">
