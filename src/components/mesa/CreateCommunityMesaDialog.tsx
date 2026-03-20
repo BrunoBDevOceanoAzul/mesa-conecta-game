@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Loader2, Gamepad2, ImagePlus, X, MapPin } from "lucide-react";
+import { Plus, Loader2, Gamepad2, ImagePlus, X, MapPin, Sparkles, Share2, Copy, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
@@ -27,9 +26,14 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [aiLoading, setAiLoading] = useState(false);
+  const [shareStep, setShareStep] = useState(false);
+  const [createdMesaId, setCreatedMesaId] = useState<string | null>(null);
+  const [shareText, setShareText] = useState("");
+  const [shareLoading, setShareLoading] = useState(false);
+  const [copied, setCopied] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form state — minimal fields
   const [selectedGame, setSelectedGame] = useState<BoardGame | null>(null);
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -50,6 +54,7 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
     setCity(""); setLat(undefined); setLng(undefined); setAddress("");
     setSeatsTotal("4"); setStartAt(""); setEndAt("");
     setCoverFile(null); setCoverPreview(null);
+    setShareStep(false); setCreatedMesaId(null); setShareText(""); setCopied(false);
   };
 
   const handleGameSelect = (game: BoardGame) => {
@@ -86,12 +91,67 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
     return data.publicUrl;
   };
 
+  // AI: Generate description
+  const generateDescription = async () => {
+    if (!title.trim()) {
+      toast({ title: "Preencha o nome da mesa primeiro", variant: "destructive" });
+      return;
+    }
+    setAiLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("mesa-community-ai", {
+        body: {
+          action: "generate_description",
+          title,
+          gameName: selectedGame?.name || title,
+          format,
+          city,
+          seats: seatsTotal,
+        },
+      });
+      if (error) throw error;
+      if (data?.description) {
+        setDescription(data.description);
+        toast({ title: "Descrição gerada! ✨", description: "Edite se quiser personalizar." });
+      }
+    } catch (err: any) {
+      toast({ title: "Erro ao gerar descrição", description: err.message || "Tente novamente.", variant: "destructive" });
+    } finally {
+      setAiLoading(false);
+    }
+  };
+
+  // Generate share text after creation
+  const generateShareText = async (mesaId: string) => {
+    setShareLoading(true);
+    try {
+      const mesaUrl = `${window.location.origin}/mesa/${mesaId}`;
+      const { data, error } = await supabase.functions.invoke("mesa-community-ai", {
+        body: {
+          action: "generate_share_text",
+          title,
+          gameName: selectedGame?.name || title,
+          format,
+          city,
+          seats: seatsTotal,
+          description,
+        },
+      });
+      if (error) throw error;
+      const text = data?.shareText || `🎲 ${title} — ${seatsTotal} vagas! Bora jogar?`;
+      setShareText(`${text}\n\n👉 ${mesaUrl}`);
+    } catch {
+      const mesaUrl = `${window.location.origin}/mesa/${mesaId}`;
+      setShareText(`🎲 ${title} — ${seatsTotal} vagas!\n\n👉 ${mesaUrl}`);
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!user || !title.trim() || !startAt) return;
-
     setLoading(true);
     try {
-      // Get user profile for organizer name
       const { data: profile } = await supabase
         .from("profiles")
         .select("name, display_name")
@@ -138,21 +198,23 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
 
       if (error) throw error;
 
-      // Track metric
       if (data?.id) {
         await supabase.from("mesa_engagement_metrics" as any).insert({
           mesa_id: data.id,
           user_id: user.id,
           event_type: "created",
         });
+
+        setCreatedMesaId(data.id);
+        setShareStep(true);
+        generateShareText(data.id);
+
+        toast({
+          title: "Mesa publicada! 🎲",
+          description: "Agora compartilhe para atrair jogadores!",
+        });
       }
 
-      toast({
-        title: "Mesa publicada! 🎲",
-        description: "Sua mesa está na vitrine. Compartilhe para convidar jogadores!",
-      });
-      resetForm();
-      setOpen(false);
       onCreated?.();
     } catch (err: any) {
       toast({ title: "Erro ao criar mesa", description: err.message || "Tente novamente.", variant: "destructive" });
@@ -161,10 +223,119 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
     }
   };
 
+  const copyShareText = async () => {
+    try {
+      await navigator.clipboard.writeText(shareText);
+      setCopied(true);
+      toast({ title: "Copiado!" });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({ title: "Erro ao copiar", variant: "destructive" });
+    }
+  };
+
+  const shareWhatsApp = () => {
+    window.open(`https://wa.me/?text=${encodeURIComponent(shareText)}`, "_blank");
+  };
+
+  const shareTelegram = () => {
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(`${window.location.origin}/mesa/${createdMesaId}`)}&text=${encodeURIComponent(shareText)}`, "_blank");
+  };
+
+  const handleClose = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (!isOpen) resetForm();
+  };
+
   const canSubmit = title.trim() && startAt && !loading;
 
+  // ─── Share step after creation ───
+  if (shareStep) {
+    return (
+      <Dialog open={open} onOpenChange={handleClose}>
+        <DialogTrigger asChild>
+          {children || (
+            <Button variant="hero" size="sm" className="gap-2">
+              <Plus className="h-4 w-4" /> Organizar Mesa
+            </Button>
+          )}
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-display flex items-center gap-2">
+              <Share2 className="h-5 w-5 text-primary" />
+              Compartilhe nos grupos!
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              Convide jogadores copiando a mensagem abaixo e enviando nos seus grupos de jogos.
+            </p>
+          </DialogHeader>
+
+          <div className="space-y-4 mt-2">
+            {shareLoading ? (
+              <div className="flex items-center justify-center py-8 gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-sm">Gerando convite com IA...</span>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Textarea
+                    value={shareText}
+                    onChange={(e) => setShareText(e.target.value)}
+                    rows={5}
+                    className="pr-10 text-sm"
+                  />
+                  <button
+                    onClick={copyShareText}
+                    className="absolute top-2 right-2 p-1.5 rounded-md bg-muted hover:bg-muted/80 transition-colors"
+                    title="Copiar"
+                  >
+                    {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4 text-muted-foreground" />}
+                  </button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <Button onClick={shareWhatsApp} variant="outline" className="gap-2 text-sm">
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-green-600">
+                      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z" />
+                    </svg>
+                    WhatsApp
+                  </Button>
+                  <Button onClick={shareTelegram} variant="outline" className="gap-2 text-sm">
+                    <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current text-blue-500">
+                      <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.479.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z" />
+                    </svg>
+                    Telegram
+                  </Button>
+                </div>
+
+                <Button
+                  onClick={copyShareText}
+                  className="w-full gap-2"
+                  variant="hero"
+                >
+                  {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+                  {copied ? "Copiado!" : "Copiar mensagem"}
+                </Button>
+
+                <button
+                  onClick={() => handleClose(false)}
+                  className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors py-1"
+                >
+                  Pular e fechar
+                </button>
+              </>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ─── Creation form ───
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleClose}>
       <DialogTrigger asChild>
         {children || (
           <Button variant="hero" size="sm" className="gap-2">
@@ -206,9 +377,26 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
             />
           </div>
 
-          {/* Description - optional */}
+          {/* Description with AI */}
           <div>
-            <Label>Descrição <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+            <div className="flex items-center justify-between mb-1">
+              <Label>Descrição <span className="text-muted-foreground font-normal">(opcional)</span></Label>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={generateDescription}
+                disabled={aiLoading || !title.trim()}
+                className="h-7 gap-1.5 text-xs text-primary hover:text-primary/80 px-2"
+              >
+                {aiLoading ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : (
+                  <Sparkles className="h-3 w-3" />
+                )}
+                {aiLoading ? "Gerando..." : "Gerar com IA"}
+              </Button>
+            </div>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
@@ -240,7 +428,7 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
             </div>
           </div>
 
-          {/* Location (only for presencial/hybrid) */}
+          {/* Location */}
           {format !== "online" && (
             <div className="space-y-3">
               <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">
