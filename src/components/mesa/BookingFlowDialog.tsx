@@ -299,7 +299,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
               </div>
 
               {/* Payment info for paid mesas */}
-              {isPaidMesa && !isSuperUser && (
+              {isPaidMesa && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
                   <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
                     <CreditCard className="h-3.5 w-3.5" />
