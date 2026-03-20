@@ -18,6 +18,7 @@ export function Footer() {
             <a href="#perfis" className="hover:text-foreground transition-colors">Para quem</a>
             <a href="#planos" className="hover:text-foreground transition-colors">Planos</a>
             <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+            <a href="/quem-somos" className="hover:text-foreground transition-colors">Quem Somos</a>
             <a href="/termos" className="hover:text-foreground transition-colors">Termos</a>
             <a href="/privacidade" className="hover:text-foreground transition-colors">Privacidade</a>
           </div>

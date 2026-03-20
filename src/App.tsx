@@ -44,6 +44,7 @@ import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import ParaLojas from "./pages/ParaLojas";
+import QuemSomos from "./pages/QuemSomos";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -65,6 +66,7 @@ const App = () => (
               <Route path="/~oauth" element={<OAuthCallback />} />
               <Route path="/interesse" element={<Interesse />} />
               <Route path="/para-lojas" element={<ParaLojas />} />
+              <Route path="/quem-somos" element={<QuemSomos />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
