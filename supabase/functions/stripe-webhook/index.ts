@@ -382,6 +382,26 @@ async function handleCheckoutCompleted(session: Stripe.Checkout.Session) {
 
           logStep("Booking confirmation email enqueued", { playerEmail, messageId });
         }
+
+        // ─── Notify GM about new booking ───
+        if (gmUserId && mesa) {
+          const { data: gmProfile } = await supabase.from("profiles").select("email, display_name, name").eq("user_id", gmUserId).maybeSingle();
+          if (gmProfile?.email) {
+            const seatsLeft = mesa.price_per_seat ? 0 : 0; // will fetch below
+            const { data: mesaFresh } = await supabase.from("mesas").select("seats_available").eq("id", mesaId!).maybeSingle();
+            const gmHtml = await render(NewBookingGM({
+              gmName: gmProfile.display_name || gmProfile.name || "Mestre",
+              playerName,
+              mesaTitle: mesa.title || "Mesa de RPG",
+              date: mesa.session_date || "A definir",
+              time: mesa.session_time || "A definir",
+              seatsRemaining: mesaFresh?.seats_available ?? 0,
+              mesaId: mesaId || "",
+            }));
+            await enqueueTransactionalEmail(gmProfile.email, `Nova reserva: ${playerName} em "${mesa.title}"`, gmHtml, "new_booking_gm", { mesa_id: mesaId, booking_id: bookingId });
+            logStep("GM booking notification email enqueued", { gmEmail: gmProfile.email });
+          }
+        }
       } catch (emailErr) {
         logStep("WARN: Failed to send booking email (non-blocking)", { error: (emailErr as Error).message });
       }
