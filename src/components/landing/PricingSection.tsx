@@ -286,8 +286,8 @@ export function PricingSection() {
               <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
                 {activeRole === "gm" ? (
                   <>
-                    <span>Plano Pro: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
-                    <span>Plano Pro+: <span className="font-semibold text-foreground">5–10%</span> por mesa</span>
+                    <span>Plano Pro: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
+                    <span>Plano Pro+: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
                   </>
                 ) : (
                   <>
