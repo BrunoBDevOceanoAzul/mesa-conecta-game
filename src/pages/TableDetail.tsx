@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
