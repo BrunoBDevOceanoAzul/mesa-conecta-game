@@ -85,11 +85,12 @@ export function useSubscription(): SubscriptionState {
       return;
     }
 
-    const [profileRes, subRes, plansRes, paymentsRes] = await Promise.all([
+    const [profileRes, subRes, plansRes, paymentsRes, trialRes] = await Promise.all([
       supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
       supabase.from("subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
       supabase.from("plans").select("*").eq("is_active", true).order("sort_order"),
       supabase.from("payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.rpc("get_trial_status", { _user_id: user.id }),
     ]);
 
     setUserRole(profileRes.data?.role || null);
