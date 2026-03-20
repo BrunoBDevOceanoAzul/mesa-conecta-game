@@ -9,6 +9,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { containsProfanity, PROFANITY_WARNING } from "@/lib/profanity-filter";
+import { toast } from "sonner";
 import { format } from "date-fns";
 import {
   MessageCircle, Send, Loader2, ChevronDown, ChevronUp,
