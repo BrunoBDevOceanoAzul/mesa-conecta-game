@@ -120,9 +120,16 @@ export default function PlayerDashboard() {
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <ProfileCompletionBanner />
-        <div>
-          <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
-          <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
+            <p className="text-muted-foreground mt-1">Mesas curadas pela HIVIUM para o seu perfil.</p>
+          </div>
+          <CreateCommunityMesaDialog>
+            <Button variant="hero" size="sm" className="gap-2 shrink-0">
+              <Plus className="h-4 w-4" /> Organizar Mesa
+            </Button>
+          </CreateCommunityMesaDialog>
         </div>
 
         {/* Plan badge */}
