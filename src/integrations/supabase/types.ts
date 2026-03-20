@@ -4160,8 +4160,10 @@ export type Database = {
           amenities: string[] | null
           capacity: number | null
           city: string | null
+          cnpj: string | null
           created_at: string
           description: string | null
+          ecommerce_url: string | null
           game_catalog: string[] | null
           google_place_id: string | null
           id: string
@@ -4185,8 +4187,10 @@ export type Database = {
           amenities?: string[] | null
           capacity?: number | null
           city?: string | null
+          cnpj?: string | null
           created_at?: string
           description?: string | null
+          ecommerce_url?: string | null
           game_catalog?: string[] | null
           google_place_id?: string | null
           id?: string
@@ -4210,8 +4214,10 @@ export type Database = {
           amenities?: string[] | null
           capacity?: number | null
           city?: string | null
+          cnpj?: string | null
           created_at?: string
           description?: string | null
+          ecommerce_url?: string | null
           game_catalog?: string[] | null
           google_place_id?: string | null
           id?: string

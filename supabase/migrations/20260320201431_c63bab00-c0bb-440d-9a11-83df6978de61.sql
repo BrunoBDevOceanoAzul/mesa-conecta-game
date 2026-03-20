@@ -1,0 +1,3 @@
+
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS cnpj TEXT;
+ALTER TABLE public.stores ADD COLUMN IF NOT EXISTS ecommerce_url TEXT;

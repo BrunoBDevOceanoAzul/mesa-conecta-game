@@ -288,8 +288,19 @@ export function StoreManager() {
                   <Input value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="(11) 99999-9999" />
                 </div>
                 <div>
+                  <Label>CNPJ</Label>
+                  <Input value={form.cnpj} onChange={(e) => setForm((f) => ({ ...f, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
                   <Label>Website</Label>
                   <Input value={form.website} onChange={(e) => setForm((f) => ({ ...f, website: e.target.value }))} placeholder="https://..." />
+                </div>
+                <div>
+                  <Label>E-commerce (se separado)</Label>
+                  <Input value={form.ecommerce_url} onChange={(e) => setForm((f) => ({ ...f, ecommerce_url: e.target.value }))} placeholder="https://loja.luderia.com.br" />
                 </div>
               </div>
 
