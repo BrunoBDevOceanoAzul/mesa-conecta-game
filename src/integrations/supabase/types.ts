@@ -842,6 +842,69 @@ export type Database = {
         }
         Relationships: []
       }
+      cart_abandonments: {
+        Row: {
+          abandoned_at: string
+          amount_cents: number | null
+          booking_id: string | null
+          created_at: string
+          currency: string | null
+          gm_user_id: string
+          id: string
+          mesa_id: string
+          mesa_title: string | null
+          player_email: string | null
+          player_name: string | null
+          player_user_id: string
+          recovered_at: string | null
+          remarketing_channel: string | null
+          remarketing_sent_at: string | null
+          status: string
+          stripe_checkout_session_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          abandoned_at?: string
+          amount_cents?: number | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string | null
+          gm_user_id: string
+          id?: string
+          mesa_id: string
+          mesa_title?: string | null
+          player_email?: string | null
+          player_name?: string | null
+          player_user_id: string
+          recovered_at?: string | null
+          remarketing_channel?: string | null
+          remarketing_sent_at?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          abandoned_at?: string
+          amount_cents?: number | null
+          booking_id?: string | null
+          created_at?: string
+          currency?: string | null
+          gm_user_id?: string
+          id?: string
+          mesa_id?: string
+          mesa_title?: string | null
+          player_email?: string | null
+          player_name?: string | null
+          player_user_id?: string
+          recovered_at?: string | null
+          remarketing_channel?: string | null
+          remarketing_sent_at?: string | null
+          status?: string
+          stripe_checkout_session_id?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       catalog_import_runs: {
         Row: {
           created_at: string | null

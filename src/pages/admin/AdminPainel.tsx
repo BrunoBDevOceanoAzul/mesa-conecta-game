@@ -1,18 +1,20 @@
 import { useState } from "react";
-import { Shield, BarChart3, CreditCard, Trophy, Gift, Sparkles, TrendingUp, CheckCircle2, Lightbulb } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
 import { GoLiveChecklist } from "@/components/admin/GoLiveChecklist";
+import { CartAbandonmentDashboard } from "@/components/admin/CartAbandonmentDashboard";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "gamification" | "coupons" | "golive";
+type SubTab = "insights" | "gamification" | "coupons" | "golive" | "cart";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
 
   const tabs: { key: SubTab; label: string; icon: React.ReactNode }[] = [
     { key: "insights", label: "Inteligência", icon: <Lightbulb className="h-4 w-4" /> },
+    { key: "cart", label: "Carrinho", icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "gamification", label: "Gamificação", icon: <Trophy className="h-4 w-4" /> },
     { key: "coupons", label: "Cupons", icon: <Gift className="h-4 w-4" /> },
     { key: "golive", label: "Go-Live", icon: <CheckCircle2 className="h-4 w-4" /> },
@@ -47,6 +49,7 @@ export default function AdminPainel() {
         </div>
 
         {subTab === "insights" && <InsightsDashboard />}
+        {subTab === "cart" && <CartAbandonmentDashboard />}
         {subTab === "gamification" && <GamificationConfig />}
         {subTab === "coupons" && <CouponManager />}
         {subTab === "golive" && <GoLiveChecklist />}
