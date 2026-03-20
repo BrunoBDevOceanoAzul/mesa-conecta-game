@@ -105,14 +105,15 @@ export function InsightsDashboard() {
 
   async function fetchInsights() {
     setLoading(true);
-    const [profilesRes, playerRes, gmRes, tablesRes, bookingsRes, subsRes, onbRes] = await Promise.all([
-      supabase.from("profiles").select("user_id, role, city, created_at, onboarding_completed"),
+    const [profilesRes, playerRes, gmRes, tablesRes, bookingsRes, subsRes, onbRes, paymentsRes] = await Promise.all([
+      supabase.from("profiles").select("user_id, role, city, created_at, onboarding_completed, name"),
       supabase.from("player_profiles").select("preferred_systems_json, preferred_styles_json, format_preference, budget_min, budget_max, experience_level, user_id"),
       supabase.from("gm_profiles").select("systems_mastered_json, narrative_style_json, price_min, price_max, beginner_friendly, max_players_default, accepted_formats_json, user_id"),
       supabase.from("game_tables").select("system_name, city, play_format, session_type, seats_total, status, gm_user_id, created_at"),
-      supabase.from("bookings").select("id, status, created_at"),
-      supabase.from("subscriptions").select("id, status, current_period_end"),
+      supabase.from("bookings").select("id, status, created_at, gm_user_id, store_user_id, amount, payment_status"),
+      supabase.from("subscriptions").select("id, status, current_period_end, price_cents, user_id"),
       supabase.from("onboarding_sessions").select("id, completed_at, user_id"),
+      supabase.from("payments").select("id, user_id, amount, status, payment_type, paid_at"),
     ]);
 
     const profiles = profilesRes.data || [];
