@@ -31,6 +31,7 @@ export default function AdminPainel() {
     { key: "blocklist", label: "Blocklist", icon: <Ban className="h-4 w-4" /> },
     { key: "ambassadors", label: "Embaixadores", icon: <Users className="h-4 w-4" /> },
     { key: "images", label: "Imagens", icon: <ImageIcon className="h-4 w-4" /> },
+    { key: "content", label: "Conteúdo", icon: <FileText className="h-4 w-4" /> },
   ];
 
   return (
