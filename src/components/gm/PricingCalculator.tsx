@@ -146,6 +146,15 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
     const premium = Math.round(suggested * 1.25);
 
     const revenuePerMesa = market * state.players;
+
+    // Fee simulations per player at market price
+    const cardFeePerPlayer = +(market * STRIPE_CARD_PERCENT / 100 + STRIPE_CARD_FIXED_BRL).toFixed(2);
+    const pixFeePerPlayer = +(market * STRIPE_PIX_PERCENT / 100 + STRIPE_PIX_FIXED_BRL).toFixed(2);
+    const platformFeePerPlayer = +(market * state.platformFee / 100).toFixed(2);
+
+    const netPerPlayerCard = +(market - cardFeePerPlayer - platformFeePerPlayer).toFixed(2);
+    const netPerPlayerPix = +(market - pixFeePerPlayer - platformFeePerPlayer).toFixed(2);
+
     const monthlyRevenue = revenuePerMesa * state.mesasPerMonth;
 
     const mesasToGoal = state.monthlyGoal > 0
@@ -168,6 +177,11 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
       occupancyForGoal,
       totalHours,
       withFee: Math.round(withFee),
+      cardFeePerPlayer,
+      pixFeePerPlayer,
+      platformFeePerPlayer,
+      netPerPlayerCard,
+      netPerPlayerPix,
     };
   }, [state]);
 
