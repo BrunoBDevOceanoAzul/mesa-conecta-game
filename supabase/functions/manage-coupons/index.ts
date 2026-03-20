@@ -113,7 +113,7 @@ serve(async (req) => {
       const { data: coupon, error: insertError } = await supabase.from("discount_coupons").insert({
         created_by_admin_user_id: userData.user.id,
         internal_name,
-        public_code: public_code.toUpperCase(),
+        public_code: sanitizedCode,
         stripe_coupon_id: stripeCoupon.id,
         stripe_promotion_code_id: promoCode.id,
         discount_type: discount_type || "percent",
