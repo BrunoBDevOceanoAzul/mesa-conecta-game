@@ -27,6 +27,8 @@ interface StoreRow {
   phone: string | null;
   website: string | null;
   instagram: string | null;
+  cnpj: string | null;
+  ecommerce_url: string | null;
   description: string | null;
   google_place_id: string | null;
   owner_id: string;
@@ -46,6 +48,8 @@ const emptyForm = {
   phone: "",
   website: "",
   instagram: "",
+  cnpj: "",
+  ecommerce_url: "",
   description: "",
   google_place_id: "",
   owner_id: "",
