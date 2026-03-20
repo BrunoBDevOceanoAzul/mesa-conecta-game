@@ -271,7 +271,46 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             <MiniStat label="Mesas para a meta" value={`${results.mesasToGoal}`} icon={<Target className="h-3.5 w-3.5" />} />
           </div>
 
-          {/* Goal progress */}
+          {/* Payment method fee breakdown */}
+          <div className="rounded-xl border border-border bg-card p-5 space-y-3">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
+              Taxas por método de pagamento (preço Mercado: R${results.market})
+            </h3>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {/* Card */}
+              <div className="rounded-lg border border-border bg-muted/20 p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
+                    <DollarSign className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">Cartão</span>
+                  <Badge variant="outline" className="ml-auto text-[10px]">{STRIPE_CARD_PERCENT}% + R${STRIPE_CARD_FIXED_BRL.toFixed(2)}</Badge>
+                </div>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Taxa Stripe</span><span className="text-foreground">-R${results.cardFeePerPlayer}</span></div>
+                  <div className="flex justify-between"><span>Taxa Plataforma ({state.platformFee}%)</span><span className="text-foreground">-R${results.platformFeePerPlayer}</span></div>
+                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Você recebe</span><span className="text-primary">R${results.netPerPlayerCard}/jogador</span></div>
+                </div>
+              </div>
+              {/* PIX */}
+              <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-2">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-7 w-7 items-center justify-center rounded-md bg-primary/10 text-primary shrink-0">
+                    <Zap className="h-3.5 w-3.5" />
+                  </div>
+                  <span className="text-sm font-semibold text-foreground">PIX</span>
+                  <Badge variant="default" className="ml-auto text-[10px]">{STRIPE_PIX_PERCENT}%</Badge>
+                </div>
+                <div className="space-y-1 text-xs text-muted-foreground">
+                  <div className="flex justify-between"><span>Taxa Stripe</span><span className="text-foreground">-R${results.pixFeePerPlayer}</span></div>
+                  <div className="flex justify-between"><span>Taxa Plataforma ({state.platformFee}%)</span><span className="text-foreground">-R${results.platformFeePerPlayer}</span></div>
+                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Você recebe</span><span className="text-primary">R${results.netPerPlayerPix}/jogador</span></div>
+                </div>
+                <p className="text-[10px] text-primary font-medium">💡 PIX = menor taxa → mais lucro!</p>
+              </div>
+            </div>
+          </div>
+
           {!compact && state.monthlyGoal > 0 && (
             <div className="rounded-xl border border-border bg-card p-5 space-y-3">
               <div className="flex items-center justify-between">
