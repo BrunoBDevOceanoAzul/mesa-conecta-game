@@ -19,6 +19,9 @@ import { PreparationSetupPanel } from "@/components/mesa/PreparationSetupPanel";
 import { MesaLiveChat } from "@/components/mesa/MesaLiveChat";
 import { GMSubmissionsTracker } from "@/components/mesa/GMSubmissionsTracker";
 import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
+import { MesaParticipants } from "@/components/mesa/MesaParticipants";
+import { MesaFeed } from "@/components/mesa/MesaFeed";
+import { BoardGameExpansions } from "@/components/mesa/BoardGameExpansions";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
   Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
