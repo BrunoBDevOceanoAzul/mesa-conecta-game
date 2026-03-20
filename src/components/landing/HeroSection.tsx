@@ -73,7 +73,7 @@ export function HeroSection() {
 
           {/* Social proof */}
           <motion.div
-            className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8 max-w-lg"
+            className="mt-10 sm:mt-16 grid grid-cols-2 sm:grid-cols-4 gap-6 sm:gap-8 max-w-lg"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5, delay: 0.6 }}

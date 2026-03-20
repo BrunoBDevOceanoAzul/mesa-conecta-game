@@ -25,7 +25,7 @@ export function CTASection() {
           <div className="relative">
             <span className="section-label">Pronto?</span>
 
-            <h2 className="text-3xl font-display font-bold md:text-5xl text-foreground leading-tight mt-2">
+            <h2 className="text-2xl font-display font-bold sm:text-3xl md:text-5xl text-foreground leading-tight mt-2">
               A mesa certa existe.<br />
               <span className="gradient-text">Ela só precisa te encontrar.</span>
             </h2>
