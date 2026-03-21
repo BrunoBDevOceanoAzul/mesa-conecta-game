@@ -628,7 +628,7 @@ export default function Checkout() {
                     variant="gradient"
                     size="lg"
                     className="w-full gap-2"
-                    disabled={submitting || (resolvedPlan?.price_monthly !== 0 && !resolvedPlan?.stripe_price_id)}
+                    disabled={submitting}
                     onClick={handleCheckout}
                   >
                     {submitting ? (
