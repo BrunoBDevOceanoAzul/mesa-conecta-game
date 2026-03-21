@@ -9,9 +9,16 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[ASAAS-SUBACCOUNT] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 
-const ASAAS_BASE = Deno.env.get("ASAAS_API_KEY")?.startsWith("$aact_")
-  ? "https://api.asaas.com/v3"
-  : "https://sandbox.asaas.com/api/v3";
+function getAsaasConfig() {
+  const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
+  const mainKey = Deno.env.get("ASAAS_API_KEY");
+  const apiKey = sandboxKey || mainKey;
+  if (!apiKey) throw new Error("No Asaas API key configured");
+  const base = sandboxKey
+    ? "https://sandbox.asaas.com/api/v3"
+    : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
+  return { apiKey, base };
+}
 
 const ELIGIBLE_ROLES = ["gm", "store", "brand"];
 
@@ -27,8 +34,7 @@ serve(async (req) => {
   );
 
   try {
-    const apiKey = Deno.env.get("ASAAS_API_KEY");
-    if (!apiKey) throw new Error("ASAAS_API_KEY not set");
+    const { apiKey, base: ASAAS_BASE } = getAsaasConfig();
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");

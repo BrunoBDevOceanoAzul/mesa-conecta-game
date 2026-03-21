@@ -27,12 +27,14 @@ serve(async (req) => {
   );
 
   try {
-    const apiKey = Deno.env.get("ASAAS_API_KEY");
-    if (!apiKey) throw new Error("ASAAS_API_KEY not set");
+    const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
+    const mainKey = Deno.env.get("ASAAS_API_KEY");
+    const apiKey = sandboxKey || mainKey;
+    if (!apiKey) throw new Error("No Asaas API key configured");
 
-    const ASAAS_BASE = apiKey.startsWith("$aact_")
-      ? "https://api.asaas.com/v3"
-      : "https://sandbox.asaas.com/api/v3";
+    const ASAAS_BASE = sandboxKey
+      ? "https://sandbox.asaas.com/api/v3"
+      : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
 
     // Auth
     const authHeader = req.headers.get("Authorization");
