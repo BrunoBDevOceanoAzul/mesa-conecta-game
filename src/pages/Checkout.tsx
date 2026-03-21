@@ -644,14 +644,8 @@ export default function Checkout() {
                     }
                   </Button>
 
-                  {!resolvedPlan?.stripe_price_id && resolvedPlan && resolvedPlan.price_monthly > 0 && (
-                    <p className="text-xs text-destructive text-center">
-                      Plano indisponível para este ciclo. Escolha outro.
-                    </p>
-                  )}
-
                   <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-                    Ao confirmar, você será redirecionado para o checkout seguro do Stripe. Cancele quando quiser.
+                    Pagamento processado de forma segura. Cancele quando quiser.
                   </p>
                 </>
               )}
