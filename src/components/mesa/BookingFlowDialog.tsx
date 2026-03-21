@@ -74,19 +74,19 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           .gte("created_at", monthStart)
           .lte("created_at", monthEnd),
         supabase
-          .from("subscriptions")
-          .select("plan_id, plan_name, plan_role, status, current_period_end")
+          .from("asaas_subscriptions")
+          .select("billing_product_id, status, next_due_date")
           .eq("user_id", user.id)
-          .eq("status", "active")
+          .eq("status", "ACTIVE")
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
         supabase
-          .from("plans")
-          .select("code, name, price_monthly, feature_flags, stripe_price_id")
+          .from("billing_products")
+          .select("code, name, price_cents, feature_flags, stripe_price_id")
           .eq("is_active", true)
-          .eq("role", "player")
-          .or("billing_interval.eq.monthly,billing_interval.is.null")
+          .eq("target_role", "player")
+          .eq("product_type", "subscription")
           .order("sort_order"),
       ]);
 
@@ -96,11 +96,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       let limit: number | null = null;
       const sub = subRes.data;
 
-      if (sub && sub.plan_id) {
+      if (sub && sub.billing_product_id) {
         const { data: planData } = await supabase
-          .from("plans")
+          .from("billing_products")
           .select("name, feature_flags")
-          .eq("id", sub.plan_id)
+          .eq("id", sub.billing_product_id)
           .maybeSingle();
         
         if (planData) {
@@ -118,12 +118,12 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       setReservationLimit(limit);
 
       const parsed: PlayerPlan[] = ((plansRes.data || []) as any[])
-        .filter((p: any) => p.price_monthly > 0)
+        .filter((p: any) => p.price_cents > 0)
         .map((p: any) => ({
           code: p.code,
           name: p.name,
           reservation_limit: (p.feature_flags as any)?.reservation_limit ?? null,
-          price_monthly: p.price_monthly,
+          price_monthly: p.price_cents,
           stripe_price_id: p.stripe_price_id,
         }));
       setPlayerPlans(parsed);

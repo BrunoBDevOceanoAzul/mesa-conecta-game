@@ -6,12 +6,11 @@ import {
 } from "lucide-react";
 
 const statusLabels: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  not_started: { label: "Criando conta…", color: "bg-muted text-muted-foreground border-border", icon: <Clock className="h-3.5 w-3.5" /> },
   pending: { label: "Ativação em andamento", color: "bg-yellow-500/15 text-yellow-400 border-yellow-500/25", icon: <Clock className="h-3.5 w-3.5" /> },
   submitted: { label: "Em análise", color: "bg-blue-500/15 text-blue-400 border-blue-500/25", icon: <Clock className="h-3.5 w-3.5" /> },
-  verified: { label: "Pronta para receber", color: "bg-green-500/15 text-green-400 border-green-500/25", icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
-  restricted: { label: "Restrita", color: "bg-orange-500/15 text-orange-400 border-orange-500/25", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+  completed: { label: "Pronta para receber", color: "bg-green-500/15 text-green-400 border-green-500/25", icon: <CheckCircle2 className="h-3.5 w-3.5" /> },
   rejected: { label: "Rejeitada", color: "bg-red-500/15 text-red-400 border-red-500/25", icon: <AlertTriangle className="h-3.5 w-3.5" /> },
+  not_started: { label: "Criando conta…", color: "bg-muted text-muted-foreground border-border", icon: <Clock className="h-3.5 w-3.5" /> },
 };
 
 export function ConnectStatusBlock() {
@@ -57,7 +56,7 @@ export function ConnectStatusBlock() {
           <div className="grid grid-cols-3 gap-3">
             <StatusDot label="Cobranças" active={account.charges_enabled} />
             <StatusDot label="Saques" active={account.payouts_enabled} />
-            <StatusDot label="Verificação" active={account.details_submitted} />
+            <StatusDot label="Documentos" active={account.details_submitted} />
           </div>
         )}
 

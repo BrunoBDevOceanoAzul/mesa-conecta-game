@@ -50,8 +50,8 @@ export default function AdminSettings() {
     setLoading(true);
     const [settingsRes, plansRes, subsRes, walletsRes] = await Promise.all([
       supabase.from("admin_settings").select("key, value"),
-      supabase.from("plans").select("id").eq("is_active", true),
-      supabase.from("subscriptions").select("id").eq("status", "active"),
+      supabase.from("billing_products").select("id").eq("is_active", true),
+      supabase.from("asaas_subscriptions").select("id").eq("status", "ACTIVE"),
       supabase.from("credit_wallets").select("id"),
     ]);
 

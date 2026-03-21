@@ -109,12 +109,28 @@ export function PricingSection() {
 
   useEffect(() => {
     supabase
-      .from("plans")
-      .select("id, code, role, name, description, price_monthly, feature_flags, sort_order, trial_days, is_founder_plan, founder_slots_total, founder_slots_used")
+      .from("billing_products")
+      .select("id, code, name, description, price_cents, feature_flags, sort_order, target_role, stripe_price_id")
       .eq("is_active", true)
+      .eq("is_public", true)
+      .eq("product_type", "subscription")
       .order("sort_order")
       .then(({ data }) => {
-        setPlans((data as unknown as DBPlan[]) || []);
+        const mapped = (data || []).map((bp: any) => ({
+          id: bp.id,
+          code: bp.code,
+          role: bp.target_role || "player",
+          name: bp.name,
+          description: bp.description,
+          price_monthly: bp.price_cents,
+          feature_flags: bp.feature_flags || {},
+          sort_order: bp.sort_order ?? 99,
+          trial_days: null,
+          is_founder_plan: false,
+          founder_slots_total: null,
+          founder_slots_used: null,
+        })) as DBPlan[];
+        setPlans(mapped);
       });
   }, []);
 

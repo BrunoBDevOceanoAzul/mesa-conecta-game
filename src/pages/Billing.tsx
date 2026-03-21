@@ -133,39 +133,37 @@ export default function Billing() {
     setActionLoading(true);
     const ok = await sub.subscribe(plan.code);
     setActionLoading(false);
-    if (ok) toast({ title: "Redirecionando para checkout… 🔒", description: `Finalize a assinatura do ${plan.name} com segurança.` });
-    else toast({ title: "Erro ao iniciar checkout", description: "Tente novamente em instantes.", variant: "destructive" });
+    if (ok) toast({ title: "Assinatura criada! 🎉", description: `Seu plano ${plan.name} foi ativado.` });
+    else toast({ title: "Erro ao criar assinatura", description: "Tente novamente em instantes.", variant: "destructive" });
   }
 
   async function handleCancel() {
     setActionLoading(true);
     const ok = await sub.cancelSubscription();
     setActionLoading(false);
-    if (ok) toast({ title: "Portal de gerenciamento aberto", description: "Gerencie seu cancelamento pelo portal seguro." });
-    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
+    if (ok) toast({ title: "Cancelamento solicitado", description: "Seu plano permanecerá ativo até o fim do período." });
+    else toast({ title: "Cancelamento ainda não disponível", description: "Entre em contato com o suporte.", variant: "destructive" });
   }
 
   async function handleReactivate() {
     setActionLoading(true);
     const ok = await sub.reactivateSubscription();
     setActionLoading(false);
-    if (ok) toast({ title: "Portal de gerenciamento aberto", description: "Reative seu plano pelo portal seguro." });
-    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
+    if (ok) toast({ title: "Plano reativado!" });
+    else toast({ title: "Reativação ainda não disponível", description: "Entre em contato com o suporte.", variant: "destructive" });
   }
 
-  async function handleChangePlan(_plan: Plan) {
+  async function handleChangePlan(plan: Plan) {
     setActionLoading(true);
-    const ok = await sub.openCustomerPortal();
+    const ok = await sub.changePlan(plan.code);
     setActionLoading(false);
-    if (ok) toast({ title: "Portal aberto", description: "Altere seu plano pelo portal seguro." });
-    else toast({ title: "Erro ao abrir portal", variant: "destructive" });
+    if (ok) toast({ title: "Plano alterado!", description: `Agora você está no ${plan.name}.` });
+    else toast({ title: "Erro ao alterar plano", variant: "destructive" });
   }
 
   async function handleManageSubscription() {
-    setActionLoading(true);
-    const ok = await sub.openCustomerPortal();
-    setActionLoading(false);
-    if (!ok) toast({ title: "Erro ao abrir portal", variant: "destructive" });
+    // Internal management — just switch to plans tab
+    setTab("plans");
   }
 
   if (sub.loading) {
@@ -303,14 +301,14 @@ export default function Billing() {
                     </Button>
                   )}
 
-                  {sub.status === "active" && (
+                   {sub.status === "active" && (
                     <>
-                      <Button variant="outline" size="default" className="gap-2 border-secondary/30 text-secondary hover:bg-secondary/10" onClick={handleManageSubscription} disabled={actionLoading}>
-                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-                        Gerenciar assinatura
-                      </Button>
                       <Button variant="outline" size="default" className="gap-2" onClick={() => setTab("plans")}>
                         <Sparkles className="h-4 w-4" /> Ver planos
+                      </Button>
+                      <Button variant="ghost" size="default" className="gap-2 text-destructive hover:text-destructive" onClick={handleCancel} disabled={actionLoading}>
+                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                        Cancelar assinatura
                       </Button>
                     </>
                   )}

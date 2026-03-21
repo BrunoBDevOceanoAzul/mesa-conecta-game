@@ -139,12 +139,28 @@ export default function Checkout() {
   // Fetch plans
   useEffect(() => {
     supabase
-      .from("plans")
-      .select("id, code, role, name, description, price_monthly, price_amount, feature_flags, sort_order, trial_days, billing_interval, interval_count, stripe_price_id, is_founder_plan")
+      .from("billing_products")
+      .select("*")
       .eq("is_active", true)
+      .eq("product_type", "subscription")
       .order("sort_order")
       .then(({ data }) => {
-        const fetched = (data as unknown as DBPlan[]) || [];
+        const fetched = (data || []).map((bp: any) => ({
+          id: bp.id,
+          code: bp.code,
+          role: bp.target_role || "player",
+          name: bp.name,
+          description: bp.description,
+          price_monthly: bp.price_cents,
+          price_amount: bp.price_cents,
+          feature_flags: bp.feature_flags || {},
+          sort_order: bp.sort_order ?? 99,
+          trial_days: null,
+          billing_interval: bp.billing_cycle || "monthly",
+          interval_count: 1,
+          stripe_price_id: bp.stripe_price_id,
+          is_founder_plan: false,
+        })) as DBPlan[];
         setPlans(fetched);
         setLoading(false);
 
@@ -203,7 +219,7 @@ export default function Checkout() {
     const intervals: BillingInterval[] = ["monthly"];
     const suffixes: BillingInterval[] = ["quarterly", "semiannual", "annual"];
     for (const s of suffixes) {
-      if (plans.some((p) => p.code === `${selectedBase.code}_${s}` && p.stripe_price_id)) {
+      if (plans.some((p) => p.code === `${selectedBase.code}_${s}`)) {
         intervals.push(s);
       }
     }
@@ -276,34 +292,33 @@ export default function Checkout() {
     }
   }
 
-  // Handle checkout
+  // Handle checkout via Asaas
   async function handleCheckout() {
     if (!resolvedPlan || !user) return;
 
-    // Free plan — activate directly without Stripe
+    // Free plan — activate directly
     if (resolvedPlan.price_monthly === 0) {
       return handleFreePlan();
     }
 
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+      const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: {
-          plan_code: resolvedPlan.code,
+          product_code: resolvedPlan.code,
           coupon_code: coupon?.public_code || undefined,
-          success_url: `${window.location.origin}/billing?checkout=success`,
-          cancel_url: `${window.location.origin}/checkout?plan=${selectedBasePlan}&interval=${selectedInterval}&canceled=true`,
         },
       });
 
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+
+      toast({
+        title: "Assinatura criada! 🎉",
+        description: "Sua assinatura foi processada. Confira os detalhes em Faturamento.",
+      });
+      navigate("/billing?checkout=success");
     } catch (err: any) {
-      const msg = err?.message || "Erro ao iniciar checkout";
+      const msg = err?.message || "Erro ao processar assinatura";
       toast({ title: "Erro no checkout", description: msg, variant: "destructive" });
       setSubmitting(false);
     }
@@ -354,7 +369,7 @@ export default function Checkout() {
           </div>
           <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-3.5 w-3.5" />
-            Pagamento seguro via Stripe
+            Pagamento seguro
           </div>
         </div>
       </div>
@@ -629,7 +644,7 @@ export default function Checkout() {
                     variant="gradient"
                     size="lg"
                     className="w-full gap-2"
-                    disabled={submitting || (resolvedPlan?.price_monthly !== 0 && !resolvedPlan?.stripe_price_id)}
+                    disabled={submitting}
                     onClick={handleCheckout}
                   >
                     {submitting ? (
@@ -645,14 +660,8 @@ export default function Checkout() {
                     }
                   </Button>
 
-                  {!resolvedPlan?.stripe_price_id && resolvedPlan && resolvedPlan.price_monthly > 0 && (
-                    <p className="text-xs text-destructive text-center">
-                      Plano indisponível para este ciclo. Escolha outro.
-                    </p>
-                  )}
-
                   <p className="text-[11px] text-muted-foreground text-center leading-relaxed">
-                    Ao confirmar, você será redirecionado para o checkout seguro do Stripe. Cancele quando quiser.
+                    Pagamento processado de forma segura. Cancele quando quiser.
                   </p>
                 </>
               )}
