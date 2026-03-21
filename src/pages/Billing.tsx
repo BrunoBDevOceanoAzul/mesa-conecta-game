@@ -301,14 +301,14 @@ export default function Billing() {
                     </Button>
                   )}
 
-                  {sub.status === "active" && (
+                   {sub.status === "active" && (
                     <>
-                      <Button variant="outline" size="default" className="gap-2 border-secondary/30 text-secondary hover:bg-secondary/10" onClick={handleManageSubscription} disabled={actionLoading}>
-                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowUpRight className="h-4 w-4" />}
-                        Gerenciar assinatura
-                      </Button>
                       <Button variant="outline" size="default" className="gap-2" onClick={() => setTab("plans")}>
                         <Sparkles className="h-4 w-4" /> Ver planos
+                      </Button>
+                      <Button variant="ghost" size="default" className="gap-2 text-destructive hover:text-destructive" onClick={handleCancel} disabled={actionLoading}>
+                        {actionLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <XCircle className="h-4 w-4" />}
+                        Cancelar assinatura
                       </Button>
                     </>
                   )}
