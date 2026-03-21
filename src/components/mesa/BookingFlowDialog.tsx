@@ -74,19 +74,19 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           .gte("created_at", monthStart)
           .lte("created_at", monthEnd),
         supabase
-          .from("subscriptions")
-          .select("plan_id, plan_name, plan_role, status, current_period_end")
+          .from("asaas_subscriptions")
+          .select("billing_product_id, status, next_due_date")
           .eq("user_id", user.id)
-          .eq("status", "active")
+          .eq("status", "ACTIVE")
           .order("created_at", { ascending: false })
           .limit(1)
           .maybeSingle(),
         supabase
-          .from("plans")
-          .select("code, name, price_monthly, feature_flags, stripe_price_id")
+          .from("billing_products")
+          .select("code, name, price_cents, feature_flags, stripe_price_id")
           .eq("is_active", true)
-          .eq("role", "player")
-          .or("billing_interval.eq.monthly,billing_interval.is.null")
+          .eq("target_role", "player")
+          .eq("product_type", "subscription")
           .order("sort_order"),
       ]);
 
