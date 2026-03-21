@@ -103,7 +103,8 @@ const defaultState: CalculatorState = {
   monthlyGoal: 2000,
   mesasPerMonth: 4,
   extraCosts: 0,
-  platformFee: PLATFORM_FEE_MIN,
+  platformFee: PLATFORM_FEE,
+  hasStore: false,
 };
 
 const presets = [
