@@ -276,34 +276,33 @@ export default function Checkout() {
     }
   }
 
-  // Handle checkout
+  // Handle checkout via Asaas
   async function handleCheckout() {
     if (!resolvedPlan || !user) return;
 
-    // Free plan — activate directly without Stripe
+    // Free plan — activate directly
     if (resolvedPlan.price_monthly === 0) {
       return handleFreePlan();
     }
 
     setSubmitting(true);
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
+      const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: {
-          plan_code: resolvedPlan.code,
+          product_code: resolvedPlan.code,
           coupon_code: coupon?.public_code || undefined,
-          success_url: `${window.location.origin}/billing?checkout=success`,
-          cancel_url: `${window.location.origin}/checkout?plan=${selectedBasePlan}&interval=${selectedInterval}&canceled=true`,
         },
       });
 
       if (error) throw error;
-      if (data?.url) {
-        window.location.href = data.url;
-      } else {
-        throw new Error("No checkout URL returned");
-      }
+
+      toast({
+        title: "Assinatura criada! 🎉",
+        description: "Sua assinatura foi processada. Confira os detalhes em Faturamento.",
+      });
+      navigate("/billing?checkout=success");
     } catch (err: any) {
-      const msg = err?.message || "Erro ao iniciar checkout";
+      const msg = err?.message || "Erro ao processar assinatura";
       toast({ title: "Erro no checkout", description: msg, variant: "destructive" });
       setSubmitting(false);
     }
