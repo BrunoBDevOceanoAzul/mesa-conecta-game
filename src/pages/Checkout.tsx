@@ -305,7 +305,7 @@ export default function Checkout() {
     try {
       const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: {
-          product_code: resolvedPlan.code,
+          plan_code: resolvedPlan.code,
           coupon_code: coupon?.public_code || undefined,
         },
       });
