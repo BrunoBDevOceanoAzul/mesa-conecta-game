@@ -96,11 +96,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       let limit: number | null = null;
       const sub = subRes.data;
 
-      if (sub && sub.plan_id) {
+      if (sub && sub.billing_product_id) {
         const { data: planData } = await supabase
-          .from("plans")
+          .from("billing_products")
           .select("name, feature_flags")
-          .eq("id", sub.plan_id)
+          .eq("id", sub.billing_product_id)
           .maybeSingle();
         
         if (planData) {
