@@ -22,16 +22,16 @@ export function GoLiveChecklist() {
 
   const checks: CheckItem[] = [
     // Banco
-    { id: "plans_exist", label: "Planos ativos existem no banco", category: "Banco", check: async () => { const { count } = await supabase.from("plans").select("id", { count: "exact", head: true }).eq("is_active", true); return (count || 0) >= 3; } },
-    { id: "plans_stripe", label: "Planos pagos têm stripe_price_id", category: "Banco", check: async () => { const { data } = await supabase.from("plans").select("code, stripe_price_id").eq("is_active", true).gt("price_monthly", 0); return !!data && data.every((p: any) => !!p.stripe_price_id); } },
+    { id: "plans_exist", label: "Produtos de billing ativos existem", category: "Banco", check: async () => { const { count } = await supabase.from("billing_products").select("id", { count: "exact", head: true }).eq("is_active", true); return (count || 0) >= 3; } },
+    { id: "plans_asaas", label: "API Asaas configurada", category: "Banco", check: async () => { try { await supabase.functions.invoke("create-asaas-customer", { body: {} }); return true; } catch { return false; } } },
     { id: "profiles_exist", label: "Tabela profiles acessível", category: "Banco", check: async () => { const { error } = await supabase.from("profiles").select("id", { head: true }).limit(1); return !error; } },
-    { id: "subscriptions_table", label: "Tabela subscriptions acessível", category: "Banco", check: async () => { const { error } = await supabase.from("subscriptions").select("id", { head: true }).limit(1); return !error; } },
+    { id: "subscriptions_table", label: "Tabela asaas_subscriptions acessível", category: "Banco", check: async () => { const { error } = await supabase.from("asaas_subscriptions").select("id", { head: true }).limit(1); return !error; } },
     { id: "wallets_table", label: "Tabela credit_wallets acessível", category: "Banco", check: async () => { const { error } = await supabase.from("credit_wallets").select("id", { head: true }).limit(1); return !error; } },
 
-    // Stripe / Edge Functions
-    { id: "checkout_fn", label: "Edge function create-checkout responde", category: "Stripe", check: async () => { try { const { error } = await supabase.functions.invoke("create-checkout", { body: {} }); return true; } catch { return false; } } },
-    { id: "portal_fn", label: "Edge function customer-portal responde", category: "Stripe", check: async () => { try { const { error } = await supabase.functions.invoke("customer-portal", { body: {} }); return true; } catch { return false; } } },
-    { id: "validate_coupon_fn", label: "Edge function validate-coupon responde", category: "Stripe", check: async () => { try { await supabase.functions.invoke("validate-coupon", { body: { code: "TEST" } }); return true; } catch { return false; } } },
+    // Asaas / Edge Functions
+    { id: "asaas_sub_fn", label: "Edge function create-asaas-subscription responde", category: "Asaas", check: async () => { try { await supabase.functions.invoke("create-asaas-subscription", { body: {} }); return true; } catch { return false; } } },
+    { id: "asaas_payment_fn", label: "Edge function create-asaas-payment responde", category: "Asaas", check: async () => { try { await supabase.functions.invoke("create-asaas-payment", { body: {} }); return true; } catch { return false; } } },
+    { id: "validate_coupon_fn", label: "Edge function validate-coupon responde", category: "Asaas", check: async () => { try { await supabase.functions.invoke("validate-coupon", { body: { code: "TEST" } }); return true; } catch { return false; } } },
 
     // Auth
     { id: "auth_session", label: "Sessão de autenticação ativa", category: "Auth", check: async () => { const { data } = await supabase.auth.getSession(); return !!data.session; } },
