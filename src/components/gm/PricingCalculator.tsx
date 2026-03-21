@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import {
   Calculator, Zap, TrendingUp, Target, Users, Clock, DollarSign,
-  Monitor, Home, RefreshCw, Star, ChevronRight
+  Monitor, Home, RefreshCw, Star, ChevronRight, Store, Split
 } from "lucide-react";
 
 type MesaType = "one_shot" | "campaign" | "event" | "solo";
@@ -39,7 +39,6 @@ const productionLabels: Record<ProductionLevel, string> = {
   luxury: "Alta Curadoria",
 };
 
-// Market reference multipliers
 const mesaTypeMultiplier: Record<MesaType, number> = {
   campaign: 1.0,
   one_shot: 1.15,
@@ -69,10 +68,11 @@ const productionMultiplier: Record<ProductionLevel, number> = {
 
 // Asaas fee references (Brazil)
 const ASAAS_CARD_PERCENT = 2.99;
-const ASAAS_CARD_FIXED_BRL = 0.0;
 const ASAAS_PIX_PERCENT = 1.99;
-const ASAAS_PIX_FIXED_BRL = 0.0;
 const ASAAS_BOLETO_FIXED_BRL = 1.99;
+
+// Platform split
+const PLATFORM_FEE = 5; // 5% platform split
 
 interface CalculatorState {
   prepHours: number;
@@ -86,10 +86,8 @@ interface CalculatorState {
   monthlyGoal: number;
   mesasPerMonth: number;
   extraCosts: number;
-  platformFee: number;
+  hasStore: boolean; // mesa is in a store (split 50/50 with store)
 }
-
-const PLATFORM_FEE = 5; // Fixed 5% platform split
 
 const defaultState: CalculatorState = {
   prepHours: 2,
@@ -103,20 +101,17 @@ const defaultState: CalculatorState = {
   monthlyGoal: 2000,
   mesasPerMonth: 4,
   extraCosts: 0,
-  platformFee: PLATFORM_FEE,
   hasStore: false,
 };
 
 const presets = [
   { label: "Campanha Online", icon: Monitor, state: { ...defaultState, mesaType: "campaign" as MesaType, format: "online" as Format, hourlyRate: 35, players: 5 } },
-  { label: "One-Shot Presencial", icon: Home, state: { ...defaultState, mesaType: "one_shot" as MesaType, format: "presencial" as Format, hourlyRate: 40, players: 5, extraCosts: 20 } },
+  { label: "One-Shot Presencial", icon: Home, state: { ...defaultState, mesaType: "one_shot" as MesaType, format: "presencial" as Format, hourlyRate: 40, players: 5, extraCosts: 20, hasStore: true } },
   { label: "Solo Premium", icon: Star, state: { ...defaultState, mesaType: "solo" as MesaType, format: "online" as Format, hourlyRate: 60, players: 1, production: "premium" as ProductionLevel } },
 ];
 
 interface PricingCalculatorProps {
-  /** When provided, shows "Usar preço" buttons that apply min/max to a form */
   onApplyPrice?: (min: number, max: number) => void;
-  /** If true, renders in a compact mode (no goal tracker) */
   compact?: boolean;
 }
 
@@ -132,10 +127,9 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
   const results = useMemo(() => {
     const totalHours = state.prepHours + state.sessionHours;
     const baseCost = totalHours * state.hourlyRate + state.extraCosts;
-    const withFee = baseCost * (1 + state.platformFee / 100);
+    const withFee = baseCost * (1 + PLATFORM_FEE / 100);
 
-    // Market-adjusted price per player
-    const marketBase = 35; // R$35 base reference
+    const marketBase = 35;
     const adjusted = marketBase
       * mesaTypeMultiplier[state.mesaType]
       * formatMultiplier[state.format]
@@ -149,24 +143,28 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
     const market = Math.round(suggested);
     const premium = Math.round(suggested * 1.25);
 
-    const revenuePerMesa = market * state.players;
+    const totalPerMesa = market * state.players;
 
-    // Fee simulations per player at market price
-    const cardFeePerPlayer = +(market * STRIPE_CARD_PERCENT / 100 + STRIPE_CARD_FIXED_BRL).toFixed(2);
-    const pixFeePerPlayer = +(market * STRIPE_PIX_PERCENT / 100 + STRIPE_PIX_FIXED_BRL).toFixed(2);
-    const platformFeePerPlayer = +(market * state.platformFee / 100).toFixed(2);
+    // Split calculation
+    const platformCut = +(totalPerMesa * PLATFORM_FEE / 100).toFixed(2);
+    const sellerPool = +(totalPerMesa - platformCut).toFixed(2);
+    const gmShare = state.hasStore ? +(sellerPool * 0.5).toFixed(2) : sellerPool;
+    const storeShare = state.hasStore ? +(sellerPool - gmShare).toFixed(2) : 0;
 
-    const netPerPlayerCard = +(market - cardFeePerPlayer - platformFeePerPlayer).toFixed(2);
-    const netPerPlayerPix = +(market - pixFeePerPlayer - platformFeePerPlayer).toFixed(2);
+    // Asaas fee (charged from total before split)
+    const asaasFeePix = +(totalPerMesa * ASAAS_PIX_PERCENT / 100).toFixed(2);
+    const asaasFeeCard = +(totalPerMesa * ASAAS_CARD_PERCENT / 100).toFixed(2);
 
-    const monthlyRevenue = revenuePerMesa * state.mesasPerMonth;
+    // Net GM receives (after all fees)
+    const netGmPix = +(gmShare - (state.hasStore ? asaasFeePix * 0.5 : asaasFeePix)).toFixed(2);
+    const netGmCard = +(gmShare - (state.hasStore ? asaasFeeCard * 0.5 : asaasFeeCard)).toFixed(2);
 
+    const netPerPlayerPix = +(netGmPix / Math.max(state.players, 1)).toFixed(2);
+    const netPerPlayerCard = +(netGmCard / Math.max(state.players, 1)).toFixed(2);
+
+    const monthlyRevenue = Math.round(netGmPix * state.mesasPerMonth);
     const mesasToGoal = state.monthlyGoal > 0
-      ? Math.ceil(state.monthlyGoal / Math.max(revenuePerMesa, 1))
-      : 0;
-
-    const occupancyForGoal = state.mesasPerMonth > 0
-      ? Math.min(Math.round((mesasToGoal / state.mesasPerMonth) * 100), 100)
+      ? Math.ceil(state.monthlyGoal / Math.max(netGmPix, 1))
       : 0;
 
     return {
@@ -175,17 +173,19 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
       conservative,
       market,
       premium,
-      revenuePerMesa: Math.round(revenuePerMesa),
-      monthlyRevenue: Math.round(monthlyRevenue),
-      mesasToGoal,
-      occupancyForGoal,
-      totalHours,
-      withFee: Math.round(withFee),
-      cardFeePerPlayer,
-      pixFeePerPlayer,
-      platformFeePerPlayer,
+      totalPerMesa,
+      platformCut,
+      gmShare,
+      storeShare,
+      asaasFeePix,
+      asaasFeeCard,
+      netGmPix,
+      netGmCard,
       netPerPlayerCard,
       netPerPlayerPix,
+      monthlyRevenue,
+      mesasToGoal,
+      totalHours,
     };
   }, [state]);
 
@@ -198,10 +198,10 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
       <div>
         <h2 className="text-lg font-display font-semibold text-foreground flex items-center gap-2">
           <Calculator className="h-5 w-5 text-primary" />
-          Calculadora de Preço + Meta
+          Calculadora de Preço + Split
         </h2>
         <p className="text-xs text-muted-foreground mt-1">
-          Defina seu preço com base no mercado e acompanhe sua meta de ganho.
+          Veja exatamente quanto você recebe por mesa, com split automático e taxas reais.
         </p>
       </div>
 
@@ -226,7 +226,6 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         {/* Inputs */}
         <div className="p-6 space-y-5">
-          {/* Row 1: Basic inputs */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <CalcInput label="Prep (horas)" value={state.prepHours} onChange={(v) => update({ prepHours: v })} min={0} max={20} suffix="h" />
             <CalcInput label="Sessão (horas)" value={state.sessionHours} onChange={(v) => update({ sessionHours: v })} min={1} max={12} suffix="h" />
@@ -234,7 +233,6 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             <CalcInput label="Jogadores" value={state.players} onChange={(v) => update({ players: v })} min={1} max={12} />
           </div>
 
-          {/* Row 2: Type selectors */}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <SelectField label="Tipo da mesa" value={state.mesaType} options={mesaTypeLabels} onChange={(v) => update({ mesaType: v as MesaType })} />
             <SelectField label="Formato" value={state.format} options={formatLabels} onChange={(v) => update({ format: v as Format })} />
@@ -242,35 +240,27 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             <SelectField label="Produção" value={state.production} options={productionLabels} onChange={(v) => update({ production: v as ProductionLevel })} />
           </div>
 
-          {/* Row 3: Goals */}
           <div className="grid gap-4 sm:grid-cols-3">
             <CalcInput label="Meta mensal" value={state.monthlyGoal} onChange={(v) => update({ monthlyGoal: v })} min={0} max={50000} prefix="R$" />
             <CalcInput label="Mesas/mês" value={state.mesasPerMonth} onChange={(v) => update({ mesasPerMonth: v })} min={1} max={30} />
             <CalcInput label="Custos extras" value={state.extraCosts} onChange={(v) => update({ extraCosts: v })} min={0} max={1000} prefix="R$" />
           </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
-              <span className="text-xs text-muted-foreground">Taxa HIVIUM (lançamento)</span>
-              <span className="text-sm font-semibold text-foreground">{state.platformFee}%</span>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => update({ platformFee: PLATFORM_FEE_MIN })}
-                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${state.platformFee === PLATFORM_FEE_MIN ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
-              >
-                {PLATFORM_FEE_MIN}% — Lançamento
-              </button>
-              <button
-                onClick={() => update({ platformFee: PLATFORM_FEE_MAX })}
-                className={`flex-1 rounded-lg border px-3 py-2 text-xs font-medium transition-all ${state.platformFee === PLATFORM_FEE_MAX ? "border-primary bg-primary/10 text-primary" : "border-border text-muted-foreground hover:border-primary/30"}`}
-              >
-                {PLATFORM_FEE_MAX}% — Padrão
-              </button>
-            </div>
-            <p className="text-[10px] text-muted-foreground">
-              🚀 Taxa de lançamento: apenas {PLATFORM_FEE_MIN}% nos primeiros meses. Concorrentes cobram 15–20%.
-            </p>
+          {/* Store toggle */}
+          <div className="flex items-center gap-3 rounded-lg bg-muted/40 px-4 py-3">
+            <Store className="h-4 w-4 text-muted-foreground" />
+            <label className="flex-1 text-sm text-foreground font-medium">Mesa em luderia (split 50/50)?</label>
+            <button
+              onClick={() => update({ hasStore: !state.hasStore })}
+              className={`relative h-6 w-11 rounded-full transition-colors ${state.hasStore ? "bg-primary" : "bg-muted"}`}
+            >
+              <span className={`absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white transition-transform shadow-sm ${state.hasStore ? "translate-x-5" : ""}`} />
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between rounded-lg bg-muted/40 px-4 py-2.5">
+            <span className="text-xs text-muted-foreground">Taxa HIVIUM (split da plataforma)</span>
+            <span className="text-sm font-semibold text-foreground">{PLATFORM_FEE}%</span>
           </div>
         </div>
 
@@ -286,18 +276,63 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
             </div>
           </div>
 
-          {/* Revenue estimates */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-            <MiniStat label="Mínimo sustentável" value={`R$${results.minSustainable}`} icon={<DollarSign className="h-3.5 w-3.5" />} />
-            <MiniStat label="Receita por mesa" value={`R$${results.revenuePerMesa}`} icon={<Users className="h-3.5 w-3.5" />} />
-            <MiniStat label="Receita estimada/mês" value={`R$${results.monthlyRevenue}`} icon={<TrendingUp className="h-3.5 w-3.5" />} />
-            <MiniStat label="Mesas para a meta" value={`${results.mesasToGoal}`} icon={<Target className="h-3.5 w-3.5" />} />
+          {/* ── Split Breakdown ── */}
+          <div className="rounded-xl border border-primary/20 bg-card p-5 space-y-4">
+            <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-2">
+              <Split className="h-3.5 w-3.5" />
+              Divisão do pagamento (preço Mercado × {state.players} jogadores = R${results.totalPerMesa})
+            </h3>
+
+            {/* Visual split bar */}
+            <div className="h-6 rounded-full overflow-hidden flex">
+              <div
+                className="bg-primary flex items-center justify-center text-[9px] font-bold text-primary-foreground"
+                style={{ width: `${(results.gmShare / results.totalPerMesa) * 100}%` }}
+              >
+                Mestre
+              </div>
+              {state.hasStore && (
+                <div
+                  className="bg-secondary flex items-center justify-center text-[9px] font-bold text-secondary-foreground"
+                  style={{ width: `${(results.storeShare / results.totalPerMesa) * 100}%` }}
+                >
+                  Luderia
+                </div>
+              )}
+              <div
+                className="bg-muted-foreground/30 flex items-center justify-center text-[9px] font-bold text-foreground"
+                style={{ width: `${(results.platformCut / results.totalPerMesa) * 100}%` }}
+              >
+                HIVIUM
+              </div>
+            </div>
+
+            <div className="grid gap-2 text-sm">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">💰 Total cobrado</span>
+                <span className="font-semibold text-foreground">R${results.totalPerMesa.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">🎯 HIVIUM ({PLATFORM_FEE}%)</span>
+                <span className="font-medium text-destructive">-R${results.platformCut.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-primary font-medium">🎲 Mestre recebe{state.hasStore ? " (50%)" : ""}</span>
+                <span className="font-bold text-primary">R${results.gmShare.toFixed(2)}</span>
+              </div>
+              {state.hasStore && (
+                <div className="flex justify-between items-center">
+                  <span className="text-secondary font-medium">🏪 Luderia recebe (50%)</span>
+                  <span className="font-bold text-secondary">R${results.storeShare.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Payment method fee breakdown */}
           <div className="rounded-xl border border-border bg-card p-5 space-y-3">
             <h3 className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">
-              Taxas por método de pagamento (preço Mercado: R${results.market})
+              Taxas de processamento (Asaas) — o que o Mestre recebe no bolso
             </h3>
             <div className="grid gap-3 sm:grid-cols-2">
               {/* Card */}
@@ -307,12 +342,13 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
                     <DollarSign className="h-3.5 w-3.5" />
                   </div>
                   <span className="text-sm font-semibold text-foreground">Cartão</span>
-                  <Badge variant="outline" className="ml-auto text-[10px]">{STRIPE_CARD_PERCENT}% + R${STRIPE_CARD_FIXED_BRL.toFixed(2)}</Badge>
+                  <Badge variant="outline" className="ml-auto text-[10px]">{ASAAS_CARD_PERCENT}%</Badge>
                 </div>
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex justify-between"><span>Taxa Stripe</span><span className="text-foreground">-R${results.cardFeePerPlayer}</span></div>
-                  <div className="flex justify-between"><span>Taxa Plataforma ({state.platformFee}%)</span><span className="text-foreground">-R${results.platformFeePerPlayer}</span></div>
-                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Você recebe</span><span className="text-primary">R${results.netPerPlayerCard}/jogador</span></div>
+                  <div className="flex justify-between"><span>Taxa Asaas</span><span className="text-foreground">-R${results.asaasFeeCard.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span>Split HIVIUM ({PLATFORM_FEE}%)</span><span className="text-foreground">-R${results.platformCut.toFixed(2)}</span></div>
+                  {state.hasStore && <div className="flex justify-between"><span>Split Luderia (50%)</span><span className="text-foreground">-R${results.storeShare.toFixed(2)}</span></div>}
+                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Mestre recebe</span><span className="text-primary">R${results.netGmCard.toFixed(2)}</span></div>
                 </div>
               </div>
               {/* PIX */}
@@ -322,16 +358,25 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
                     <Zap className="h-3.5 w-3.5" />
                   </div>
                   <span className="text-sm font-semibold text-foreground">PIX</span>
-                  <Badge variant="default" className="ml-auto text-[10px]">{STRIPE_PIX_PERCENT}%</Badge>
+                  <Badge variant="default" className="ml-auto text-[10px]">{ASAAS_PIX_PERCENT}%</Badge>
                 </div>
                 <div className="space-y-1 text-xs text-muted-foreground">
-                  <div className="flex justify-between"><span>Taxa Stripe</span><span className="text-foreground">-R${results.pixFeePerPlayer}</span></div>
-                  <div className="flex justify-between"><span>Taxa Plataforma ({state.platformFee}%)</span><span className="text-foreground">-R${results.platformFeePerPlayer}</span></div>
-                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Você recebe</span><span className="text-primary">R${results.netPerPlayerPix}/jogador</span></div>
+                  <div className="flex justify-between"><span>Taxa Asaas</span><span className="text-foreground">-R${results.asaasFeePix.toFixed(2)}</span></div>
+                  <div className="flex justify-between"><span>Split HIVIUM ({PLATFORM_FEE}%)</span><span className="text-foreground">-R${results.platformCut.toFixed(2)}</span></div>
+                  {state.hasStore && <div className="flex justify-between"><span>Split Luderia (50%)</span><span className="text-foreground">-R${results.storeShare.toFixed(2)}</span></div>}
+                  <div className="flex justify-between border-t border-border pt-1.5 font-semibold"><span className="text-foreground">Mestre recebe</span><span className="text-primary">R${results.netGmPix.toFixed(2)}</span></div>
                 </div>
                 <p className="text-[10px] text-primary font-medium">💡 PIX = menor taxa → mais lucro!</p>
               </div>
             </div>
+          </div>
+
+          {/* Revenue estimates */}
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <MiniStat label="Mínimo sustentável" value={`R$${results.minSustainable}`} icon={<DollarSign className="h-3.5 w-3.5" />} />
+            <MiniStat label="Mestre recebe/mesa (PIX)" value={`R$${results.netGmPix.toFixed(0)}`} icon={<Users className="h-3.5 w-3.5" />} />
+            <MiniStat label="Receita estimada/mês" value={`R$${results.monthlyRevenue}`} icon={<TrendingUp className="h-3.5 w-3.5" />} />
+            <MiniStat label="Mesas para a meta" value={`${results.mesasToGoal}`} icon={<Target className="h-3.5 w-3.5" />} />
           </div>
 
           {!compact && state.monthlyGoal > 0 && (
@@ -341,7 +386,7 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
                   <Target className="h-4 w-4 text-primary" />
                   Meta do Mês
                 </h3>
-                <Badge variant={goalProgress >= 100 ? "premium" : "default"}>
+                <Badge variant={goalProgress >= 100 ? "default" : "outline"}>
                   {goalProgress}%
                 </Badge>
               </div>
@@ -351,15 +396,10 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
                 <span>Meta: R${state.monthlyGoal}</span>
               </div>
               {goalProgress >= 100 && (
-                <div className="flex items-center gap-2 rounded-lg bg-success/10 border border-success/20 px-3 py-2">
-                  <Zap className="h-3.5 w-3.5 text-success" />
-                  <span className="text-xs text-success font-medium">Parabéns! Projeção acima da meta! 🎉</span>
+                <div className="flex items-center gap-2 rounded-lg bg-primary/10 border border-primary/20 px-3 py-2">
+                  <Zap className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-xs text-primary font-medium">Parabéns! Projeção acima da meta! 🎉</span>
                 </div>
-              )}
-              {goalProgress < 100 && goalProgress > 0 && (
-                <p className="text-xs text-muted-foreground">
-                  Faltam <strong className="text-foreground">{results.mesasToGoal - state.mesasPerMonth > 0 ? results.mesasToGoal - state.mesasPerMonth : 0} mesas lotadas</strong> ou aumento de preço para atingir a meta.
-                </p>
               )}
             </div>
           )}
@@ -367,20 +407,17 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
           {/* Value Proposition */}
           <div className="rounded-xl border border-primary/20 bg-primary/5 p-5 space-y-4">
             <h3 className="text-sm font-display font-semibold text-foreground">
-              💎 Por que pagar pela HIVIUM?
+              💎 Por que a HIVIUM é a melhor opção?
             </h3>
             <div className="space-y-3 text-xs text-muted-foreground leading-relaxed">
               <p>
-                <strong className="text-foreground">Menor custo do mercado.</strong> Plataformas concorrentes cobram de 15% a 20% por mesa vendida. A HIVIUM cobra apenas <strong className="text-primary">{PLATFORM_FEE_MIN}–{PLATFORM_FEE_MAX}%</strong> de taxa de intermediação — até 5x menos que a concorrência.
+                <strong className="text-foreground">Split automático.</strong> O valor da reserva é dividido automaticamente entre Mestre, Luderia e Plataforma. Sem burocracia, sem repasses manuais. Tudo transparente.
               </p>
               <p>
-                <strong className="text-foreground">Mais ferramentas, mais autonomia.</strong> Com a assinatura você acessa CRM de jogadores, calculadora de precificação inteligente, automação de reservas, analytics de desempenho, campanhas de destaque e estúdio IA — tudo integrado em um lugar só. Nenhum concorrente entrega esse nível de ferramenta por esse preço.
+                <strong className="text-foreground">Menor custo do mercado.</strong> Concorrentes cobram de 15% a 20% por mesa. A HIVIUM cobra apenas <strong className="text-primary">{PLATFORM_FEE}%</strong> — até 4x menos.
               </p>
               <p>
-                <strong className="text-foreground">Você ganha mais por mesa.</strong> Compare: em outras plataformas, uma mesa de R$50/jogador com 5 jogadores te deixa com R$200–R$212. Na HIVIUM com PIX, você recebe até <strong className="text-primary">R${(50 * 5 * (1 - PLATFORM_FEE_MIN / 100 - STRIPE_PIX_PERCENT / 100)).toFixed(0)}</strong> — quase R$40 a mais por sessão.
-              </p>
-              <p>
-                <strong className="text-foreground">Assinatura que se paga sozinha.</strong> O plano Pro custa R$19,90/mês. Com 1 mesa paga você já recupera o investimento. Toda mesa adicional é lucro direto no seu bolso.
+                <strong className="text-foreground">Taxas de pagamento competitivas.</strong> PIX a {ASAAS_PIX_PERCENT}% e Cartão a {ASAAS_CARD_PERCENT}%. Sem taxas fixas escondidas.
               </p>
             </div>
 
@@ -392,14 +429,14 @@ export function PricingCalculator({ onApplyPrice, compact }: PricingCalculatorPr
               </div>
               <div className="rounded-lg border border-primary/30 bg-primary/10 p-3 text-center">
                 <p className="text-[10px] text-primary uppercase tracking-wider font-medium">HIVIUM</p>
-                <p className="text-lg font-bold text-primary">{PLATFORM_FEE_MIN}–{PLATFORM_FEE_MAX}%</p>
-                <p className="text-[10px] text-muted-foreground">taxa por mesa</p>
+                <p className="text-lg font-bold text-primary">{PLATFORM_FEE}%</p>
+                <p className="text-[10px] text-muted-foreground">split fixo</p>
               </div>
             </div>
           </div>
 
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            Referência de mercado: R$30–40/jogador/sessão (campanha online). Ajuste conforme formato, curadoria e experiência. Valores são estimativas — adapte ao seu contexto.
+            Referência de mercado: R$30–40/jogador/sessão (campanha online). Valores são estimativas — adapte ao seu contexto. Taxas de processamento Asaas podem variar conforme negociação.
           </p>
         </div>
       </div>
