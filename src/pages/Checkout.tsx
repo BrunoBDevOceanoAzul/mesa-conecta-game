@@ -203,7 +203,7 @@ export default function Checkout() {
     const intervals: BillingInterval[] = ["monthly"];
     const suffixes: BillingInterval[] = ["quarterly", "semiannual", "annual"];
     for (const s of suffixes) {
-      if (plans.some((p) => p.code === `${selectedBase.code}_${s}` && p.stripe_price_id)) {
+      if (plans.some((p) => p.code === `${selectedBase.code}_${s}`)) {
         intervals.push(s);
       }
     }
