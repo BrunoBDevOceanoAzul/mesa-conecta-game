@@ -18,12 +18,16 @@ serve(async (req) => {
   );
 
   try {
-    const apiKey = Deno.env.get("ASAAS_API_KEY");
-    if (!apiKey) throw new Error("ASAAS_API_KEY not set");
+    // Prefer sandbox key for testing, fallback to main key
+    const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
+    const mainKey = Deno.env.get("ASAAS_API_KEY");
+    const apiKey = sandboxKey || mainKey;
+    if (!apiKey) throw new Error("No Asaas API key set");
 
-    const ASAAS_BASE = apiKey.startsWith("$aact_")
-      ? "https://api.asaas.com/v3"
-      : "https://sandbox.asaas.com/api/v3";
+    // Sandbox key → sandbox URL, production key → production URL
+    const ASAAS_BASE = sandboxKey
+      ? "https://sandbox.asaas.com/api/v3"
+      : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
 
     // Fetch all active billing products
     const { data: products, error } = await supabase
