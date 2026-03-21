@@ -69,6 +69,70 @@ export interface SubscriptionState {
   changePlan: (planCode: string) => Promise<boolean>;
 }
 
+/* ─── Map billing_products row → Plan interface ─── */
+function toBillingPlan(bp: any): Plan {
+  return {
+    id: bp.id,
+    code: bp.code,
+    role: bp.target_role || "player",
+    name: bp.name,
+    description: bp.description,
+    price_monthly: bp.price_cents,
+    stripe_price_id: bp.stripe_price_id,
+    feature_flags: bp.feature_flags,
+    sort_order: bp.sort_order ?? 99,
+  };
+}
+
+/* ─── Map asaas_subscriptions row → Subscription interface ─── */
+function toSubscription(row: any, plan?: Plan | null): Subscription {
+  const nextDue = row.next_due_date ? new Date(row.next_due_date) : null;
+  const createdAt = new Date(row.created_at);
+  // Estimate period start as created_at (or last payment)
+  const periodStart = createdAt.toISOString();
+  // Estimate period end as next_due_date or +30d
+  const periodEnd = nextDue
+    ? nextDue.toISOString()
+    : new Date(createdAt.getTime() + 30 * 86400000).toISOString();
+
+  return {
+    id: row.id,
+    plan_id: row.billing_product_id,
+    plan_name: plan?.name || row.description || "Assinatura",
+    plan_role: plan?.role || "player",
+    status: row.status === "ACTIVE" ? "active"
+      : row.status === "PENDING" ? "pending"
+      : row.status === "OVERDUE" ? "past_due"
+      : row.status === "CANCELLED" || row.status === "EXPIRED" ? "canceled"
+      : row.status,
+    price_cents: row.amount_cents,
+    current_period_start: periodStart,
+    current_period_end: periodEnd,
+    cancel_at_period_end: !!row.canceled_at,
+    canceled_at: row.canceled_at,
+    created_at: row.created_at,
+    stripe_subscription_id: row.asaas_id,
+  };
+}
+
+/* ─── Map asaas_payments row → Payment interface ─── */
+function toPayment(row: any): Payment {
+  return {
+    id: row.id,
+    amount: row.amount_cents,
+    currency: row.currency || "BRL",
+    status: row.status === "CONFIRMED" || row.status === "RECEIVED" ? "paid"
+      : row.status === "REFUNDED" ? "refunded"
+      : row.status === "OVERDUE" ? "failed"
+      : row.status === "PENDING" || row.status === "AWAITING_RISK_ANALYSIS" ? "pending"
+      : row.status.toLowerCase(),
+    payment_type: row.billing_type || "PIX",
+    description: row.description,
+    paid_at: row.paid_at,
+    created_at: row.created_at,
+  };
+}
+
 export function useSubscription(): SubscriptionState {
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
@@ -80,45 +144,57 @@ export function useSubscription(): SubscriptionState {
   const [inTrial, setInTrial] = useState(false);
 
   const fetchData = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+    if (!user) { setLoading(false); return; }
 
-    const [profileRes, subRes, plansRes, paymentsRes, trialRes] = await Promise.all([
+    const [profileRes, subRes, productsRes, paymentsRes, trialRes] = await Promise.all([
       supabase.from("profiles").select("role").eq("user_id", user.id).maybeSingle(),
-      supabase.from("subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
-      supabase.from("plans").select("*").eq("is_active", true).order("sort_order"),
-      supabase.from("payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
+      supabase.from("asaas_subscriptions").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(1).maybeSingle(),
+      supabase.from("billing_products").select("*").eq("is_active", true).eq("product_type", "subscription").order("sort_order"),
+      supabase.from("asaas_payments").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(20),
       supabase.rpc("get_trial_status", { _user_id: user.id }),
     ]);
 
     setUserRole(profileRes.data?.role || null);
-    setAllPlans((plansRes.data || []) as unknown as Plan[]);
+
+    const products = (productsRes.data || []).map(toBillingPlan);
+    setAllPlans(products);
+
     const trialData = trialRes.data as { in_trial?: boolean } | null;
     setInTrial(!!trialData?.in_trial);
-    setPayments((paymentsRes.data as Payment[]) || []);
 
-    const sub = subRes.data as Subscription | null;
-    setSubscription(sub);
+    setPayments((paymentsRes.data || []).map(toPayment));
 
-    if (sub?.plan_id) {
-      const matchedPlan = (plansRes.data || []).find((p: any) => p.id === sub.plan_id);
-      setPlan((matchedPlan as unknown as Plan) || null);
-    } else if (sub?.plan_name) {
-      const matchedPlan = (plansRes.data || []).find((p: any) => p.name === sub.plan_name);
-      setPlan((matchedPlan as unknown as Plan) || null);
+    const subRow = subRes.data;
+    if (subRow) {
+      const matchedPlan = products.find((p) => p.id === subRow.billing_product_id) || null;
+      setPlan(matchedPlan);
+      setSubscription(toSubscription(subRow, matchedPlan));
     } else {
-      setPlan(null);
+      // Fallback: check old subscriptions table for backwards compat
+      const { data: legacySub } = await supabase
+        .from("subscriptions")
+        .select("*")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      if (legacySub) {
+        const lp = products.find((p) => p.id === legacySub.plan_id || p.name === legacySub.plan_name) || null;
+        setPlan(lp);
+        setSubscription(legacySub as Subscription);
+      } else {
+        setPlan(null);
+        setSubscription(null);
+      }
     }
 
     setLoading(false);
   }, [user]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
+  // ─── Derived state ───
   const now = new Date();
   const periodEnd = subscription?.current_period_end ? new Date(subscription.current_period_end) : null;
   const isActive = inTrial || (!!subscription && subscription.status === "active" && !!periodEnd && periodEnd > now);
@@ -147,62 +223,46 @@ export function useSubscription(): SubscriptionState {
 
   const featureFlags = (plan?.feature_flags as Record<string, unknown>) || {};
 
-  // ─── Subscribe via Stripe Checkout ───
-  const subscribe = useCallback(async (planCode: string, couponCode?: string): Promise<boolean> => {
+  // ─── Subscribe via Asaas ───
+  const subscribe = useCallback(async (planCode: string, _couponCode?: string): Promise<boolean> => {
     if (!user) return false;
-
     try {
-      const { data, error } = await supabase.functions.invoke("create-checkout", {
-        body: { plan_code: planCode, coupon_code: couponCode },
+      const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
+        body: { product_code: planCode },
       });
-
       if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-        return true;
-      }
-      return false;
+      // Refresh after creation
+      await fetchData();
+      return true;
     } catch (err) {
-      console.error("Checkout error:", err);
+      console.error("Asaas subscription error:", err);
       return false;
     }
-  }, [user]);
+  }, [user, fetchData]);
 
-  // ─── Open Stripe Customer Portal ───
+  // ─── No external portal — redirect to billing page ───
   const openCustomerPortal = useCallback(async (): Promise<boolean> => {
-    if (!user) return false;
+    window.location.href = "/billing";
+    return true;
+  }, []);
 
-    try {
-      const { data, error } = await supabase.functions.invoke("customer-portal", {
-        body: {},
-      });
-
-      if (error) throw error;
-      if (data?.url) {
-        window.open(data.url, "_blank");
-        return true;
-      }
-      return false;
-    } catch (err) {
-      console.error("Customer portal error:", err);
-      return false;
-    }
-  }, [user]);
-
-  // ─── Cancel via Customer Portal ───
   const cancelSubscription = useCallback(async (): Promise<boolean> => {
-    return openCustomerPortal();
-  }, [openCustomerPortal]);
+    if (!subscription?.stripe_subscription_id) return false;
+    // TODO: implement cancel-asaas-subscription edge function
+    console.warn("Cancel not yet implemented for Asaas");
+    return false;
+  }, [subscription]);
 
-  // ─── Reactivate via Customer Portal ───
   const reactivateSubscription = useCallback(async (): Promise<boolean> => {
-    return openCustomerPortal();
-  }, [openCustomerPortal]);
+    // TODO: implement reactivation
+    console.warn("Reactivate not yet implemented for Asaas");
+    return false;
+  }, []);
 
-  // ─── Change plan via Customer Portal ───
   const changePlan = useCallback(async (_planCode: string): Promise<boolean> => {
-    return openCustomerPortal();
-  }, [openCustomerPortal]);
+    // Change plan = create new subscription, cancel old
+    return subscribe(_planCode);
+  }, [subscribe]);
 
   return {
     loading,
