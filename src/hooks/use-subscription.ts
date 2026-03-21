@@ -228,7 +228,7 @@ export function useSubscription(): SubscriptionState {
     if (!user) return false;
     try {
       const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
-        body: { product_code: planCode },
+        body: { plan_code: planCode },
       });
       if (error) throw error;
       // Refresh after creation
