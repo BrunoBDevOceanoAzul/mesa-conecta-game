@@ -139,12 +139,28 @@ export default function Checkout() {
   // Fetch plans
   useEffect(() => {
     supabase
-      .from("plans")
-      .select("id, code, role, name, description, price_monthly, price_amount, feature_flags, sort_order, trial_days, billing_interval, interval_count, stripe_price_id, is_founder_plan")
+      .from("billing_products")
+      .select("*")
       .eq("is_active", true)
+      .eq("product_type", "subscription")
       .order("sort_order")
       .then(({ data }) => {
-        const fetched = (data as unknown as DBPlan[]) || [];
+        const fetched = (data || []).map((bp: any) => ({
+          id: bp.id,
+          code: bp.code,
+          role: bp.target_role || "player",
+          name: bp.name,
+          description: bp.description,
+          price_monthly: bp.price_cents,
+          price_amount: bp.price_cents,
+          feature_flags: bp.feature_flags || {},
+          sort_order: bp.sort_order ?? 99,
+          trial_days: null,
+          billing_interval: bp.billing_cycle || "monthly",
+          interval_count: 1,
+          stripe_price_id: bp.stripe_price_id,
+          is_founder_plan: false,
+        })) as DBPlan[];
         setPlans(fetched);
         setLoading(false);
 
