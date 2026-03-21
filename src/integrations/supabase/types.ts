@@ -164,6 +164,349 @@ export type Database = {
         }
         Relationships: []
       }
+      asaas_accounts: {
+        Row: {
+          account_type: string
+          address_json: Json | null
+          api_key: string | null
+          asaas_id: string | null
+          bank_account_status: string | null
+          capabilities_json: Json | null
+          commercial_info_status: string | null
+          company_type: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          documents_status: string | null
+          email: string | null
+          general_status: string | null
+          id: string
+          income_value: number | null
+          metadata_json: Json | null
+          mobile_phone: string | null
+          name: string
+          onboarding_status: string
+          person_type: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+          wallet_id: string | null
+        }
+        Insert: {
+          account_type?: string
+          address_json?: Json | null
+          api_key?: string | null
+          asaas_id?: string | null
+          bank_account_status?: string | null
+          capabilities_json?: Json | null
+          commercial_info_status?: string | null
+          company_type?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          documents_status?: string | null
+          email?: string | null
+          general_status?: string | null
+          id?: string
+          income_value?: number | null
+          metadata_json?: Json | null
+          mobile_phone?: string | null
+          name: string
+          onboarding_status?: string
+          person_type?: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          wallet_id?: string | null
+        }
+        Update: {
+          account_type?: string
+          address_json?: Json | null
+          api_key?: string | null
+          asaas_id?: string | null
+          bank_account_status?: string | null
+          capabilities_json?: Json | null
+          commercial_info_status?: string | null
+          company_type?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          documents_status?: string | null
+          email?: string | null
+          general_status?: string | null
+          id?: string
+          income_value?: number | null
+          metadata_json?: Json | null
+          mobile_phone?: string | null
+          name?: string
+          onboarding_status?: string
+          person_type?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          wallet_id?: string | null
+        }
+        Relationships: []
+      }
+      asaas_customers: {
+        Row: {
+          address_json: Json | null
+          asaas_id: string | null
+          cpf_cnpj: string | null
+          created_at: string
+          email: string | null
+          id: string
+          metadata_json: Json | null
+          mobile_phone: string | null
+          name: string
+          notifications_disabled: boolean | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address_json?: Json | null
+          asaas_id?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata_json?: Json | null
+          mobile_phone?: string | null
+          name: string
+          notifications_disabled?: boolean | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address_json?: Json | null
+          asaas_id?: string | null
+          cpf_cnpj?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          metadata_json?: Json | null
+          mobile_phone?: string | null
+          name?: string
+          notifications_disabled?: boolean | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      asaas_payments: {
+        Row: {
+          amount_cents: number
+          asaas_id: string | null
+          asaas_subscription_id: string | null
+          bank_slip_url: string | null
+          billing_product_id: string | null
+          billing_type: string
+          booking_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          due_date: string | null
+          external_reference: string | null
+          id: string
+          invoice_url: string | null
+          mesa_id: string | null
+          metadata_json: Json | null
+          net_amount_cents: number | null
+          paid_at: string | null
+          payment_date: string | null
+          pix_copy_paste: string | null
+          pix_qr_code: string | null
+          refund_reason: string | null
+          refunded_at: string | null
+          split_json: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          asaas_id?: string | null
+          asaas_subscription_id?: string | null
+          bank_slip_url?: string | null
+          billing_product_id?: string | null
+          billing_type?: string
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          external_reference?: string | null
+          id?: string
+          invoice_url?: string | null
+          mesa_id?: string | null
+          metadata_json?: Json | null
+          net_amount_cents?: number | null
+          paid_at?: string | null
+          payment_date?: string | null
+          pix_copy_paste?: string | null
+          pix_qr_code?: string | null
+          refund_reason?: string | null
+          refunded_at?: string | null
+          split_json?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          asaas_id?: string | null
+          asaas_subscription_id?: string | null
+          bank_slip_url?: string | null
+          billing_product_id?: string | null
+          billing_type?: string
+          booking_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          due_date?: string | null
+          external_reference?: string | null
+          id?: string
+          invoice_url?: string | null
+          mesa_id?: string | null
+          metadata_json?: Json | null
+          net_amount_cents?: number | null
+          paid_at?: string | null
+          payment_date?: string | null
+          pix_copy_paste?: string | null
+          pix_qr_code?: string | null
+          refund_reason?: string | null
+          refunded_at?: string | null
+          split_json?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_payments_billing_product_id_fkey"
+            columns: ["billing_product_id"]
+            isOneToOne: false
+            referencedRelation: "billing_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_subscriptions: {
+        Row: {
+          amount_cents: number
+          asaas_id: string | null
+          billing_product_id: string | null
+          billing_type: string
+          canceled_at: string | null
+          created_at: string
+          currency: string
+          cycle: string
+          description: string | null
+          discount_json: Json | null
+          end_date: string | null
+          external_reference: string | null
+          fine_json: Json | null
+          id: string
+          interest_json: Json | null
+          max_payments: number | null
+          metadata_json: Json | null
+          next_due_date: string | null
+          split_json: Json | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_cents: number
+          asaas_id?: string | null
+          billing_product_id?: string | null
+          billing_type?: string
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string
+          cycle?: string
+          description?: string | null
+          discount_json?: Json | null
+          end_date?: string | null
+          external_reference?: string | null
+          fine_json?: Json | null
+          id?: string
+          interest_json?: Json | null
+          max_payments?: number | null
+          metadata_json?: Json | null
+          next_due_date?: string | null
+          split_json?: Json | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_cents?: number
+          asaas_id?: string | null
+          billing_product_id?: string | null
+          billing_type?: string
+          canceled_at?: string | null
+          created_at?: string
+          currency?: string
+          cycle?: string
+          description?: string | null
+          discount_json?: Json | null
+          end_date?: string | null
+          external_reference?: string | null
+          fine_json?: Json | null
+          id?: string
+          interest_json?: Json | null
+          max_payments?: number | null
+          metadata_json?: Json | null
+          next_due_date?: string | null
+          split_json?: Json | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "asaas_subscriptions_billing_product_id_fkey"
+            columns: ["billing_product_id"]
+            isOneToOne: false
+            referencedRelation: "billing_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      asaas_webhook_events: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_id: string
+          event_type: string
+          id: string
+          payload_json: Json
+          processed_at: string | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_id: string
+          event_type: string
+          id?: string
+          payload_json: Json
+          processed_at?: string | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_id?: string
+          event_type?: string
+          id?: string
+          payload_json?: Json
+          processed_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       audit_log: {
         Row: {
           actor_email: string | null
@@ -350,6 +693,66 @@ export type Database = {
           updated_at?: string
           visual_theme?: Json | null
           xp_reward?: number
+        }
+        Relationships: []
+      }
+      billing_products: {
+        Row: {
+          billing_cycle: string | null
+          code: string
+          created_at: string
+          currency: string
+          description: string | null
+          feature_flags: Json | null
+          id: string
+          is_active: boolean | null
+          is_public: boolean | null
+          metadata_json: Json | null
+          name: string
+          price_cents: number
+          product_type: string
+          sort_order: number | null
+          stripe_price_id: string | null
+          target_role: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle?: string | null
+          code: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          metadata_json?: Json | null
+          name: string
+          price_cents?: number
+          product_type?: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          target_role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string | null
+          code?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean | null
+          is_public?: boolean | null
+          metadata_json?: Json | null
+          name?: string
+          price_cents?: number
+          product_type?: string
+          sort_order?: number | null
+          stripe_price_id?: string | null
+          target_role?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
