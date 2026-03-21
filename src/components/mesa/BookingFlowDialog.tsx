@@ -118,12 +118,12 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       setReservationLimit(limit);
 
       const parsed: PlayerPlan[] = ((plansRes.data || []) as any[])
-        .filter((p: any) => p.price_monthly > 0)
+        .filter((p: any) => p.price_cents > 0)
         .map((p: any) => ({
           code: p.code,
           name: p.name,
           reservation_limit: (p.feature_flags as any)?.reservation_limit ?? null,
-          price_monthly: p.price_monthly,
+          price_monthly: p.price_cents,
           stripe_price_id: p.stripe_price_id,
         }));
       setPlayerPlans(parsed);
