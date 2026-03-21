@@ -353,7 +353,7 @@ export default function Checkout() {
           </div>
           <div className="ml-auto flex items-center gap-2 text-xs text-muted-foreground">
             <Shield className="h-3.5 w-3.5" />
-            Pagamento seguro via Stripe
+            Pagamento seguro
           </div>
         </div>
       </div>
