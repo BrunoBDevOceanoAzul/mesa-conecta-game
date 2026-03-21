@@ -89,8 +89,7 @@ interface CalculatorState {
   platformFee: number;
 }
 
-const PLATFORM_FEE_MIN = 3;
-const PLATFORM_FEE_MAX = 5;
+const PLATFORM_FEE = 5; // Fixed 5% platform split
 
 const defaultState: CalculatorState = {
   prepHours: 2,
