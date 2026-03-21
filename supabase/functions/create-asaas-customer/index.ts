@@ -32,8 +32,7 @@ serve(async (req) => {
   );
 
   try {
-    const apiKey = Deno.env.get("ASAAS_API_KEY");
-    if (!apiKey) throw new Error("ASAAS_API_KEY not set");
+    const { apiKey, base: ASAAS_BASE } = getAsaasConfig();
 
     // Auth
     const authHeader = req.headers.get("Authorization");
