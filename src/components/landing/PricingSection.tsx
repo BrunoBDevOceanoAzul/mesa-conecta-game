@@ -270,11 +270,11 @@ export function PricingSection() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10">
                 <Sparkles className="h-4 w-4 text-secondary" />
               </div>
-              <h3 className="text-base font-display font-semibold text-foreground">Como funcionam as taxas</h3>
+              <h3 className="text-base font-display font-semibold text-foreground">Como funcionam as taxas e o split</h3>
             </div>
 
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-              Toda reserva paga passa pela Stripe, que cobra uma taxa de processamento. Além disso, a HIVIUM aplica uma taxa de intermediação (take rate) que varia conforme seu plano. Veja a comparação:
+              O pagamento é processado via plataforma com split automático. O valor da reserva é dividido instantaneamente entre as partes, sem repasses manuais. Cada participante tem sua própria carteira digital (wallet) no sistema.
             </p>
 
             <div className="grid sm:grid-cols-2 gap-4 mb-5">
@@ -284,7 +284,7 @@ export function PricingSection() {
                   <CreditCard className="h-4 w-4 text-muted-foreground" />
                   <span className="text-sm font-medium text-foreground">Cartão de Crédito</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Taxa Stripe: <span className="font-semibold text-foreground">3,99% + R$0,39</span></p>
+                <p className="text-xs text-muted-foreground">Taxa de processamento: <span className="font-semibold text-foreground">2,99%</span></p>
               </div>
               {/* PIX */}
               <div className="rounded-xl border border-secondary/20 bg-secondary/5 p-4 space-y-2">
@@ -293,29 +293,40 @@ export function PricingSection() {
                   <span className="text-sm font-medium text-foreground">PIX</span>
                   <span className="text-[10px] font-bold uppercase tracking-wider text-secondary bg-secondary/10 px-2 py-0.5 rounded-full">Menor taxa</span>
                 </div>
-                <p className="text-xs text-muted-foreground">Taxa Stripe: <span className="font-semibold text-foreground">1,45%</span></p>
+                <p className="text-xs text-muted-foreground">Taxa de processamento: <span className="font-semibold text-foreground">1,99%</span></p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 space-y-2">
-              <p className="text-sm font-medium text-foreground">Taxa de intermediação HIVIUM</p>
-              <div className="flex flex-wrap gap-x-6 gap-y-1 text-xs text-muted-foreground">
-                {activeRole === "gm" ? (
+            <div className="rounded-xl border border-primary/15 bg-primary/5 p-4 space-y-3">
+              <p className="text-sm font-medium text-foreground">Split automático da HIVIUM</p>
+              <div className="space-y-2 text-xs text-muted-foreground">
+                <div className="flex items-center gap-2">
+                  <span className="h-3 w-3 rounded-full bg-muted-foreground/30 shrink-0" />
+                  <span>Plataforma HIVIUM: <span className="font-semibold text-foreground">5%</span> fixo sobre cada transação</span>
+                </div>
+                {activeRole === "gm" && (
                   <>
-                    <span>Plano Pro: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
-                    <span>Plano Pro+: <span className="font-semibold text-foreground">3–6%</span> por mesa</span>
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full bg-primary shrink-0" />
+                      <span>Mesa online: Mestre recebe <span className="font-semibold text-foreground">95%</span> (- taxa de processamento)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="h-3 w-3 rounded-full bg-secondary shrink-0" />
+                      <span>Mesa em luderia: Mestre e Loja dividem <span className="font-semibold text-foreground">50/50</span> dos 95%</span>
+                    </div>
                   </>
-                ) : (
-                  <>
-                    <span>Plano Base: <span className="font-semibold text-foreground">~5%</span> por reserva</span>
-                    <span>Plano Growth: <span className="font-semibold text-foreground">~3%</span> por reserva</span>
-                  </>
+                )}
+                {activeRole === "store" && (
+                  <div className="flex items-center gap-2">
+                    <span className="h-3 w-3 rounded-full bg-secondary shrink-0" />
+                    <span>Luderia recebe <span className="font-semibold text-foreground">50% do valor</span> das mesas hospedadas (após split da plataforma)</span>
+                  </div>
                 )}
               </div>
             </div>
 
             <p className="text-[11px] text-muted-foreground/70 mt-4 leading-relaxed">
-              O repasse (split) é automático via Stripe Connect: o valor da reserva vai direto para sua conta conectada, já descontadas as taxas. Quanto maior seu plano, menor a taxa de intermediação.
+              O repasse (split) é automático: cada wallet recebe sua parte imediatamente após a confirmação do pagamento. Sem burocracia, sem delays.
             </p>
           </motion.div>
         )}
