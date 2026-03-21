@@ -67,11 +67,12 @@ const productionMultiplier: Record<ProductionLevel, number> = {
   luxury: 1.6,
 };
 
-// Stripe fee references (Brazil)
-const STRIPE_CARD_PERCENT = 3.99;
-const STRIPE_CARD_FIXED_BRL = 0.39;
-const STRIPE_PIX_PERCENT = 1.45;
-const STRIPE_PIX_FIXED_BRL = 0.0;
+// Asaas fee references (Brazil)
+const ASAAS_CARD_PERCENT = 2.99;
+const ASAAS_CARD_FIXED_BRL = 0.0;
+const ASAAS_PIX_PERCENT = 1.99;
+const ASAAS_PIX_FIXED_BRL = 0.0;
+const ASAAS_BOLETO_FIXED_BRL = 1.99;
 
 interface CalculatorState {
   prepHours: number;
