@@ -102,7 +102,7 @@ export default function Onboarding() {
     marca: "brand",
   };
   const dbRole = roleKeyToDbRole[effectiveRole] || effectiveRole;
-  const allSteps = stepsMap[effectiveRole];
+  const allSteps = stepsMap[effectiveRole] || [];
   const steps = allSteps.filter((s) => {
     if (!s.conditionalOn) return true;
     const depValue = answers[s.conditionalOn.field];
