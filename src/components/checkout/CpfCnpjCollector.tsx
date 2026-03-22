@@ -57,11 +57,7 @@ export function CpfCnpjCollector({ onSaved, onCancel }: CpfCnpjCollectorProps) {
 
       if (upsertError) throw upsertError;
 
-      // Also update profiles.cpf as fallback
-      await supabase
-        .from("profiles")
-        .update({ cpf: digits })
-        .eq("user_id", user.id);
+      // profiles.cpf may not exist in types — skip fallback update
 
       onSaved();
     } catch (err: any) {
