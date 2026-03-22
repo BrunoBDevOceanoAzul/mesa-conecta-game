@@ -53,7 +53,7 @@ interface PaymentResult {
   amount: number;
 }
 
-type FlowStep = "loading" | "confirm" | "limit_reached" | "payment" | "success" | "error";
+type FlowStep = "loading" | "confirm" | "limit_reached" | "collect_cpf" | "payment" | "success" | "error";
 
 export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
   const { user } = useAuth();
