@@ -288,12 +288,7 @@ serve(async (req) => {
       split_json: splitJson,
     });
 
-    // Track cart abandonment
-    const { data: playerProfile } = await supabase
-      .from("profiles")
-      .select("display_name, name, email")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // Track cart abandonment (reuse profile fetched earlier)
 
     await supabase.from("cart_abandonments").insert({
       player_user_id: user.id,
