@@ -33,7 +33,7 @@ const benefits = [
   {
     icon: Shield,
     title: "Pagamento seguro integrado",
-    desc: "Stripe Connect configurado. O jogador paga online, você recebe direto na conta da loja.",
+    desc: "Pagamento integrado via PIX e cartão. O jogador paga online, você recebe direto na sua conta.",
   },
   {
     icon: Store,
@@ -52,7 +52,7 @@ const steps = [
 const faqs = [
   { q: "Quanto custa para começar?", a: "Nada. O plano gratuito permite gerenciar até 2 mesas simultâneas. Planos pagos desbloqueiam analytics avançados, boost e volume ilimitado." },
   { q: "Preciso de conhecimento técnico?", a: "Não. A interface foi desenhada para lojistas. Se você usa WhatsApp, consegue usar a HIVIUM." },
-  { q: "Como funciona o pagamento?", a: "Usamos Stripe Connect. O jogador paga online e o valor cai direto na conta da sua loja, descontada a taxa da plataforma." },
+  { q: "Como funciona o pagamento?", a: "O jogador paga online via PIX ou cartão e o valor cai direto na conta da sua loja, descontada a taxa da plataforma." },
   { q: "Posso migrar minha agenda atual?", a: "Sim. Nossa equipe ajuda na migração. Fale conosco pelo WhatsApp." },
 ];
 

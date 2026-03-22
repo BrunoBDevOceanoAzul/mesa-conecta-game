@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
 import { useToast } from "@/hooks/use-toast";
-import { CpfCnpjCollector } from "@/components/checkout/CpfCnpjCollector";
+import { FinancialDataForm } from "@/components/checkout/FinancialDataForm";
 import {
   Dialog,
   DialogContent,
@@ -478,7 +478,9 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 Complete seus dados para reservar a mesa <strong>{mesa.title}</strong>
               </DialogDescription>
             </DialogHeader>
-            <CpfCnpjCollector
+            <FinancialDataForm
+              role="player"
+              missingFields={["tax_document"]}
               onSaved={() => {
                 toast({ title: "Dados salvos!", description: "Continuando com o pagamento…" });
                 handlePaidBook();

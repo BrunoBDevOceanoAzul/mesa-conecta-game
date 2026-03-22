@@ -760,7 +760,7 @@ export default function AdminUsers() {
                           </Select>
                         </div>
                         <p className="text-[10px] text-muted-foreground">
-                          ⚠️ Alterações manuais não afetam o provedor de pagamento (Stripe). Use com cautela.
+                          ⚠️ Alterações manuais não afetam o provedor de pagamento (Asaas). Use com cautela.
                         </p>
                       </div>
                     ) : (

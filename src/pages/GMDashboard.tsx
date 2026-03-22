@@ -1,6 +1,7 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
 import { ProfileCouponBanner } from "@/components/shared/ProfileCouponBanner";
+import { FinancialCompletionBanner } from "@/components/shared/FinancialCompletionBanner";
 import { TrialBanner } from "@/components/shared/TrialBanner";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -131,6 +132,7 @@ export default function GMDashboard() {
         <TrialBanner />
         <ProfileCouponBanner />
         <ProfileCompletionBanner />
+        <FinancialCompletionBanner role="gm" />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>

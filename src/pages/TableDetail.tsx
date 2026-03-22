@@ -111,7 +111,7 @@ export default function TableDetail() {
       });
   }, [user, id, bookingSuccess]);
 
-  // Handle return from Stripe Checkout
+  // Handle return from Checkout
   useEffect(() => {
     const bookingStatus = searchParams.get("booking");
     if (bookingStatus === "success") {
@@ -512,7 +512,7 @@ export default function TableDetail() {
                       return;
                     }
                     if (mesa.min_price > 0) {
-                      // Go directly to Stripe Checkout
+                      // Go directly to Asaas Checkout
                       setCheckoutLoading(true);
                       try {
                         const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
@@ -552,7 +552,7 @@ export default function TableDetail() {
 
               {!existingBooking && mesa.min_price > 0 && (
                 <p className="text-[11px] text-muted-foreground text-center">
-                  Pagamento seguro via Stripe • sem surpresas
+                  Pagamento seguro via PIX • sem surpresas
                 </p>
               )}
 
