@@ -762,12 +762,19 @@ export type Database = {
           address_number: string | null
           billing_email: string | null
           billing_phone: string | null
+          birth_date: string | null
           city: string | null
           company_name: string | null
+          company_type: string | null
+          complement: string | null
           country: string | null
           created_at: string
+          financial_completion_percent: number
           full_name: string | null
           id: string
+          is_financial_ready: boolean
+          last_validated_at: string | null
+          mobile_phone: string | null
           neighborhood: string | null
           state: string | null
           tax_document: string | null
@@ -780,12 +787,19 @@ export type Database = {
           address_number?: string | null
           billing_email?: string | null
           billing_phone?: string | null
+          birth_date?: string | null
           city?: string | null
           company_name?: string | null
+          company_type?: string | null
+          complement?: string | null
           country?: string | null
           created_at?: string
+          financial_completion_percent?: number
           full_name?: string | null
           id?: string
+          is_financial_ready?: boolean
+          last_validated_at?: string | null
+          mobile_phone?: string | null
           neighborhood?: string | null
           state?: string | null
           tax_document?: string | null
@@ -798,12 +812,19 @@ export type Database = {
           address_number?: string | null
           billing_email?: string | null
           billing_phone?: string | null
+          birth_date?: string | null
           city?: string | null
           company_name?: string | null
+          company_type?: string | null
+          complement?: string | null
           country?: string | null
           created_at?: string
+          financial_completion_percent?: number
           full_name?: string | null
           id?: string
+          is_financial_ready?: boolean
+          last_validated_at?: string | null
+          mobile_phone?: string | null
           neighborhood?: string | null
           state?: string | null
           tax_document?: string | null
