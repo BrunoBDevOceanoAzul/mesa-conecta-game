@@ -135,6 +135,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
       let finalCoverUrl: string | null = null;
       if (coverFile || coverUrl) finalCoverUrl = await uploadCover();
 
+      const isCampaign = sessionType === "campanha";
       const { data, error } = await supabase.functions.invoke("create-mesa", {
         body: {
           title: title.trim(), description: description.trim() || null,
@@ -147,6 +148,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           store_id: role === "store" ? storeId || user.id : null,
           cover_image_url: finalCoverUrl,
           store_slot_id: selectedSlotId || null,
+          session_hours: Number(sessionHours) || 4,
+          campaign_sessions: isCampaign ? Number(campaignSessions) || 4 : null,
+          is_subscription: isCampaign,
         },
       });
       if (error) throw error;
@@ -154,9 +158,11 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
       toast({
         title: "Mesa criada com sucesso! 🎲",
-        description: data?.stripe_price_id
-          ? "Produto e preço criados no Stripe automaticamente."
-          : "Mesa publicada sem cobrança via Stripe.",
+        description: isCampaign
+          ? `Campanha de ${campaignSessions} sessões configurada com cobrança recorrente.`
+          : data?.asaas_billing_id
+          ? "Cobrança Asaas criada automaticamente."
+          : "Mesa publicada sem cobrança.",
       });
       resetForm(); setOpen(false); onCreated?.();
     } catch (err: any) {
