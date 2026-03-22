@@ -470,12 +470,49 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               </div>
             </CollapsibleContent>
           </Collapsible>
-
-          {/* Seats */}
-          <div>
-            <Label>Vagas totais *</Label>
-            <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+          {/* Session hours & campaign config */}
+          <div className={`grid gap-3 ${sessionType === "campanha" ? "grid-cols-3" : "grid-cols-2"}`}>
+            <div>
+              <Label>Horas por sessão *</Label>
+              <Input type="number" min="1" max="12" value={sessionHours} onChange={(e) => setSessionHours(e.target.value)} />
+            </div>
+            {sessionType === "campanha" && (
+              <div>
+                <Label>Nº de sessões</Label>
+                <Input type="number" min="2" max="52" value={campaignSessions} onChange={(e) => setCampaignSessions(e.target.value)} />
+              </div>
+            )}
+            <div>
+              <Label>Vagas totais *</Label>
+              <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+            </div>
           </div>
+
+          {sessionType === "campanha" && Number(minPrice) > 0 && (
+            <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4 space-y-2">
+              <p className="text-xs font-semibold text-secondary uppercase tracking-wider">🔄 Assinatura recorrente (Campanha)</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Valor por sessão/jogador</span>
+                  <span className="font-medium text-foreground">R${Number(minPrice).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Sessões na campanha</span>
+                  <span className="font-medium text-foreground">{campaignSessions}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Recorrência</span>
+                  <span className="font-medium text-foreground">Mensal ({sessionHours}h/sessão)</span>
+                </div>
+                <div className="border-t border-border pt-1.5 flex justify-between">
+                  <span className="font-semibold text-foreground">Total estimado/jogador</span>
+                  <span className="font-bold text-secondary">R${(Number(minPrice) * Number(campaignSessions)).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          
 
           {/* Date & Time */}
           <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
