@@ -230,15 +230,28 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         body: { mesa_id: mesa.id, billing_type: "PIX" },
       });
 
-      if (error) throw new Error(error.message || "Erro ao criar pagamento");
-      if (data?.error) throw new Error(data.error);
+      // Handle structured missing CPF error (422 returned as FunctionsHttpError)
+      if (error) {
+        // Try to parse error body for structured response
+        const errorBody = data || {};
+        if (errorBody?.error_code === "MISSING_CPF_CNPJ" || errorBody?.error === "missing_cpf_cnpj") {
+          setStep("collect_cpf");
+          return;
+        }
+        throw new Error(errorBody?.message || error.message || "Erro ao criar pagamento");
+      }
+      if (data?.error_code === "MISSING_CPF_CNPJ" || data?.error === "missing_cpf_cnpj") {
+        setStep("collect_cpf");
+        return;
+      }
+      if (data?.error) throw new Error(data.message || data.error);
 
       setPaymentResult(data as PaymentResult);
       setStep("payment");
       toast({ title: "Pagamento criado!", description: "Escaneie o QR Code ou copie o código PIX." });
     } catch (err: any) {
       console.error("[BookingFlow] Checkout error:", err);
-      setErrorMsg(err?.message || "Erro ao iniciar pagamento");
+      setErrorMsg(err?.message || "Erro ao iniciar pagamento. Tente novamente.");
       setStep("error");
     } finally {
       setSubmitting(false);
