@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
 import { useToast } from "@/hooks/use-toast";
+import { CpfCnpjCollector } from "@/components/checkout/CpfCnpjCollector";
 import {
   Dialog,
   DialogContent,
@@ -52,7 +53,7 @@ interface PaymentResult {
   amount: number;
 }
 
-type FlowStep = "loading" | "confirm" | "limit_reached" | "payment" | "success" | "error";
+type FlowStep = "loading" | "confirm" | "limit_reached" | "collect_cpf" | "payment" | "success" | "error";
 
 export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
   const { user } = useAuth();
@@ -229,15 +230,28 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         body: { mesa_id: mesa.id, billing_type: "PIX" },
       });
 
-      if (error) throw new Error(error.message || "Erro ao criar pagamento");
-      if (data?.error) throw new Error(data.error);
+      // Handle structured missing CPF error (422 returned as FunctionsHttpError)
+      if (error) {
+        // Try to parse error body for structured response
+        const errorBody = data || {};
+        if (errorBody?.error_code === "MISSING_CPF_CNPJ" || errorBody?.error === "missing_cpf_cnpj") {
+          setStep("collect_cpf");
+          return;
+        }
+        throw new Error(errorBody?.message || error.message || "Erro ao criar pagamento");
+      }
+      if (data?.error_code === "MISSING_CPF_CNPJ" || data?.error === "missing_cpf_cnpj") {
+        setStep("collect_cpf");
+        return;
+      }
+      if (data?.error) throw new Error(data.message || data.error);
 
       setPaymentResult(data as PaymentResult);
       setStep("payment");
       toast({ title: "Pagamento criado!", description: "Escaneie o QR Code ou copie o código PIX." });
     } catch (err: any) {
       console.error("[BookingFlow] Checkout error:", err);
-      setErrorMsg(err?.message || "Erro ao iniciar pagamento");
+      setErrorMsg(err?.message || "Erro ao iniciar pagamento. Tente novamente.");
       setStep("error");
     } finally {
       setSubmitting(false);
@@ -449,6 +463,28 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 Fechar — já paguei
               </Button>
             </div>
+          </>
+        )}
+
+        {/* Collect CPF/CNPJ */}
+        {step === "collect_cpf" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Dados para pagamento
+              </DialogTitle>
+              <DialogDescription>
+                Complete seus dados para reservar a mesa <strong>{mesa.title}</strong>
+              </DialogDescription>
+            </DialogHeader>
+            <CpfCnpjCollector
+              onSaved={() => {
+                toast({ title: "Dados salvos!", description: "Continuando com o pagamento…" });
+                handlePaidBook();
+              }}
+              onCancel={() => onOpenChange(false)}
+            />
           </>
         )}
 

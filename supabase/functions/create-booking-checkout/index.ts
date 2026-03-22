@@ -11,6 +11,15 @@ const log = (step: string, details?: unknown) =>
 
 const PLATFORM_SPLIT_PERCENT = 5;
 
+/** Strip formatting and validate CPF (11) or CNPJ (14) length */
+function normalizeCpfCnpj(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const digits = raw.replace(/[.\-\/\s]/g, "");
+  if (digits.length !== 11 && digits.length !== 14) return null;
+  if (/^0+$/.test(digits)) return null;
+  return digits;
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -81,48 +90,87 @@ serve(async (req) => {
 
     log("Stale pending bookings cleared");
 
-    // Ensure player has Asaas customer record
+    // ── CPF/CNPJ resolution cascade ──────────────────────────────────
     let { data: playerCustomer } = await supabase
       .from("asaas_customers")
-      .select("asaas_id, cpf_cnpj")
+      .select("asaas_id, cpf_cnpj, name, email")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    // Get profile + billing profile for CPF
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name, name, cpf")
+      .select("display_name, name, cpf, mobile_phone")
       .eq("user_id", user.id)
       .maybeSingle();
 
     const { data: billingProfile } = await supabase
       .from("billing_profiles")
-      .select("tax_document, full_name")
+      .select("tax_document, full_name, billing_email, billing_phone")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    const cpfCnpj = profile?.cpf || billingProfile?.tax_document || null;
-    const customerName = profile?.display_name || profile?.name || billingProfile?.full_name || user.email || "Jogador";
+    // 1. asaas_customers → 2. billing_profiles → 3. profiles
+    const cpfCnpj =
+      normalizeCpfCnpj(playerCustomer?.cpf_cnpj) ??
+      normalizeCpfCnpj(billingProfile?.tax_document) ??
+      normalizeCpfCnpj(profile?.cpf) ??
+      null;
 
+    log("CPF/CNPJ resolution", {
+      fromCustomer: !!normalizeCpfCnpj(playerCustomer?.cpf_cnpj),
+      fromBilling: !!normalizeCpfCnpj(billingProfile?.tax_document),
+      fromProfile: !!normalizeCpfCnpj(profile?.cpf),
+      resolved: !!cpfCnpj,
+    });
+
+    const customerName =
+      billingProfile?.full_name ||
+      profile?.display_name ||
+      profile?.name ||
+      user.user_metadata?.full_name ||
+      user.email ||
+      "Jogador";
+
+    const customerEmail = billingProfile?.billing_email || user.email;
+    const customerPhone = billingProfile?.billing_phone || profile?.mobile_phone || null;
+
+    // ── If CPF/CNPJ is still missing, return structured error ────────
+    if (!cpfCnpj) {
+      log("BLOCKED — CPF/CNPJ missing after full cascade");
+      return new Response(JSON.stringify({
+        error: "missing_cpf_cnpj",
+        error_code: "MISSING_CPF_CNPJ",
+        message: "Para concluir o pagamento, precisamos do seu CPF ou CNPJ.",
+        details: "Esse dado é exigido pela operadora de pagamento. Você só precisa preencher uma vez.",
+        missing_fields: ["cpf_cnpj"],
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 422,
+      });
+    }
+
+    // ── Customer create / update ─────────────────────────────────────
     if (!playerCustomer?.asaas_id) {
-      if (!cpfCnpj) throw new Error("CPF/CNPJ é obrigatório para pagamento. Atualize seu perfil.");
+      // Create new customer
+      const createBody: Record<string, unknown> = {
+        name: customerName,
+        email: customerEmail,
+        cpfCnpj: cpfCnpj,
+        externalReference: user.id,
+        notificationDisabled: true,
+      };
+      if (customerPhone) createBody.mobilePhone = customerPhone;
 
       const asaasCustRes = await fetch(`${ASAAS_BASE}/customers`, {
         method: "POST",
         headers: { "Content-Type": "application/json", "access_token": apiKey },
-        body: JSON.stringify({
-          name: customerName,
-          email: user.email,
-          cpfCnpj,
-          externalReference: user.id,
-          notificationDisabled: true,
-        }),
+        body: JSON.stringify(createBody),
       });
 
       if (!asaasCustRes.ok) {
         const errText = await asaasCustRes.text();
         log("Asaas customer creation failed", { status: asaasCustRes.status, body: errText });
-        throw new Error("Failed to create payment customer");
+        throw new Error("Falha ao criar perfil de pagamento. Tente novamente.");
       }
 
       const asaasCust = await asaasCustRes.json();
@@ -132,26 +180,37 @@ serve(async (req) => {
         user_id: user.id,
         asaas_id: asaasCust.id,
         name: customerName,
-        email: user.email,
+        email: customerEmail,
         cpf_cnpj: cpfCnpj,
+        mobile_phone: customerPhone,
       });
 
-      playerCustomer = { asaas_id: asaasCust.id, cpf_cnpj: cpfCnpj };
-    } else if (!playerCustomer.cpf_cnpj && cpfCnpj) {
-      // Update existing Asaas customer with CPF
-      await fetch(`${ASAAS_BASE}/customers/${playerCustomer.asaas_id}`, {
+      playerCustomer = { asaas_id: asaasCust.id, cpf_cnpj: cpfCnpj, name: customerName, email: customerEmail };
+    } else if (!normalizeCpfCnpj(playerCustomer.cpf_cnpj)) {
+      // Update existing customer with newly found CPF
+      const updateBody: Record<string, unknown> = { cpfCnpj: cpfCnpj };
+      if (customerName) updateBody.name = customerName;
+      if (customerEmail) updateBody.email = customerEmail;
+      if (customerPhone) updateBody.mobilePhone = customerPhone;
+
+      const updateRes = await fetch(`${ASAAS_BASE}/customers/${playerCustomer.asaas_id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", "access_token": apiKey },
-        body: JSON.stringify({ cpfCnpj }),
+        body: JSON.stringify(updateBody),
       });
-      await supabase.from("asaas_customers").update({ cpf_cnpj: cpfCnpj }).eq("user_id", user.id);
+      if (updateRes.ok) {
+        await supabase.from("asaas_customers")
+          .update({ cpf_cnpj: cpfCnpj, name: customerName, email: customerEmail, mobile_phone: customerPhone })
+          .eq("user_id", user.id);
+        log("Updated Asaas customer CPF", { asaasId: playerCustomer.asaas_id });
+      } else {
+        const errText = await updateRes.text();
+        log("Asaas customer update failed (non-blocking)", { status: updateRes.status, body: errText });
+      }
       playerCustomer.cpf_cnpj = cpfCnpj;
-      log("Updated customer CPF", { asaasId: playerCustomer.asaas_id });
-    } else if (!playerCustomer.cpf_cnpj && !cpfCnpj) {
-      throw new Error("CPF/CNPJ é obrigatório para pagamento. Atualize seu perfil.");
     }
 
-    // Create pending booking
+    // ── Create pending booking ───────────────────────────────────────
     const amount = mesa.min_price;
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
@@ -173,17 +232,15 @@ serve(async (req) => {
     if (bookingError) throw new Error(`Failed to create booking: ${bookingError.message}`);
     log("Pending booking created", { bookingId: booking.id });
 
-    // Calculate splits
+    // ── Calculate splits ─────────────────────────────────────────────
     const platformAmount = +(amount * PLATFORM_SPLIT_PERCENT / 100).toFixed(2);
 
-    // Get GM wallet
     const { data: gmAccount } = await supabase
       .from("asaas_accounts")
       .select("wallet_id, asaas_id")
       .eq("user_id", mesa.gm_id)
       .maybeSingle();
 
-    // Get Store wallet if applicable
     let storeAccount: { wallet_id: string | null } | null = null;
     if (mesa.store_id) {
       const { data: sa } = await supabase
@@ -215,7 +272,7 @@ serve(async (req) => {
 
     log("Split calculated", { total: amount, platform: platformAmount, gm: gmAmount, store: storeAmount });
 
-    // Create Asaas payment
+    // ── Create Asaas payment ─────────────────────────────────────────
     const dueDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
     const asaasPayload: Record<string, unknown> = {
@@ -239,8 +296,12 @@ serve(async (req) => {
 
     if (!asaasRes.ok) {
       const errBody = await asaasRes.text();
-      log("Asaas API error", { status: asaasRes.status, body: errBody });
-      throw new Error(`Payment creation failed: ${asaasRes.status}`);
+      log("Asaas payment API error", { status: asaasRes.status, body: errBody });
+      // Cancel the pending booking since payment failed
+      await supabase.from("bookings")
+        .update({ status: "canceled", payment_status: "failed" })
+        .eq("id", booking.id);
+      throw new Error("Falha ao gerar cobrança. Tente novamente em alguns instantes.");
     }
 
     const asaasPayment = await asaasRes.json();
@@ -255,7 +316,7 @@ serve(async (req) => {
       if (pixRes.ok) {
         pixData = await pixRes.json();
       } else {
-        await pixRes.text(); // consume body
+        await pixRes.text();
       }
     }
 
@@ -288,11 +349,10 @@ serve(async (req) => {
       split_json: splitJson,
     });
 
-    // Track cart abandonment (reuse profile fetched earlier)
-
+    // Track cart abandonment
     await supabase.from("cart_abandonments").insert({
       player_user_id: user.id,
-      player_email: user.email || profile?.email || null,
+      player_email: user.email || null,
       player_name: profile?.display_name || profile?.name || null,
       mesa_id: mesa.id,
       mesa_title: mesa.title,
@@ -333,7 +393,11 @@ serve(async (req) => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     log("ERROR", { message: msg });
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({
+      error: msg,
+      error_code: "CHECKOUT_ERROR",
+      message: msg,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
     });
