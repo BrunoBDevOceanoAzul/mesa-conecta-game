@@ -292,8 +292,8 @@ serve(async (req) => {
 
     await supabase.from("cart_abandonments").insert({
       player_user_id: user.id,
-      player_email: user.email || playerProfile?.email || null,
-      player_name: playerProfile?.display_name || playerProfile?.name || null,
+      player_email: user.email || profile?.email || null,
+      player_name: profile?.display_name || profile?.name || null,
       mesa_id: mesa.id,
       mesa_title: mesa.title,
       gm_user_id: mesa.gm_id,
