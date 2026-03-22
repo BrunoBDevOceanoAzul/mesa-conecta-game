@@ -125,6 +125,7 @@ export default function PlayerDashboard() {
         <TrialBanner />
         <ProfileCouponBanner />
         <ProfileCompletionBanner />
+        <FinancialCompletionBanner role="player" />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>

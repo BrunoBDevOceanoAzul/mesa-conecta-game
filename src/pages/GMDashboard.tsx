@@ -132,6 +132,7 @@ export default function GMDashboard() {
         <TrialBanner />
         <ProfileCouponBanner />
         <ProfileCompletionBanner />
+        <FinancialCompletionBanner role="gm" />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
