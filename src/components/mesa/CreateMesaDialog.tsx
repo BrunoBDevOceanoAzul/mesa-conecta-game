@@ -380,17 +380,18 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <Input type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="0" />
             </div>
           </div>
-          {/* Stripe fee breakdown */}
+          {/* Asaas fee breakdown */}
           {Number(minPrice) > 0 && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 p-4 -mt-1 space-y-2">
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">💰 Simulação de repasse Stripe</p>
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 -mt-1 space-y-2">
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">💰 Simulação de repasse Asaas</p>
               {(() => {
                 const price = Number(minPrice);
-                const stripeFee = price * 0.0399 + 0.39; // Stripe BR: 3.99% + R$0.39
-                const platformFee = price * 0.10; // 10% HIVIUM take rate
-                const totalFees = stripeFee + platformFee;
-                const gmReceives = price - totalFees;
-                const suggestedPrice = Math.ceil((price + totalFees) / 0.50) * 0.50; // round up
+                const asaasFeeCard = price * ASAAS_CARD_PERCENT / 100;
+                const asaasFeePix = price * ASAAS_PIX_PERCENT / 100;
+                const platformFee = price * PLATFORM_FEE_PERCENT / 100;
+                const gmReceivesCard = price - asaasFeeCard - platformFee;
+                const gmReceivesPix = price - asaasFeePix - platformFee;
+                const suggestedPrice = Math.ceil((price / (1 - (ASAAS_PIX_PERCENT + PLATFORM_FEE_PERCENT) / 100)) / 0.50) * 0.50;
                 return (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
@@ -398,22 +399,32 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
                       <span className="font-medium text-foreground">R${price.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Taxa Stripe (3,99% + R$0,39)</span>
-                      <span className="text-destructive font-medium">-R${stripeFee.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Taxa Asaas PIX ({ASAAS_PIX_PERCENT}%)</span>
+                      <span className="text-destructive font-medium">-R${asaasFeePix.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Taxa HIVIUM (10%)</span>
+                      <span className="text-muted-foreground">Taxa Asaas Cartão ({ASAAS_CARD_PERCENT}%)</span>
+                      <span className="text-destructive font-medium">-R${asaasFeeCard.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Taxa HIVIUM ({PLATFORM_FEE_PERCENT}%)</span>
                       <span className="text-destructive font-medium">-R${platformFee.toFixed(2)}</span>
                     </div>
-                    <div className="border-t border-amber-200 dark:border-amber-800 pt-1.5 flex justify-between text-xs">
-                      <span className="font-semibold text-foreground">Você recebe</span>
-                      <span className="font-bold text-secondary">R${gmReceives.toFixed(2)}</span>
+                    <div className="border-t border-border pt-1.5 space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-foreground">Você recebe (PIX)</span>
+                        <span className="font-bold text-secondary">R${gmReceivesPix.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-foreground">Você recebe (Cartão)</span>
+                        <span className="font-bold text-muted-foreground">R${gmReceivesCard.toFixed(2)}</span>
+                      </div>
                     </div>
                     {suggestedPrice > price && (
                       <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 p-2.5 flex items-center justify-between">
                         <div>
                           <p className="text-[11px] text-primary font-medium">Sugestão: cobre R${suggestedPrice.toFixed(2)}</p>
-                          <p className="text-[10px] text-muted-foreground">Para receber ~R${(suggestedPrice - (suggestedPrice * 0.0399 + 0.39) - suggestedPrice * 0.10).toFixed(2)} líquido</p>
+                          <p className="text-[10px] text-muted-foreground">Para receber ~R${(suggestedPrice * (1 - (ASAAS_PIX_PERCENT + PLATFORM_FEE_PERCENT) / 100)).toFixed(2)} líquido</p>
                         </div>
                         <Button
                           type="button"
@@ -435,7 +446,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             </div>
           )}
           <p className="text-xs text-muted-foreground -mt-3">
-            Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
+            Se o preço for maior que R$0, uma cobrança será criada automaticamente via Asaas.
           </p>
 
           {/* Pricing Calculator */}
