@@ -14,7 +14,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
-  Loader2, Check, Sparkles, Crown, Ticket, ArrowRight, AlertTriangle, CreditCard,
+  Loader2, Check, Sparkles, Crown, Ticket, ArrowRight, AlertTriangle, CreditCard, Copy, QrCode, ExternalLink,
 } from "lucide-react";
 
 interface BookingFlowDialogProps {
@@ -39,7 +39,20 @@ interface PlayerPlan {
   stripe_price_id: string | null;
 }
 
-type FlowStep = "loading" | "confirm" | "limit_reached" | "success" | "error";
+interface PaymentResult {
+  booking_id: string;
+  asaas_id: string;
+  status: string;
+  billing_type: string;
+  invoice_url: string | null;
+  pix_qr_code: string | null;
+  pix_copy_paste: string | null;
+  pix_expiration: string | null;
+  due_date: string;
+  amount: number;
+}
+
+type FlowStep = "loading" | "confirm" | "limit_reached" | "payment" | "success" | "error";
 
 export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
   const { user } = useAuth();
@@ -54,12 +67,16 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [currentPlanName, setCurrentPlanName] = useState<string | null>(null);
+  const [paymentResult, setPaymentResult] = useState<PaymentResult | null>(null);
+  const [pixCopied, setPixCopied] = useState(false);
 
   const isPaidMesa = mesa.min_price > 0;
 
   const loadData = useCallback(async () => {
     if (!user || !open) return;
     setStep("loading");
+    setPaymentResult(null);
+    setPixCopied(false);
 
     try {
       const now = new Date();
@@ -102,7 +119,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           .select("name, feature_flags")
           .eq("id", sub.billing_product_id)
           .maybeSingle();
-        
+
         if (planData) {
           setCurrentPlanName(planData.name);
           const flags = planData.feature_flags as Record<string, unknown> | null;
@@ -202,25 +219,22 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     }
   };
 
-  // Paid mesa: Stripe Checkout
+  // Paid mesa: Asaas payment (PIX by default)
   const handlePaidBook = async () => {
     if (!user) return;
     setSubmitting(true);
 
     try {
       const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
-        body: { mesa_id: mesa.id },
+        body: { mesa_id: mesa.id, billing_type: "PIX" },
       });
 
-      if (error) throw new Error(error.message || "Erro ao criar checkout");
+      if (error) throw new Error(error.message || "Erro ao criar pagamento");
       if (data?.error) throw new Error(data.error);
 
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.location.href = data.url;
-      } else {
-        throw new Error("URL de pagamento não retornada");
-      }
+      setPaymentResult(data as PaymentResult);
+      setStep("payment");
+      toast({ title: "Pagamento criado!", description: "Escaneie o QR Code ou copie o código PIX." });
     } catch (err: any) {
       console.error("[BookingFlow] Checkout error:", err);
       setErrorMsg(err?.message || "Erro ao iniciar pagamento");
@@ -232,10 +246,18 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
   const handleBook = () => {
     if (isPaidMesa) {
-      // Always go through Stripe for paid mesas, even for admins
       handlePaidBook();
     } else {
       handleFreeBook();
+    }
+  };
+
+  const handleCopyPix = () => {
+    if (paymentResult?.pix_copy_paste) {
+      navigator.clipboard.writeText(paymentResult.pix_copy_paste);
+      setPixCopied(true);
+      toast({ title: "Código PIX copiado!" });
+      setTimeout(() => setPixCopied(false), 3000);
     }
   };
 
@@ -245,11 +267,6 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   };
 
   const remainingSlots = reservationLimit && reservationLimit > 0 ? Math.max(0, reservationLimit - bookingCount) : null;
-
-  // Stripe fee breakdown for paid mesas
-  const stripeFee = isPaidMesa ? mesa.min_price * 0.0399 + 0.39 : 0;
-  const platformFee = isPaidMesa ? mesa.min_price * 0.10 : 0;
-  const totalCharged = isPaidMesa ? mesa.min_price : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -280,7 +297,6 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
             </DialogHeader>
 
             <div className="space-y-4 py-2">
-              {/* Booking summary */}
               <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2">
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Mesa</span>
@@ -298,20 +314,18 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 </div>
               </div>
 
-              {/* Payment info for paid mesas */}
               {isPaidMesa && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
                   <p className="text-xs font-semibold text-primary flex items-center gap-1.5">
-                    <CreditCard className="h-3.5 w-3.5" />
-                    Pagamento seguro via Stripe
+                    <QrCode className="h-3.5 w-3.5" />
+                    Pagamento via PIX — instantâneo
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Ao confirmar, você será redirecionado para o checkout seguro. O valor será cobrado apenas após a confirmação do pagamento.
+                    Ao confirmar, será gerado um QR Code PIX para pagamento. Sua vaga será confirmada automaticamente após o pagamento.
                   </p>
                 </div>
               )}
 
-              {/* Remaining reservations info */}
               {!isSuperUser && remainingSlots !== null && (
                 <div className="rounded-lg bg-primary/5 border border-primary/10 px-3 py-2 flex items-center gap-2">
                   <Sparkles className="h-3.5 w-3.5 text-primary shrink-0" />
@@ -339,21 +353,106 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 {submitting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : isPaidMesa ? (
-                  <CreditCard className="h-4 w-4" />
+                  <QrCode className="h-4 w-4" />
                 ) : (
                   <Check className="h-4 w-4" />
                 )}
                 {submitting
-                  ? "Redirecionando ao pagamento…"
+                  ? "Gerando pagamento…"
                   : isPaidMesa
-                  ? `Pagar R$ ${mesa.min_price.toFixed(2).replace(".", ",")} e Reservar`
+                  ? `Pagar R$ ${mesa.min_price.toFixed(2).replace(".", ",")} via PIX`
                   : "Confirmar Reserva"}
               </Button>
             </div>
           </>
         )}
 
-        {/* Limit reached — suggest upgrade */}
+        {/* PIX Payment step */}
+        {step === "payment" && paymentResult && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2 text-primary">
+                <QrCode className="h-5 w-5" />
+                Pague com PIX
+              </DialogTitle>
+              <DialogDescription>
+                Escaneie o QR Code ou copie o código para pagar R$ {paymentResult.amount.toFixed(2).replace(".", ",")}
+              </DialogDescription>
+            </DialogHeader>
+
+            <div className="space-y-4 py-2">
+              {/* QR Code */}
+              {paymentResult.pix_qr_code && (
+                <div className="flex justify-center">
+                  <div className="rounded-xl border border-border bg-white p-4">
+                    <img
+                      src={`data:image/png;base64,${paymentResult.pix_qr_code}`}
+                      alt="QR Code PIX"
+                      className="w-48 h-48"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Copy PIX code */}
+              {paymentResult.pix_copy_paste && (
+                <div className="space-y-2">
+                  <p className="text-xs text-muted-foreground text-center">Ou copie o código PIX:</p>
+                  <div className="flex gap-2">
+                    <input
+                      readOnly
+                      value={paymentResult.pix_copy_paste}
+                      className="flex-1 text-xs bg-muted rounded-lg px-3 py-2 border border-border truncate text-foreground"
+                    />
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCopyPix}
+                      className="gap-1.5 shrink-0"
+                    >
+                      {pixCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                      {pixCopied ? "Copiado!" : "Copiar"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+
+              {/* Invoice link fallback */}
+              {paymentResult.invoice_url && (
+                <Button
+                  variant="outline"
+                  className="w-full gap-2"
+                  onClick={() => window.open(paymentResult.invoice_url!, "_blank")}
+                >
+                  <ExternalLink className="h-4 w-4" />
+                  Abrir fatura completa
+                </Button>
+              )}
+
+              <div className="rounded-xl bg-secondary/10 border border-secondary/20 p-3 space-y-1">
+                <p className="text-xs font-semibold text-secondary flex items-center gap-1.5">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Confirmação automática
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Após o pagamento, sua vaga será confirmada automaticamente. Você receberá uma notificação.
+                </p>
+              </div>
+
+              {paymentResult.pix_expiration && (
+                <p className="text-xs text-muted-foreground text-center">
+                  ⏰ PIX válido até {new Date(paymentResult.pix_expiration).toLocaleString("pt-BR")}
+                </p>
+              )}
+
+              <Button variant="ghost" className="w-full" onClick={() => onOpenChange(false)}>
+                Fechar — já paguei
+              </Button>
+            </div>
+          </>
+        )}
+
+        {/* Limit reached */}
         {step === "limit_reached" && (
           <>
             <DialogHeader>
