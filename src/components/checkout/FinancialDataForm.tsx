@@ -82,13 +82,13 @@ export function FinancialDataForm({ role, missingFields, onSaved, onCancel }: Pr
     (async () => {
       const [{ data: bp }, { data: profile }] = await Promise.all([
         supabase.from("billing_profiles").select("*").eq("user_id", user.id).maybeSingle(),
-        supabase.from("profiles").select("name, display_name, city, mobile_phone").eq("user_id", user.id).maybeSingle(),
+        supabase.from("profiles").select("name, display_name, city, whatsapp").eq("user_id", user.id).maybeSingle(),
       ]);
       if (bp) {
         setFullName(bp.full_name || "");
         setTaxDocument(bp.tax_document || "");
         setBillingEmail(bp.billing_email || "");
-        setMobilePhone(bp.billing_phone || (bp as any).mobile_phone || "");
+        setMobilePhone(bp.billing_phone || "");
         setAddressLine(bp.address_line || "");
         setAddressNumber(bp.address_number || "");
         setNeighborhood(bp.neighborhood || "");
@@ -99,7 +99,7 @@ export function FinancialDataForm({ role, missingFields, onSaved, onCancel }: Pr
       // Fallbacks from profile
       if (!fullName && profile) setFullName(profile.display_name || profile.name || "");
       if (!billingEmail && user.email) setBillingEmail(user.email);
-      if (!mobilePhone && profile?.mobile_phone) setMobilePhone(profile.mobile_phone);
+      if (!mobilePhone && profile?.whatsapp) setMobilePhone(profile.whatsapp);
       if (!city && profile?.city) setCity(profile.city);
     })();
   }, [user]);
