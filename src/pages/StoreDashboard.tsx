@@ -188,6 +188,7 @@ export default function StoreDashboard() {
         <TrialBanner />
         <ProfileCouponBanner />
         <ProfileCompletionBanner />
+        <FinancialCompletionBanner role="store" />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
