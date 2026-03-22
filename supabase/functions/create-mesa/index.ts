@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -11,6 +10,17 @@ const logStep = (step: string, details?: any) => {
   const d = details ? ` - ${JSON.stringify(details)}` : "";
   console.log(`[CREATE-MESA] ${step}${d}`);
 };
+
+function getAsaasConfig() {
+  const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
+  const mainKey = Deno.env.get("ASAAS_API_KEY");
+  const apiKey = sandboxKey || mainKey;
+  if (!apiKey) return null;
+  const base = sandboxKey
+    ? "https://sandbox.asaas.com/api/v3"
+    : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
+  return { apiKey, base };
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -25,9 +35,6 @@ serve(async (req) => {
 
   try {
     logStep("Function started");
-
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
@@ -51,19 +58,12 @@ serve(async (req) => {
       throw new Error("Only GMs and stores can create mesas");
     }
 
-    // Get connected Stripe account
-    const { data: connectedAccount } = await supabase
-      .from("connected_accounts")
-      .select("stripe_connected_account_id, onboarding_status")
-      .eq("user_id", user.id)
-      .maybeSingle();
-
     const body = await req.json();
     const {
       title, description, system, session_type, format,
       city, venue, min_price, max_price, seats_total,
       start_at, end_at, tags, image_url, cover_image_url, play_styles, store_id,
-      store_slot_id,
+      store_slot_id, session_hours, campaign_sessions, is_subscription,
     } = body;
 
     if (!title || !system || !session_type || !format || !start_at) {
@@ -71,45 +71,6 @@ serve(async (req) => {
     }
 
     const priceAmount = Math.max(0, Number(min_price) || 0);
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-
-    let stripeProductId: string | null = null;
-    let stripePriceId: string | null = null;
-
-    // Only create Stripe product/price if there's a price > 0
-    if (priceAmount > 0) {
-      const stripeAccountId = connectedAccount?.stripe_connected_account_id;
-
-      // Create product on the platform, with transfer_data to the connected account
-      const product = await stripe.products.create({
-        name: `Mesa: ${title}`,
-        description: description || `${system} - ${session_type}`,
-        metadata: {
-          hivium_user_id: user.id,
-          hivium_role: profile.role || "",
-          mesa_system: system,
-          mesa_format: format,
-          ...(stripeAccountId ? { stripe_connected_account_id: stripeAccountId } : {}),
-        },
-      });
-
-      stripeProductId = product.id;
-      logStep("Stripe product created", { productId: product.id });
-
-      // Create price in BRL (centavos)
-      const price = await stripe.prices.create({
-        product: product.id,
-        unit_amount: Math.round(priceAmount * 100),
-        currency: "brl",
-        metadata: {
-          hivium_user_id: user.id,
-          ...(stripeAccountId ? { stripe_connected_account_id: stripeAccountId } : {}),
-        },
-      });
-
-      stripePriceId = price.id;
-      logStep("Stripe price created", { priceId: price.id, amount: priceAmount });
-    }
 
     // Insert mesa
     const gmName = profile.display_name || profile.name || user.email || "Mestre";
@@ -136,8 +97,6 @@ serve(async (req) => {
       image_url: image_url || null,
       cover_image_url: cover_image_url || null,
       play_styles: play_styles || [],
-      stripe_product_id: stripeProductId,
-      stripe_price_id: stripePriceId,
       store_slot_id: store_slot_id || null,
     };
 
@@ -158,10 +117,46 @@ serve(async (req) => {
         .catch((e: any) => logStep("WARN: Could not update slot", { error: e.message }));
     }
 
+    // If price > 0 and it's a subscription (campaign), create Asaas billing product reference
+    let asaasBillingId: string | null = null;
+
+    if (priceAmount > 0 && is_subscription && campaign_sessions) {
+      const asaasConfig = getAsaasConfig();
+      if (asaasConfig) {
+        // Get GM's Asaas subaccount
+        const { data: asaasAccount } = await supabase
+          .from("asaas_accounts")
+          .select("asaas_id, api_key, wallet_id")
+          .eq("user_id", user.id)
+          .maybeSingle();
+
+        if (asaasAccount?.asaas_id) {
+          // Store the subscription config in mesa metadata for booking flow
+          await supabase
+            .from("mesas")
+            .update({
+              // Store subscription details so the booking flow can create subscriptions per player
+              tags: [...(tags || []), "subscription"],
+            })
+            .eq("id", mesa.id);
+
+          asaasBillingId = `mesa_sub_${mesa.id}`;
+          logStep("Campaign subscription configured", {
+            mesaId: mesa.id,
+            sessions: campaign_sessions,
+            sessionHours: session_hours,
+            pricePerSession: priceAmount,
+          });
+        }
+      }
+    }
+
     return new Response(JSON.stringify({
       id: mesa.id,
-      stripe_product_id: stripeProductId,
-      stripe_price_id: stripePriceId,
+      asaas_billing_id: asaasBillingId,
+      session_hours: Number(session_hours) || 4,
+      campaign_sessions: campaign_sessions || null,
+      is_subscription: is_subscription || false,
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

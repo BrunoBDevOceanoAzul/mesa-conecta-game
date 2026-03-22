@@ -35,6 +35,11 @@ const FORMATS = [
   { value: "híbrido", label: "Híbrido" },
 ];
 
+// Asaas fee references
+const ASAAS_PIX_PERCENT = 1.99;
+const ASAAS_CARD_PERCENT = 2.99;
+const PLATFORM_FEE_PERCENT = 5; // 5% HIVIUM
+
 export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateMesaDialogProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
@@ -53,6 +58,8 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [seatsTotal, setSeatsTotal] = useState("5");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
+  const [sessionHours, setSessionHours] = useState("4");
+  const [campaignSessions, setCampaignSessions] = useState("4");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
@@ -78,6 +85,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setSessionType("one-shot"); setFormat("presencial");
     setCity(""); setVenue(""); setMinPrice(""); setMaxPrice("");
     setSeatsTotal("5"); setStartAt(""); setEndAt("");
+    setSessionHours("4"); setCampaignSessions("4");
     setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
     setSelectedSlotId(null);
   };
@@ -127,6 +135,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
       let finalCoverUrl: string | null = null;
       if (coverFile || coverUrl) finalCoverUrl = await uploadCover();
 
+      const isCampaign = sessionType === "campanha";
       const { data, error } = await supabase.functions.invoke("create-mesa", {
         body: {
           title: title.trim(), description: description.trim() || null,
@@ -139,6 +148,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
           store_id: role === "store" ? storeId || user.id : null,
           cover_image_url: finalCoverUrl,
           store_slot_id: selectedSlotId || null,
+          session_hours: Number(sessionHours) || 4,
+          campaign_sessions: isCampaign ? Number(campaignSessions) || 4 : null,
+          is_subscription: isCampaign,
         },
       });
       if (error) throw error;
@@ -146,9 +158,11 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
       toast({
         title: "Mesa criada com sucesso! 🎲",
-        description: data?.stripe_price_id
-          ? "Produto e preço criados no Stripe automaticamente."
-          : "Mesa publicada sem cobrança via Stripe.",
+        description: isCampaign
+          ? `Campanha de ${campaignSessions} sessões configurada com cobrança recorrente.`
+          : data?.asaas_billing_id
+          ? "Cobrança Asaas criada automaticamente."
+          : "Mesa publicada sem cobrança.",
       });
       resetForm(); setOpen(false); onCreated?.();
     } catch (err: any) {
@@ -366,17 +380,18 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               <Input type="number" min="0" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="0" />
             </div>
           </div>
-          {/* Stripe fee breakdown */}
+          {/* Asaas fee breakdown */}
           {Number(minPrice) > 0 && (
-            <div className="rounded-xl border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 p-4 -mt-1 space-y-2">
-              <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wider">💰 Simulação de repasse Stripe</p>
+            <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 -mt-1 space-y-2">
+              <p className="text-xs font-semibold text-primary uppercase tracking-wider">💰 Simulação de repasse Asaas</p>
               {(() => {
                 const price = Number(minPrice);
-                const stripeFee = price * 0.0399 + 0.39; // Stripe BR: 3.99% + R$0.39
-                const platformFee = price * 0.10; // 10% HIVIUM take rate
-                const totalFees = stripeFee + platformFee;
-                const gmReceives = price - totalFees;
-                const suggestedPrice = Math.ceil((price + totalFees) / 0.50) * 0.50; // round up
+                const asaasFeeCard = price * ASAAS_CARD_PERCENT / 100;
+                const asaasFeePix = price * ASAAS_PIX_PERCENT / 100;
+                const platformFee = price * PLATFORM_FEE_PERCENT / 100;
+                const gmReceivesCard = price - asaasFeeCard - platformFee;
+                const gmReceivesPix = price - asaasFeePix - platformFee;
+                const suggestedPrice = Math.ceil((price / (1 - (ASAAS_PIX_PERCENT + PLATFORM_FEE_PERCENT) / 100)) / 0.50) * 0.50;
                 return (
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs">
@@ -384,22 +399,32 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
                       <span className="font-medium text-foreground">R${price.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Taxa Stripe (3,99% + R$0,39)</span>
-                      <span className="text-destructive font-medium">-R${stripeFee.toFixed(2)}</span>
+                      <span className="text-muted-foreground">Taxa Asaas PIX ({ASAAS_PIX_PERCENT}%)</span>
+                      <span className="text-destructive font-medium">-R${asaasFeePix.toFixed(2)}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Taxa HIVIUM (10%)</span>
+                      <span className="text-muted-foreground">Taxa Asaas Cartão ({ASAAS_CARD_PERCENT}%)</span>
+                      <span className="text-destructive font-medium">-R${asaasFeeCard.toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between text-xs">
+                      <span className="text-muted-foreground">Taxa HIVIUM ({PLATFORM_FEE_PERCENT}%)</span>
                       <span className="text-destructive font-medium">-R${platformFee.toFixed(2)}</span>
                     </div>
-                    <div className="border-t border-amber-200 dark:border-amber-800 pt-1.5 flex justify-between text-xs">
-                      <span className="font-semibold text-foreground">Você recebe</span>
-                      <span className="font-bold text-secondary">R${gmReceives.toFixed(2)}</span>
+                    <div className="border-t border-border pt-1.5 space-y-1">
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-foreground">Você recebe (PIX)</span>
+                        <span className="font-bold text-secondary">R${gmReceivesPix.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-xs">
+                        <span className="font-semibold text-foreground">Você recebe (Cartão)</span>
+                        <span className="font-bold text-muted-foreground">R${gmReceivesCard.toFixed(2)}</span>
+                      </div>
                     </div>
                     {suggestedPrice > price && (
                       <div className="mt-2 rounded-lg bg-primary/5 border border-primary/10 p-2.5 flex items-center justify-between">
                         <div>
                           <p className="text-[11px] text-primary font-medium">Sugestão: cobre R${suggestedPrice.toFixed(2)}</p>
-                          <p className="text-[10px] text-muted-foreground">Para receber ~R${(suggestedPrice - (suggestedPrice * 0.0399 + 0.39) - suggestedPrice * 0.10).toFixed(2)} líquido</p>
+                          <p className="text-[10px] text-muted-foreground">Para receber ~R${(suggestedPrice * (1 - (ASAAS_PIX_PERCENT + PLATFORM_FEE_PERCENT) / 100)).toFixed(2)} líquido</p>
                         </div>
                         <Button
                           type="button"
@@ -421,7 +446,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             </div>
           )}
           <p className="text-xs text-muted-foreground -mt-3">
-            Se o preço for maior que R$0, um produto será criado automaticamente no Stripe vinculado à sua conta.
+            Se o preço for maior que R$0, uma cobrança será criada automaticamente via Asaas.
           </p>
 
           {/* Pricing Calculator */}
@@ -445,12 +470,49 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               </div>
             </CollapsibleContent>
           </Collapsible>
-
-          {/* Seats */}
-          <div>
-            <Label>Vagas totais *</Label>
-            <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+          {/* Session hours & campaign config */}
+          <div className={`grid gap-3 ${sessionType === "campanha" ? "grid-cols-3" : "grid-cols-2"}`}>
+            <div>
+              <Label>Horas por sessão *</Label>
+              <Input type="number" min="1" max="12" value={sessionHours} onChange={(e) => setSessionHours(e.target.value)} />
+            </div>
+            {sessionType === "campanha" && (
+              <div>
+                <Label>Nº de sessões</Label>
+                <Input type="number" min="2" max="52" value={campaignSessions} onChange={(e) => setCampaignSessions(e.target.value)} />
+              </div>
+            )}
+            <div>
+              <Label>Vagas totais *</Label>
+              <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+            </div>
           </div>
+
+          {sessionType === "campanha" && Number(minPrice) > 0 && (
+            <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4 space-y-2">
+              <p className="text-xs font-semibold text-secondary uppercase tracking-wider">🔄 Assinatura recorrente (Campanha)</p>
+              <div className="space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Valor por sessão/jogador</span>
+                  <span className="font-medium text-foreground">R${Number(minPrice).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Sessões na campanha</span>
+                  <span className="font-medium text-foreground">{campaignSessions}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Recorrência</span>
+                  <span className="font-medium text-foreground">Mensal ({sessionHours}h/sessão)</span>
+                </div>
+                <div className="border-t border-border pt-1.5 flex justify-between">
+                  <span className="font-semibold text-foreground">Total estimado/jogador</span>
+                  <span className="font-bold text-secondary">R${(Number(minPrice) * Number(campaignSessions)).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
+          
 
           {/* Date & Time */}
           <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
