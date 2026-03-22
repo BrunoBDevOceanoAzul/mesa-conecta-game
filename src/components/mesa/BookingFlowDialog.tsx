@@ -466,6 +466,28 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           </>
         )}
 
+        {/* Collect CPF/CNPJ */}
+        {step === "collect_cpf" && (
+          <>
+            <DialogHeader>
+              <DialogTitle className="font-display flex items-center gap-2">
+                <CreditCard className="h-5 w-5 text-primary" />
+                Dados para pagamento
+              </DialogTitle>
+              <DialogDescription>
+                Complete seus dados para reservar a mesa <strong>{mesa.title}</strong>
+              </DialogDescription>
+            </DialogHeader>
+            <CpfCnpjCollector
+              onSaved={() => {
+                toast({ title: "Dados salvos!", description: "Continuando com o pagamento…" });
+                handlePaidBook();
+              }}
+              onCancel={() => onOpenChange(false)}
+            />
+          </>
+        )}
+
         {/* Limit reached */}
         {step === "limit_reached" && (
           <>
