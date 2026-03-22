@@ -84,19 +84,28 @@ serve(async (req) => {
     // Ensure player has Asaas customer record
     let { data: playerCustomer } = await supabase
       .from("asaas_customers")
-      .select("asaas_id")
+      .select("asaas_id, cpf_cnpj")
       .eq("user_id", user.id)
       .maybeSingle();
 
-    if (!playerCustomer?.asaas_id) {
-      // Auto-create Asaas customer for the player
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("display_name, name, cpf")
-        .eq("user_id", user.id)
-        .maybeSingle();
+    // Get profile + billing profile for CPF
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("display_name, name, cpf")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-      const customerName = profile?.display_name || profile?.name || user.email || "Jogador";
+    const { data: billingProfile } = await supabase
+      .from("billing_profiles")
+      .select("tax_document, full_name")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    const cpfCnpj = profile?.cpf || billingProfile?.tax_document || null;
+    const customerName = profile?.display_name || profile?.name || billingProfile?.full_name || user.email || "Jogador";
+
+    if (!playerCustomer?.asaas_id) {
+      if (!cpfCnpj) throw new Error("CPF/CNPJ é obrigatório para pagamento. Atualize seu perfil.");
 
       const asaasCustRes = await fetch(`${ASAAS_BASE}/customers`, {
         method: "POST",
@@ -104,7 +113,7 @@ serve(async (req) => {
         body: JSON.stringify({
           name: customerName,
           email: user.email,
-          cpfCnpj: profile?.cpf || undefined,
+          cpfCnpj,
           externalReference: user.id,
           notificationDisabled: true,
         }),
@@ -124,9 +133,22 @@ serve(async (req) => {
         asaas_id: asaasCust.id,
         name: customerName,
         email: user.email,
+        cpf_cnpj: cpfCnpj,
       });
 
-      playerCustomer = { asaas_id: asaasCust.id };
+      playerCustomer = { asaas_id: asaasCust.id, cpf_cnpj: cpfCnpj };
+    } else if (!playerCustomer.cpf_cnpj && cpfCnpj) {
+      // Update existing Asaas customer with CPF
+      await fetch(`${ASAAS_BASE}/customers/${playerCustomer.asaas_id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", "access_token": apiKey },
+        body: JSON.stringify({ cpfCnpj }),
+      });
+      await supabase.from("asaas_customers").update({ cpf_cnpj: cpfCnpj }).eq("user_id", user.id);
+      playerCustomer.cpf_cnpj = cpfCnpj;
+      log("Updated customer CPF", { asaasId: playerCustomer.asaas_id });
+    } else if (!playerCustomer.cpf_cnpj && !cpfCnpj) {
+      throw new Error("CPF/CNPJ é obrigatório para pagamento. Atualize seu perfil.");
     }
 
     // Create pending booking
@@ -266,17 +288,12 @@ serve(async (req) => {
       split_json: splitJson,
     });
 
-    // Track cart abandonment
-    const { data: playerProfile } = await supabase
-      .from("profiles")
-      .select("display_name, name, email")
-      .eq("user_id", user.id)
-      .maybeSingle();
+    // Track cart abandonment (reuse profile fetched earlier)
 
     await supabase.from("cart_abandonments").insert({
       player_user_id: user.id,
-      player_email: user.email || playerProfile?.email || null,
-      player_name: playerProfile?.display_name || playerProfile?.name || null,
+      player_email: user.email || profile?.email || null,
+      player_name: profile?.display_name || profile?.name || null,
       mesa_id: mesa.id,
       mesa_title: mesa.title,
       gm_user_id: mesa.gm_id,
