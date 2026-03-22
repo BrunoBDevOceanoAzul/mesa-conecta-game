@@ -478,7 +478,9 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 Complete seus dados para reservar a mesa <strong>{mesa.title}</strong>
               </DialogDescription>
             </DialogHeader>
-            <CpfCnpjCollector
+            <FinancialDataForm
+              role="player"
+              missingFields={["tax_document"]}
               onSaved={() => {
                 toast({ title: "Dados salvos!", description: "Continuando com o pagamento…" });
                 handlePaidBook();
