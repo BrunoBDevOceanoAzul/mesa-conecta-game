@@ -150,7 +150,7 @@ export function CouponManager() {
           <h2 className="text-base font-display font-semibold text-foreground flex items-center gap-2">
             <Tag className="h-4 w-4 text-secondary" /> Cupons de Desconto
           </h2>
-          <p className="text-xs text-muted-foreground mt-0.5">Gerencie cupons promocionais sincronizados com Stripe.</p>
+          <p className="text-xs text-muted-foreground mt-0.5">Gerencie cupons promocionais da plataforma.</p>
         </div>
         <Button variant="hero" size="sm" className="gap-2" onClick={() => setShowCreate(!showCreate)}>
           <Plus className="h-4 w-4" /> Criar cupom
