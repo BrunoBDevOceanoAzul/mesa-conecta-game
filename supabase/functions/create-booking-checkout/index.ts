@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 
 const corsHeaders = {
@@ -7,10 +6,10 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const logStep = (step: string, details?: any) => {
-  const d = details ? ` - ${JSON.stringify(details)}` : "";
-  console.log(`[BOOKING-CHECKOUT] ${step}${d}`);
-};
+const log = (step: string, details?: unknown) =>
+  console.log(`[BOOKING-CHECKOUT] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
+
+const PLATFORM_SPLIT_PERCENT = 5;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -24,10 +23,18 @@ serve(async (req) => {
   );
 
   try {
-    logStep("Function started");
+    log("Function started");
 
-    const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) throw new Error("STRIPE_SECRET_KEY is not set");
+    const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
+    const mainKey = Deno.env.get("ASAAS_API_KEY");
+    const apiKey = sandboxKey || mainKey;
+    if (!apiKey) throw new Error("No Asaas API key configured");
+
+    const ASAAS_BASE = sandboxKey
+      ? "https://sandbox.asaas.com/api/v3"
+      : mainKey?.startsWith("$aact_")
+        ? "https://api.asaas.com/v3"
+        : "https://sandbox.asaas.com/api/v3";
 
     const authHeader = req.headers.get("Authorization");
     if (!authHeader) throw new Error("No authorization header");
@@ -37,23 +44,23 @@ serve(async (req) => {
     if (userError || !userData.user) throw new Error("Authentication failed");
 
     const user = userData.user;
-    logStep("User authenticated", { userId: user.id, email: user.email });
+    log("User authenticated", { userId: user.id, email: user.email });
 
-    const { mesa_id } = await req.json();
+    const { mesa_id, billing_type = "PIX" } = await req.json();
     if (!mesa_id) throw new Error("mesa_id is required");
 
     // Fetch mesa details
     const { data: mesa, error: mesaError } = await supabase
       .from("mesas")
-      .select("id, title, min_price, stripe_price_id, stripe_product_id, gm_id, gm_name, seats_available, seats_total, system, format")
+      .select("id, title, min_price, gm_id, gm_name, seats_available, seats_total, system, format, store_id")
       .eq("id", mesa_id)
       .maybeSingle();
 
     if (mesaError || !mesa) throw new Error("Mesa not found");
     if (mesa.seats_available <= 0) throw new Error("Mesa is full — no seats available");
-    if (!mesa.stripe_price_id) throw new Error("Mesa has no Stripe price configured");
+    if (mesa.min_price <= 0) throw new Error("Mesa is free — use direct booking");
 
-    // Check if already booked (only block on CONFIRMED/COMPLETED bookings, not pending ones)
+    // Check if already booked
     const { data: existingBooking } = await supabase
       .from("bookings")
       .select("id, status, payment_status")
@@ -64,7 +71,7 @@ serve(async (req) => {
 
     if (existingBooking) throw new Error("You already have a confirmed booking for this mesa");
 
-    // Cancel any stale pending bookings from previous attempts
+    // Cancel stale pending bookings
     await supabase
       .from("bookings")
       .update({ status: "canceled", payment_status: "expired" })
@@ -72,42 +79,58 @@ serve(async (req) => {
       .eq("player_user_id", user.id)
       .eq("status", "pending_payment");
 
-    logStep("Stale pending bookings cleared");
+    log("Stale pending bookings cleared");
 
-    const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
-    const origin = req.headers.get("origin") || "https://mesa-conecta-game.lovable.app";
+    // Ensure player has Asaas customer record
+    let { data: playerCustomer } = await supabase
+      .from("asaas_customers")
+      .select("asaas_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-    // Find or create Stripe customer
-    const customers = await stripe.customers.list({ email: user.email!, limit: 1 });
-    let customerId: string;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
-    } else {
+    if (!playerCustomer?.asaas_id) {
+      // Auto-create Asaas customer for the player
       const { data: profile } = await supabase
         .from("profiles")
-        .select("display_name, name")
+        .select("display_name, name, cpf")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      const customer = await stripe.customers.create({
-        email: user.email!,
-        name: profile?.display_name || profile?.name || undefined,
-        metadata: { hivium_user_id: user.id },
+      const customerName = profile?.display_name || profile?.name || user.email || "Jogador";
+
+      const asaasCustRes = await fetch(`${ASAAS_BASE}/customers`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "access_token": apiKey },
+        body: JSON.stringify({
+          name: customerName,
+          email: user.email,
+          cpfCnpj: profile?.cpf || undefined,
+          externalReference: user.id,
+          notificationDisabled: true,
+        }),
       });
-      customerId = customer.id;
+
+      if (!asaasCustRes.ok) {
+        const errText = await asaasCustRes.text();
+        log("Asaas customer creation failed", { status: asaasCustRes.status, body: errText });
+        throw new Error("Failed to create payment customer");
+      }
+
+      const asaasCust = await asaasCustRes.json();
+      log("Asaas customer created", { asaasId: asaasCust.id });
+
+      await supabase.from("asaas_customers").insert({
+        user_id: user.id,
+        asaas_id: asaasCust.id,
+        name: customerName,
+        email: user.email,
+      });
+
+      playerCustomer = { asaas_id: asaasCust.id };
     }
 
-    logStep("Stripe customer ready", { customerId });
-
-    // Get GM's connected account for transfer
-    const { data: gmConnected } = await supabase
-      .from("connected_accounts")
-      .select("stripe_connected_account_id, application_fee_percent")
-      .eq("user_id", mesa.gm_id)
-      .eq("onboarding_status", "verified")
-      .maybeSingle();
-
-    // Create a pending booking first (so we can link it)
+    // Create pending booking
+    const amount = mesa.min_price;
     const { data: booking, error: bookingError } = await supabase
       .from("bookings")
       .insert({
@@ -116,7 +139,7 @@ serve(async (req) => {
         gm_user_id: mesa.gm_id,
         seats_reserved: 1,
         status: "pending_payment",
-        amount: Math.round(mesa.min_price * 100),
+        amount: Math.round(amount * 100),
         currency: "brl",
         payment_status: "pending",
         source_type: "platform",
@@ -126,53 +149,124 @@ serve(async (req) => {
       .single();
 
     if (bookingError) throw new Error(`Failed to create booking: ${bookingError.message}`);
-    logStep("Pending booking created", { bookingId: booking.id });
+    log("Pending booking created", { bookingId: booking.id });
 
-    // Build Checkout Session params with PIX + Card
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      customer: customerId,
-      payment_method_types: ["card"],
-      line_items: [{ price: mesa.stripe_price_id, quantity: 1 }],
-      mode: "payment",
-      success_url: `${origin}/mesa/${mesa.id}?booking=success&booking_id=${booking.id}`,
-      cancel_url: `${origin}/mesa/${mesa.id}?booking=canceled&booking_id=${booking.id}`,
-      metadata: {
-        type: "mesa_booking",
-        hivium_user_id: user.id,
-        hivium_mesa_id: mesa.id,
-        hivium_booking_id: booking.id,
-        hivium_gm_id: mesa.gm_id,
-      },
-      payment_intent_data: {
-        metadata: {
-          type: "mesa_booking",
-          hivium_booking_id: booking.id,
-          hivium_mesa_id: mesa.id,
-          hivium_gm_id: mesa.gm_id,
-        },
-        ...(gmConnected?.stripe_connected_account_id
-          ? {
-              transfer_data: {
-                destination: gmConnected.stripe_connected_account_id,
-              },
-              application_fee_amount: Math.round(
-                mesa.min_price * 100 * ((gmConnected.application_fee_percent || 10) / 100)
-              ),
-            }
-          : {}),
-      },
+    // Calculate splits
+    const platformAmount = +(amount * PLATFORM_SPLIT_PERCENT / 100).toFixed(2);
+
+    // Get GM wallet
+    const { data: gmAccount } = await supabase
+      .from("asaas_accounts")
+      .select("wallet_id, asaas_id")
+      .eq("user_id", mesa.gm_id)
+      .maybeSingle();
+
+    // Get Store wallet if applicable
+    let storeAccount: { wallet_id: string | null } | null = null;
+    if (mesa.store_id) {
+      const { data: sa } = await supabase
+        .from("asaas_accounts")
+        .select("wallet_id")
+        .eq("user_id", mesa.store_id)
+        .maybeSingle();
+      storeAccount = sa;
+    }
+
+    let gmAmount: number;
+    let storeAmount = 0;
+
+    if (storeAccount?.wallet_id) {
+      const sellerPool = amount - platformAmount;
+      gmAmount = +(sellerPool * 0.5).toFixed(2);
+      storeAmount = +(sellerPool - gmAmount).toFixed(2);
+    } else {
+      gmAmount = +(amount - platformAmount).toFixed(2);
+    }
+
+    const splitRules: { walletId: string; fixedValue: number }[] = [];
+    if (gmAccount?.wallet_id) {
+      splitRules.push({ walletId: gmAccount.wallet_id, fixedValue: gmAmount });
+    }
+    if (storeAccount?.wallet_id) {
+      splitRules.push({ walletId: storeAccount.wallet_id, fixedValue: storeAmount });
+    }
+
+    log("Split calculated", { total: amount, platform: platformAmount, gm: gmAmount, store: storeAmount });
+
+    // Create Asaas payment
+    const dueDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+    const asaasPayload: Record<string, unknown> = {
+      customer: playerCustomer.asaas_id,
+      billingType: billing_type,
+      value: amount,
+      dueDate,
+      description: `Reserva: ${mesa.title || "Mesa RPG"} - HIVIUM`,
+      externalReference: `booking:${booking.id}`,
     };
 
-    const session = await stripe.checkout.sessions.create(sessionParams);
-    logStep("Checkout session created", { sessionId: session.id, bookingId: booking.id });
+    if (splitRules.length > 0) {
+      asaasPayload.split = splitRules;
+    }
 
-    // Store checkout session id on booking for reconciliation
-    await supabase
-      .from("bookings")
-      .update({ stripe_checkout_session_id: session.id })
-      .eq("id", booking.id);
+    const asaasRes = await fetch(`${ASAAS_BASE}/payments`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "access_token": apiKey },
+      body: JSON.stringify(asaasPayload),
+    });
 
-    // Track cart abandonment (will be marked recovered on successful payment)
+    if (!asaasRes.ok) {
+      const errBody = await asaasRes.text();
+      log("Asaas API error", { status: asaasRes.status, body: errBody });
+      throw new Error(`Payment creation failed: ${asaasRes.status}`);
+    }
+
+    const asaasPayment = await asaasRes.json();
+    log("Asaas payment created", { asaasId: asaasPayment.id });
+
+    // Get PIX QR code if applicable
+    let pixData: { encodedImage?: string; payload?: string; expirationDate?: string } = {};
+    if (billing_type === "PIX" && asaasPayment.id) {
+      const pixRes = await fetch(`${ASAAS_BASE}/payments/${asaasPayment.id}/pixQrCode`, {
+        headers: { "access_token": apiKey },
+      });
+      if (pixRes.ok) {
+        pixData = await pixRes.json();
+      } else {
+        await pixRes.text(); // consume body
+      }
+    }
+
+    // Save payment record
+    const splitJson = {
+      platform: { percent: PLATFORM_SPLIT_PERCENT, amount: platformAmount },
+      gm: { user_id: mesa.gm_id, wallet_id: gmAccount?.wallet_id, amount: gmAmount },
+      ...(storeAccount?.wallet_id
+        ? { store: { user_id: mesa.store_id, wallet_id: storeAccount.wallet_id, amount: storeAmount } }
+        : {}),
+    };
+
+    await supabase.from("asaas_payments").insert({
+      user_id: user.id,
+      asaas_id: asaasPayment.id,
+      booking_id: booking.id,
+      mesa_id: mesa.id,
+      billing_type,
+      amount_cents: Math.round(amount * 100),
+      net_amount_cents: asaasPayment.netValue ? Math.round(asaasPayment.netValue * 100) : null,
+      currency: "BRL",
+      status: asaasPayment.status || "PENDING",
+      due_date: dueDate,
+      invoice_url: asaasPayment.invoiceUrl || null,
+      bank_slip_url: asaasPayment.bankSlipUrl || null,
+      pix_qr_code: pixData.encodedImage || null,
+      pix_copy_paste: pixData.payload || null,
+      description: `Reserva: ${mesa.title}`,
+      external_reference: `booking:${booking.id}`,
+      split_json: splitJson,
+    });
+
+    // Track cart abandonment
     const { data: playerProfile } = await supabase
       .from("profiles")
       .select("display_name, name, email")
@@ -187,12 +281,10 @@ serve(async (req) => {
       mesa_title: mesa.title,
       gm_user_id: mesa.gm_id,
       booking_id: booking.id,
-      stripe_checkout_session_id: session.id,
-      amount_cents: Math.round(mesa.min_price * 100),
+      amount_cents: Math.round(amount * 100),
       currency: "brl",
       status: "abandoned",
     });
-    logStep("Cart abandonment tracked", { bookingId: booking.id });
 
     // Audit
     await supabase.from("audit_log").insert({
@@ -201,16 +293,29 @@ serve(async (req) => {
       actor_email: user.email,
       target_type: "booking",
       target_id: booking.id,
-      details_json: { mesa_id: mesa.id, session_id: session.id, amount: mesa.min_price },
+      details_json: { mesa_id: mesa.id, asaas_id: asaasPayment.id, amount, billing_type },
       source: "create-booking-checkout",
     });
 
-    return new Response(JSON.stringify({ url: session.url, booking_id: booking.id }), {
+    log("Checkout complete", { bookingId: booking.id, asaasId: asaasPayment.id });
+
+    return new Response(JSON.stringify({
+      booking_id: booking.id,
+      asaas_id: asaasPayment.id,
+      status: asaasPayment.status,
+      billing_type,
+      invoice_url: asaasPayment.invoiceUrl || null,
+      pix_qr_code: pixData.encodedImage || null,
+      pix_copy_paste: pixData.payload || null,
+      pix_expiration: pixData.expirationDate || null,
+      due_date: dueDate,
+      amount,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: msg });
+    log("ERROR", { message: msg });
     return new Response(JSON.stringify({ error: msg }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 400,
