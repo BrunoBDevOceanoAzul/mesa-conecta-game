@@ -33,7 +33,7 @@ const benefits = [
   {
     icon: Shield,
     title: "Pagamento seguro integrado",
-    desc: "Stripe Connect configurado. O jogador paga online, você recebe direto na conta da loja.",
+    desc: "Pagamento integrado via PIX e cartão. O jogador paga online, você recebe direto na sua conta.",
   },
   {
     icon: Store,
