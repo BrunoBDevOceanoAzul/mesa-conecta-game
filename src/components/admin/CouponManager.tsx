@@ -260,7 +260,7 @@ export function CouponManager() {
           <div className="flex gap-3 pt-2">
             <Button variant="hero" size="sm" className="gap-2" onClick={handleCreate} disabled={creating}>
               {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
-              Criar cupom na Stripe
+              Criar cupom
             </Button>
             <Button variant="ghost" size="sm" onClick={() => { setShowCreate(false); resetForm(); }}>
               Cancelar

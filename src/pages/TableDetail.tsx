@@ -111,7 +111,7 @@ export default function TableDetail() {
       });
   }, [user, id, bookingSuccess]);
 
-  // Handle return from Stripe Checkout
+  // Handle return from Checkout
   useEffect(() => {
     const bookingStatus = searchParams.get("booking");
     if (bookingStatus === "success") {
