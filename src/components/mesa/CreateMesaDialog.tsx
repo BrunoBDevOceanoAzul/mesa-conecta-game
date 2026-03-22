@@ -85,6 +85,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setSessionType("one-shot"); setFormat("presencial");
     setCity(""); setVenue(""); setMinPrice(""); setMaxPrice("");
     setSeatsTotal("5"); setStartAt(""); setEndAt("");
+    setSessionHours("4"); setCampaignSessions("4");
     setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
     setSelectedSlotId(null);
   };
