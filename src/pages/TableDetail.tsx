@@ -512,7 +512,7 @@ export default function TableDetail() {
                       return;
                     }
                     if (mesa.min_price > 0) {
-                      // Go directly to Stripe Checkout
+                      // Go directly to Asaas Checkout
                       setCheckoutLoading(true);
                       try {
                         const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
