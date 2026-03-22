@@ -552,7 +552,7 @@ export default function TableDetail() {
 
               {!existingBooking && mesa.min_price > 0 && (
                 <p className="text-[11px] text-muted-foreground text-center">
-                  Pagamento seguro via Stripe • sem surpresas
+                  Pagamento seguro via PIX • sem surpresas
                 </p>
               )}
 
