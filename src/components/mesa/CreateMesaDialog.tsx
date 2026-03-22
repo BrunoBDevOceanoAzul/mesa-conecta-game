@@ -58,6 +58,8 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [seatsTotal, setSeatsTotal] = useState("5");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
+  const [sessionHours, setSessionHours] = useState("4");
+  const [campaignSessions, setCampaignSessions] = useState("4");
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
