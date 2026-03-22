@@ -35,6 +35,11 @@ const FORMATS = [
   { value: "híbrido", label: "Híbrido" },
 ];
 
+// Asaas fee references
+const ASAAS_PIX_PERCENT = 1.99;
+const ASAAS_CARD_PERCENT = 2.99;
+const PLATFORM_FEE_PERCENT = 5; // 5% HIVIUM
+
 export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateMesaDialogProps) {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
