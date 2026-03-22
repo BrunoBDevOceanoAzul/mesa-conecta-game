@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
 import { useToast } from "@/hooks/use-toast";
-import { CpfCnpjCollector } from "@/components/checkout/CpfCnpjCollector";
+import { FinancialDataForm } from "@/components/checkout/FinancialDataForm";
 import {
   Dialog,
   DialogContent,
