@@ -289,6 +289,7 @@ export default function MestrePublicProfile() {
                     seats_total: t.seats_total || 5,
                     seats_available: t.seats_available || 0,
                     gm_name: name,
+                    gm_instagram: profile.instagram_handle,
                     start_at: t.start_at || new Date().toISOString(),
                     status: t.status || "published",
                   }}
