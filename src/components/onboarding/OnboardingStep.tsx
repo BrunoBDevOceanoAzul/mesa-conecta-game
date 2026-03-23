@@ -51,6 +51,8 @@ export function OnboardingStepView({
   onAvailabilityChange,
   textValue,
   onTextChange,
+  avatarUrl,
+  onAvatarChange,
 }: StepProps) {
   const progress = ((current + 1) / total) * 100;
 
