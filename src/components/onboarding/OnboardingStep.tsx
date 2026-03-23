@@ -418,6 +418,16 @@ export function OnboardingStepView({
                 </div>
               )}
 
+              {/* ── Bio + Avatar ── */}
+              {step.type === "bio-avatar" && onAvatarChange && (
+                <BioAvatarStep
+                  bio={(value as string) || ""}
+                  avatarUrl={avatarUrl || ""}
+                  onBioChange={(bio) => onChange(step.field, bio)}
+                  onAvatarChange={onAvatarChange}
+                />
+              )}
+
               {/* ── Toggles ── */}
               {step.type === "toggles" && (
                 <div className="grid gap-3">
