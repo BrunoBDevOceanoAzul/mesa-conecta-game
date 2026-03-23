@@ -84,23 +84,22 @@ export function FinancialDataForm({ role, missingFields, onSaved, onCancel }: Pr
         supabase.from("billing_profiles").select("*").eq("user_id", user.id).maybeSingle(),
         supabase.from("profiles").select("name, display_name, city, whatsapp").eq("user_id", user.id).maybeSingle(),
       ]);
-      if (bp) {
-        setFullName(bp.full_name || "");
-        setTaxDocument(bp.tax_document || "");
-        setBillingEmail(bp.billing_email || "");
-        setMobilePhone(bp.billing_phone || "");
-        setAddressLine(bp.address_line || "");
-        setAddressNumber(bp.address_number || "");
-        setNeighborhood(bp.neighborhood || "");
-        setCity(bp.city || "");
-        setState(bp.state || "");
-        setZipCode(bp.zip_code || "");
-      }
-      // Fallbacks from profile
-      if (!fullName && profile) setFullName(profile.display_name || profile.name || "");
-      if (!billingEmail && user.email) setBillingEmail(user.email);
-      if (!mobilePhone && profile?.whatsapp) setMobilePhone(profile.whatsapp);
-      if (!city && profile?.city) setCity(profile.city);
+
+      const prefillName = bp?.full_name || profile?.display_name || profile?.name || "";
+      const prefillEmail = bp?.billing_email || user.email || "";
+      const prefillPhone = bp?.mobile_phone || bp?.billing_phone || profile?.whatsapp || "";
+      const prefillCity = bp?.city || profile?.city || "";
+
+      setFullName(prefillName);
+      setTaxDocument(bp?.tax_document || "");
+      setBillingEmail(prefillEmail);
+      setMobilePhone(prefillPhone);
+      setAddressLine(bp?.address_line || "");
+      setAddressNumber(bp?.address_number || "");
+      setNeighborhood(bp?.neighborhood || "");
+      setCity(prefillCity);
+      setState(bp?.state || "");
+      setZipCode(bp?.zip_code || "");
     })();
   }, [user]);
 
