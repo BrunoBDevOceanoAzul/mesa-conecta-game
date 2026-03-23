@@ -197,6 +197,14 @@ export const playerSteps: OnboardingStep[] = [
 // ─── MESTRE ───────────────────────────────────────────
 export const gmSteps: OnboardingStep[] = [
   {
+    id: "gm-bio",
+    title: "Sua identidade como mestre",
+    subtitle: "Uma foto e uma frase que diga quem você é na mesa",
+    microcopy: "Jogadores veem isso ao explorar mesas. Cause uma boa primeira impressão.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
     id: "gm-format",
     title: "Como você prefere abrir suas mesas?",
     subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
