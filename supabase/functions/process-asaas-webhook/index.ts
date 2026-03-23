@@ -23,12 +23,21 @@ serve(async (req) => {
   );
 
   try {
-    // Validate webhook auth token
+    // Validate webhook auth token (accept common Asaas header variants)
     const webhookToken = Deno.env.get("ASAAS_WEBHOOK_AUTH_TOKEN");
-    const incomingToken = req.headers.get("asaas-access-token");
+    const incomingToken =
+      req.headers.get("asaas-access-token") ||
+      req.headers.get("access_token") ||
+      req.headers.get("access-token") ||
+      req.headers.get("x-asaas-access-token") ||
+      req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim() ||
+      null;
 
     if (!webhookToken || incomingToken !== webhookToken) {
-      log("AUTH FAILED", { hasToken: !!incomingToken });
+      log("AUTH FAILED", {
+        hasToken: !!incomingToken,
+        hasConfigToken: !!webhookToken,
+      });
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
