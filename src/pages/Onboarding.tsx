@@ -210,6 +210,7 @@ export default function Onboarding() {
         role: dbRole,
         bio: answers.bio || null,
         avatar_url: avatarUrl || null,
+        instagram_handle: instagramHandle || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
