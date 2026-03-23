@@ -13,7 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   MapPin, Users, Store, Calendar, Sparkles, ArrowRight,
   Wifi, Wind, Coffee, Accessibility, DoorOpen, Star,
-  Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText
+  Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText, Instagram
 } from "lucide-react";
 
 const featureIcons: Record<string, any> = {
