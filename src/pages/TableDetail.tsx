@@ -606,6 +606,17 @@ export default function TableDetail() {
         />
       )}
 
+      {/* GM Session Panel */}
+      {mesa && user && user.id === mesa.gm_id && (
+        <GMSessionPanel
+          open={sessionPanelOpen}
+          onOpenChange={setSessionPanelOpen}
+          mesaId={mesa.id}
+          mesaTitle={mesa.title}
+          mesaSystem={mesa.system}
+        />
+      )}
+
       <Footer />
     </div>
   );
