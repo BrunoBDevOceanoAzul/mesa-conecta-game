@@ -13,7 +13,7 @@ import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import {
   MapPin, Star, Users, Swords, BookOpen, Calendar,
   Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap,
-  Briefcase, Brain, Clock, Gamepad2, ChevronRight
+  Briefcase, Brain, Clock, Gamepad2, ChevronRight, Instagram
 } from "lucide-react";
 
 interface GMData {
