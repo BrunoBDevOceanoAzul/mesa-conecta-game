@@ -22,9 +22,12 @@ import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
 import { MesaParticipants } from "@/components/mesa/MesaParticipants";
 import { MesaFeed } from "@/components/mesa/MesaFeed";
 import { BoardGameExpansions } from "@/components/mesa/BoardGameExpansions";
+import { GMSessionPanel } from "@/components/session/GMSessionPanel";
+import { PlayerSessionView } from "@/components/session/PlayerSessionView";
+import { DiceRoller } from "@/components/session/DiceRoller";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices
 } from "lucide-react";
 
 type Mesa = {
@@ -88,6 +91,7 @@ export default function TableDetail() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [existingBooking, setExistingBooking] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [sessionPanelOpen, setSessionPanelOpen] = useState(false);
   const eligibility = useReviewEligibility(id);
 
   // Check if user has a CONFIRMED booking (paid or free) for this mesa
@@ -419,6 +423,28 @@ export default function TableDetail() {
                       gameTableId={mesa.id}
                       tableTitle={mesa.title}
                     />
+                    {/* Session Panel Trigger */}
+                    <Button
+                      variant="hero"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => setSessionPanelOpen(true)}
+                    >
+                      <Clapperboard className="h-5 w-5" /> Painel de Sessão
+                    </Button>
+                  </div>
+                )}
+
+                {/* Player Session View (revealed images + public dice) */}
+                {user && user.id !== mesa.gm_id && existingBooking && (
+                  <div className="space-y-4">
+                    <PlayerSessionView mesaId={mesa.id} />
+                    <div className="rounded-2xl border border-border bg-card p-4">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <Dices className="h-4 w-4" /> Rolar Dados
+                      </h3>
+                      <DiceRoller mesaId={mesa.id} />
+                    </div>
                   </div>
                 )}
               </>
@@ -577,6 +603,17 @@ export default function TableDetail() {
             seats_available: mesa.seats_available,
             seats_total: mesa.seats_total,
           }}
+        />
+      )}
+
+      {/* GM Session Panel */}
+      {mesa && user && user.id === mesa.gm_id && (
+        <GMSessionPanel
+          open={sessionPanelOpen}
+          onOpenChange={setSessionPanelOpen}
+          mesaId={mesa.id}
+          mesaTitle={mesa.title}
+          mesaSystem={mesa.system}
         />
       )}
 
