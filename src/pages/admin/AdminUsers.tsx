@@ -678,6 +678,14 @@ export default function AdminUsers() {
                     {editMode ? (
                       <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
                         <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">Nome</Label>
+                          <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome completo" className="bg-card" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">Cidade</Label>
+                          <Input value={editCity} onChange={(e) => setEditCity(e.target.value)} placeholder="Ex: São Paulo" className="bg-card" />
+                        </div>
+                        <div>
                           <Label className="text-xs text-muted-foreground mb-1.5 block">Perfil principal (primary_role)</Label>
                           <Select value={editRole} onValueChange={setEditRole}>
                             <SelectTrigger className="bg-card"><SelectValue placeholder="Selecione..." /></SelectTrigger>
@@ -706,6 +714,18 @@ export default function AdminUsers() {
                         <div className="flex items-center justify-between">
                           <Label className="text-xs">Pode gerenciar marca (can_manage_brand)</Label>
                           <Switch checked={editCanManageBrand} onCheckedChange={setEditCanManageBrand} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Onboarding completo</Label>
+                          <Switch checked={editOnboarding} onCheckedChange={setEditOnboarding} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Founder</Label>
+                          <Switch checked={editIsFounder} onCheckedChange={setEditIsFounder} />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">XP Total</Label>
+                          <Input type="number" value={editXp} onChange={(e) => setEditXp(e.target.value)} placeholder="0" className="bg-card" />
                         </div>
                         <p className="text-[10px] text-muted-foreground leading-relaxed">
                           ⚠️ Alterar o perfil afeta dashboard, onboarding, planos e permissões do usuário.
