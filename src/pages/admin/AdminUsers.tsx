@@ -152,7 +152,7 @@ export default function AdminUsers() {
     setLoading(true);
     const [profilesRes, subsRes, walletsRes, xpRes, badgesRes, discountsRes, productsRes] = await Promise.all([
       supabase.from("profiles").select("user_id, name, email, role, can_play, can_gm, can_manage_store, can_manage_brand, city, is_active, onboarding_completed, created_at"),
-      supabase.from("subscriptions").select("user_id, status, plan_name, plan_role, plan_id, billing_interval, amount, currency, current_period_end"),
+      supabase.from("asaas_subscriptions").select("id, user_id, status, billing_product_id, amount_cents, currency, next_due_date, cycle, created_at"),
       supabase.from("credit_wallets").select("user_id, is_founder"),
       supabase.from("master_xp_profiles").select("user_id, total_xp"),
       supabase.from("master_badges").select("user_id"),
