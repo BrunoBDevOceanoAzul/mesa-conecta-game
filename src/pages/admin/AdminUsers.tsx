@@ -170,11 +170,28 @@ export default function AdminUsers() {
     const discounts = (discountsRes.data || []) as any[];
 
     const rows: UserRow[] = profiles.map((p: any) => {
-      const sub = subs.find((s: any) => s.user_id === p.user_id && (s.status === "active" || s.status === "trialing"));
+      const sub = subs.find((s: any) => s.user_id === p.user_id && (s.status === "ACTIVE" || s.status === "PENDING"));
       const wallet = wallets.find((w: any) => w.user_id === p.user_id);
       const xp = xps.find((x: any) => x.user_id === p.user_id);
       const badgeCount = badges.filter((b: any) => b.user_id === p.user_id).length;
       const disc = discounts.find((d: any) => d.user_id === p.user_id);
+      const matchedProduct = sub?.billing_product_id
+        ? (productsRes.data || []).find((bp: any) => bp.id === sub.billing_product_id)
+        : null;
+
+      const statusMap: Record<string, string> = {
+        ACTIVE: "active",
+        PENDING: "pending",
+        OVERDUE: "past_due",
+        CANCELLED: "canceled",
+        EXPIRED: "canceled",
+      };
+      const cycleMap: Record<string, string> = {
+        MONTHLY: "monthly",
+        QUARTERLY: "quarterly",
+        SEMIANNUALLY: "semiannual",
+        YEARLY: "annual",
+      };
 
       return {
         user_id: p.user_id,
@@ -189,14 +206,14 @@ export default function AdminUsers() {
         is_active: p.is_active ?? true,
         onboarding_completed: p.onboarding_completed ?? false,
         created_at: p.created_at,
-        sub_status: sub?.status || null,
-        plan_name: (sub as any)?.plan_name || null,
-        plan_role: (sub as any)?.plan_role || null,
-        plan_id: (sub as any)?.plan_id || null,
-        billing_interval: (sub as any)?.billing_interval || null,
-        sub_amount: (sub as any)?.amount || null,
-        sub_currency: (sub as any)?.currency || null,
-        sub_period_end: (sub as any)?.current_period_end || null,
+        sub_status: sub ? (statusMap[sub.status] || sub.status) : null,
+        plan_name: matchedProduct?.name || null,
+        plan_role: matchedProduct?.target_role || null,
+        plan_id: sub?.billing_product_id || null,
+        billing_interval: sub ? (cycleMap[sub.cycle] || sub.cycle) : null,
+        sub_amount: sub?.amount_cents || null,
+        sub_currency: sub?.currency || null,
+        sub_period_end: sub?.next_due_date || null,
         is_founder: wallet?.is_founder || false,
         xp: (xp as any)?.total_xp || 0,
         badge_count: badgeCount,
