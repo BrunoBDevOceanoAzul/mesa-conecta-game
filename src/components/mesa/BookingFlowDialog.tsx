@@ -59,6 +59,7 @@ type FlowStep = "loading" | "confirm" | "limit_reached" | "collect_cpf" | "payme
 export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
   const { user } = useAuth();
   const { isSuperUser } = usePrivileges();
+  const { isReady: isFinancialReady, missingFields, refetch: refetchFinancial } = useFinancialReadiness("player");
   const { toast } = useToast();
   const navigate = useNavigate();
 
