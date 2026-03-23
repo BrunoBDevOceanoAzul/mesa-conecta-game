@@ -364,6 +364,7 @@ export const storeSteps: OnboardingStep[] = [
     field: "bio",
     required: false,
   },
+  {
     id: "store-format",
     title: "Como sua operação acontece?",
     subtitle: "A HIVIUM conecta experiências presenciais, híbridas e online.",
