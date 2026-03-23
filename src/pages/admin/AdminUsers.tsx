@@ -254,10 +254,15 @@ export default function AdminUsers() {
   function startEdit() {
     if (!selected) return;
     setEditRole(selected.role || "");
+    setEditName(selected.name || "");
+    setEditCity(selected.city || "");
+    setEditOnboarding(selected.onboarding_completed);
     setEditCanPlay(selected.can_play);
     setEditCanGm(selected.can_gm);
     setEditCanManageStore(selected.can_manage_store);
     setEditCanManageBrand(selected.can_manage_brand);
+    setEditIsFounder(selected.is_founder);
+    setEditXp(String(selected.xp));
     setEditMode(true);
   }
 
