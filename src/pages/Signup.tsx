@@ -91,7 +91,7 @@ export default function Signup() {
             can_gm: canGm,
             can_manage_store: canManageStore,
             can_manage_brand: false,
-            whatsapp: normalizePhone(whatsapp),
+            whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
           },
           emailRedirectTo: window.location.origin,
         },
@@ -114,7 +114,7 @@ export default function Signup() {
         await supabase.from("profiles").update({
           onboarding_completed: true,
           onboarding_step: 99,
-          whatsapp: normalizePhone(whatsapp),
+          whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
           terms_accepted_at: new Date().toISOString(),
           terms_version: "1.0",
         } as any).eq("user_id", data.user!.id);
@@ -145,7 +145,7 @@ export default function Signup() {
         canGm,
         canManageStore,
         dashboard: roleToDashboard[selectedRole] || "/explorar",
-        whatsapp: normalizePhone(whatsapp),
+        whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
       }));
 
       const result = await lovable.auth.signInWithOAuth("google", {
@@ -181,10 +181,10 @@ export default function Signup() {
           </button>
 
           <h1 className="text-2xl md:text-[1.7rem] font-display font-bold text-foreground leading-tight tracking-tight">
-            Entre e comece a explorar o ecossistema
+            Crie sua conta grátis
           </h1>
           <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-            Descubra mesas, mestres, jogadores e ferramentas para sua jornada — grátis para começar.
+            Leva menos de 30 segundos. Você completa o restante depois.
           </p>
         </div>
 
@@ -242,14 +242,13 @@ export default function Signup() {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required disabled={loading} />
           </div>
           <div>
-            <label className="field-label">WhatsApp</label>
+            <label className="field-label">WhatsApp <span className="text-muted-foreground/50 font-normal">(opcional)</span></label>
             <input
               type="tel"
               value={whatsapp}
               onChange={(e) => setWhatsapp(formatWhatsApp(e.target.value))}
               className="field-input"
               placeholder="(11) 99999-9999"
-              required
               disabled={loading}
             />
           </div>
@@ -288,7 +287,7 @@ export default function Signup() {
 
         {/* Microcopy */}
         <div className="mt-4 flex flex-col items-center gap-1.5">
-          <p className="text-xs text-muted-foreground/50">Leva menos de 30 segundos · Você completa o restante depois</p>
+          <p className="text-xs text-muted-foreground/50">Sem cartão de crédito · Comece a jogar agora</p>
         </div>
 
         <p className="mt-5 text-center text-sm text-muted-foreground">

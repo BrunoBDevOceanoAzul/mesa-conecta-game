@@ -121,10 +121,15 @@ export default function AdminUsers() {
   // Edit states
   const [editMode, setEditMode] = useState(false);
   const [editRole, setEditRole] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editOnboarding, setEditOnboarding] = useState(false);
   const [editCanPlay, setEditCanPlay] = useState(false);
   const [editCanGm, setEditCanGm] = useState(false);
   const [editCanManageStore, setEditCanManageStore] = useState(false);
   const [editCanManageBrand, setEditCanManageBrand] = useState(false);
+  const [editIsFounder, setEditIsFounder] = useState(false);
+  const [editXp, setEditXp] = useState("0");
   const [saving, setSaving] = useState(false);
 
   // Plan edit states
@@ -231,10 +236,15 @@ export default function AdminUsers() {
     setEditMode(false);
     setPlanEditMode(false);
     setEditRole(u.role || "");
+    setEditName(u.name || "");
+    setEditCity(u.city || "");
+    setEditOnboarding(u.onboarding_completed);
     setEditCanPlay(u.can_play);
     setEditCanGm(u.can_gm);
     setEditCanManageStore(u.can_manage_store);
     setEditCanManageBrand(u.can_manage_brand);
+    setEditIsFounder(u.is_founder);
+    setEditXp(String(u.xp));
     setEditPlanName(u.plan_name || "");
     setEditPlanRole(u.plan_role || "");
     setEditBillingInterval(u.billing_interval || "monthly");
@@ -244,10 +254,15 @@ export default function AdminUsers() {
   function startEdit() {
     if (!selected) return;
     setEditRole(selected.role || "");
+    setEditName(selected.name || "");
+    setEditCity(selected.city || "");
+    setEditOnboarding(selected.onboarding_completed);
     setEditCanPlay(selected.can_play);
     setEditCanGm(selected.can_gm);
     setEditCanManageStore(selected.can_manage_store);
     setEditCanManageBrand(selected.can_manage_brand);
+    setEditIsFounder(selected.is_founder);
+    setEditXp(String(selected.xp));
     setEditMode(true);
   }
 
@@ -255,19 +270,38 @@ export default function AdminUsers() {
     if (!selected || !adminUser) return;
     setSaving(true);
 
-    const oldData = { role: selected.role, can_play: selected.can_play, can_gm: selected.can_gm, can_manage_store: selected.can_manage_store, can_manage_brand: selected.can_manage_brand };
-    const newData = { role: editRole || null, can_play: editCanPlay, can_gm: editCanGm, can_manage_store: editCanManageStore, can_manage_brand: editCanManageBrand };
+    const oldData = { name: selected.name, role: selected.role, city: selected.city, onboarding_completed: selected.onboarding_completed, can_play: selected.can_play, can_gm: selected.can_gm, can_manage_store: selected.can_manage_store, can_manage_brand: selected.can_manage_brand };
+    const newData = { name: editName || null, role: editRole || null, city: editCity || null, onboarding_completed: editOnboarding, can_play: editCanPlay, can_gm: editCanGm, can_manage_store: editCanManageStore, can_manage_brand: editCanManageBrand };
 
+    // Update profile
     const { error } = await supabase
       .from("profiles")
       .update({
+        name: editName.trim() || null,
         role: editRole || null,
+        city: editCity.trim() || null,
+        onboarding_completed: editOnboarding,
         can_play: editCanPlay,
         can_gm: editCanGm,
         can_manage_store: editCanManageStore,
         can_manage_brand: editCanManageBrand,
       } as any)
       .eq("user_id", selected.user_id);
+
+    // Update founder status
+    if (editIsFounder !== selected.is_founder) {
+      await supabase
+        .from("credit_wallets")
+        .upsert({ user_id: selected.user_id, is_founder: editIsFounder } as any, { onConflict: "user_id" });
+    }
+
+    // Update XP
+    const newXp = parseInt(editXp) || 0;
+    if (newXp !== selected.xp) {
+      await supabase
+        .from("master_xp_profiles")
+        .upsert({ user_id: selected.user_id, total_xp: newXp } as any, { onConflict: "user_id" });
+    }
 
     if (error) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
@@ -644,6 +678,14 @@ export default function AdminUsers() {
                     {editMode ? (
                       <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
                         <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">Nome</Label>
+                          <Input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="Nome completo" className="bg-card" />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">Cidade</Label>
+                          <Input value={editCity} onChange={(e) => setEditCity(e.target.value)} placeholder="Ex: São Paulo" className="bg-card" />
+                        </div>
+                        <div>
                           <Label className="text-xs text-muted-foreground mb-1.5 block">Perfil principal (primary_role)</Label>
                           <Select value={editRole} onValueChange={setEditRole}>
                             <SelectTrigger className="bg-card"><SelectValue placeholder="Selecione..." /></SelectTrigger>
@@ -672,6 +714,18 @@ export default function AdminUsers() {
                         <div className="flex items-center justify-between">
                           <Label className="text-xs">Pode gerenciar marca (can_manage_brand)</Label>
                           <Switch checked={editCanManageBrand} onCheckedChange={setEditCanManageBrand} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Onboarding completo</Label>
+                          <Switch checked={editOnboarding} onCheckedChange={setEditOnboarding} />
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <Label className="text-xs">Founder</Label>
+                          <Switch checked={editIsFounder} onCheckedChange={setEditIsFounder} />
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">XP Total</Label>
+                          <Input type="number" value={editXp} onChange={(e) => setEditXp(e.target.value)} placeholder="0" className="bg-card" />
                         </div>
                         <p className="text-[10px] text-muted-foreground leading-relaxed">
                           ⚠️ Alterar o perfil afeta dashboard, onboarding, planos e permissões do usuário.
