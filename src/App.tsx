@@ -46,6 +46,7 @@ import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import ParaLojas from "./pages/ParaLojas";
 import QuemSomos from "./pages/QuemSomos";
 import Contato from "./pages/Contato";
+import Unsubscribe from "./pages/Unsubscribe";
 const queryClient = new QueryClient();
 
 const App = () => (
