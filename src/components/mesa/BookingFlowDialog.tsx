@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
+import { useFinancialReadiness } from "@/hooks/use-financial-readiness";
 import { useToast } from "@/hooks/use-toast";
 import { FinancialDataForm } from "@/components/checkout/FinancialDataForm";
 import {
