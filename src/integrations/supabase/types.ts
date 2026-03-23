@@ -2929,6 +2929,97 @@ export type Database = {
           },
         ]
       }
+      knowledge_chunks: {
+        Row: {
+          chunk_index: number
+          content: string
+          content_tsv: unknown
+          created_at: string | null
+          document_id: string
+          id: string
+          metadata_json: Json | null
+          token_count: number | null
+        }
+        Insert: {
+          chunk_index?: number
+          content: string
+          content_tsv?: unknown
+          created_at?: string | null
+          document_id: string
+          id?: string
+          metadata_json?: Json | null
+          token_count?: number | null
+        }
+        Update: {
+          chunk_index?: number
+          content?: string
+          content_tsv?: unknown
+          created_at?: string | null
+          document_id?: string
+          id?: string
+          metadata_json?: Json | null
+          token_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_chunks_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "knowledge_documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      knowledge_documents: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          mesa_id: string | null
+          metadata_json: Json | null
+          source_ref: string | null
+          source_type: string
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          mesa_id?: string | null
+          metadata_json?: Json | null
+          source_ref?: string | null
+          source_type?: string
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          mesa_id?: string | null
+          metadata_json?: Json | null
+          source_ref?: string | null
+          source_type?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "knowledge_documents_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           created_at: string
@@ -5641,6 +5732,22 @@ export type Database = {
           thumbnail_url: string
           type: string
           weight_complexity: number
+        }[]
+      }
+      search_knowledge: {
+        Args: {
+          _limit?: number
+          _mesa_id?: string
+          _query: string
+          _source_types?: string[]
+        }
+        Returns: {
+          chunk_id: string
+          content: string
+          document_id: string
+          document_title: string
+          rank: number
+          source_type: string
         }[]
       }
       show_limit: { Args: never; Returns: number }
