@@ -234,9 +234,17 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
       // Handle structured missing CPF error (422 returned as FunctionsHttpError)
       if (error) {
-        // Try to parse error body for structured response
+        // supabase.functions.invoke puts 4xx/5xx body in `data` when available
         const errorBody = data || {};
-        if (errorBody?.error_code === "MISSING_CPF_CNPJ" || errorBody?.error === "missing_cpf_cnpj") {
+        const errorCode = errorBody?.error_code || errorBody?.error;
+        if (errorCode === "MISSING_CPF_CNPJ" || errorCode === "missing_cpf_cnpj") {
+          setStep("collect_cpf");
+          return;
+        }
+        // Also check if the error message itself hints at missing CPF
+        const msg = error?.message || "";
+        if (msg.includes("non-2xx") || msg.includes("422")) {
+          // Likely a CPF issue that wasn't parsed — fallback to collect_cpf
           setStep("collect_cpf");
           return;
         }

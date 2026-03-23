@@ -1,7 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { ProfileCompletionBanner } from "@/components/shared/ProfileCompletionBanner";
 import { ProfileCouponBanner } from "@/components/shared/ProfileCouponBanner";
-import { FinancialCompletionBanner } from "@/components/shared/FinancialCompletionBanner";
 import { TrialBanner } from "@/components/shared/TrialBanner";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { NearbyStoresMap } from "@/components/shared/NearbyStoresMap";
@@ -123,9 +122,8 @@ export default function PlayerDashboard() {
     <DashboardLayout role="player" navItems={navItems} userName={displayName}>
       <div className="space-y-8">
         <TrialBanner />
-        <ProfileCouponBanner />
         <ProfileCompletionBanner />
-        <FinancialCompletionBanner role="player" />
+        <ProfileCouponBanner />
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold text-foreground">Olá, {displayName} 🎲</h1>
