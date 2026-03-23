@@ -90,7 +90,7 @@ export function Navbar() {
               Sócio do Tabuleiro
             </span>
             <span className="text-[9px] font-medium text-muted-foreground tracking-wider uppercase">
-              HIVIUM IA powered by Sócio
+              HIVIUM IA — by Sócio do Tabuleiro
             </span>
           </div>
         </button>
