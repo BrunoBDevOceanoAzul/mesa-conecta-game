@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
+import { BioAvatarStep } from "@/components/onboarding/BioAvatarStep";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { ChevronLeft, ChevronRight, Check, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
