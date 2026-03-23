@@ -15,6 +15,7 @@ interface Mesa {
   seats_total: number;
   seats_available: number;
   gm_name: string;
+  gm_instagram?: string | null;
   start_at: string;
   end_at?: string | null;
   status: string;
