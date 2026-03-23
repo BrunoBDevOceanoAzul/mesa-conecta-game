@@ -41,6 +41,14 @@ export interface OnboardingStep {
 // ─── JOGADOR ───────────────────────────────────────────
 export const playerSteps: OnboardingStep[] = [
   {
+    id: "player-bio",
+    title: "Sua identidade na comunidade",
+    subtitle: "Adicione uma foto e conte um pouco sobre você",
+    microcopy: "Sua bio aparece no seu perfil e ajuda outros jogadores a te conhecer.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
     id: "player-format",
     title: "Como você prefere jogar?",
     subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
