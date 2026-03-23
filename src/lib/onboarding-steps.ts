@@ -354,6 +354,14 @@ export const gmSteps: OnboardingStep[] = [
 // ─── LOJA / LUDERIA ──────────────────────────────────
 export const storeSteps: OnboardingStep[] = [
   {
+    id: "store-bio",
+    title: "A identidade da sua casa",
+    subtitle: "Uma foto e uma frase que represente sua luderia",
+    microcopy: "Isso aparece no seu perfil público e ajuda jogadores a te encontrar.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
     id: "store-format",
     title: "Como sua operação acontece?",
     subtitle: "A HIVIUM conecta experiências presenciais, híbridas e online.",
