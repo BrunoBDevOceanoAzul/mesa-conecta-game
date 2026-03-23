@@ -181,10 +181,10 @@ export default function Signup() {
           </button>
 
           <h1 className="text-2xl md:text-[1.7rem] font-display font-bold text-foreground leading-tight tracking-tight">
-            Entre e comece a explorar o ecossistema
+            Crie sua conta grátis
           </h1>
           <p className="mt-2.5 text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
-            Descubra mesas, mestres, jogadores e ferramentas para sua jornada — grátis para começar.
+            Leva menos de 30 segundos. Você completa o restante depois.
           </p>
         </div>
 
