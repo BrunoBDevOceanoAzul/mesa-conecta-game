@@ -84,7 +84,7 @@ serve(async (req) => {
       billingType: billing_type,
       value: amount,
       nextDueDate,
-      cycle: plan.billing_cycle || "MONTHLY",
+      cycle: (plan.billing_cycle || "MONTHLY").toUpperCase(),
       description: `${plan.name} - HIVIUM`,
       externalReference: `plan:${plan_code}|user:${user.id}`,
     };
