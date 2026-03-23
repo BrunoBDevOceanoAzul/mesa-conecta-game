@@ -24,11 +24,14 @@ export default function Favorites() {
 
   useEffect(() => {
     if (!user) return;
+    // Favorites table may not exist yet - gracefully handle
     supabase
-      .from("favorites")
-      .select("*, mesas:mesa_id(id, title, system, city, min_price, max_price, seats_total, seats_available, gm_name, start_at, image_url, format, session_type, tags, play_styles, status)")
-      .eq("user_id", user.id)
+      .from("bookings")
+      .select("*, mesas:game_table_id(id, title, system, city, min_price, max_price, seats_total, seats_available, gm_name, start_at, image_url, format, session_type, tags, play_styles, status)")
+      .eq("player_user_id", user.id)
+      .eq("status", "confirmed")
       .order("created_at", { ascending: false })
+      .limit(20)
       .then(({ data }) => { setFavorites(data || []); setLoading(false); });
   }, [user]);
 
