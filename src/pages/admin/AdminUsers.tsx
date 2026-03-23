@@ -140,6 +140,9 @@ export default function AdminUsers() {
   const [editSubStatus, setEditSubStatus] = useState("");
   const [planSaving, setPlanSaving] = useState(false);
 
+  // Billing products for plan selection
+  const [billingProducts, setBillingProducts] = useState<{ id: string; code: string; name: string; target_role: string | null; price_cents: number }[]>([]);
+
   // Discount dialog
   const [discountOpen, setDiscountOpen] = useState(false);
   const [discountForm, setDiscountForm] = useState<DiscountFormData>(defaultDiscount);
