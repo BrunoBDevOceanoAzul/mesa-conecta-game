@@ -87,22 +87,460 @@ export default function TableDetail() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [existingBooking, setExistingBooking] = useState(false);
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
   const eligibility = useReviewEligibility(id);
-...
+
+  // Check if user has a CONFIRMED booking (paid or free) for this mesa
+  useEffect(() => {
+    if (!user || !id) return;
+    supabase
+      .from("bookings")
+      .select("id, status, payment_status")
+      .eq("game_table_id", id)
+      .eq("player_user_id", user.id)
+      .neq("status", "canceled")
+      .maybeSingle()
+      .then(({ data }) => {
+        // Only show as confirmed if payment succeeded or it's a free booking
+        const isConfirmed = data && (
+          data.payment_status === "paid" ||
+          data.status === "confirmed" ||
+          data.status === "completed"
+        );
+        setExistingBooking(!!isConfirmed);
+      });
+  }, [user, id, bookingSuccess]);
+
+  // Handle return from Checkout
+  useEffect(() => {
+    const bookingStatus = searchParams.get("booking");
+    if (bookingStatus === "success") {
+      setBookingSuccess(true);
+      setExistingBooking(true);
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    } else if (bookingStatus === "canceled") {
+      searchParams.delete("booking");
+      searchParams.delete("booking_id");
+      setSearchParams(searchParams, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (!id) return;
+    supabase
+      .from("mesas")
+      .select("*")
+      .eq("id", id)
+      .single()
+      .then(({ data }) => {
+        if (data) {
+          setMesa(data as Mesa);
+          // Track page view metric
+          if (user) {
+            supabase.from("mesa_engagement_metrics").insert({
+              mesa_id: id,
+              user_id: user.id,
+              event_type: "view",
+            }).then(() => {});
+          }
+          // Dynamic OG meta tags for social sharing crawlers
+          const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
+          document.querySelector('meta[property="og:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
+          document.querySelector('meta[property="og:description"]')?.setAttribute("content", data.description?.substring(0, 160) || "Encontre sua próxima aventura na HIVIUM");
+          document.querySelector('meta[property="og:image"]')?.setAttribute("content", ogUrl);
+          document.querySelector('meta[property="og:url"]')?.setAttribute("content", `${window.location.origin}/mesa/${id}`);
+          document.querySelector('meta[name="twitter:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
+          document.querySelector('meta[name="twitter:description"]')?.setAttribute("content", data.description?.substring(0, 160) || "Encontre sua próxima aventura na HIVIUM");
+          document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", ogUrl);
+        }
+        setLoading(false);
+      });
+  }, [id]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!mesa) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container mx-auto max-w-2xl px-4 pt-24 pb-12 text-center">
+          <h1 className="text-2xl font-display font-bold text-foreground mb-2">Mesa não encontrada</h1>
+          <p className="text-muted-foreground mb-6">Esta mesa não existe ou foi removida.</p>
+          <Button variant="hero" onClick={() => navigate("/explorar")}>Explorar Mesas</Button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  const matchScore = preferences
+    ? calculateMatchScore(preferences, {
+        city: mesa.city,
+        system: mesa.system,
+        format: mesa.format,
+        min_price: mesa.min_price,
+        max_price: mesa.max_price,
+        play_styles: mesa.play_styles || [],
+        session_type: mesa.session_type,
+      })
+    : null;
+
+  const date = new Date(mesa.start_at);
+  const FormatIcon = formatIcons[mesa.format] || Monitor;
+  const coverUrl = mesa.cover_image_url || mesa.image_url;
+  const duration = getDurationLabel(mesa.start_at, mesa.end_at);
+
+  const startTime = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+  const endTime = mesa.end_at
+    ? new Date(mesa.end_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    : null;
+
+  return (
+    <div className="min-h-screen bg-background">
+      <Navbar />
+
+      {/* Hero Cover */}
+      <div className="relative w-full h-48 md:h-64 lg:h-72 overflow-hidden">
+        {coverUrl ? (
+          <img src={coverUrl} alt={mesa.title} className="w-full h-full object-cover" />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-plum-100 via-gold-50 to-coral-50" />
+        )}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+      </div>
+
+      {/* Booking Success Dialog */}
+      {bookingSuccess && mesa && (
+        <Dialog open={bookingSuccess} onOpenChange={setBookingSuccess}>
+          <DialogContent className="sm:max-w-md text-center">
+            <div className="flex flex-col items-center gap-4 py-4">
+              <div className="h-20 w-20 rounded-full bg-secondary/10 flex items-center justify-center">
+                <Sparkles className="h-10 w-10 text-secondary" />
+              </div>
+              <div className="space-y-2">
+                <h2 className="text-xl font-display font-bold text-foreground">Vaga Reservada! 🎉</h2>
+                <p className="text-sm text-muted-foreground">
+                  Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.
+                </p>
+              </div>
+              <div className="rounded-xl bg-muted/50 border border-border p-4 w-full space-y-2 text-left">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Mestre</span>
+                  <span className="font-medium text-foreground">{mesa.gm_name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Data</span>
+                  <span className="font-medium text-foreground">
+                    {new Date(mesa.start_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" })}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Valor pago</span>
+                  <span className="font-medium text-foreground">
+                    {mesa.min_price === 0 ? "Grátis" : `R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`}
+                  </span>
+                </div>
+              </div>
+              <Button variant="hero" size="lg" className="w-full" onClick={() => setBookingSuccess(false)}>
+                Entendido — preparar para a aventura!
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
+        {/* Back */}
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" /> Voltar
+        </button>
+
+        <div className="grid gap-8 lg:grid-cols-[1fr_340px]">
+          {/* Main content */}
+          <div className="space-y-6">
+            {/* Header */}
+            <div>
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
+                  {mesa.system}
+                </span>
+                <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
+                  {sessionLabels[mesa.session_type] || mesa.session_type}
+                </span>
+                <span className={`rounded-lg px-3 py-1 text-sm font-medium ${
+                  mesa.status === "aberta" ? "bg-teal-50 text-teal-500" : "bg-muted text-muted-foreground"
+                }`}>
+                  {mesa.status.charAt(0).toUpperCase() + mesa.status.slice(1)}
+                </span>
+              </div>
+
+              <h1 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-2">
+                {mesa.title}
+              </h1>
+
+              {/* Match score badge */}
+              {matchScore !== null && matchScore > 0 && (
+                <div className={`inline-flex items-center gap-2 bg-gradient-to-r ${getMatchColor(matchScore)} rounded-full px-4 py-2 mt-2`}>
+                  <Sparkles className="h-4 w-4 text-primary-foreground" />
+                  <span className="text-sm font-display font-bold text-primary-foreground">
+                    Combina {matchScore}% com você
+                  </span>
+                  <span className="text-xs text-primary-foreground/80">
+                    · {getMatchLabel(matchScore)}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Time highlight card */}
+            <div className="rounded-2xl border border-plum-200 bg-gradient-to-r from-plum-50 to-gold-50 p-5">
+              <div className="flex items-center gap-6 flex-wrap">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                    <Calendar className="h-5 w-5 text-plum-500" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Data</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                    <Clock className="h-5 w-5 text-plum-500" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground block">Horário</span>
+                    <span className="text-sm font-semibold text-foreground">
+                      {startTime}{endTime ? ` → ${endTime}` : ""}
+                    </span>
+                  </div>
+                </div>
+                {duration && (
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-gold-100 flex items-center justify-center">
+                      <Timer className="h-5 w-5 text-gold-500" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block">Duração estimada</span>
+                      <span className="text-sm font-semibold text-foreground">{duration}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Description */}
+            {mesa.description && (
+              <div className="rounded-2xl border border-border bg-card p-6">
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Sobre a mesa</h2>
+                <p className="text-foreground leading-relaxed whitespace-pre-wrap">{mesa.description}</p>
+              </div>
+            )}
+
+            {/* Details grid */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label="Mestre" value={mesa.gm_name} />
+              <DetailItem icon={<FormatIcon className="h-5 w-5 text-teal-500" />} label="Formato" value={mesa.format.charAt(0).toUpperCase() + mesa.format.slice(1)} />
+              {mesa.city && <DetailItem icon={<MapPin className="h-5 w-5 text-coral-400" />} label="Cidade" value={mesa.city} />}
+              {mesa.venue && <DetailItem icon={<Home className="h-5 w-5 text-gold-500" />} label="Local" value={mesa.venue} />}
+            </div>
+
+            {/* Tags */}
+            {mesa.tags && mesa.tags.length > 0 && (
+              <div>
+                <h2 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3">Tags</h2>
+                <div className="flex flex-wrap gap-2">
+                  {mesa.tags.map((tag) => (
+                    <span key={tag} className="flex items-center gap-1.5 rounded-lg bg-muted px-3 py-1.5 text-sm text-muted-foreground">
+                      <Tag className="h-3 w-3" />
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Board Game: show participants, expansions, feed — no character sheets */}
+            {mesa.mesa_type === "community" || mesa.board_game_id ? (
+              <>
+                <MesaParticipants
+                  mesaId={mesa.id}
+                  organizerId={mesa.gm_id}
+                  seatsTotal={mesa.seats_total}
+                  seatsAvailable={mesa.seats_available}
+                />
+                {mesa.board_game_id && (
+                  <BoardGameExpansions gameName={mesa.system} mesaId={mesa.id} gmId={mesa.gm_id} />
+                )}
+                <MesaFeed mesaId={mesa.id} mesaTitle={mesa.title} />
+              </>
+            ) : (
+              <>
+                {/* RPG: show live chat, preparation blocks, character sheets */}
+                {user && (
+                  <MesaLiveChat
+                    gameTableId={mesa.id}
+                    gmUserId={mesa.gm_id}
+                    tableTitle={mesa.title}
+                  />
+                )}
+
+                {/* Preparation Block - Player View */}
+                {user && user.id !== mesa.gm_id && (
+                  <PlayerPreparationBlock
+                    gameTableId={mesa.id}
+                    tableTitle={mesa.title}
+                    systemName={mesa.system}
+                  />
+                )}
+
+                {/* Preparation Setup - GM View */}
+                {user && user.id === mesa.gm_id && (
+                  <div className="space-y-4">
+                    <PreparationSetupPanel
+                      gameTableId={mesa.id}
+                      systemName={mesa.system}
+                      tableTitle={mesa.title}
+                    />
+                    <GMSubmissionsTracker
+                      gameTableId={mesa.id}
+                      tableTitle={mesa.title}
+                    />
+                  </div>
+                )}
+              </>
+            )}
+
+
+            <div className="mt-8">
+              {eligibility.eligible && (
+                <Button variant="hero" size="sm" className="mb-4 gap-2" onClick={() => setReviewOpen(true)}>
+                  <Star className="h-4 w-4" /> Avaliar esta mesa
+                </Button>
+              )}
+              {eligibility.alreadyReviewed && (
+                <p className="text-xs text-muted-foreground mb-4 flex items-center gap-1">
+                  <Star className="h-3 w-3 text-gold-400" /> Você já avaliou esta sessão
+                </p>
+              )}
+              <ReviewsList reviewedTableId={id} reviewType="table" />
+            </div>
+          </div>
+
+          {/* Sidebar - Booking card */}
+          <div className="lg:sticky lg:top-24 h-fit">
+            <div className="rounded-2xl border border-border bg-card p-6 space-y-5 shadow-sm">
+              {/* Price */}
+              <div className="text-center">
+                <span className="text-3xl font-display font-bold text-gold-500">
+                  R${mesa.min_price}
+                  {mesa.max_price > mesa.min_price && (
+                    <span className="text-lg font-normal text-muted-foreground">–{mesa.max_price}</span>
+                  )}
+                </span>
+                <p className="text-sm text-muted-foreground mt-0.5">por sessão</p>
+              </div>
+
+              {/* Quick time info */}
+              <div className="rounded-xl bg-muted/50 p-3 text-center">
+                <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+                  <Clock className="h-4 w-4 text-plum-400" />
+                  {startTime}{endTime ? ` → ${endTime}` : ""}
+                </div>
+                {duration && (
+                  <p className="text-xs text-muted-foreground mt-1">Duração estimada: {duration}</p>
+                )}
+              </div>
+
+              {/* Seats */}
+              <div className="flex items-center justify-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">
+                  {mesa.seats_available} de {mesa.seats_total} vagas disponíveis
+                </span>
+              </div>
+
+              {/* Seats bar */}
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${((mesa.seats_total - mesa.seats_available) / mesa.seats_total) * 100}%`,
+                    backgroundImage: "var(--gradient-xp)",
+                  }}
+                />
+              </div>
+
+              {/* Match score mini */}
+              {matchScore !== null && matchScore >= 55 && (
+                <div className="rounded-xl bg-plum-50 border border-plum-100 p-3 text-center">
+                  <div className="flex items-center justify-center gap-1.5 text-plum-500">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-sm font-display font-bold">{matchScore}% compatível</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{getMatchLabel(matchScore)}</p>
+                </div>
+              )}
+
+              {/* Reserve button */}
+              {existingBooking ? (
+                <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
+                  <Check className="h-4 w-4" /> Você já está nesta mesa
+                </Button>
               ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
                 <Button
                   variant="hero"
                   size="lg"
                   className="w-full text-base"
-                  onClick={() => {
+                  disabled={checkoutLoading}
+                  onClick={async () => {
                     if (!user) {
                       navigate("/login");
                       return;
                     }
-                    setBookingOpen(true);
+                    if (mesa.min_price > 0) {
+                      // Go directly to Asaas Checkout
+                      setCheckoutLoading(true);
+                      try {
+                        const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
+                          body: { mesa_id: mesa.id },
+                        });
+                        if (error) throw new Error(error.message || "Erro ao criar checkout");
+                        if (data?.error) throw new Error(data.error);
+                        if (data?.url) {
+                          window.location.href = data.url;
+                        } else {
+                          throw new Error("URL de pagamento não retornada");
+                        }
+                      } catch (err: any) {
+                        console.error("[TableDetail] Checkout error:", err);
+                        toast({ title: "Erro no checkout", description: err?.message || "Tente novamente.", variant: "destructive" });
+                        setCheckoutLoading(false);
+                      }
+                    } else {
+                      setBookingOpen(true);
+                    }
                   }}
                 >
-                  {mesa.min_price > 0
+                  {checkoutLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : null}
+                  {checkoutLoading
+                    ? "Redirecionando…"
+                    : mesa.min_price > 0
                     ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
                     : "Reservar Vaga — Grátis"}
                 </Button>
