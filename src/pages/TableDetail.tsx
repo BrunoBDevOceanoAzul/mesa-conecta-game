@@ -91,6 +91,7 @@ export default function TableDetail() {
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [existingBooking, setExistingBooking] = useState(false);
   const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [sessionPanelOpen, setSessionPanelOpen] = useState(false);
   const eligibility = useReviewEligibility(id);
 
   // Check if user has a CONFIRMED booking (paid or free) for this mesa
