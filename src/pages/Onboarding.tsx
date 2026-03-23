@@ -76,7 +76,9 @@ export default function Onboarding() {
           if (data.preferred_format) loaded.preferred_format = data.preferred_format;
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
-          if (Object.keys(loaded).length > 0) setAnswers(loaded);
+          if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          if (data.bio) setAnswers((prev) => ({ ...prev, bio: data.bio }));
+          if (Object.keys(loaded).length > 0) setAnswers((prev) => ({ ...prev, ...loaded }));
           if (data.role) {
             const mapped = dbRoleToRoleKey[data.role] || data.role as RoleKey;
             setRole(mapped);
