@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Camera, User } from "lucide-react";
+import { Camera, User, Instagram } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
@@ -7,11 +7,13 @@ import { cn } from "@/lib/utils";
 interface BioAvatarStepProps {
   bio: string;
   avatarUrl: string;
+  instagramHandle: string;
   onBioChange: (bio: string) => void;
   onAvatarChange: (url: string) => void;
+  onInstagramChange: (handle: string) => void;
 }
 
-export function BioAvatarStep({ bio, avatarUrl, onBioChange, onAvatarChange }: BioAvatarStepProps) {
+export function BioAvatarStep({ bio, avatarUrl, instagramHandle, onBioChange, onAvatarChange, onInstagramChange }: BioAvatarStepProps) {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -30,7 +32,6 @@ export function BioAvatarStep({ bio, avatarUrl, onBioChange, onAvatarChange }: B
 
       const { data } = supabase.storage.from("avatars").getPublicUrl(path);
       if (data?.publicUrl) {
-        // Add cache-bust
         onAvatarChange(`${data.publicUrl}?t=${Date.now()}`);
       }
     } catch (err) {
@@ -38,6 +39,11 @@ export function BioAvatarStep({ bio, avatarUrl, onBioChange, onAvatarChange }: B
     } finally {
       setUploading(false);
     }
+  };
+
+  const sanitizeHandle = (val: string) => {
+    // Remove @ prefix and spaces, keep only valid instagram chars
+    return val.replace(/^@/, "").replace(/[^a-zA-Z0-9._]/g, "").slice(0, 30);
   };
 
   return (
@@ -100,6 +106,29 @@ export function BioAvatarStep({ bio, avatarUrl, onBioChange, onAvatarChange }: B
             {bio.length}/{maxChars}
           </span>
         </div>
+      </div>
+
+      {/* Instagram handle */}
+      <div>
+        <label className="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-[0.15em] mb-2 block">
+          Instagram (opcional)
+        </label>
+        <div className="relative">
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-muted-foreground/40">
+            <Instagram className="h-4 w-4" />
+            <span className="text-sm">@</span>
+          </div>
+          <input
+            type="text"
+            value={instagramHandle}
+            onChange={(e) => onInstagramChange(sanitizeHandle(e.target.value))}
+            placeholder="seu.usuario"
+            className="w-full rounded-2xl border border-border/30 bg-card/30 pl-14 pr-5 py-3.5 text-sm text-foreground placeholder:text-muted-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/20 transition-all"
+          />
+        </div>
+        <p className="text-[11px] text-muted-foreground/40 mt-1.5">
+          Será exibido no seu perfil público para a comunidade te seguir
+        </p>
       </div>
     </div>
   );
