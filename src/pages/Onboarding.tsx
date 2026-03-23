@@ -154,6 +154,8 @@ export default function Onboarding() {
       const partialData: Record<string, unknown> = {
         onboarding_step: stepNum,
         role: dbRole,
+        bio: answers.bio || null,
+        avatar_url: avatarUrl || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
