@@ -205,6 +205,8 @@ export default function Onboarding() {
 
       const profileData: Record<string, unknown> = {
         role: dbRole,
+        bio: answers.bio || null,
+        avatar_url: avatarUrl || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
