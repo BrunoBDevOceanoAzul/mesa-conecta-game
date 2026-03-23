@@ -78,6 +78,7 @@ export default function Onboarding() {
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          if ((data as any).instagram_handle) setInstagramHandle((data as any).instagram_handle);
           if (data.bio) setAnswers((prev) => ({ ...prev, bio: data.bio }));
           if (Object.keys(loaded).length > 0) setAnswers((prev) => ({ ...prev, ...loaded }));
           if (data.role) {
