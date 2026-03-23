@@ -11,7 +11,7 @@ export default function FAQPage() {
           <div className="text-center mb-12">
             <h1 className="text-h1 text-foreground">Perguntas Frequentes</h1>
             <p className="text-muted-foreground mt-2 max-w-xl mx-auto">
-              Tudo o que você precisa saber sobre a Sócio do Tabuleiro, powered by HIVIUM IA.
+              Tudo o que você precisa saber sobre a Sócio do Tabuleiro — HIVIUM IA.
             </p>
           </div>
           <FAQSection />

@@ -14,7 +14,7 @@ export function Footer() {
                 Sócio do Tabuleiro
               </span>
               <span className="text-[8px] font-medium text-muted-foreground tracking-wider uppercase">
-                Powered by HIVIUM IA
+                HIVIUM IA — by Sócio do Tabuleiro
               </span>
             </div>
           </div>
