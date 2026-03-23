@@ -145,7 +145,7 @@ export default function Signup() {
         canGm,
         canManageStore,
         dashboard: roleToDashboard[selectedRole] || "/explorar",
-        whatsapp: normalizePhone(whatsapp),
+        whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
       }));
 
       const result = await lovable.auth.signInWithOAuth("google", {
