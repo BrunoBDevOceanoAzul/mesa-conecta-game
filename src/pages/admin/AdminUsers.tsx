@@ -121,10 +121,15 @@ export default function AdminUsers() {
   // Edit states
   const [editMode, setEditMode] = useState(false);
   const [editRole, setEditRole] = useState("");
+  const [editName, setEditName] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [editOnboarding, setEditOnboarding] = useState(false);
   const [editCanPlay, setEditCanPlay] = useState(false);
   const [editCanGm, setEditCanGm] = useState(false);
   const [editCanManageStore, setEditCanManageStore] = useState(false);
   const [editCanManageBrand, setEditCanManageBrand] = useState(false);
+  const [editIsFounder, setEditIsFounder] = useState(false);
+  const [editXp, setEditXp] = useState("0");
   const [saving, setSaving] = useState(false);
 
   // Plan edit states
