@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
+import { useFinancialReadiness } from "@/hooks/use-financial-readiness";
 import { useToast } from "@/hooks/use-toast";
 import { FinancialDataForm } from "@/components/checkout/FinancialDataForm";
 import {
@@ -58,6 +59,7 @@ type FlowStep = "loading" | "confirm" | "limit_reached" | "collect_cpf" | "payme
 export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialogProps) {
   const { user } = useAuth();
   const { isSuperUser } = usePrivileges();
+  const { isReady: isFinancialReady, missingFields, refetch: refetchFinancial } = useFinancialReadiness("player");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -260,6 +262,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
   const handleBook = () => {
     if (isPaidMesa) {
+      // Pre-check financial readiness before calling edge function
+      if (!isFinancialReady) {
+        setStep("collect_cpf");
+        return;
+      }
       handlePaidBook();
     } else {
       handleFreeBook();
@@ -466,23 +473,24 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
           </>
         )}
 
-        {/* Collect CPF/CNPJ */}
+        {/* Collect financial data */}
         {step === "collect_cpf" && (
           <>
             <DialogHeader>
               <DialogTitle className="font-display flex items-center gap-2">
                 <CreditCard className="h-5 w-5 text-primary" />
-                Dados para pagamento
+                Ative seus pagamentos
               </DialogTitle>
               <DialogDescription>
-                Complete seus dados para reservar a mesa <strong>{mesa.title}</strong>
+                Para reservar <strong>{mesa.title}</strong>, precisamos de alguns dados exigidos pela operadora de pagamento. Você só precisa preencher isso uma vez.
               </DialogDescription>
             </DialogHeader>
             <FinancialDataForm
               role="player"
-              missingFields={["tax_document"]}
+              missingFields={missingFields}
               onSaved={() => {
-                toast({ title: "Dados salvos!", description: "Continuando com o pagamento…" });
+                refetchFinancial();
+                toast({ title: "Dados salvos! ✅", description: "Continuando com o pagamento…" });
                 handlePaidBook();
               }}
               onCancel={() => onOpenChange(false)}

@@ -53,12 +53,11 @@ export function useFinancialReadiness(role: FinancialRole = "player"): Financial
     try {
       const { data } = await supabase
         .from("billing_profiles")
-        .select("full_name, tax_document, billing_email, billing_phone, address_line, address_number, neighborhood, city, state, zip_code, is_financial_ready")
+        .select("full_name, tax_document, billing_email, billing_phone, mobile_phone, address_line, address_number, neighborhood, city, state, zip_code, birth_date, company_type, is_financial_ready")
         .eq("user_id", user.id)
         .maybeSingle();
 
-      // Merge mobile_phone, birth_date, company_type from extended columns when available
-      setBillingProfile(data ? { ...data, mobile_phone: (data as any).mobile_phone ?? null, birth_date: (data as any).birth_date ?? null, company_type: (data as any).company_type ?? null } : null);
+      setBillingProfile(data as BillingData | null);
     } catch (err) {
       console.error("[useFinancialReadiness]", err);
     } finally {
