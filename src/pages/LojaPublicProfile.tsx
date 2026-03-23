@@ -173,6 +173,14 @@ export default function LojaPublicProfile() {
                   </Button>
                 )}
                 <ShareButton entityType="loja" entityId={profile.user_id} entityTitle={`Perfil de ${storeName}`} entitySlug={slug} />
+                {profile.instagram_handle && (
+                  <Button variant="outline" size="lg" asChild>
+                    <a href={`https://www.instagram.com/${profile.instagram_handle}/`} target="_blank" rel="noopener noreferrer">
+                      <Instagram className="h-4 w-4 mr-1.5" />
+                      @{profile.instagram_handle}
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
