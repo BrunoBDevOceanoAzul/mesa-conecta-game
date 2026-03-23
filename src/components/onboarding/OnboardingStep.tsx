@@ -423,12 +423,14 @@ export function OnboardingStepView({
               )}
 
               {/* ── Bio + Avatar ── */}
-              {step.type === "bio-avatar" && onAvatarChange && (
+              {step.type === "bio-avatar" && onAvatarChange && onInstagramChange && (
                 <BioAvatarStep
                   bio={(value as string) || ""}
                   avatarUrl={avatarUrl || ""}
+                  instagramHandle={instagramHandle || ""}
                   onBioChange={(bio) => onChange(step.field, bio)}
                   onAvatarChange={onAvatarChange}
+                  onInstagramChange={onInstagramChange}
                 />
               )}
 
