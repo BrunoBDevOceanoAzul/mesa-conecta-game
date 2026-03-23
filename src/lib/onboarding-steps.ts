@@ -461,6 +461,14 @@ export const storeSteps: OnboardingStep[] = [
 // ─── MARCA ───────────────────────────────────────────
 export const brandSteps: OnboardingStep[] = [
   {
+    id: "brand-bio",
+    title: "A cara da sua marca",
+    subtitle: "Logo e uma frase que posicione sua marca no ecossistema",
+    microcopy: "Isso aparece nas suas campanhas e posts patrocinados.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
     id: "brand-category",
     title: "Que tipo de marca é a sua?",
     subtitle: "Isso define como você aparece na plataforma",
