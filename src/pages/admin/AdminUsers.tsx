@@ -353,37 +353,76 @@ export default function AdminUsers() {
     setPlanSaving(true);
 
     const oldData = { plan_name: selected.plan_name, plan_role: selected.plan_role, billing_interval: selected.billing_interval, status: selected.sub_status };
+
+    // Find the selected billing product by name
+    const selectedProduct = billingProducts.find((p) => p.name === editPlanName);
+    const billingProductId = selectedProduct?.id || null;
+    const priceCents = selectedProduct?.price_cents || 0;
+
+    // Map UI status back to Asaas status
+    const statusMap: Record<string, string> = {
+      active: "ACTIVE",
+      pending: "PENDING",
+      past_due: "OVERDUE",
+      canceled: "CANCELLED",
+      trialing: "PENDING",
+      paused: "CANCELLED",
+      inactive: "CANCELLED",
+    };
+    const asaasStatus = statusMap[editSubStatus] || "ACTIVE";
+
+    // Map billing interval to Asaas cycle
+    const cycleMap: Record<string, string> = {
+      monthly: "MONTHLY",
+      quarterly: "QUARTERLY",
+      semiannual: "SEMIANNUALLY",
+      annual: "YEARLY",
+    };
+    const asaasCycle = cycleMap[editBillingInterval] || "MONTHLY";
+
     const newData = { plan_name: editPlanName, plan_role: editPlanRole, billing_interval: editBillingInterval, status: editSubStatus };
 
-    if (selected.sub_status) {
+    if (editPlanName === "Free" || !editPlanName) {
+      // Remove subscription: cancel any active asaas_subscriptions
+      await supabase
+        .from("asaas_subscriptions")
+        .update({ status: "CANCELLED", canceled_at: new Date().toISOString() } as any)
+        .eq("user_id", selected.user_id)
+        .in("status", ["ACTIVE", "PENDING"]);
+    } else if (selected.plan_id) {
       // Update existing subscription
       const { error } = await supabase
-        .from("subscriptions")
+        .from("asaas_subscriptions")
         .update({
-          plan_name: editPlanName || null,
-          plan_role: editPlanRole || null,
-          billing_interval: editBillingInterval || "monthly",
-          status: editSubStatus || "active",
+          billing_product_id: billingProductId,
+          amount_cents: priceCents,
+          cycle: asaasCycle,
+          status: asaasStatus,
+          description: editPlanName,
+          next_due_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
         } as any)
         .eq("user_id", selected.user_id)
-        .in("status", ["active", "trialing"]);
+        .in("status", ["ACTIVE", "PENDING", "OVERDUE"]);
 
       if (error) {
         toast({ title: "Erro ao atualizar plano", description: error.message, variant: "destructive" });
         setPlanSaving(false);
         return;
       }
-    } else if (editPlanName) {
-      // Create manual subscription
+    } else if (billingProductId) {
+      // Create new manual subscription
       const { error } = await supabase
-        .from("subscriptions")
+        .from("asaas_subscriptions")
         .insert({
           user_id: selected.user_id,
-          plan_name: editPlanName,
-          plan_role: editPlanRole || selected.role || "player",
-          status: editSubStatus || "active",
-          provider: "manual",
-          billing_interval: editBillingInterval || "monthly",
+          billing_product_id: billingProductId,
+          amount_cents: priceCents,
+          currency: "BRL",
+          cycle: asaasCycle,
+          billing_type: "PIX",
+          status: asaasStatus,
+          description: editPlanName,
+          next_due_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
         } as any);
 
       if (error) {
