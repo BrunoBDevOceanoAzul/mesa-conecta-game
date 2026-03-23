@@ -13,7 +13,8 @@ export type StepType =
   | "slider"
   | "stepper"
   | "toggles"
-  | "text-optional";
+  | "text-optional"
+  | "bio-avatar";
 
 export interface StepOption {
   label: string;
