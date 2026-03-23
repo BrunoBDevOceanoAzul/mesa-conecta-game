@@ -363,6 +363,8 @@ export default function Onboarding() {
             onTextChange={step.field === "themes_avoided" ? setAvoidedNotes : undefined}
             avatarUrl={step.type === "bio-avatar" ? avatarUrl : undefined}
             onAvatarChange={step.type === "bio-avatar" ? setAvatarUrl : undefined}
+            instagramHandle={step.type === "bio-avatar" ? instagramHandle : undefined}
+            onInstagramChange={step.type === "bio-avatar" ? setInstagramHandle : undefined}
           />
         )}
 
