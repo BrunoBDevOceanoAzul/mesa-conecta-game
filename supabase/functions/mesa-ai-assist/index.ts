@@ -230,6 +230,34 @@ O texto deve ser:
 - Escrito em português brasileiro`;
         break;
 
+      case "generate_bio": {
+        const { context: bioContext } = body;
+        tools = [{
+          type: "function",
+          function: {
+            name: "generated_bio",
+            description: "Return a mini bio for the user profile",
+            parameters: {
+              type: "object",
+              properties: {
+                bio: { type: "string", description: "Mini bio criativa e autêntica, máximo 160 caracteres" },
+              },
+              required: ["bio"],
+              additionalProperties: false,
+            },
+          },
+        }];
+        toolChoice = { type: "function", function: { name: "generated_bio" } };
+        userPrompt = `Crie uma mini bio criativa e autêntica para um perfil de RPG/tabletop. Máximo 160 caracteres.
+Deve soar natural e pessoal, como algo que a pessoa escreveria sobre si mesma.
+Use informações disponíveis para personalizar:
+
+${bioContext || "Nenhuma informação adicional disponível."}
+
+A bio deve transmitir paixão por RPG/jogos de mesa e ser acolhedora para a comunidade.`;
+        break;
+      }
+
       default:
         throw new Error(`Unknown action: ${action}`);
     }

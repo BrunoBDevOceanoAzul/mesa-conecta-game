@@ -51,14 +51,14 @@ export function BioAvatarStep({ bio, avatarUrl, instagramHandle, onBioChange, on
       // Fetch profile data for context
       const { data: profile } = await supabase
         .from("profiles")
-        .select("display_name, primary_role, favorite_systems, city")
+        .select("display_name, role, preferred_systems, city")
         .eq("id", user.id)
         .maybeSingle();
 
       const context = [
         profile?.display_name ? `Nome: ${profile.display_name}` : "",
-        profile?.primary_role ? `Perfil: ${profile.primary_role}` : "",
-        profile?.favorite_systems?.length ? `Sistemas favoritos: ${profile.favorite_systems.join(", ")}` : "",
+        profile?.role ? `Perfil: ${profile.role}` : "",
+        profile?.preferred_systems?.length ? `Sistemas favoritos: ${profile.preferred_systems.join(", ")}` : "",
         profile?.city ? `Cidade: ${profile.city}` : "",
         instagramHandle ? `Instagram: @${instagramHandle}` : "",
       ].filter(Boolean).join("\n");
