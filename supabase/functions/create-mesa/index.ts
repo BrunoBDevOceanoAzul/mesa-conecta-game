@@ -12,14 +12,9 @@ const logStep = (step: string, details?: any) => {
 };
 
 function getAsaasConfig() {
-  const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
-  const mainKey = Deno.env.get("ASAAS_API_KEY");
-  const apiKey = sandboxKey || mainKey;
+  const apiKey = Deno.env.get("ASAAS_API_KEY");
   if (!apiKey) return null;
-  const base = sandboxKey
-    ? "https://sandbox.asaas.com/api/v3"
-    : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
-  return { apiKey, base };
+  return { apiKey, base: "https://api.asaas.com/v3" };
 }
 
 serve(async (req) => {

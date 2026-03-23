@@ -9,15 +9,12 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[ASAAS-SUBACCOUNT] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 
+const PLATFORM_WALLET_ID = "ac106fd5-2b59-4c05-b6b9-0db299574d87";
+
 function getAsaasConfig() {
-  const sandboxKey = Deno.env.get("ASAAS_SANDBOX_KEY");
-  const mainKey = Deno.env.get("ASAAS_API_KEY");
-  const apiKey = sandboxKey || mainKey;
+  const apiKey = Deno.env.get("ASAAS_API_KEY");
   if (!apiKey) throw new Error("No Asaas API key configured");
-  const base = sandboxKey
-    ? "https://sandbox.asaas.com/api/v3"
-    : (mainKey?.startsWith("$aact_") ? "https://api.asaas.com/v3" : "https://sandbox.asaas.com/api/v3");
-  return { apiKey, base };
+  return { apiKey, base: "https://api.asaas.com/v3" };
 }
 
 const ELIGIBLE_ROLES = ["gm", "store", "brand"];
