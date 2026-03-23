@@ -505,42 +505,15 @@ export default function TableDetail() {
                   variant="hero"
                   size="lg"
                   className="w-full text-base"
-                  disabled={checkoutLoading}
-                  onClick={async () => {
+                  onClick={() => {
                     if (!user) {
                       navigate("/login");
                       return;
                     }
-                    if (mesa.min_price > 0) {
-                      // Go directly to Asaas Checkout
-                      setCheckoutLoading(true);
-                      try {
-                        const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
-                          body: { mesa_id: mesa.id },
-                        });
-                        if (error) throw new Error(error.message || "Erro ao criar checkout");
-                        if (data?.error) throw new Error(data.error);
-                        if (data?.url) {
-                          window.location.href = data.url;
-                        } else {
-                          throw new Error("URL de pagamento não retornada");
-                        }
-                      } catch (err: any) {
-                        console.error("[TableDetail] Checkout error:", err);
-                        toast({ title: "Erro no checkout", description: err?.message || "Tente novamente.", variant: "destructive" });
-                        setCheckoutLoading(false);
-                      }
-                    } else {
-                      setBookingOpen(true);
-                    }
+                    setBookingOpen(true);
                   }}
                 >
-                  {checkoutLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : null}
-                  {checkoutLoading
-                    ? "Redirecionando…"
-                    : mesa.min_price > 0
+                  {mesa.min_price > 0
                     ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
                     : "Reservar Vaga — Grátis"}
                 </Button>
