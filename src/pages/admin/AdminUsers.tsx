@@ -236,10 +236,15 @@ export default function AdminUsers() {
     setEditMode(false);
     setPlanEditMode(false);
     setEditRole(u.role || "");
+    setEditName(u.name || "");
+    setEditCity(u.city || "");
+    setEditOnboarding(u.onboarding_completed);
     setEditCanPlay(u.can_play);
     setEditCanGm(u.can_gm);
     setEditCanManageStore(u.can_manage_store);
     setEditCanManageBrand(u.can_manage_brand);
+    setEditIsFounder(u.is_founder);
+    setEditXp(String(u.xp));
     setEditPlanName(u.plan_name || "");
     setEditPlanRole(u.plan_role || "");
     setEditBillingInterval(u.billing_interval || "monthly");
