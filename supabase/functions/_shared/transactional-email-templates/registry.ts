@@ -16,6 +16,9 @@ import { template as newBookingGm } from './new-booking-gm.tsx'
 import { template as contactConfirmation } from './contact-confirmation.tsx'
 import { template as subscriptionWelcome } from './subscription-welcome.tsx'
 import { template as paymentReceipt } from './payment-receipt.tsx'
+import { template as planPurchase } from './plan-purchase.tsx'
+import { template as planChange } from './plan-change.tsx'
+import { template as accountDeletion } from './account-deletion.tsx'
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'welcome': welcome,
@@ -25,4 +28,7 @@ export const TEMPLATES: Record<string, TemplateEntry> = {
   'contact-confirmation': contactConfirmation,
   'subscription-welcome': subscriptionWelcome,
   'payment-receipt': paymentReceipt,
+  'plan-purchase': planPurchase,
+  'plan-change': planChange,
+  'account-deletion': accountDeletion,
 }
