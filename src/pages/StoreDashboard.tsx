@@ -186,9 +186,8 @@ export default function StoreDashboard() {
     <DashboardLayout role="store" navItems={navItems} userName={displayName}>
       <div className="space-y-6">
         <TrialBanner />
-        <ProfileCouponBanner />
-        <ProfileCompletionBanner />
         <FinancialCompletionBanner role="store" />
+        <ProfileCouponBanner />
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
