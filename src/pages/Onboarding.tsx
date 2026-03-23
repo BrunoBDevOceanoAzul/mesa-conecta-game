@@ -51,6 +51,7 @@ export default function Onboarding() {
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
   const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
   const [avoidedNotes, setAvoidedNotes] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
