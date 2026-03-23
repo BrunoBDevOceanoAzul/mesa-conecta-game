@@ -11,7 +11,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import logoImg from "@/assets/hivium-logo.png";
+import socioLogo from "@/assets/socio-logo.svg";
 
 const navLinks = [
   { label: "Como funciona", href: "#como-funciona" },
@@ -84,10 +84,15 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
-          <img src={logoImg} alt="HIVIUM" className="h-9 w-9 object-contain" />
-          <span className="font-display font-bold text-base tracking-tight gradient-text">
-            HIVIUM
-          </span>
+          <img src={socioLogo} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
+          <div className="flex flex-col leading-none">
+            <span className="font-display font-bold text-sm tracking-tight text-foreground">
+              Sócio do Tabuleiro
+            </span>
+            <span className="text-[9px] font-medium text-muted-foreground tracking-wider uppercase">
+              Powered by HIVIUM IA
+            </span>
+          </div>
         </button>
 
         {/* Desktop */}
@@ -110,12 +115,12 @@ export function Navbar() {
           {user ? (
             <Popover>
               <PopoverTrigger asChild>
-                <button className="flex items-center gap-2.5 rounded-full p-1 pr-3 hover:bg-plum-50 transition-colors">
-                  <Avatar className="h-8 w-8 ring-2 ring-plum-200">
+                <button className="flex items-center gap-2.5 rounded-full p-1 pr-3 hover:bg-muted transition-colors">
+                  <Avatar className="h-8 w-8 ring-2 ring-primary/20">
                     {avatarUrl ? (
                       <AvatarImage src={avatarUrl} alt={userName} />
                     ) : null}
-                    <AvatarFallback className="bg-plum-100 text-plum-600 text-xs font-bold">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
@@ -127,14 +132,26 @@ export function Navbar() {
               <PopoverContent align="end" className="w-52 p-2">
                 <button
                   onClick={() => navigate(dashPath)}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-plum-50 transition-colors"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Meu Painel
                 </button>
                 <button
+                  onClick={() => navigate("/perfil")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Meu Perfil
+                </button>
+                <button
+                  onClick={() => navigate("/configuracoes")}
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+                >
+                  Configurações
+                </button>
+                <button
                   onClick={handleLogout}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-plum-50 transition-colors"
+                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   <LogOut className="h-4 w-4" />
                   Sair
@@ -186,12 +203,12 @@ export function Navbar() {
           <div className="mt-3 flex flex-col gap-2">
             {user ? (
               <>
-                <div className="flex items-center gap-3 rounded-lg bg-plum-50 p-3 mb-2 border border-plum-100">
-                  <Avatar className="h-9 w-9 ring-2 ring-plum-200">
+                <div className="flex items-center gap-3 rounded-lg bg-muted p-3 mb-2 border border-border">
+                  <Avatar className="h-9 w-9 ring-2 ring-primary/20">
                     {avatarUrl ? (
                       <AvatarImage src={avatarUrl} alt={userName} />
                     ) : null}
-                    <AvatarFallback className="bg-plum-100 text-plum-600 text-xs font-bold">
+                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                       {initials}
                     </AvatarFallback>
                   </Avatar>
