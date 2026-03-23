@@ -1,8 +1,10 @@
 import { useState, useRef } from "react";
-import { Camera, User, Instagram } from "lucide-react";
+import { Camera, User, Instagram, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 interface BioAvatarStepProps {
   bio: string;
@@ -16,6 +18,7 @@ interface BioAvatarStepProps {
 export function BioAvatarStep({ bio, avatarUrl, instagramHandle, onBioChange, onAvatarChange, onInstagramChange }: BioAvatarStepProps) {
   const { user } = useAuth();
   const [uploading, setUploading] = useState(false);
+  const [generatingBio, setGeneratingBio] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const maxChars = 160;
 
@@ -41,8 +44,49 @@ export function BioAvatarStep({ bio, avatarUrl, instagramHandle, onBioChange, on
     }
   };
 
+  const generateBioWithAI = async () => {
+    if (!user) return;
+    setGeneratingBio(true);
+    try {
+      // Fetch profile data for context
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("display_name, primary_role, favorite_systems, city")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const context = [
+        profile?.display_name ? `Nome: ${profile.display_name}` : "",
+        profile?.primary_role ? `Perfil: ${profile.primary_role}` : "",
+        profile?.favorite_systems?.length ? `Sistemas favoritos: ${profile.favorite_systems.join(", ")}` : "",
+        profile?.city ? `Cidade: ${profile.city}` : "",
+        instagramHandle ? `Instagram: @${instagramHandle}` : "",
+      ].filter(Boolean).join("\n");
+
+      const { data, error } = await supabase.functions.invoke("mesa-ai-assist", {
+        body: {
+          action: "generate_bio",
+          context,
+        },
+      });
+
+      if (error) throw error;
+      const generatedBio = data?.bio || data?.result?.bio;
+      if (generatedBio) {
+        onBioChange(generatedBio.slice(0, maxChars));
+        toast.success("Bio gerada! Edite como quiser.");
+      } else {
+        throw new Error("Nenhuma bio gerada");
+      }
+    } catch (err: any) {
+      console.error("Bio AI error:", err);
+      toast.error("Erro ao gerar bio. Tente novamente.");
+    } finally {
+      setGeneratingBio(false);
+    }
+  };
+
   const sanitizeHandle = (val: string) => {
-    // Remove @ prefix and spaces, keep only valid instagram chars
     return val.replace(/^@/, "").replace(/[^a-zA-Z0-9._]/g, "").slice(0, 30);
   };
 
@@ -86,9 +130,26 @@ export function BioAvatarStep({ bio, avatarUrl, instagramHandle, onBioChange, on
 
       {/* Bio textarea */}
       <div>
-        <label className="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-[0.15em] mb-2 block">
-          Mini bio
-        </label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-[11px] font-semibold text-muted-foreground/50 uppercase tracking-[0.15em]">
+            Mini bio
+          </label>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={generateBioWithAI}
+            disabled={generatingBio}
+            className="h-7 gap-1.5 text-xs text-primary hover:text-primary hover:bg-primary/10 rounded-full px-3"
+          >
+            {generatingBio ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            {generatingBio ? "Criando..." : "Criar com IA"}
+          </Button>
+        </div>
         <textarea
           value={bio}
           onChange={(e) => {
