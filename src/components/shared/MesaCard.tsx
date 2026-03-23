@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Users, Clock, Sparkles, Timer } from "lucide-react";
+import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getMatchColor, getMatchLabel } from "@/lib/match-scoring";
 
