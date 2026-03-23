@@ -31,6 +31,8 @@ interface StepProps {
   onTextChange?: (v: string) => void;
   avatarUrl?: string;
   onAvatarChange?: (url: string) => void;
+  instagramHandle?: string;
+  onInstagramChange?: (handle: string) => void;
 }
 
 export function OnboardingStepView({
@@ -53,6 +55,8 @@ export function OnboardingStepView({
   onTextChange,
   avatarUrl,
   onAvatarChange,
+  instagramHandle,
+  onInstagramChange,
 }: StepProps) {
   const progress = ((current + 1) / total) * 100;
 
@@ -419,12 +423,14 @@ export function OnboardingStepView({
               )}
 
               {/* ── Bio + Avatar ── */}
-              {step.type === "bio-avatar" && onAvatarChange && (
+              {step.type === "bio-avatar" && onAvatarChange && onInstagramChange && (
                 <BioAvatarStep
                   bio={(value as string) || ""}
                   avatarUrl={avatarUrl || ""}
+                  instagramHandle={instagramHandle || ""}
                   onBioChange={(bio) => onChange(step.field, bio)}
                   onAvatarChange={onAvatarChange}
+                  onInstagramChange={onInstagramChange}
                 />
               )}
 

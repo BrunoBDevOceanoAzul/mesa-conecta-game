@@ -52,6 +52,7 @@ export default function Onboarding() {
   const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
   const [avoidedNotes, setAvoidedNotes] = useState("");
   const [avatarUrl, setAvatarUrl] = useState("");
+  const [instagramHandle, setInstagramHandle] = useState("");
   const [saving, setSaving] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -77,6 +78,7 @@ export default function Onboarding() {
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
           if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          if ((data as any).instagram_handle) setInstagramHandle((data as any).instagram_handle);
           if (data.bio) setAnswers((prev) => ({ ...prev, bio: data.bio }));
           if (Object.keys(loaded).length > 0) setAnswers((prev) => ({ ...prev, ...loaded }));
           if (data.role) {
@@ -156,6 +158,7 @@ export default function Onboarding() {
         role: dbRole,
         bio: answers.bio || null,
         avatar_url: avatarUrl || null,
+        instagram_handle: instagramHandle || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
@@ -207,6 +210,7 @@ export default function Onboarding() {
         role: dbRole,
         bio: answers.bio || null,
         avatar_url: avatarUrl || null,
+        instagram_handle: instagramHandle || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
@@ -359,6 +363,8 @@ export default function Onboarding() {
             onTextChange={step.field === "themes_avoided" ? setAvoidedNotes : undefined}
             avatarUrl={step.type === "bio-avatar" ? avatarUrl : undefined}
             onAvatarChange={step.type === "bio-avatar" ? setAvatarUrl : undefined}
+            instagramHandle={step.type === "bio-avatar" ? instagramHandle : undefined}
+            onInstagramChange={step.type === "bio-avatar" ? setInstagramHandle : undefined}
           />
         )}
 

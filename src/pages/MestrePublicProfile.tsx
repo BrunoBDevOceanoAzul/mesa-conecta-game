@@ -13,7 +13,7 @@ import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import {
   MapPin, Star, Users, Swords, BookOpen, Calendar,
   Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap,
-  Briefcase, Brain, Clock, Gamepad2, ChevronRight
+  Briefcase, Brain, Clock, Gamepad2, ChevronRight, Instagram
 } from "lucide-react";
 
 interface GMData {
@@ -192,6 +192,14 @@ export default function MestrePublicProfile() {
                   myRoleLabel="player"
                 />
                 <ShareButton entityType="mestre" entityId={profile.user_id} entityTitle={`Perfil de ${name}`} entitySlug={slug} />
+                {profile.instagram_handle && (
+                  <Button variant="outline" size="lg" asChild>
+                    <a href={`https://www.instagram.com/${profile.instagram_handle}/`} target="_blank" rel="noopener noreferrer">
+                      <Instagram className="h-4 w-4 mr-1.5" />
+                      @{profile.instagram_handle}
+                    </a>
+                  </Button>
+                )}
               </div>
             </div>
           </div>
@@ -281,6 +289,7 @@ export default function MestrePublicProfile() {
                     seats_total: t.seats_total || 5,
                     seats_available: t.seats_available || 0,
                     gm_name: name,
+                    gm_instagram: profile.instagram_handle,
                     start_at: t.start_at || new Date().toISOString(),
                     status: t.status || "published",
                   }}

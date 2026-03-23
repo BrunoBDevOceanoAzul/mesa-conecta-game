@@ -3951,6 +3951,7 @@ export type Database = {
           email: string | null
           experience_level: string | null
           id: string
+          instagram_handle: string | null
           instagram_url: string | null
           is_active: boolean | null
           is_public: boolean | null
@@ -4012,6 +4013,7 @@ export type Database = {
           email?: string | null
           experience_level?: string | null
           id?: string
+          instagram_handle?: string | null
           instagram_url?: string | null
           is_active?: boolean | null
           is_public?: boolean | null
@@ -4073,6 +4075,7 @@ export type Database = {
           email?: string | null
           experience_level?: string | null
           id?: string
+          instagram_handle?: string | null
           instagram_url?: string | null
           is_active?: boolean | null
           is_public?: boolean | null

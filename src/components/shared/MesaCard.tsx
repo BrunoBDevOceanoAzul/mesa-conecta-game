@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Users, Clock, Sparkles, Timer } from "lucide-react";
+import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Instagram } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getMatchColor, getMatchLabel } from "@/lib/match-scoring";
 
@@ -15,6 +15,7 @@ interface Mesa {
   seats_total: number;
   seats_available: number;
   gm_name: string;
+  gm_instagram?: string | null;
   start_at: string;
   end_at?: string | null;
   status: string;
@@ -184,7 +185,20 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
             </div>
             <div>
               <span className="text-xs font-medium text-foreground block leading-tight">{mesa.gm_name}</span>
-              <span className="text-[10px] text-muted-foreground">{formatMap[mesa.format] || mesa.format}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-muted-foreground">{formatMap[mesa.format] || mesa.format}</span>
+                {mesa.gm_instagram && (
+                  <a
+                    href={`https://www.instagram.com/${mesa.gm_instagram}/`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="inline-flex items-center gap-0.5 text-[10px] text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    <Instagram className="h-2.5 w-2.5" />
+                  </a>
+                )}
+              </div>
             </div>
           </div>
           <div className="text-right">
