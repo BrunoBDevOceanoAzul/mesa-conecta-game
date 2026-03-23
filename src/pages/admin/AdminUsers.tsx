@@ -270,19 +270,38 @@ export default function AdminUsers() {
     if (!selected || !adminUser) return;
     setSaving(true);
 
-    const oldData = { role: selected.role, can_play: selected.can_play, can_gm: selected.can_gm, can_manage_store: selected.can_manage_store, can_manage_brand: selected.can_manage_brand };
-    const newData = { role: editRole || null, can_play: editCanPlay, can_gm: editCanGm, can_manage_store: editCanManageStore, can_manage_brand: editCanManageBrand };
+    const oldData = { name: selected.name, role: selected.role, city: selected.city, onboarding_completed: selected.onboarding_completed, can_play: selected.can_play, can_gm: selected.can_gm, can_manage_store: selected.can_manage_store, can_manage_brand: selected.can_manage_brand };
+    const newData = { name: editName || null, role: editRole || null, city: editCity || null, onboarding_completed: editOnboarding, can_play: editCanPlay, can_gm: editCanGm, can_manage_store: editCanManageStore, can_manage_brand: editCanManageBrand };
 
+    // Update profile
     const { error } = await supabase
       .from("profiles")
       .update({
+        name: editName.trim() || null,
         role: editRole || null,
+        city: editCity.trim() || null,
+        onboarding_completed: editOnboarding,
         can_play: editCanPlay,
         can_gm: editCanGm,
         can_manage_store: editCanManageStore,
         can_manage_brand: editCanManageBrand,
       } as any)
       .eq("user_id", selected.user_id);
+
+    // Update founder status
+    if (editIsFounder !== selected.is_founder) {
+      await supabase
+        .from("credit_wallets")
+        .upsert({ user_id: selected.user_id, is_founder: editIsFounder } as any, { onConflict: "user_id" });
+    }
+
+    // Update XP
+    const newXp = parseInt(editXp) || 0;
+    if (newXp !== selected.xp) {
+      await supabase
+        .from("master_xp_profiles")
+        .upsert({ user_id: selected.user_id, total_xp: newXp } as any, { onConflict: "user_id" });
+    }
 
     if (error) {
       toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" });
