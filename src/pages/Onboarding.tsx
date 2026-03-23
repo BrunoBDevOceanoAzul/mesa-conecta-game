@@ -357,6 +357,8 @@ export default function Onboarding() {
             onAvailabilityChange={step.type === "days-times" ? setAvailability : undefined}
             textValue={step.field === "themes_avoided" ? avoidedNotes : undefined}
             onTextChange={step.field === "themes_avoided" ? setAvoidedNotes : undefined}
+            avatarUrl={step.type === "bio-avatar" ? avatarUrl : undefined}
+            onAvatarChange={step.type === "bio-avatar" ? setAvatarUrl : undefined}
           />
         )}
 
