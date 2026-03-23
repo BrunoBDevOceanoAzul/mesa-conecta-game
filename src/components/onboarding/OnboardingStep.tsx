@@ -31,6 +31,8 @@ interface StepProps {
   onTextChange?: (v: string) => void;
   avatarUrl?: string;
   onAvatarChange?: (url: string) => void;
+  instagramHandle?: string;
+  onInstagramChange?: (handle: string) => void;
 }
 
 export function OnboardingStepView({
