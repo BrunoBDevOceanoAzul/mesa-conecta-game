@@ -1,25 +1,35 @@
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Html, Preview, Text } from 'npm:@react-email/components@0.0.22'
+import type { TemplateEntry } from './registry.ts'
 
-interface RecoveryEmailProps { siteName: string; confirmationUrl: string }
+const SITE = 'Sócio do Tabuleiro'
 const P = '#7B3FA0'
 
-export const RecoveryEmail = ({ siteName, confirmationUrl }: RecoveryEmailProps) => (
+interface Props { name?: string }
+
+const WelcomeEmail = ({ name }: Props) => (
   <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Redefinir sua senha — Sócio do Tabuleiro</Preview>
+    <Preview>Bem-vindo ao {SITE}!</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Redefinir sua senha 🔑</Heading>
-        <Text style={text}>Recebemos um pedido para redefinir sua senha no Sócio do Tabuleiro. Clique no botão abaixo para escolher uma nova senha.</Text>
-        <Button style={button} href={confirmationUrl}>Redefinir Senha</Button>
-        <Text style={footer}>Se você não solicitou a redefinição, pode ignorar este e-mail. Sua senha não será alterada.</Text>
+        <Heading style={h1}>Bem-vindo ao Sócio do Tabuleiro! 🎲</Heading>
+        <Text style={text}>{name ? `Olá ${name}!` : 'Olá!'} Sua conta foi criada com sucesso.</Text>
+        <Text style={text}>Aqui você encontra mesas de RPG, board games, mestres incríveis e lojas parceiras. Explore a plataforma e comece sua aventura!</Text>
+        <Button style={button} href="https://sociodotabuleiro.app.br/explorar">Explorar Mesas</Button>
+        <Text style={footer}>— Equipe {SITE}</Text>
       </Container>
     </Body>
   </Html>
 )
-export default RecoveryEmail
+
+export const template = {
+  component: WelcomeEmail,
+  subject: 'Bem-vindo ao Sócio do Tabuleiro! 🎲',
+  displayName: 'E-mail de boas-vindas',
+  previewData: { name: 'João' },
+} satisfies TemplateEntry
 
 const main = { backgroundColor: '#ffffff', fontFamily: "'DM Sans', Arial, sans-serif" }
 const container = { padding: '32px 28px', maxWidth: '480px', margin: '0 auto' }
