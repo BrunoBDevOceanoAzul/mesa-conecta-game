@@ -773,17 +773,11 @@ export default function AdminUsers() {
                     {planEditMode ? (
                       <div className="space-y-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
                         <div>
-                          <Label className="text-xs text-muted-foreground mb-1.5 block">Nome do plano</Label>
-                          <Input
-                            value={editPlanName}
-                            onChange={(e) => setEditPlanName(e.target.value)}
-                            placeholder="Ex: Mestre Pro"
-                            className="bg-card"
-                          />
-                        </div>
-                        <div>
                           <Label className="text-xs text-muted-foreground mb-1.5 block">Role do plano</Label>
-                          <Select value={editPlanRole} onValueChange={setEditPlanRole}>
+                          <Select value={editPlanRole} onValueChange={(val) => {
+                            setEditPlanRole(val);
+                            setEditPlanName(""); // reset plan when role changes
+                          }}>
                             <SelectTrigger className="bg-card"><SelectValue placeholder="Selecione..." /></SelectTrigger>
                             <SelectContent>
                               <SelectItem value="player">Jogador</SelectItem>
@@ -792,6 +786,31 @@ export default function AdminUsers() {
                               <SelectItem value="brand">Marca</SelectItem>
                             </SelectContent>
                           </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs text-muted-foreground mb-1.5 block">Plano</Label>
+                          {(() => {
+                            const roleForFilter = editPlanRole || editRole || selected?.role || "";
+                            const filtered = billingProducts.filter(
+                              (p) => !p.target_role || p.target_role === roleForFilter
+                            );
+                            return (
+                              <Select value={editPlanName} onValueChange={setEditPlanName}>
+                                <SelectTrigger className="bg-card"><SelectValue placeholder="Selecione o plano..." /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Free">Free (sem plano)</SelectItem>
+                                  {filtered.map((p) => (
+                                    <SelectItem key={p.id} value={p.name}>
+                                      {p.name} — R$ {(p.price_cents / 100).toFixed(2)}
+                                    </SelectItem>
+                                  ))}
+                                  {filtered.length === 0 && (
+                                    <p className="px-3 py-2 text-xs text-muted-foreground">Nenhum plano para esta role.</p>
+                                  )}
+                                </SelectContent>
+                              </Select>
+                            );
+                          })()}
                         </div>
                         <div>
                           <Label className="text-xs text-muted-foreground mb-1.5 block">Intervalo</Label>
