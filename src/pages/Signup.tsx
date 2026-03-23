@@ -91,7 +91,7 @@ export default function Signup() {
             can_gm: canGm,
             can_manage_store: canManageStore,
             can_manage_brand: false,
-            whatsapp: normalizePhone(whatsapp),
+            whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
           },
           emailRedirectTo: window.location.origin,
         },
