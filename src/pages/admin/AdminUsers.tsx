@@ -152,7 +152,7 @@ export default function AdminUsers() {
     setLoading(true);
     const [profilesRes, subsRes, walletsRes, xpRes, badgesRes, discountsRes, productsRes] = await Promise.all([
       supabase.from("profiles").select("user_id, name, email, role, can_play, can_gm, can_manage_store, can_manage_brand, city, is_active, onboarding_completed, created_at"),
-      supabase.from("subscriptions").select("user_id, status, plan_name, plan_role, plan_id, billing_interval, amount, currency, current_period_end"),
+      supabase.from("asaas_subscriptions").select("id, user_id, status, billing_product_id, amount_cents, currency, next_due_date, cycle, created_at"),
       supabase.from("credit_wallets").select("user_id, is_founder"),
       supabase.from("master_xp_profiles").select("user_id, total_xp"),
       supabase.from("master_badges").select("user_id"),
@@ -170,11 +170,28 @@ export default function AdminUsers() {
     const discounts = (discountsRes.data || []) as any[];
 
     const rows: UserRow[] = profiles.map((p: any) => {
-      const sub = subs.find((s: any) => s.user_id === p.user_id && (s.status === "active" || s.status === "trialing"));
+      const sub = subs.find((s: any) => s.user_id === p.user_id && (s.status === "ACTIVE" || s.status === "PENDING"));
       const wallet = wallets.find((w: any) => w.user_id === p.user_id);
       const xp = xps.find((x: any) => x.user_id === p.user_id);
       const badgeCount = badges.filter((b: any) => b.user_id === p.user_id).length;
       const disc = discounts.find((d: any) => d.user_id === p.user_id);
+      const matchedProduct = sub?.billing_product_id
+        ? (productsRes.data || []).find((bp: any) => bp.id === sub.billing_product_id)
+        : null;
+
+      const statusMap: Record<string, string> = {
+        ACTIVE: "active",
+        PENDING: "pending",
+        OVERDUE: "past_due",
+        CANCELLED: "canceled",
+        EXPIRED: "canceled",
+      };
+      const cycleMap: Record<string, string> = {
+        MONTHLY: "monthly",
+        QUARTERLY: "quarterly",
+        SEMIANNUALLY: "semiannual",
+        YEARLY: "annual",
+      };
 
       return {
         user_id: p.user_id,
@@ -189,14 +206,14 @@ export default function AdminUsers() {
         is_active: p.is_active ?? true,
         onboarding_completed: p.onboarding_completed ?? false,
         created_at: p.created_at,
-        sub_status: sub?.status || null,
-        plan_name: (sub as any)?.plan_name || null,
-        plan_role: (sub as any)?.plan_role || null,
-        plan_id: (sub as any)?.plan_id || null,
-        billing_interval: (sub as any)?.billing_interval || null,
-        sub_amount: (sub as any)?.amount || null,
-        sub_currency: (sub as any)?.currency || null,
-        sub_period_end: (sub as any)?.current_period_end || null,
+        sub_status: sub ? (statusMap[sub.status] || sub.status) : null,
+        plan_name: matchedProduct?.name || null,
+        plan_role: matchedProduct?.target_role || null,
+        plan_id: sub?.billing_product_id || null,
+        billing_interval: sub ? (cycleMap[sub.cycle] || sub.cycle) : null,
+        sub_amount: sub?.amount_cents || null,
+        sub_currency: sub?.currency || null,
+        sub_period_end: sub?.next_due_date || null,
         is_founder: wallet?.is_founder || false,
         xp: (xp as any)?.total_xp || 0,
         badge_count: badgeCount,
@@ -336,37 +353,76 @@ export default function AdminUsers() {
     setPlanSaving(true);
 
     const oldData = { plan_name: selected.plan_name, plan_role: selected.plan_role, billing_interval: selected.billing_interval, status: selected.sub_status };
+
+    // Find the selected billing product by name
+    const selectedProduct = billingProducts.find((p) => p.name === editPlanName);
+    const billingProductId = selectedProduct?.id || null;
+    const priceCents = selectedProduct?.price_cents || 0;
+
+    // Map UI status back to Asaas status
+    const statusMap: Record<string, string> = {
+      active: "ACTIVE",
+      pending: "PENDING",
+      past_due: "OVERDUE",
+      canceled: "CANCELLED",
+      trialing: "PENDING",
+      paused: "CANCELLED",
+      inactive: "CANCELLED",
+    };
+    const asaasStatus = statusMap[editSubStatus] || "ACTIVE";
+
+    // Map billing interval to Asaas cycle
+    const cycleMap: Record<string, string> = {
+      monthly: "MONTHLY",
+      quarterly: "QUARTERLY",
+      semiannual: "SEMIANNUALLY",
+      annual: "YEARLY",
+    };
+    const asaasCycle = cycleMap[editBillingInterval] || "MONTHLY";
+
     const newData = { plan_name: editPlanName, plan_role: editPlanRole, billing_interval: editBillingInterval, status: editSubStatus };
 
-    if (selected.sub_status) {
+    if (editPlanName === "Free" || !editPlanName) {
+      // Remove subscription: cancel any active asaas_subscriptions
+      await supabase
+        .from("asaas_subscriptions")
+        .update({ status: "CANCELLED", canceled_at: new Date().toISOString() } as any)
+        .eq("user_id", selected.user_id)
+        .in("status", ["ACTIVE", "PENDING"]);
+    } else if (selected.plan_id) {
       // Update existing subscription
       const { error } = await supabase
-        .from("subscriptions")
+        .from("asaas_subscriptions")
         .update({
-          plan_name: editPlanName || null,
-          plan_role: editPlanRole || null,
-          billing_interval: editBillingInterval || "monthly",
-          status: editSubStatus || "active",
+          billing_product_id: billingProductId,
+          amount_cents: priceCents,
+          cycle: asaasCycle,
+          status: asaasStatus,
+          description: editPlanName,
+          next_due_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
         } as any)
         .eq("user_id", selected.user_id)
-        .in("status", ["active", "trialing"]);
+        .in("status", ["ACTIVE", "PENDING", "OVERDUE"]);
 
       if (error) {
         toast({ title: "Erro ao atualizar plano", description: error.message, variant: "destructive" });
         setPlanSaving(false);
         return;
       }
-    } else if (editPlanName) {
-      // Create manual subscription
+    } else if (billingProductId) {
+      // Create new manual subscription
       const { error } = await supabase
-        .from("subscriptions")
+        .from("asaas_subscriptions")
         .insert({
           user_id: selected.user_id,
-          plan_name: editPlanName,
-          plan_role: editPlanRole || selected.role || "player",
-          status: editSubStatus || "active",
-          provider: "manual",
-          billing_interval: editBillingInterval || "monthly",
+          billing_product_id: billingProductId,
+          amount_cents: priceCents,
+          currency: "BRL",
+          cycle: asaasCycle,
+          billing_type: "PIX",
+          status: asaasStatus,
+          description: editPlanName,
+          next_due_date: new Date(Date.now() + 30 * 86400000).toISOString().split("T")[0],
         } as any);
 
       if (error) {
