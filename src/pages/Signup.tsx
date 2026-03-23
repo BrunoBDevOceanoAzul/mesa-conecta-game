@@ -287,7 +287,7 @@ export default function Signup() {
 
         {/* Microcopy */}
         <div className="mt-4 flex flex-col items-center gap-1.5">
-          <p className="text-xs text-muted-foreground/50">Leva menos de 30 segundos · Você completa o restante depois</p>
+          <p className="text-xs text-muted-foreground/50">Sem cartão de crédito · Comece a jogar agora</p>
         </div>
 
         <p className="mt-5 text-center text-sm text-muted-foreground">
