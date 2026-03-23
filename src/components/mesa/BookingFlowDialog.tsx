@@ -262,6 +262,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
   const handleBook = () => {
     if (isPaidMesa) {
+      // Pre-check financial readiness before calling edge function
+      if (!isFinancialReady) {
+        setStep("collect_cpf");
+        return;
+      }
       handlePaidBook();
     } else {
       handleFreeBook();
