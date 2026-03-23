@@ -49,6 +49,7 @@ export const playerSteps: OnboardingStep[] = [
     field: "bio",
     required: false,
   },
+  {
     id: "player-format",
     title: "Como você prefere jogar?",
     subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
