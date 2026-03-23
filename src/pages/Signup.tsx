@@ -242,14 +242,13 @@ export default function Signup() {
             <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="field-input" placeholder="seu@email.com" required disabled={loading} />
           </div>
           <div>
-            <label className="field-label">WhatsApp</label>
+            <label className="field-label">WhatsApp <span className="text-muted-foreground/50 font-normal">(opcional)</span></label>
             <input
               type="tel"
               value={whatsapp}
               onChange={(e) => setWhatsapp(formatWhatsApp(e.target.value))}
               className="field-input"
               placeholder="(11) 99999-9999"
-              required
               disabled={loading}
             />
           </div>
