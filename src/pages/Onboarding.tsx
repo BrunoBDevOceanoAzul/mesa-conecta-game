@@ -51,6 +51,7 @@ export default function Onboarding() {
   const [coords, setCoords] = useState<{ lat?: number; lng?: number }>({});
   const [availability, setAvailability] = useState<{ days: string[]; times: string[] }>({ days: [], times: [] });
   const [avoidedNotes, setAvoidedNotes] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [saving, setSaving] = useState(false);
   const [profileLoaded, setProfileLoaded] = useState(false);
 
@@ -75,7 +76,9 @@ export default function Onboarding() {
           if (data.preferred_format) loaded.preferred_format = data.preferred_format;
           if (data.budget_range) loaded.budget_range = data.budget_range;
           if (data.lat && data.lng) setCoords({ lat: data.lat, lng: data.lng });
-          if (Object.keys(loaded).length > 0) setAnswers(loaded);
+          if (data.avatar_url) setAvatarUrl(data.avatar_url);
+          if (data.bio) setAnswers((prev) => ({ ...prev, bio: data.bio }));
+          if (Object.keys(loaded).length > 0) setAnswers((prev) => ({ ...prev, ...loaded }));
           if (data.role) {
             const mapped = dbRoleToRoleKey[data.role] || data.role as RoleKey;
             setRole(mapped);
@@ -151,6 +154,8 @@ export default function Onboarding() {
       const partialData: Record<string, unknown> = {
         onboarding_step: stepNum,
         role: dbRole,
+        bio: answers.bio || null,
+        avatar_url: avatarUrl || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
@@ -200,6 +205,8 @@ export default function Onboarding() {
 
       const profileData: Record<string, unknown> = {
         role: dbRole,
+        bio: answers.bio || null,
+        avatar_url: avatarUrl || null,
         city: answers.city || null,
         lat: coords.lat || null,
         lng: coords.lng || null,
@@ -350,6 +357,8 @@ export default function Onboarding() {
             onAvailabilityChange={step.type === "days-times" ? setAvailability : undefined}
             textValue={step.field === "themes_avoided" ? avoidedNotes : undefined}
             onTextChange={step.field === "themes_avoided" ? setAvoidedNotes : undefined}
+            avatarUrl={step.type === "bio-avatar" ? avatarUrl : undefined}
+            onAvatarChange={step.type === "bio-avatar" ? setAvatarUrl : undefined}
           />
         )}
 

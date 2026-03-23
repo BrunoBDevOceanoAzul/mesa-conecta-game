@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { CityAutocomplete } from "@/components/shared/CityAutocomplete";
 import { SearchableSystemSelect } from "@/components/shared/SearchableSystemSelect";
+import { BioAvatarStep } from "@/components/onboarding/BioAvatarStep";
 import { RPG_SYSTEMS, POPULAR_SYSTEMS } from "@/data/rpg-systems";
 import { ChevronLeft, ChevronRight, Check, Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,8 @@ interface StepProps {
   onAvailabilityChange?: (v: { days: string[]; times: string[] }) => void;
   textValue?: string;
   onTextChange?: (v: string) => void;
+  avatarUrl?: string;
+  onAvatarChange?: (url: string) => void;
 }
 
 export function OnboardingStepView({
@@ -48,6 +51,8 @@ export function OnboardingStepView({
   onAvailabilityChange,
   textValue,
   onTextChange,
+  avatarUrl,
+  onAvatarChange,
 }: StepProps) {
   const progress = ((current + 1) / total) * 100;
 
@@ -411,6 +416,16 @@ export function OnboardingStepView({
                     </p>
                   )}
                 </div>
+              )}
+
+              {/* ── Bio + Avatar ── */}
+              {step.type === "bio-avatar" && onAvatarChange && (
+                <BioAvatarStep
+                  bio={(value as string) || ""}
+                  avatarUrl={avatarUrl || ""}
+                  onBioChange={(bio) => onChange(step.field, bio)}
+                  onAvatarChange={onAvatarChange}
+                />
               )}
 
               {/* ── Toggles ── */}

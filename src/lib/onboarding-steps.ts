@@ -13,7 +13,8 @@ export type StepType =
   | "slider"
   | "stepper"
   | "toggles"
-  | "text-optional";
+  | "text-optional"
+  | "bio-avatar";
 
 export interface StepOption {
   label: string;
@@ -39,6 +40,15 @@ export interface OnboardingStep {
 
 // ─── JOGADOR ───────────────────────────────────────────
 export const playerSteps: OnboardingStep[] = [
+  {
+    id: "player-bio",
+    title: "Sua identidade na comunidade",
+    subtitle: "Adicione uma foto e conte um pouco sobre você",
+    microcopy: "Sua bio aparece no seu perfil e ajuda outros jogadores a te conhecer.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
   {
     id: "player-format",
     title: "Como você prefere jogar?",
@@ -187,6 +197,15 @@ export const playerSteps: OnboardingStep[] = [
 
 // ─── MESTRE ───────────────────────────────────────────
 export const gmSteps: OnboardingStep[] = [
+  {
+    id: "gm-bio",
+    title: "Sua identidade como mestre",
+    subtitle: "Uma foto e uma frase que diga quem você é na mesa",
+    microcopy: "Jogadores veem isso ao explorar mesas. Cause uma boa primeira impressão.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
   {
     id: "gm-format",
     title: "Como você prefere abrir suas mesas?",
@@ -337,6 +356,15 @@ export const gmSteps: OnboardingStep[] = [
 // ─── LOJA / LUDERIA ──────────────────────────────────
 export const storeSteps: OnboardingStep[] = [
   {
+    id: "store-bio",
+    title: "A identidade da sua casa",
+    subtitle: "Uma foto e uma frase que represente sua luderia",
+    microcopy: "Isso aparece no seu perfil público e ajuda jogadores a te encontrar.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
+  {
     id: "store-format",
     title: "Como sua operação acontece?",
     subtitle: "A HIVIUM conecta experiências presenciais, híbridas e online.",
@@ -435,6 +463,15 @@ export const storeSteps: OnboardingStep[] = [
 
 // ─── MARCA ───────────────────────────────────────────
 export const brandSteps: OnboardingStep[] = [
+  {
+    id: "brand-bio",
+    title: "A cara da sua marca",
+    subtitle: "Logo e uma frase que posicione sua marca no ecossistema",
+    microcopy: "Isso aparece nas suas campanhas e posts patrocinados.",
+    type: "bio-avatar",
+    field: "bio",
+    required: false,
+  },
   {
     id: "brand-category",
     title: "Que tipo de marca é a sua?",
