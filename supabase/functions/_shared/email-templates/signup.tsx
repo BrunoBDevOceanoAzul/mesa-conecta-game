@@ -9,7 +9,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Link,
   Preview,
   Text,
@@ -28,32 +27,31 @@ export const SignupEmail = ({
   recipient,
   confirmationUrl,
 }: SignupEmailProps) => (
-  <Html lang="pt-BR" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirme seu email no HIVIUM</Preview>
+    <Preview>Confirm your email for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/hivium-logo.png" width="56" height="56" alt="HIVIUM" style={logo} />
-        <Heading style={h1}>Confirme seu email 🎲</Heading>
+        <Heading style={h1}>Confirm your email</Heading>
         <Text style={text}>
-          Bem-vindo ao{' '}
+          Thanks for signing up for{' '}
           <Link href={siteUrl} style={link}>
-            <strong>HIVIUM</strong>
+            <strong>{siteName}</strong>
           </Link>
-          ! Estamos felizes em ter você na comunidade.
+          !
         </Text>
         <Text style={text}>
-          Confirme seu endereço de email (
+          Please confirm your email address (
           <Link href={`mailto:${recipient}`} style={link}>
             {recipient}
           </Link>
-          ) clicando no botão abaixo:
+          ) by clicking the button below:
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Confirmar Email
+          Verify Email
         </Button>
         <Text style={footer}>
-          Se você não criou uma conta, pode ignorar este email com segurança.
+          If you didn't create an account, you can safely ignore this email.
         </Text>
       </Container>
     </Body>
@@ -62,30 +60,27 @@ export const SignupEmail = ({
 
 export default SignupEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'DM Sans', Arial, sans-serif" }
-const container = { padding: '32px 28px' }
-const logo = { marginBottom: '24px' }
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '24px',
+  fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: 'hsl(280, 30%, 18%)',
+  color: '#000000',
   margin: '0 0 20px',
-  fontFamily: "'Playfair Display', Georgia, serif",
 }
 const text = {
-  fontSize: '15px',
-  color: 'hsl(280, 10%, 46%)',
-  lineHeight: '1.6',
-  margin: '0 0 24px',
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
 }
-const link = { color: 'hsl(280, 52%, 42%)', textDecoration: 'underline' }
+const link = { color: 'inherit', textDecoration: 'underline' }
 const button = {
-  backgroundColor: 'hsl(280, 52%, 42%)',
-  color: 'hsl(40, 25%, 98%)',
-  fontSize: '15px',
-  fontWeight: '600' as const,
-  borderRadius: '12px',
-  padding: '14px 24px',
+  backgroundColor: '#000000',
+  color: '#ffffff',
+  fontSize: '14px',
+  borderRadius: '8px',
+  padding: '12px 20px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: 'hsl(280, 10%, 60%)', margin: '32px 0 0' }
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }

@@ -9,7 +9,6 @@ import {
   Head,
   Heading,
   Html,
-  Img,
   Preview,
   Text,
 } from 'npm:@react-email/components@0.0.22'
@@ -23,21 +22,21 @@ export const MagicLinkEmail = ({
   siteName,
   confirmationUrl,
 }: MagicLinkEmailProps) => (
-  <Html lang="pt-BR" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Seu link de acesso ao HIVIUM</Preview>
+    <Preview>Your login link for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Img src="https://kcehwcqdoxvkqakdvhsb.supabase.co/storage/v1/object/public/email-assets/hivium-logo.png" width="56" height="56" alt="HIVIUM" style={logo} />
-        <Heading style={h1}>Seu link de acesso</Heading>
+        <Heading style={h1}>Your login link</Heading>
         <Text style={text}>
-          Clique no botão abaixo para entrar no HIVIUM. Este link expira em breve.
+          Click the button below to log in to {siteName}. This link will expire
+          shortly.
         </Text>
         <Button style={button} href={confirmationUrl}>
-          Entrar
+          Log In
         </Button>
         <Text style={footer}>
-          Se você não solicitou este link, pode ignorar este email.
+          If you didn't request this link, you can safely ignore this email.
         </Text>
       </Container>
     </Body>
@@ -46,29 +45,26 @@ export const MagicLinkEmail = ({
 
 export default MagicLinkEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "'DM Sans', Arial, sans-serif" }
-const container = { padding: '32px 28px' }
-const logo = { marginBottom: '24px' }
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '20px 25px' }
 const h1 = {
-  fontSize: '24px',
+  fontSize: '22px',
   fontWeight: 'bold' as const,
-  color: 'hsl(280, 30%, 18%)',
+  color: '#000000',
   margin: '0 0 20px',
-  fontFamily: "'Playfair Display', Georgia, serif",
 }
 const text = {
-  fontSize: '15px',
-  color: 'hsl(280, 10%, 46%)',
-  lineHeight: '1.6',
-  margin: '0 0 24px',
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
 }
 const button = {
-  backgroundColor: 'hsl(280, 52%, 42%)',
-  color: 'hsl(40, 25%, 98%)',
-  fontSize: '15px',
-  fontWeight: '600' as const,
-  borderRadius: '12px',
-  padding: '14px 24px',
+  backgroundColor: '#000000',
+  color: '#ffffff',
+  fontSize: '14px',
+  borderRadius: '8px',
+  padding: '12px 20px',
   textDecoration: 'none',
 }
-const footer = { fontSize: '12px', color: 'hsl(280, 10%, 60%)', margin: '32px 0 0' }
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
