@@ -2115,6 +2115,63 @@ export type Database = {
         }
         Relationships: []
       }
+      dice_rolls: {
+        Row: {
+          created_at: string
+          game_table_id: string
+          id: string
+          modifier: number | null
+          result_json: Json
+          roll_formula: string
+          session_id: string | null
+          total_result: number
+          user_id: string
+          user_name: string | null
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          game_table_id: string
+          id?: string
+          modifier?: number | null
+          result_json?: Json
+          roll_formula: string
+          session_id?: string | null
+          total_result: number
+          user_id: string
+          user_name?: string | null
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          game_table_id?: string
+          id?: string
+          modifier?: number | null
+          result_json?: Json
+          roll_formula?: string
+          session_id?: string | null
+          total_result?: number
+          user_id?: string
+          user_name?: string | null
+          visibility?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dice_rolls_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dice_rolls_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       discount_coupons: {
         Row: {
           amount_off: number | null
@@ -4212,6 +4269,155 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      session_assets: {
+        Row: {
+          asset_type: string
+          category: string
+          created_at: string
+          created_by_user_id: string
+          default_volume: number | null
+          description: string | null
+          duration_seconds: number | null
+          file_url: string | null
+          game_table_id: string
+          generated_prompt: string | null
+          id: string
+          loop_enabled: boolean | null
+          session_id: string | null
+          sort_order: number
+          source_type: string
+          title: string
+          updated_at: string
+          visibility_status: string
+        }
+        Insert: {
+          asset_type?: string
+          category?: string
+          created_at?: string
+          created_by_user_id: string
+          default_volume?: number | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_url?: string | null
+          game_table_id: string
+          generated_prompt?: string | null
+          id?: string
+          loop_enabled?: boolean | null
+          session_id?: string | null
+          sort_order?: number
+          source_type?: string
+          title: string
+          updated_at?: string
+          visibility_status?: string
+        }
+        Update: {
+          asset_type?: string
+          category?: string
+          created_at?: string
+          created_by_user_id?: string
+          default_volume?: number | null
+          description?: string | null
+          duration_seconds?: number | null
+          file_url?: string | null
+          game_table_id?: string
+          generated_prompt?: string | null
+          id?: string
+          loop_enabled?: boolean | null
+          session_id?: string | null
+          sort_order?: number
+          source_type?: string
+          title?: string
+          updated_at?: string
+          visibility_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_assets_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_assets_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      session_cues: {
+        Row: {
+          audio_asset_id: string | null
+          created_at: string
+          description: string | null
+          game_table_id: string
+          id: string
+          image_asset_id: string | null
+          is_active: boolean | null
+          session_id: string | null
+          sort_order: number
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          audio_asset_id?: string | null
+          created_at?: string
+          description?: string | null
+          game_table_id: string
+          id?: string
+          image_asset_id?: string | null
+          is_active?: boolean | null
+          session_id?: string | null
+          sort_order?: number
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          audio_asset_id?: string | null
+          created_at?: string
+          description?: string | null
+          game_table_id?: string
+          id?: string
+          image_asset_id?: string | null
+          is_active?: boolean | null
+          session_id?: string | null
+          sort_order?: number
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_cues_audio_asset_id_fkey"
+            columns: ["audio_asset_id"]
+            isOneToOne: false
+            referencedRelation: "session_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_cues_game_table_id_fkey"
+            columns: ["game_table_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_cues_image_asset_id_fkey"
+            columns: ["image_asset_id"]
+            isOneToOne: false
+            referencedRelation: "session_assets"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_cues_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "table_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       session_feedback: {
         Row: {
