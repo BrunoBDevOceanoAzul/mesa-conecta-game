@@ -29,6 +29,8 @@ interface StepProps {
   onAvailabilityChange?: (v: { days: string[]; times: string[] }) => void;
   textValue?: string;
   onTextChange?: (v: string) => void;
+  avatarUrl?: string;
+  onAvatarChange?: (url: string) => void;
 }
 
 export function OnboardingStepView({
