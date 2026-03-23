@@ -22,9 +22,12 @@ import { BookingFlowDialog } from "@/components/mesa/BookingFlowDialog";
 import { MesaParticipants } from "@/components/mesa/MesaParticipants";
 import { MesaFeed } from "@/components/mesa/MesaFeed";
 import { BoardGameExpansions } from "@/components/mesa/BoardGameExpansions";
+import { GMSessionPanel } from "@/components/session/GMSessionPanel";
+import { PlayerSessionView } from "@/components/session/PlayerSessionView";
+import { DiceRoller } from "@/components/session/DiceRoller";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices
 } from "lucide-react";
 
 type Mesa = {
