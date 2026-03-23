@@ -423,6 +423,28 @@ export default function TableDetail() {
                       gameTableId={mesa.id}
                       tableTitle={mesa.title}
                     />
+                    {/* Session Panel Trigger */}
+                    <Button
+                      variant="hero"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={() => setSessionPanelOpen(true)}
+                    >
+                      <Clapperboard className="h-5 w-5" /> Painel de Sessão
+                    </Button>
+                  </div>
+                )}
+
+                {/* Player Session View (revealed images + public dice) */}
+                {user && user.id !== mesa.gm_id && existingBooking && (
+                  <div className="space-y-4">
+                    <PlayerSessionView mesaId={mesa.id} />
+                    <div className="rounded-2xl border border-border bg-card p-4">
+                      <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                        <Dices className="h-4 w-4" /> Rolar Dados
+                      </h3>
+                      <DiceRoller mesaId={mesa.id} />
+                    </div>
                   </div>
                 )}
               </>
