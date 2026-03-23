@@ -472,6 +472,7 @@ export const brandSteps: OnboardingStep[] = [
     field: "bio",
     required: false,
   },
+  {
     id: "brand-category",
     title: "Que tipo de marca é a sua?",
     subtitle: "Isso define como você aparece na plataforma",
