@@ -206,6 +206,7 @@ export const gmSteps: OnboardingStep[] = [
     field: "bio",
     required: false,
   },
+  {
     id: "gm-format",
     title: "Como você prefere abrir suas mesas?",
     subtitle: "A HIVIUM conecta experiências online, presenciais e híbridas.",
