@@ -150,14 +150,17 @@ export default function AdminUsers() {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
-    const [profilesRes, subsRes, walletsRes, xpRes, badgesRes, discountsRes] = await Promise.all([
+    const [profilesRes, subsRes, walletsRes, xpRes, badgesRes, discountsRes, productsRes] = await Promise.all([
       supabase.from("profiles").select("user_id, name, email, role, can_play, can_gm, can_manage_store, can_manage_brand, city, is_active, onboarding_completed, created_at"),
       supabase.from("subscriptions").select("user_id, status, plan_name, plan_role, plan_id, billing_interval, amount, currency, current_period_end"),
       supabase.from("credit_wallets").select("user_id, is_founder"),
       supabase.from("master_xp_profiles").select("user_id, total_xp"),
       supabase.from("master_badges").select("user_id"),
       supabase.from("user_discounts").select("id, user_id, discount_type, percent_off, amount_off, ends_at, source_type, is_active, duration_type, duration_in_months, billing_cycles_remaining").eq("is_active", true),
+      supabase.from("billing_products").select("id, code, name, target_role, price_cents").eq("is_active", true).eq("product_type", "subscription").order("sort_order"),
     ]);
+
+    setBillingProducts((productsRes.data || []) as any);
 
     const profiles = profilesRes.data || [];
     const subs = subsRes.data || [];
