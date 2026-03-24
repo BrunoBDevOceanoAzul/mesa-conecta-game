@@ -60,9 +60,19 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
 
   const handleGameSelect = (game: BoardGame) => {
     setSelectedGame(game);
-    if (!title.trim()) setTitle(game.name);
-    if (game.max_players && !seatsTotal) setSeatsTotal(String(game.max_players));
-    if (game.thumbnail_url && !coverPreview) setCoverPreview(game.thumbnail_url);
+    setTitle(game.name);
+    if (game.max_players) setSeatsTotal(String(game.max_players));
+    if (game.thumbnail_url) setCoverPreview(game.thumbnail_url);
+    // Auto-compute end time if start is already set
+    if (game.playing_time && startAt) {
+      const start = new Date(startAt);
+      const end = new Date(start.getTime() + game.playing_time * 60000);
+      setEndAt(end.toISOString().slice(0, 16));
+    }
+    toast({
+      title: "Jogo selecionado! 🎲",
+      description: `${game.name} — ${game.min_players}–${game.max_players} jogadores, ${game.playing_time}min. Dados preenchidos!`,
+    });
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
