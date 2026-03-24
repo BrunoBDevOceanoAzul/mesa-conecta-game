@@ -43,6 +43,8 @@ import AdminSocialPublisher from "./pages/admin/AdminSocialPublisher";
 import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
+import CharacterSheets from "./pages/CharacterSheets";
+import CharacterSheetEdit from "./pages/CharacterSheetEdit";
 import ParaLojas from "./pages/ParaLojas";
 import QuemSomos from "./pages/QuemSomos";
 import Contato from "./pages/Contato";
