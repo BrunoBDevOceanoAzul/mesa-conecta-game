@@ -372,7 +372,7 @@ export default function TableDetail() {
 
             {/* Details grid */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label="Mestre" value={mesa.gm_name} />
+              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label={isBoardGame ? "Organizador" : "Mestre"} value={mesa.gm_name} />
               <DetailItem icon={<FormatIcon className="h-5 w-5 text-teal-500" />} label="Formato" value={mesa.format.charAt(0).toUpperCase() + mesa.format.slice(1)} />
               {mesa.city && <DetailItem icon={<MapPin className="h-5 w-5 text-coral-400" />} label="Cidade" value={mesa.city} />}
               {mesa.venue && <DetailItem icon={<Home className="h-5 w-5 text-gold-500" />} label="Local" value={mesa.venue} />}
