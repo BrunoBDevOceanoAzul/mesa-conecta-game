@@ -233,9 +233,13 @@ export default function TableDetail() {
                 <Sparkles className="h-10 w-10 text-secondary" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-xl font-display font-bold text-foreground">Vaga Reservada! 🎉</h2>
+                <h2 className="text-xl font-display font-bold text-foreground">
+                  {isBoardGame ? "Vaga garantida! 🎲" : "Vaga Reservada! 🎉"}
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.
+                  {isBoardGame
+                    ? <>Você está na partida <strong className="text-foreground">{mesa.title}</strong>. Nos vemos lá!</>
+                    : <>Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.</>}
                 </p>
               </div>
               <div className="rounded-xl bg-muted/50 border border-border p-4 w-full space-y-2 text-left">
