@@ -86,9 +86,16 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
   const loadData = useCallback(async () => {
     if (!user || !open) return;
-    setStep("loading");
     setPaymentResult(null);
     setPixCopied(false);
+
+    // For free boardgames, skip all plan/limit checks — go straight to confirm
+    if (isBoardGame && !isPaidMesa) {
+      setStep("confirm");
+      return;
+    }
+
+    setStep("loading");
 
     try {
       const now = new Date();
@@ -174,7 +181,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       setErrorMsg("Erro ao carregar dados. Tente novamente.");
       setStep("error");
     }
-  }, [user, open, isSuperUser]);
+  }, [user, open, isSuperUser, isBoardGame, isPaidMesa]);
 
   useEffect(() => {
     if (open) loadData();
