@@ -662,6 +662,14 @@ export default function TableDetail() {
             min_price: mesa.min_price,
             seats_available: mesa.seats_available,
             seats_total: mesa.seats_total,
+            mesa_type: mesa.mesa_type,
+            board_game_id: mesa.board_game_id,
+            system: mesa.system,
+            start_at: mesa.start_at,
+            end_at: mesa.end_at,
+            city: mesa.city,
+            venue: mesa.venue,
+            format: mesa.format,
           }}
         />
       )}
