@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, Loader2, Swords, ImagePlus, X, Calculator, ChevronDown, Clock, LayoutGrid, Users } from "lucide-react";
+import { Plus, Loader2, Swords, ImagePlus, X, Calculator, ChevronDown, Clock, LayoutGrid, Users, Gamepad2 } from "lucide-react";
 import { PricingCalculator } from "@/components/gm/PricingCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
