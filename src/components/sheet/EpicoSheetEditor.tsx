@@ -8,8 +8,9 @@ import {
   Heart, Zap, Brain, Wind, Eye, Target, Flame, Weight, Package,
   BookOpen, Feather,
 } from "lucide-react";
-import { applyEpicoComputations, EPICO_COMPUTED_FIELDS } from "@/lib/epico-calculations";
+import { applyEpicoComputations, EPICO_COMPUTED_FIELDS, getFormulaHint } from "@/lib/epico-calculations";
 import type { CharacterSheet } from "@/hooks/use-character-sheets";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface EpicoSheetEditorProps {
   sheet: CharacterSheet;
@@ -117,15 +118,18 @@ function AttributeBlock({
   );
 }
 
-/* ─── Secondary stat tile — compact with auto badge ─── */
-function StatTile({ label, icon: Icon, value, computed, onChange }: {
+/* ─── Secondary stat tile — compact with auto badge + tooltip ─── */
+function StatTile({ label, icon: Icon, value, computed, fieldKey, onChange }: {
   label: string;
   icon: React.ElementType;
   value: number;
   computed?: boolean;
+  fieldKey?: string;
   onChange: (v: number) => void;
 }) {
-  return (
+  const hint = fieldKey ? getFormulaHint(fieldKey) : null;
+
+  const tileContent = (
     <div className={`relative flex flex-col items-center rounded-xl border p-3 gap-1 transition-colors ${
       computed
         ? "border-primary/15 bg-primary/[0.03]"
@@ -155,6 +159,20 @@ function StatTile({ label, icon: Icon, value, computed, onChange }: {
       </div>
     </div>
   );
+
+  if (hint && computed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{tileContent}</TooltipTrigger>
+        <TooltipContent side="top" className="text-xs max-w-[200px]">
+          <p className="font-semibold">{label}</p>
+          <p className="text-muted-foreground">{hint}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return tileContent;
 }
 
 /* ─── Dynamic list with dot ratings ─── */
@@ -272,12 +290,13 @@ export function EpicoSheetEditor({
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Recompute when primaries OR fatigue change
   useEffect(() => {
     const computed = applyEpicoComputations(values, manualOverrides);
     if (JSON.stringify(computed) !== JSON.stringify(values)) {
       setValues(computed);
     }
-  }, [values.vigor, values.agilidade, values.inteligencia]);
+  }, [values.vigor, values.agilidade, values.inteligencia, values.fadiga_vigor, values.fadiga_agilidade, values.fadiga_inteligencia, values.ferimentos]);
 
   const updateField = (key: string, val: any) => {
     if (EPICO_COMPUTED_FIELDS.has(key)) {
@@ -307,6 +326,7 @@ export function EpicoSheetEditor({
     { key: "velocidade", label: "Velocidade", icon: Wind },
     { key: "tamanho", label: "Tamanho", icon: Feather },
     { key: "pontos_vida", label: "Pontos de Vida", icon: Heart },
+    { key: "pontos_vida_atual", label: "PV Atual", icon: Heart },
     { key: "ferimentos", label: "Ferimentos", icon: Flame },
     { key: "carga_pesada", label: "Carga Pesada", icon: Weight },
     { key: "carga_maxima", label: "Carga Máxima", icon: Package },
@@ -426,12 +446,32 @@ export function EpicoSheetEditor({
 
       {/* ─── Secondary Attributes ─── */}
       <SheetSection title="Atributos Secundários" icon={ScrollText}>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+        {/* XP computed row */}
+        <div className="flex items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.03] px-4 py-2.5 mb-4">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground/70">XP Calculado</span>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-lg font-black font-display tabular-nums text-primary cursor-help">
+                {Number(values.xp_total_computed) || 0}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="text-xs">
+              <p className="font-semibold">XP Total Calculado</p>
+              <p className="text-muted-foreground">{getFormulaHint("xp_total_computed")}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {SECONDARY_STATS.map(({ key, label, icon }) => (
             <StatTile
               key={key}
               label={label}
               icon={icon}
+              fieldKey={key}
               value={Number(values[key]) || 0}
               computed={EPICO_COMPUTED_FIELDS.has(key) && !manualOverrides.has(key)}
               onChange={(v) => updateField(key, v)}
