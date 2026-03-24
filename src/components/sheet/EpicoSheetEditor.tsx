@@ -128,8 +128,8 @@ function StatTile({ label, icon: Icon, value, computed, fieldKey, onChange }: {
   onChange: (v: number) => void;
 }) {
   const hint = fieldKey ? getFormulaHint(fieldKey) : null;
-  const tile = (
-  return (
+
+  const tileContent = (
     <div className={`relative flex flex-col items-center rounded-xl border p-3 gap-1 transition-colors ${
       computed
         ? "border-primary/15 bg-primary/[0.03]"
@@ -159,6 +159,20 @@ function StatTile({ label, icon: Icon, value, computed, fieldKey, onChange }: {
       </div>
     </div>
   );
+
+  if (hint && computed) {
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>{tileContent}</TooltipTrigger>
+        <TooltipContent side="top" className="text-xs max-w-[200px]">
+          <p className="font-semibold">{label}</p>
+          <p className="text-muted-foreground">{hint}</p>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return tileContent;
 }
 
 /* ─── Dynamic list with dot ratings ─── */
