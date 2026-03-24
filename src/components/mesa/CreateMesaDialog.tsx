@@ -244,31 +244,64 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
           {/* Board Game Search (for stores and GMs) */}
           <div>
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jogo do catálogo (opcional)</Label>
-            <p className="text-xs text-muted-foreground mb-2">Busque um jogo para autopreencher dados como imagem, jogadores e tempo.</p>
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">🎲 Jogo do catálogo (opcional)</Label>
+            <p className="text-xs text-muted-foreground mb-2">Selecione um jogo para autopreencher título, imagem, vagas e duração.</p>
             <BoardGameSearch
               showExpansions={false}
               onSelect={(game: BoardGame) => {
-                if (!title.trim()) setTitle(game.name);
+                setSelectedBoardGame(game);
+                setTitle(game.name);
                 setSystem(game.name);
-                if (game.thumbnail_url && !coverPreview) {
+                setSessionType("evento");
+                if (game.thumbnail_url) {
                   setCoverUrl(game.thumbnail_url);
                   setCoverPreview(game.thumbnail_url);
                 }
                 if (game.max_players) {
                   setSeatsTotal(String(game.max_players));
                 }
-                if (game.playing_time && !endAt && startAt) {
-                  const start = new Date(startAt);
-                  const end = new Date(start.getTime() + game.playing_time * 60000);
-                  setEndAt(end.toISOString().slice(0, 16));
+                if (game.playing_time) {
+                  setSessionHours(String(Math.ceil(game.playing_time / 60)));
+                  if (startAt) {
+                    const start = new Date(startAt);
+                    const end = new Date(start.getTime() + game.playing_time * 60000);
+                    setEndAt(end.toISOString().slice(0, 16));
+                  }
                 }
                 toast({
-                  title: "Jogo selecionado!",
-                  description: `${game.name} — ${game.min_players}-${game.max_players} jogadores, ${game.playing_time}min`,
+                  title: "Jogo selecionado! 🎲",
+                  description: `${game.name} — dados preenchidos automaticamente.`,
                 });
               }}
             />
+            {selectedBoardGame && (
+              <div className="mt-2 rounded-xl border border-teal-200 bg-teal-50 p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {selectedBoardGame.thumbnail_url && (
+                    <img src={selectedBoardGame.thumbnail_url} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{selectedBoardGame.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedBoardGame.min_players}–{selectedBoardGame.max_players} jogadores · {selectedBoardGame.playing_time}min
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedBoardGame(null);
+                    setSystem("");
+                    setSessionType("one-shot");
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Store Slot Picker */}
