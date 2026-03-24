@@ -8,8 +8,9 @@ import {
   Heart, Zap, Brain, Wind, Eye, Target, Flame, Weight, Package,
   BookOpen, Feather,
 } from "lucide-react";
-import { applyEpicoComputations, EPICO_COMPUTED_FIELDS } from "@/lib/epico-calculations";
+import { applyEpicoComputations, EPICO_COMPUTED_FIELDS, getFormulaHint } from "@/lib/epico-calculations";
 import type { CharacterSheet } from "@/hooks/use-character-sheets";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface EpicoSheetEditorProps {
   sheet: CharacterSheet;
