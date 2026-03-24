@@ -630,7 +630,9 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 <Sparkles className="h-8 w-8 text-secondary" />
               </div>
               <p className="text-sm text-muted-foreground">
-                Você está confirmado na mesa <strong>{mesa.title}</strong>. Prepare-se para a aventura!
+                {isBoardGame
+                  ? <>Você está na partida <strong>{mesa.title}</strong>. Nos vemos lá! 🎲</>
+                  : <>Você está confirmado na mesa <strong>{mesa.title}</strong>. Prepare-se para a aventura!</>}
               </p>
               <Button variant="hero" onClick={() => onOpenChange(false)}>
                 Entendido
