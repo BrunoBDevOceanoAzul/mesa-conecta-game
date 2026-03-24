@@ -30,6 +30,14 @@ interface BookingFlowDialogProps {
     min_price: number;
     seats_available: number;
     seats_total: number;
+    mesa_type?: string;
+    board_game_id?: string | null;
+    system?: string;
+    start_at?: string;
+    end_at?: string | null;
+    city?: string | null;
+    venue?: string | null;
+    format?: string;
   };
 }
 
@@ -74,6 +82,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   const [pixCopied, setPixCopied] = useState(false);
 
   const isPaidMesa = mesa.min_price > 0;
+  const isBoardGame = mesa.mesa_type === "community" || !!mesa.board_game_id;
 
   const loadData = useCallback(async () => {
     if (!user || !open) return;
@@ -318,30 +327,70 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 ) : (
                   <Ticket className="h-5 w-5 text-primary" />
                 )}
-                {isPaidMesa ? "Reservar & Pagar" : "Confirmar Reserva"}
+                {isBoardGame
+                  ? (isPaidMesa ? "Garantir vaga" : "Confirmar presença")
+                  : (isPaidMesa ? "Reservar & Pagar" : "Confirmar Reserva")}
               </DialogTitle>
               <DialogDescription>
-                Você está reservando uma vaga na mesa <strong>{mesa.title}</strong>
+                {isBoardGame
+                  ? <>Partida de <strong>{mesa.title}</strong></>
+                  : <>Você está reservando uma vaga na mesa <strong>{mesa.title}</strong></>}
               </DialogDescription>
             </DialogHeader>
 
             <div className="space-y-4 py-2">
-              <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Mesa</span>
-                  <span className="font-medium text-foreground">{mesa.title}</span>
+              {/* Boardgame: compact summary with date/time/location */}
+              {isBoardGame ? (
+                <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2.5">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">🎲 Jogo</span>
+                    <span className="font-medium text-foreground">{mesa.system || mesa.title}</span>
+                  </div>
+                  {mesa.start_at && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">📅 Data</span>
+                      <span className="font-medium text-foreground">
+                        {new Date(mesa.start_at).toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}
+                        {" · "}
+                        {new Date(mesa.start_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                      </span>
+                    </div>
+                  )}
+                  {(mesa.venue || mesa.city) && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">📍 Local</span>
+                      <span className="font-medium text-foreground">{mesa.venue || mesa.city}</span>
+                    </div>
+                  )}
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">👥 Vagas</span>
+                    <span className="font-medium text-foreground">{mesa.seats_available} de {mesa.seats_total}</span>
+                  </div>
+                  {mesa.min_price > 0 && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">💰 Valor</span>
+                      <span className="font-medium text-foreground">R$ {mesa.min_price.toFixed(2).replace(".", ",")}</span>
+                    </div>
+                  )}
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Mestre</span>
-                  <span className="font-medium text-foreground">{mesa.gm_name}</span>
+              ) : (
+                <div className="rounded-xl bg-muted/50 border border-border p-4 space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Mesa</span>
+                    <span className="font-medium text-foreground">{mesa.title}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Mestre</span>
+                    <span className="font-medium text-foreground">{mesa.gm_name}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-muted-foreground">Valor</span>
+                    <span className="font-medium text-foreground">
+                      {mesa.min_price === 0 ? "Grátis" : `R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`}
+                    </span>
+                  </div>
                 </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Valor</span>
-                  <span className="font-medium text-foreground">
-                    {mesa.min_price === 0 ? "Grátis" : `R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`}
-                  </span>
-                </div>
-              </div>
+              )}
 
               {isPaidMesa && (
                 <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 space-y-2">
@@ -350,7 +399,9 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                     Pagamento via PIX — instantâneo
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Ao confirmar, será gerado um QR Code PIX para pagamento. Sua vaga será confirmada automaticamente após o pagamento.
+                    {isBoardGame
+                      ? "Sua vaga será confirmada na hora após o pagamento."
+                      : "Ao confirmar, será gerado um QR Code PIX para pagamento. Sua vaga será confirmada automaticamente após o pagamento."}
                   </p>
                 </div>
               )}
@@ -387,9 +438,11 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                   <Check className="h-4 w-4" />
                 )}
                 {submitting
-                  ? "Gerando pagamento…"
+                  ? "Processando…"
                   : isPaidMesa
                   ? `Pagar R$ ${mesa.min_price.toFixed(2).replace(".", ",")} via PIX`
+                  : isBoardGame
+                  ? "Confirmar presença"
                   : "Confirmar Reserva"}
               </Button>
             </div>
@@ -577,7 +630,9 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
                 <Sparkles className="h-8 w-8 text-secondary" />
               </div>
               <p className="text-sm text-muted-foreground">
-                Você está confirmado na mesa <strong>{mesa.title}</strong>. Prepare-se para a aventura!
+                {isBoardGame
+                  ? <>Você está na partida <strong>{mesa.title}</strong>. Nos vemos lá! 🎲</>
+                  : <>Você está confirmado na mesa <strong>{mesa.title}</strong>. Prepare-se para a aventura!</>}
               </p>
               <Button variant="hero" onClick={() => onOpenChange(false)}>
                 Entendido

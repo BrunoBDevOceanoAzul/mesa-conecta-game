@@ -5,6 +5,7 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useWaitlist } from "@/hooks/use-waitlist";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import { PlayerSessionView } from "@/components/session/PlayerSessionView";
 import { DiceRoller } from "@/components/session/DiceRoller";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices, Bell, BellOff, Gamepad2
 } from "lucide-react";
 
 type Mesa = {
@@ -93,6 +94,8 @@ export default function TableDetail() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [sessionPanelOpen, setSessionPanelOpen] = useState(false);
   const eligibility = useReviewEligibility(id);
+  const isBoardGame = mesa?.mesa_type === "community" || !!mesa?.board_game_id;
+  const waitlist = useWaitlist(id);
 
   // Check if user has a CONFIRMED booking (paid or free) for this mesa
   useEffect(() => {
@@ -230,9 +233,13 @@ export default function TableDetail() {
                 <Sparkles className="h-10 w-10 text-secondary" />
               </div>
               <div className="space-y-2">
-                <h2 className="text-xl font-display font-bold text-foreground">Vaga Reservada! 🎉</h2>
+                <h2 className="text-xl font-display font-bold text-foreground">
+                  {isBoardGame ? "Vaga garantida! 🎲" : "Vaga Reservada! 🎉"}
+                </h2>
                 <p className="text-sm text-muted-foreground">
-                  Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.
+                  {isBoardGame
+                    ? <>Você está na partida <strong className="text-foreground">{mesa.title}</strong>. Nos vemos lá!</>
+                    : <>Pagamento confirmado. Você está na mesa <strong className="text-foreground">{mesa.title}</strong>.</>}
                 </p>
               </div>
               <div className="rounded-xl bg-muted/50 border border-border p-4 w-full space-y-2 text-left">
@@ -254,7 +261,7 @@ export default function TableDetail() {
                 </div>
               </div>
               <Button variant="hero" size="lg" className="w-full" onClick={() => setBookingSuccess(false)}>
-                Entendido — preparar para a aventura!
+                {isBoardGame ? "Entendido — bora jogar!" : "Entendido — preparar para a aventura!"}
               </Button>
             </div>
           </DialogContent>
@@ -276,12 +283,21 @@ export default function TableDetail() {
             {/* Header */}
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
-                  {mesa.system}
-                </span>
-                <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
-                  {sessionLabels[mesa.session_type] || mesa.session_type}
-                </span>
+                {isBoardGame ? (
+                  <span className="rounded-lg bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-600 flex items-center gap-1.5">
+                    <Gamepad2 className="h-3.5 w-3.5" />
+                    {mesa.system}
+                  </span>
+                ) : (
+                  <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
+                    {mesa.system}
+                  </span>
+                )}
+                {!isBoardGame && (
+                  <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
+                    {sessionLabels[mesa.session_type] || mesa.session_type}
+                  </span>
+                )}
                 <span className={`rounded-lg px-3 py-1 text-sm font-medium ${
                   mesa.status === "aberta" ? "bg-teal-50 text-teal-500" : "bg-muted text-muted-foreground"
                 }`}>
@@ -356,7 +372,7 @@ export default function TableDetail() {
 
             {/* Details grid */}
             <div className="grid gap-4 sm:grid-cols-2">
-              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label="Mestre" value={mesa.gm_name} />
+              <DetailItem icon={<User className="h-5 w-5 text-plum-500" />} label={isBoardGame ? "Organizador" : "Mestre"} value={mesa.gm_name} />
               <DetailItem icon={<FormatIcon className="h-5 w-5 text-teal-500" />} label="Formato" value={mesa.format.charAt(0).toUpperCase() + mesa.format.slice(1)} />
               {mesa.city && <DetailItem icon={<MapPin className="h-5 w-5 text-coral-400" />} label="Cidade" value={mesa.city} />}
               {mesa.venue && <DetailItem icon={<Home className="h-5 w-5 text-gold-500" />} label="Local" value={mesa.venue} />}
@@ -471,13 +487,19 @@ export default function TableDetail() {
             <div className="rounded-2xl border border-border bg-card p-6 space-y-5 shadow-sm">
               {/* Price */}
               <div className="text-center">
+              {mesa.min_price === 0 ? (
+                <span className="text-2xl font-display font-bold text-secondary">Grátis</span>
+              ) : (
                 <span className="text-3xl font-display font-bold text-gold-500">
                   R${mesa.min_price}
                   {mesa.max_price > mesa.min_price && (
                     <span className="text-lg font-normal text-muted-foreground">–{mesa.max_price}</span>
                   )}
                 </span>
-                <p className="text-sm text-muted-foreground mt-0.5">por sessão</p>
+              )}
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {isBoardGame ? "por pessoa" : "por sessão"}
+              </p>
               </div>
 
               {/* Quick time info */}
@@ -521,10 +543,10 @@ export default function TableDetail() {
                 </div>
               )}
 
-              {/* Reserve button */}
+              {/* Reserve / Waitlist button */}
               {existingBooking ? (
                 <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
-                  <Check className="h-4 w-4" /> Você já está nesta mesa
+                  <Check className="h-4 w-4" /> {isBoardGame ? "Presença confirmada" : "Você já está nesta mesa"}
                 </Button>
               ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
                 <Button
@@ -539,13 +561,64 @@ export default function TableDetail() {
                     setBookingOpen(true);
                   }}
                 >
-                  {mesa.min_price > 0
-                    ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
-                    : "Reservar Vaga — Grátis"}
+                  {isBoardGame
+                    ? (mesa.min_price > 0
+                      ? `Entrar nessa mesa — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                      : "Confirmar presença — Grátis")
+                    : (mesa.min_price > 0
+                      ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                      : "Reservar Vaga — Grátis")}
                 </Button>
+              ) : mesa.seats_available === 0 ? (
+                <div className="space-y-2">
+                  <Button variant="outline" size="lg" className="w-full" disabled>
+                    Mesa Lotada
+                  </Button>
+                  {user && !waitlist.isOnWaitlist ? (
+                    <Button
+                      variant="gradient"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={waitlist.joinWaitlist}
+                      disabled={waitlist.loading}
+                    >
+                      {waitlist.loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Bell className="h-4 w-4" />
+                      )}
+                      Entrar na lista de espera
+                    </Button>
+                  ) : user && waitlist.isOnWaitlist ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full gap-2 text-muted-foreground"
+                      onClick={waitlist.leaveWaitlist}
+                      disabled={waitlist.loading}
+                    >
+                      <BellOff className="h-4 w-4" />
+                      Sair da lista de espera
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => navigate("/login")}
+                    >
+                      Faça login para entrar na fila
+                    </Button>
+                  )}
+                  {waitlist.waitlistCount > 0 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      {waitlist.waitlistCount} pessoa{waitlist.waitlistCount !== 1 ? "s" : ""} na fila
+                    </p>
+                  )}
+                </div>
               ) : (
                 <Button variant="outline" size="lg" className="w-full" disabled>
-                  {mesa.seats_available === 0 ? "Mesa Lotada" : "Mesa Encerrada"}
+                  Mesa Encerrada
                 </Button>
               )}
 
@@ -602,6 +675,14 @@ export default function TableDetail() {
             min_price: mesa.min_price,
             seats_available: mesa.seats_available,
             seats_total: mesa.seats_total,
+            mesa_type: mesa.mesa_type,
+            board_game_id: mesa.board_game_id,
+            system: mesa.system,
+            start_at: mesa.start_at,
+            end_at: mesa.end_at,
+            city: mesa.city,
+            venue: mesa.venue,
+            format: mesa.format,
           }}
         />
       )}
