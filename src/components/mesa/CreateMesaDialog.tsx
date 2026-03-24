@@ -362,28 +362,32 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: A Maldição de Strahd" />
           </div>
 
-          {/* System */}
-          <div>
-            <Label>Sistema *</Label>
-            <Select value={system} onValueChange={setSystem}>
-              <SelectTrigger><SelectValue placeholder="Escolha o sistema" /></SelectTrigger>
-              <SelectContent>
-                {RPG_SYSTEMS.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Session Type + Format */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* System — hidden when boardgame selected */}
+          {!isBoardGameMode && (
             <div>
-              <Label>Tipo de sessão *</Label>
-              <Select value={sessionType} onValueChange={setSessionType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Label>Sistema *</Label>
+              <Select value={system} onValueChange={setSystem}>
+                <SelectTrigger><SelectValue placeholder="Escolha o sistema" /></SelectTrigger>
                 <SelectContent>
-                  {SESSION_TYPES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+                  {RPG_SYSTEMS.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
+          )}
+
+          {/* Session Type + Format — hide session type for boardgame */}
+          <div className={`grid gap-3 ${isBoardGameMode ? "grid-cols-1" : "grid-cols-2"}`}>
+            {!isBoardGameMode && (
+              <div>
+                <Label>Tipo de sessão *</Label>
+                <Select value={sessionType} onValueChange={setSessionType}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SESSION_TYPES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label>Formato *</Label>
               <Select value={format} onValueChange={setFormat}>
