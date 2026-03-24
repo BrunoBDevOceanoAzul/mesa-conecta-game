@@ -273,12 +273,13 @@ export function EpicoSheetEditor({
   );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Recompute when primaries OR fatigue change
   useEffect(() => {
     const computed = applyEpicoComputations(values, manualOverrides);
     if (JSON.stringify(computed) !== JSON.stringify(values)) {
       setValues(computed);
     }
-  }, [values.vigor, values.agilidade, values.inteligencia]);
+  }, [values.vigor, values.agilidade, values.inteligencia, values.fadiga_vigor, values.fadiga_agilidade, values.fadiga_inteligencia, values.ferimentos]);
 
   const updateField = (key: string, val: any) => {
     if (EPICO_COMPUTED_FIELDS.has(key)) {
@@ -308,6 +309,7 @@ export function EpicoSheetEditor({
     { key: "velocidade", label: "Velocidade", icon: Wind },
     { key: "tamanho", label: "Tamanho", icon: Feather },
     { key: "pontos_vida", label: "Pontos de Vida", icon: Heart },
+    { key: "pontos_vida_atual", label: "PV Atual", icon: Heart },
     { key: "ferimentos", label: "Ferimentos", icon: Flame },
     { key: "carga_pesada", label: "Carga Pesada", icon: Weight },
     { key: "carga_maxima", label: "Carga Máxima", icon: Package },
