@@ -490,7 +490,19 @@ export function CreateCommunityMesaDialog({ onCreated, children }: CreateCommuni
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs">Início *</Label>
-                <Input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} />
+                <Input
+                  type="datetime-local"
+                  value={startAt}
+                  onChange={(e) => {
+                    setStartAt(e.target.value);
+                    // Auto-compute end time from game's playing_time
+                    if (selectedGame?.playing_time && e.target.value) {
+                      const start = new Date(e.target.value);
+                      const end = new Date(start.getTime() + selectedGame.playing_time * 60000);
+                      setEndAt(end.toISOString().slice(0, 16));
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Label className="text-xs">Término previsto</Label>
