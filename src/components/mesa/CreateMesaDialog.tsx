@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Plus, Loader2, Swords, ImagePlus, X, Calculator, ChevronDown, Clock, LayoutGrid, Users } from "lucide-react";
+import { Plus, Loader2, Swords, ImagePlus, X, Calculator, ChevronDown, Clock, LayoutGrid, Users, Gamepad2 } from "lucide-react";
 import { PricingCalculator } from "@/components/gm/PricingCalculator";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -65,6 +65,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [storeSlots, setStoreSlots] = useState<any[]>([]);
+  const [selectedBoardGame, setSelectedBoardGame] = useState<BoardGame | null>(null);
+
+  const isBoardGameMode = !!selectedBoardGame;
 
   // Fetch available store slots when role is store
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setSeatsTotal("5"); setStartAt(""); setEndAt("");
     setSessionHours("4"); setCampaignSessions("4");
     setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
-    setSelectedSlotId(null);
+    setSelectedSlotId(null); setSelectedBoardGame(null);
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -241,31 +244,64 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
           {/* Board Game Search (for stores and GMs) */}
           <div>
-            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Jogo do catálogo (opcional)</Label>
-            <p className="text-xs text-muted-foreground mb-2">Busque um jogo para autopreencher dados como imagem, jogadores e tempo.</p>
+            <Label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">🎲 Jogo do catálogo (opcional)</Label>
+            <p className="text-xs text-muted-foreground mb-2">Selecione um jogo para autopreencher título, imagem, vagas e duração.</p>
             <BoardGameSearch
               showExpansions={false}
               onSelect={(game: BoardGame) => {
-                if (!title.trim()) setTitle(game.name);
+                setSelectedBoardGame(game);
+                setTitle(game.name);
                 setSystem(game.name);
-                if (game.thumbnail_url && !coverPreview) {
+                setSessionType("evento");
+                if (game.thumbnail_url) {
                   setCoverUrl(game.thumbnail_url);
                   setCoverPreview(game.thumbnail_url);
                 }
                 if (game.max_players) {
                   setSeatsTotal(String(game.max_players));
                 }
-                if (game.playing_time && !endAt && startAt) {
-                  const start = new Date(startAt);
-                  const end = new Date(start.getTime() + game.playing_time * 60000);
-                  setEndAt(end.toISOString().slice(0, 16));
+                if (game.playing_time) {
+                  setSessionHours(String(Math.ceil(game.playing_time / 60)));
+                  if (startAt) {
+                    const start = new Date(startAt);
+                    const end = new Date(start.getTime() + game.playing_time * 60000);
+                    setEndAt(end.toISOString().slice(0, 16));
+                  }
                 }
                 toast({
-                  title: "Jogo selecionado!",
-                  description: `${game.name} — ${game.min_players}-${game.max_players} jogadores, ${game.playing_time}min`,
+                  title: "Jogo selecionado! 🎲",
+                  description: `${game.name} — dados preenchidos automaticamente.`,
                 });
               }}
             />
+            {selectedBoardGame && (
+              <div className="mt-2 rounded-xl border border-teal-200 bg-teal-50 p-3 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {selectedBoardGame.thumbnail_url && (
+                    <img src={selectedBoardGame.thumbnail_url} alt="" className="h-10 w-10 rounded-lg object-cover" />
+                  )}
+                  <div>
+                    <p className="text-sm font-medium text-foreground">{selectedBoardGame.name}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {selectedBoardGame.min_players}–{selectedBoardGame.max_players} jogadores · {selectedBoardGame.playing_time}min
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSelectedBoardGame(null);
+                    setSystem("");
+                    setSessionType("one-shot");
+                  }}
+                  className="h-7 text-xs"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              </div>
+            )}
           </div>
 
           {/* Store Slot Picker */}
@@ -326,28 +362,32 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex: A Maldição de Strahd" />
           </div>
 
-          {/* System */}
-          <div>
-            <Label>Sistema *</Label>
-            <Select value={system} onValueChange={setSystem}>
-              <SelectTrigger><SelectValue placeholder="Escolha o sistema" /></SelectTrigger>
-              <SelectContent>
-                {RPG_SYSTEMS.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Session Type + Format */}
-          <div className="grid grid-cols-2 gap-3">
+          {/* System — hidden when boardgame selected */}
+          {!isBoardGameMode && (
             <div>
-              <Label>Tipo de sessão *</Label>
-              <Select value={sessionType} onValueChange={setSessionType}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
+              <Label>Sistema *</Label>
+              <Select value={system} onValueChange={setSystem}>
+                <SelectTrigger><SelectValue placeholder="Escolha o sistema" /></SelectTrigger>
                 <SelectContent>
-                  {SESSION_TYPES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+                  {RPG_SYSTEMS.map((s) => (<SelectItem key={s} value={s}>{s}</SelectItem>))}
                 </SelectContent>
               </Select>
             </div>
+          )}
+
+          {/* Session Type + Format — hide session type for boardgame */}
+          <div className={`grid gap-3 ${isBoardGameMode ? "grid-cols-1" : "grid-cols-2"}`}>
+            {!isBoardGameMode && (
+              <div>
+                <Label>Tipo de sessão *</Label>
+                <Select value={sessionType} onValueChange={setSessionType}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {SESSION_TYPES.map((t) => (<SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
             <div>
               <Label>Formato *</Label>
               <Select value={format} onValueChange={setFormat}>
@@ -474,49 +514,61 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
               </div>
             </CollapsibleContent>
           </Collapsible>
-          {/* Session hours & campaign config */}
-          <div className={`grid gap-3 ${sessionType === "campanha" ? "grid-cols-3" : "grid-cols-2"}`}>
-            <div>
-              <Label>Horas por sessão *</Label>
-              <Input type="number" min="1" max="12" value={sessionHours} onChange={(e) => setSessionHours(e.target.value)} />
-            </div>
-            {sessionType === "campanha" && (
-              <div>
-                <Label>Nº de sessões</Label>
-                <Input type="number" min="2" max="52" value={campaignSessions} onChange={(e) => setCampaignSessions(e.target.value)} />
-              </div>
-            )}
+          {/* Session hours & campaign config — hidden for boardgame */}
+          {isBoardGameMode ? (
             <div>
               <Label>Vagas totais *</Label>
               <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
+              {selectedBoardGame && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Recomendado: {selectedBoardGame.min_players}–{selectedBoardGame.max_players} jogadores
+                </p>
+              )}
             </div>
-          </div>
-
-          {sessionType === "campanha" && Number(minPrice) > 0 && (
-            <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4 space-y-2">
-              <p className="text-xs font-semibold text-secondary uppercase tracking-wider">🔄 Assinatura recorrente (Campanha)</p>
-              <div className="space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Valor por sessão/jogador</span>
-                  <span className="font-medium text-foreground">R${Number(minPrice).toFixed(2)}</span>
+          ) : (
+            <>
+              <div className={`grid gap-3 ${sessionType === "campanha" ? "grid-cols-3" : "grid-cols-2"}`}>
+                <div>
+                  <Label>Horas por sessão *</Label>
+                  <Input type="number" min="1" max="12" value={sessionHours} onChange={(e) => setSessionHours(e.target.value)} />
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Sessões na campanha</span>
-                  <span className="font-medium text-foreground">{campaignSessions}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Recorrência</span>
-                  <span className="font-medium text-foreground">Mensal ({sessionHours}h/sessão)</span>
-                </div>
-                <div className="border-t border-border pt-1.5 flex justify-between">
-                  <span className="font-semibold text-foreground">Total estimado/jogador</span>
-                  <span className="font-bold text-secondary">R${(Number(minPrice) * Number(campaignSessions)).toFixed(2)}</span>
+                {sessionType === "campanha" && (
+                  <div>
+                    <Label>Nº de sessões</Label>
+                    <Input type="number" min="2" max="52" value={campaignSessions} onChange={(e) => setCampaignSessions(e.target.value)} />
+                  </div>
+                )}
+                <div>
+                  <Label>Vagas totais *</Label>
+                  <Input type="number" min="1" max="30" value={seatsTotal} onChange={(e) => setSeatsTotal(e.target.value)} />
                 </div>
               </div>
-            </div>
-          )}
 
-          
+              {sessionType === "campanha" && Number(minPrice) > 0 && (
+                <div className="rounded-xl border border-secondary/30 bg-secondary/5 p-4 space-y-2">
+                  <p className="text-xs font-semibold text-secondary uppercase tracking-wider">🔄 Assinatura recorrente (Campanha)</p>
+                  <div className="space-y-1 text-xs">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Valor por sessão/jogador</span>
+                      <span className="font-medium text-foreground">R${Number(minPrice).toFixed(2)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Sessões na campanha</span>
+                      <span className="font-medium text-foreground">{campaignSessions}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Recorrência</span>
+                      <span className="font-medium text-foreground">Mensal ({sessionHours}h/sessão)</span>
+                    </div>
+                    <div className="border-t border-border pt-1.5 flex justify-between">
+                      <span className="font-semibold text-foreground">Total estimado/jogador</span>
+                      <span className="font-bold text-secondary">R${(Number(minPrice) * Number(campaignSessions)).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          )}
 
           {/* Date & Time */}
           <div className="rounded-xl border border-border bg-muted/20 p-4 space-y-3">
@@ -524,7 +576,19 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label>Início *</Label>
-                <Input type="datetime-local" value={startAt} onChange={(e) => setStartAt(e.target.value)} />
+                <Input
+                  type="datetime-local"
+                  value={startAt}
+                  onChange={(e) => {
+                    setStartAt(e.target.value);
+                    // Auto-compute end time for boardgames
+                    if (selectedBoardGame?.playing_time && e.target.value) {
+                      const start = new Date(e.target.value);
+                      const end = new Date(start.getTime() + selectedBoardGame.playing_time * 60000);
+                      setEndAt(end.toISOString().slice(0, 16));
+                    }
+                  }}
+                />
               </div>
               <div>
                 <Label>Término previsto</Label>
@@ -538,29 +602,32 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
 
           {/* Description */}
           <div>
-            <Label>Descrição</Label>
+            <Label>Descrição {isBoardGameMode && <span className="text-muted-foreground font-normal">(opcional)</span>}</Label>
             <Textarea
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Descreva a experiência, tom narrativo, etc."
-              className="min-h-[80px]"
+              placeholder={isBoardGameMode ? "Regras da casa, nível de experiência, o que levar..." : "Descreva a experiência, tom narrativo, etc."}
+              className="min-h-[60px]"
+              rows={isBoardGameMode ? 2 : 3}
             />
           </div>
 
-          {/* AI Text Assistant */}
-          <MesaAiTextAssistant
-            title={title}
-            description={description}
-            system={system}
-            sessionType={sessionType}
-            format={format}
-            onApplyTitle={setTitle}
-            onApplyDescription={setDescription}
-          />
+          {/* AI Text Assistant — RPG only */}
+          {!isBoardGameMode && (
+            <MesaAiTextAssistant
+              title={title}
+              description={description}
+              system={system}
+              sessionType={sessionType}
+              format={format}
+              onApplyTitle={setTitle}
+              onApplyDescription={setDescription}
+            />
+          )}
 
-          <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full gap-2">
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Swords className="h-4 w-4" />}
-            Criar Mesa
+          <Button onClick={handleSubmit} disabled={!canSubmit} className="w-full gap-2" variant={isBoardGameMode ? "hero" : "default"} size="lg">
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : isBoardGameMode ? <Gamepad2 className="h-4 w-4" /> : <Swords className="h-4 w-4" />}
+            {isBoardGameMode ? "Publicar Mesa de Boardgame" : "Criar Mesa"}
           </Button>
         </div>
       </DialogContent>
