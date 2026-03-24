@@ -261,7 +261,7 @@ export default function TableDetail() {
                 </div>
               </div>
               <Button variant="hero" size="lg" className="w-full" onClick={() => setBookingSuccess(false)}>
-                Entendido — preparar para a aventura!
+                {isBoardGame ? "Entendido — bora jogar!" : "Entendido — preparar para a aventura!"}
               </Button>
             </div>
           </DialogContent>
