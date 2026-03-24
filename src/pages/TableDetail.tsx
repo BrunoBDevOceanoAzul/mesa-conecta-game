@@ -283,12 +283,21 @@ export default function TableDetail() {
             {/* Header */}
             <div>
               <div className="flex flex-wrap items-center gap-2 mb-3">
-                <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
-                  {mesa.system}
-                </span>
-                <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
-                  {sessionLabels[mesa.session_type] || mesa.session_type}
-                </span>
+                {isBoardGame ? (
+                  <span className="rounded-lg bg-teal-50 px-3 py-1 text-sm font-semibold text-teal-600 flex items-center gap-1.5">
+                    <Gamepad2 className="h-3.5 w-3.5" />
+                    {mesa.system}
+                  </span>
+                ) : (
+                  <span className="rounded-lg bg-plum-50 px-3 py-1 text-sm font-semibold text-plum-500">
+                    {mesa.system}
+                  </span>
+                )}
+                {!isBoardGame && (
+                  <span className="rounded-lg bg-muted px-3 py-1 text-sm text-muted-foreground font-medium">
+                    {sessionLabels[mesa.session_type] || mesa.session_type}
+                  </span>
+                )}
                 <span className={`rounded-lg px-3 py-1 text-sm font-medium ${
                   mesa.status === "aberta" ? "bg-teal-50 text-teal-500" : "bg-muted text-muted-foreground"
                 }`}>
