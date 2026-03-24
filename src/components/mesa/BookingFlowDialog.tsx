@@ -30,6 +30,14 @@ interface BookingFlowDialogProps {
     min_price: number;
     seats_available: number;
     seats_total: number;
+    mesa_type?: string;
+    board_game_id?: string | null;
+    system?: string;
+    start_at?: string;
+    end_at?: string | null;
+    city?: string | null;
+    venue?: string | null;
+    format?: string;
   };
 }
 
