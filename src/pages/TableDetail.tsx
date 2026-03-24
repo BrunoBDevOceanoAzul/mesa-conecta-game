@@ -94,6 +94,8 @@ export default function TableDetail() {
   const [checkoutLoading, setCheckoutLoading] = useState(false);
   const [sessionPanelOpen, setSessionPanelOpen] = useState(false);
   const eligibility = useReviewEligibility(id);
+  const isBoardGame = mesa?.mesa_type === "community" || !!mesa?.board_game_id;
+  const waitlist = useWaitlist(id);
 
   // Check if user has a CONFIRMED booking (paid or free) for this mesa
   useEffect(() => {
