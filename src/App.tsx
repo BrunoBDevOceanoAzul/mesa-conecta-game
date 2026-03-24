@@ -92,6 +92,8 @@ const App = () => (
               <Route path="/checkout/:planId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
               <Route path="/mesa/:id" element={<TableDetail />} />
               <Route path="/mesa/:id/ficha" element={<MesaCharacterSheet />} />
+              <Route path="/fichas" element={<ProtectedRoute><CharacterSheets /></ProtectedRoute>} />
+              <Route path="/fichas/:id" element={<ProtectedRoute><CharacterSheetEdit /></ProtectedRoute>} />
               <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
               <Route path="/loja/:slug" element={<LojaPublicProfile />} />
               {/* Admin routes */}
