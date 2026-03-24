@@ -474,13 +474,19 @@ export default function TableDetail() {
             <div className="rounded-2xl border border-border bg-card p-6 space-y-5 shadow-sm">
               {/* Price */}
               <div className="text-center">
+              {mesa.min_price === 0 ? (
+                <span className="text-2xl font-display font-bold text-secondary">Grátis</span>
+              ) : (
                 <span className="text-3xl font-display font-bold text-gold-500">
                   R${mesa.min_price}
                   {mesa.max_price > mesa.min_price && (
                     <span className="text-lg font-normal text-muted-foreground">–{mesa.max_price}</span>
                   )}
                 </span>
-                <p className="text-sm text-muted-foreground mt-0.5">por sessão</p>
+              )}
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {isBoardGame ? "por pessoa" : "por sessão"}
+              </p>
               </div>
 
               {/* Quick time info */}
