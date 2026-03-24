@@ -118,14 +118,17 @@ function AttributeBlock({
   );
 }
 
-/* ─── Secondary stat tile — compact with auto badge ─── */
-function StatTile({ label, icon: Icon, value, computed, onChange }: {
+/* ─── Secondary stat tile — compact with auto badge + tooltip ─── */
+function StatTile({ label, icon: Icon, value, computed, fieldKey, onChange }: {
   label: string;
   icon: React.ElementType;
   value: number;
   computed?: boolean;
+  fieldKey?: string;
   onChange: (v: number) => void;
 }) {
+  const hint = fieldKey ? getFormulaHint(fieldKey) : null;
+  const tile = (
   return (
     <div className={`relative flex flex-col items-center rounded-xl border p-3 gap-1 transition-colors ${
       computed
