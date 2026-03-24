@@ -3277,6 +3277,50 @@ export type Database = {
           },
         ]
       }
+      mesa_waitlist: {
+        Row: {
+          created_at: string
+          id: string
+          mesa_id: string
+          notified_at: string | null
+          status: string
+          updated_at: string
+          user_email: string | null
+          user_id: string
+          user_name: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mesa_id: string
+          notified_at?: string | null
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id: string
+          user_name?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mesa_id?: string
+          notified_at?: string | null
+          status?: string
+          updated_at?: string
+          user_email?: string | null
+          user_id?: string
+          user_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mesa_waitlist_mesa_id_fkey"
+            columns: ["mesa_id"]
+            isOneToOne: false
+            referencedRelation: "mesas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       mesas: {
         Row: {
           address: string | null
