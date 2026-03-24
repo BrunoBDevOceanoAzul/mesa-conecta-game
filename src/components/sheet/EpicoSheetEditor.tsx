@@ -429,12 +429,32 @@ export function EpicoSheetEditor({
 
       {/* ─── Secondary Attributes ─── */}
       <SheetSection title="Atributos Secundários" icon={ScrollText}>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+        {/* XP computed row */}
+        <div className="flex items-center justify-between rounded-lg border border-primary/15 bg-primary/[0.03] px-4 py-2.5 mb-4">
+          <div className="flex items-center gap-2">
+            <Zap className="h-4 w-4 text-primary" />
+            <span className="text-xs font-bold uppercase tracking-wider text-foreground/70">XP Calculado</span>
+          </div>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-lg font-black font-display tabular-nums text-primary cursor-help">
+                {Number(values.xp_total_computed) || 0}
+              </span>
+            </TooltipTrigger>
+            <TooltipContent side="left" className="text-xs">
+              <p className="font-semibold">XP Total Calculado</p>
+              <p className="text-muted-foreground">{getFormulaHint("xp_total_computed")}</p>
+            </TooltipContent>
+          </Tooltip>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {SECONDARY_STATS.map(({ key, label, icon }) => (
             <StatTile
               key={key}
               label={label}
               icon={icon}
+              fieldKey={key}
               value={Number(values[key]) || 0}
               computed={EPICO_COMPUTED_FIELDS.has(key) && !manualOverrides.has(key)}
               onChange={(v) => updateField(key, v)}
