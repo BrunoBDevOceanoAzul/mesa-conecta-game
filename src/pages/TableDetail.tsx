@@ -536,6 +536,36 @@ export default function TableDetail() {
                 </div>
               )}
 
+              {/* Seats */}
+              <div className="flex items-center justify-center gap-2">
+                <Users className="h-5 w-5 text-primary" />
+                <span className="text-sm font-medium text-foreground">
+                  {mesa.seats_available} de {mesa.seats_total} vagas
+                </span>
+              </div>
+
+              {/* Seats bar */}
+              <div className="h-2 rounded-full bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded-full transition-all"
+                  style={{
+                    width: `${((mesa.seats_total - mesa.seats_available) / mesa.seats_total) * 100}%`,
+                    backgroundImage: "var(--gradient-xp)",
+                  }}
+                />
+              </div>
+
+              {/* Match score mini — RPG only */}
+              {!isBoardGame && matchScore !== null && matchScore >= 55 && (
+                <div className="rounded-xl bg-plum-50 border border-plum-100 p-3 text-center">
+                  <div className="flex items-center justify-center gap-1.5 text-plum-500">
+                    <Sparkles className="h-4 w-4" />
+                    <span className="text-sm font-display font-bold">{matchScore}% compatível</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">{getMatchLabel(matchScore)}</p>
+                </div>
+              )}
+
               {/* Reserve / Waitlist button */}
               {existingBooking ? (
                 <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
