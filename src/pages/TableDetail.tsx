@@ -530,10 +530,10 @@ export default function TableDetail() {
                 </div>
               )}
 
-              {/* Reserve button */}
+              {/* Reserve / Waitlist button */}
               {existingBooking ? (
                 <Button variant="outline" size="lg" className="w-full text-base gap-2" disabled>
-                  <Check className="h-4 w-4" /> Você já está nesta mesa
+                  <Check className="h-4 w-4" /> {isBoardGame ? "Presença confirmada" : "Você já está nesta mesa"}
                 </Button>
               ) : mesa.status === "aberta" && mesa.seats_available > 0 ? (
                 <Button
@@ -548,13 +548,64 @@ export default function TableDetail() {
                     setBookingOpen(true);
                   }}
                 >
-                  {mesa.min_price > 0
-                    ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
-                    : "Reservar Vaga — Grátis"}
+                  {isBoardGame
+                    ? (mesa.min_price > 0
+                      ? `Entrar nessa mesa — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                      : "Confirmar presença — Grátis")
+                    : (mesa.min_price > 0
+                      ? `Reservar — R$ ${mesa.min_price.toFixed(2).replace(".", ",")}`
+                      : "Reservar Vaga — Grátis")}
                 </Button>
+              ) : mesa.seats_available === 0 ? (
+                <div className="space-y-2">
+                  <Button variant="outline" size="lg" className="w-full" disabled>
+                    Mesa Lotada
+                  </Button>
+                  {user && !waitlist.isOnWaitlist ? (
+                    <Button
+                      variant="gradient"
+                      size="lg"
+                      className="w-full gap-2"
+                      onClick={waitlist.joinWaitlist}
+                      disabled={waitlist.loading}
+                    >
+                      {waitlist.loading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <Bell className="h-4 w-4" />
+                      )}
+                      Entrar na lista de espera
+                    </Button>
+                  ) : user && waitlist.isOnWaitlist ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full gap-2 text-muted-foreground"
+                      onClick={waitlist.leaveWaitlist}
+                      disabled={waitlist.loading}
+                    >
+                      <BellOff className="h-4 w-4" />
+                      Sair da lista de espera
+                    </Button>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full"
+                      onClick={() => navigate("/login")}
+                    >
+                      Faça login para entrar na fila
+                    </Button>
+                  )}
+                  {waitlist.waitlistCount > 0 && (
+                    <p className="text-xs text-muted-foreground text-center">
+                      {waitlist.waitlistCount} pessoa{waitlist.waitlistCount !== 1 ? "s" : ""} na fila
+                    </p>
+                  )}
+                </div>
               ) : (
                 <Button variant="outline" size="lg" className="w-full" disabled>
-                  {mesa.seats_available === 0 ? "Mesa Lotada" : "Mesa Encerrada"}
+                  Mesa Encerrada
                 </Button>
               )}
 
