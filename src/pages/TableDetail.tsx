@@ -324,43 +324,64 @@ export default function TableDetail() {
             </div>
 
             {/* Time highlight card */}
-            <div className="rounded-2xl border border-plum-200 bg-gradient-to-r from-plum-50 to-gold-50 p-5">
-              <div className="flex items-center gap-6 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
-                    <Calendar className="h-5 w-5 text-plum-500" />
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Data</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+            {isBoardGame ? (
+              <div className="rounded-2xl border border-teal-200 bg-gradient-to-r from-teal-50 to-muted/50 p-4">
+                <div className="flex items-center gap-4 flex-wrap text-sm">
+                  <span className="flex items-center gap-2 font-medium text-foreground">
+                    <Calendar className="h-4 w-4 text-teal-500" />
+                    {date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" })}
+                  </span>
+                  <span className="flex items-center gap-2 font-medium text-foreground">
+                    <Clock className="h-4 w-4 text-teal-500" />
+                    {startTime}{endTime ? ` → ${endTime}` : ""}
+                  </span>
+                  {duration && (
+                    <span className="flex items-center gap-2 text-muted-foreground">
+                      <Timer className="h-4 w-4 text-teal-400" />
+                      {duration}
                     </span>
-                  </div>
+                  )}
                 </div>
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
-                    <Clock className="h-5 w-5 text-plum-500" />
-                  </div>
-                  <div>
-                    <span className="text-xs text-muted-foreground block">Horário</span>
-                    <span className="text-sm font-semibold text-foreground">
-                      {startTime}{endTime ? ` → ${endTime}` : ""}
-                    </span>
-                  </div>
-                </div>
-                {duration && (
+              </div>
+            ) : (
+              <div className="rounded-2xl border border-plum-200 bg-gradient-to-r from-plum-50 to-gold-50 p-5">
+                <div className="flex items-center gap-6 flex-wrap">
                   <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-gold-100 flex items-center justify-center">
-                      <Timer className="h-5 w-5 text-gold-500" />
+                    <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                      <Calendar className="h-5 w-5 text-plum-500" />
                     </div>
                     <div>
-                      <span className="text-xs text-muted-foreground block">Duração estimada</span>
-                      <span className="text-sm font-semibold text-foreground">{duration}</span>
+                      <span className="text-xs text-muted-foreground block">Data</span>
+                      <span className="text-sm font-semibold text-foreground">
+                        {date.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" })}
+                      </span>
                     </div>
                   </div>
-                )}
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-plum-100 flex items-center justify-center">
+                      <Clock className="h-5 w-5 text-plum-500" />
+                    </div>
+                    <div>
+                      <span className="text-xs text-muted-foreground block">Horário</span>
+                      <span className="text-sm font-semibold text-foreground">
+                        {startTime}{endTime ? ` → ${endTime}` : ""}
+                      </span>
+                    </div>
+                  </div>
+                  {duration && (
+                    <div className="flex items-center gap-3">
+                      <div className="h-10 w-10 rounded-xl bg-gold-100 flex items-center justify-center">
+                        <Timer className="h-5 w-5 text-gold-500" />
+                      </div>
+                      <div>
+                        <span className="text-xs text-muted-foreground block">Duração estimada</span>
+                        <span className="text-sm font-semibold text-foreground">{duration}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Description */}
             {mesa.description && (
@@ -502,22 +523,24 @@ export default function TableDetail() {
               </p>
               </div>
 
-              {/* Quick time info */}
-              <div className="rounded-xl bg-muted/50 p-3 text-center">
-                <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
-                  <Clock className="h-4 w-4 text-plum-400" />
-                  {startTime}{endTime ? ` → ${endTime}` : ""}
+              {/* Quick time info — only for RPG (boardgame shows inline above) */}
+              {!isBoardGame && (
+                <div className="rounded-xl bg-muted/50 p-3 text-center">
+                  <div className="flex items-center justify-center gap-2 text-sm font-medium text-foreground">
+                    <Clock className="h-4 w-4 text-plum-400" />
+                    {startTime}{endTime ? ` → ${endTime}` : ""}
+                  </div>
+                  {duration && (
+                    <p className="text-xs text-muted-foreground mt-1">Duração estimada: {duration}</p>
+                  )}
                 </div>
-                {duration && (
-                  <p className="text-xs text-muted-foreground mt-1">Duração estimada: {duration}</p>
-                )}
-              </div>
+              )}
 
               {/* Seats */}
               <div className="flex items-center justify-center gap-2">
                 <Users className="h-5 w-5 text-primary" />
                 <span className="text-sm font-medium text-foreground">
-                  {mesa.seats_available} de {mesa.seats_total} vagas disponíveis
+                  {mesa.seats_available} de {mesa.seats_total} vagas
                 </span>
               </div>
 
@@ -532,8 +555,8 @@ export default function TableDetail() {
                 />
               </div>
 
-              {/* Match score mini */}
-              {matchScore !== null && matchScore >= 55 && (
+              {/* Match score mini — RPG only */}
+              {!isBoardGame && matchScore !== null && matchScore >= 55 && (
                 <div className="rounded-xl bg-plum-50 border border-plum-100 p-3 text-center">
                   <div className="flex items-center justify-center gap-1.5 text-plum-500">
                     <Sparkles className="h-4 w-4" />
