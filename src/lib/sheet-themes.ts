@@ -151,6 +151,31 @@ const genericPremiumTheme: SheetTheme = {
   hasTexture: false,
 };
 
+/** Épico RPG — deep indigo & bronze, ancient tome feel */
+const epicoTheme: SheetTheme = {
+  id: "epico",
+  systemLabel: "Épico RPG",
+  cssVars: {
+    "--sheet-accent": "230 50% 35%",
+    "--sheet-accent-glow": "35 70% 50%",
+    "--sheet-bg": "220 15% 97%",
+    "--sheet-section-bg": "220 12% 95%",
+    "--sheet-border": "230 20% 80%",
+  },
+  sectionHeaderClass:
+    "text-sm font-display font-bold uppercase tracking-[0.18em] text-indigo-800",
+  sheetCardClass:
+    "bg-[hsl(220,15%,97%)] border-indigo-300/30 shadow-[0_4px_24px_hsl(230_40%_35%/0.06)]",
+  sectionBlockClass:
+    "rounded-xl border border-indigo-200/40 bg-gradient-to-br from-indigo-50/30 to-transparent p-5",
+  labelClass: "text-[11px] font-semibold uppercase tracking-wider text-indigo-900/50",
+  dotFilledClass: "bg-indigo-700 border-indigo-800",
+  dotEmptyClass: "bg-indigo-100/50 border-indigo-300/50",
+  accentBorderClass: "border-indigo-400/30",
+  fontDisplay: "'Playfair Display', serif",
+  hasTexture: true,
+};
+
 /** All registered themes */
 const themeRegistry: Record<string, SheetTheme> = {
   exalted: exaltedTheme,
@@ -166,6 +191,10 @@ const themeRegistry: Record<string, SheetTheme> = {
   tormenta20: tormenta20Theme,
   tormenta: tormenta20Theme,
   "tormenta 20": tormenta20Theme,
+  epico: epicoTheme,
+  "épico": epicoTheme,
+  "épico rpg": epicoTheme,
+  "epico rpg": epicoTheme,
 };
 
 /**

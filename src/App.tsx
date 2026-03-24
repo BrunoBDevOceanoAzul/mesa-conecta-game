@@ -43,6 +43,8 @@ import AdminSocialPublisher from "./pages/admin/AdminSocialPublisher";
 import AdminFeedbackInsights from "./pages/admin/AdminFeedbackInsights";
 import AdminCatalog from "./pages/admin/AdminCatalog";
 import MesaCharacterSheet from "./pages/MesaCharacterSheet";
+import CharacterSheets from "./pages/CharacterSheets";
+import CharacterSheetEdit from "./pages/CharacterSheetEdit";
 import ParaLojas from "./pages/ParaLojas";
 import QuemSomos from "./pages/QuemSomos";
 import Contato from "./pages/Contato";
@@ -90,6 +92,8 @@ const App = () => (
               <Route path="/checkout/:planId" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
               <Route path="/mesa/:id" element={<TableDetail />} />
               <Route path="/mesa/:id/ficha" element={<MesaCharacterSheet />} />
+              <Route path="/fichas" element={<ProtectedRoute><CharacterSheets /></ProtectedRoute>} />
+              <Route path="/fichas/:id" element={<ProtectedRoute><CharacterSheetEdit /></ProtectedRoute>} />
               <Route path="/mestre/:slug" element={<MestrePublicProfile />} />
               <Route path="/loja/:slug" element={<LojaPublicProfile />} />
               {/* Admin routes */}

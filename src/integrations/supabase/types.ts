@@ -1446,6 +1446,54 @@ export type Database = {
         }
         Relationships: []
       }
+      character_sheets: {
+        Row: {
+          answers_json: Json
+          character_name: string
+          computed_json: Json
+          created_at: string
+          id: string
+          last_saved_at: string | null
+          notes: string | null
+          player_name: string
+          portrait_url: string | null
+          status: string
+          system_name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers_json?: Json
+          character_name?: string
+          computed_json?: Json
+          created_at?: string
+          id?: string
+          last_saved_at?: string | null
+          notes?: string | null
+          player_name?: string
+          portrait_url?: string | null
+          status?: string
+          system_name?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers_json?: Json
+          character_name?: string
+          computed_json?: Json
+          created_at?: string
+          id?: string
+          last_saved_at?: string | null
+          notes?: string | null
+          player_name?: string
+          portrait_url?: string | null
+          status?: string
+          system_name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       chat_analytics: {
         Row: {
           conversation_id: string
