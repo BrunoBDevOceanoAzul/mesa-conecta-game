@@ -1,4 +1,4 @@
-import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Instagram } from "lucide-react";
+import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Instagram, Gamepad2, Brain } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { getMatchColor, getMatchLabel } from "@/lib/match-scoring";
 
@@ -22,6 +22,8 @@ interface Mesa {
   tags?: string[];
   image_url?: string | null;
   cover_image_url?: string | null;
+  mesa_type?: string;
+  board_game_id?: string | null;
 }
 
 interface MesaCardProps {
@@ -61,6 +63,10 @@ function getDurationLabel(startAt: string, endAt?: string | null): string | null
   return h > 0 ? `${h}h${m > 0 ? `${m}` : ""}` : `${m}min`;
 }
 
+function isBoardGame(mesa: Mesa): boolean {
+  return mesa.mesa_type === "community" || !!mesa.board_game_id;
+}
+
 export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCardProps) {
   const navigate = useNavigate();
   const date = new Date(mesa.start_at);
@@ -70,6 +76,8 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
   const gradientClass = matchScore ? getMatchColor(matchScore) : "";
   const matchLabel = matchScore ? getMatchLabel(matchScore) : "";
   const coverUrl = mesa.cover_image_url || mesa.image_url;
+  const boardGame = isBoardGame(mesa);
+  const isFull = mesa.seats_available <= 0;
 
   return (
     <div
@@ -85,11 +93,10 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
         ) : (
           <div className="w-full h-full" style={{ backgroundImage: "var(--gradient-discovery)", opacity: 0.15 }}>
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl opacity-30">🎲</span>
+              <span className="text-4xl opacity-30">{boardGame ? "🎲" : "🗡️"}</span>
             </div>
           </div>
         )}
-        {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
 
         {/* Sponsored / Founder badges */}
@@ -127,19 +134,37 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
             </div>
           )}
         </div>
+
+        {/* Full badge */}
+        {isFull && (
+          <div className="absolute bottom-2 right-2 z-10">
+            <div className="bg-destructive/90 backdrop-blur-sm text-white rounded-lg px-2.5 py-1 text-[10px] font-bold uppercase">
+              Lotada
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Content */}
       <div className="p-4">
         {/* Tags row */}
         <div className="mb-2 flex items-center gap-2 flex-wrap">
-          <span className="rounded-md bg-plum-50 px-2.5 py-0.5 text-xs font-semibold text-plum-500">
-            {mesa.system}
-          </span>
-          <span className="rounded-md bg-teal-50 px-2.5 py-0.5 text-xs text-teal-600 font-medium">
-            {sessionMap[mesa.session_type] || mesa.session_type}
-          </span>
-          {mesa.status === "aberta" && mesa.seats_available <= 2 && (
+          {boardGame ? (
+            <span className="rounded-md bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-600 flex items-center gap-1">
+              <Gamepad2 className="h-3 w-3" />
+              {mesa.system}
+            </span>
+          ) : (
+            <span className="rounded-md bg-plum-50 px-2.5 py-0.5 text-xs font-semibold text-plum-500">
+              {mesa.system}
+            </span>
+          )}
+          {!boardGame && (
+            <span className="rounded-md bg-teal-50 px-2.5 py-0.5 text-xs text-teal-600 font-medium">
+              {sessionMap[mesa.session_type] || mesa.session_type}
+            </span>
+          )}
+          {mesa.status === "aberta" && mesa.seats_available <= 2 && mesa.seats_available > 0 && (
             <span className="rounded-md bg-coral-50 px-2.5 py-0.5 text-xs font-semibold text-coral-500">
               Últimas vagas
             </span>
@@ -177,7 +202,7 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
           </span>
         </div>
 
-        {/* Footer: GM + Price */}
+        {/* Footer: GM/Organizer + Price */}
         <div className="flex items-center justify-between pt-3 border-t border-border">
           <div className="flex items-center gap-2">
             <div className="h-7 w-7 rounded-full bg-plum-50 flex items-center justify-center text-xs font-bold text-plum-500 ring-1 ring-plum-200">
@@ -202,12 +227,16 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
             </div>
           </div>
           <div className="text-right">
-            <span className="text-lg font-display font-bold text-gold-500">
-              R${mesa.min_price}
-              {mesa.max_price > mesa.min_price && (
-                <span className="text-sm font-normal text-muted-foreground">–{mesa.max_price}</span>
-              )}
-            </span>
+            {mesa.min_price === 0 ? (
+              <span className="text-sm font-display font-bold text-secondary">Grátis</span>
+            ) : (
+              <span className="text-lg font-display font-bold text-gold-500">
+                R${mesa.min_price}
+                {mesa.max_price > mesa.min_price && (
+                  <span className="text-sm font-normal text-muted-foreground">–{mesa.max_price}</span>
+                )}
+              </span>
+            )}
           </div>
         </div>
       </div>
