@@ -82,6 +82,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   const [pixCopied, setPixCopied] = useState(false);
 
   const isPaidMesa = mesa.min_price > 0;
+  const isBoardGame = mesa.mesa_type === "community" || !!mesa.board_game_id;
 
   const loadData = useCallback(async () => {
     if (!user || !open) return;
