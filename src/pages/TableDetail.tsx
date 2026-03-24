@@ -5,6 +5,7 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useWaitlist } from "@/hooks/use-waitlist";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
@@ -27,7 +28,7 @@ import { PlayerSessionView } from "@/components/session/PlayerSessionView";
 import { DiceRoller } from "@/components/session/DiceRoller";
 import {
   MapPin, Calendar, Clock, Users, Sparkles, ArrowLeft, Tag,
-  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices
+  Loader2, User, Monitor, Home, RefreshCw, Star, Timer, Check, Clapperboard, Dices, Bell, BellOff, Gamepad2
 } from "lucide-react";
 
 type Mesa = {
