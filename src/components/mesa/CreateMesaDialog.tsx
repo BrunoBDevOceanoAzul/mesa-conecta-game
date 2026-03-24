@@ -65,6 +65,9 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
   const [coverUrl, setCoverUrl] = useState<string | null>(null);
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [storeSlots, setStoreSlots] = useState<any[]>([]);
+  const [selectedBoardGame, setSelectedBoardGame] = useState<BoardGame | null>(null);
+
+  const isBoardGameMode = !!selectedBoardGame;
 
   // Fetch available store slots when role is store
   useEffect(() => {
@@ -87,7 +90,7 @@ export function CreateMesaDialog({ onCreated, role, storeId, children }: CreateM
     setSeatsTotal("5"); setStartAt(""); setEndAt("");
     setSessionHours("4"); setCampaignSessions("4");
     setCoverFile(null); setCoverPreview(null); setCoverUrl(null);
-    setSelectedSlotId(null);
+    setSelectedSlotId(null); setSelectedBoardGame(null);
   };
 
   const handleCoverSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
