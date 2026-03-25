@@ -36,30 +36,37 @@ export default function AdminPainel() {
 
   return (
     <AdminLayout>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" /> Centro de Operações
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground flex items-center gap-2">
+            <Shield className="h-5 w-5 md:h-6 md:w-6 text-primary" /> Centro de Operações
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm">
             Inteligência de negócio e gestão centralizada da plataforma HIVIUM.
           </p>
         </div>
 
-        {/* Sub-tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setSubTab(t.key)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                subTab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
+        {/* Sub-tabs — mobile: horizontal scroll with snap, touch-friendly */}
+        <div className="relative">
+          {/* Fade indicators for scroll */}
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 md:hidden" />
+          <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-4 bg-gradient-to-r from-background to-transparent z-10 md:hidden" />
+          
+          <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-3 px-3 md:mx-0 md:px-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setSubTab(t.key)}
+                className={`flex items-center gap-1.5 md:gap-2 rounded-lg px-3 md:px-4 py-2.5 text-xs md:text-sm font-medium transition-all whitespace-nowrap snap-center min-h-[44px] ${
+                  subTab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.icon}
+                <span className="hidden sm:inline">{t.label}</span>
+                <span className="sm:hidden">{t.label.length > 8 ? t.label.slice(0, 6) + "…" : t.label}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
         {subTab === "insights" && <InsightsDashboard />}

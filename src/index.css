@@ -444,3 +444,65 @@ html {
   overscroll-behavior-y: none;
 }
 
+/* ─── Mobile Admin Utilities ─── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.safe-area-top {
+  padding-top: env(safe-area-inset-top, 0px);
+}
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Admin mobile card stack */
+@media (max-width: 767px) {
+  .admin-table-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .admin-table-mobile thead {
+    display: none;
+  }
+  .admin-table-mobile tbody {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .admin-table-mobile tr {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    background: hsl(var(--card));
+  }
+  .admin-table-mobile td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.125rem 0;
+  }
+  .admin-table-mobile td::before {
+    content: attr(data-label);
+    font-size: 0.625rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: hsl(var(--muted-foreground));
+    flex-shrink: 0;
+    margin-right: 0.5rem;
+  }
+  .admin-table-mobile td[class*="hidden"] {
+    display: flex !important;
+  }
+}
+
+
