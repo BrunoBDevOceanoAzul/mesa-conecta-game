@@ -392,20 +392,20 @@ export default function Admin() {
         {/* ─── BILLING / REVENUE ─── */}
         {tab === "billing" && (
           <div className="space-y-6">
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "MRR Total", value: `R$${(stats.mrr / 100).toFixed(2).replace(".", ",")}`, icon: <CreditCard className="h-5 w-5 text-primary" /> },
-                { label: "Assinaturas Ativas", value: String(stats.activeSubs), icon: <CheckCircle2 className="h-5 w-5 text-green-500" /> },
-                { label: "Canceladas", value: String(stats.canceledSubs), icon: <XCircle className="h-5 w-5 text-orange-500" /> },
-                { label: "Inadimplentes", value: String(stats.pastDueSubs), icon: <Clock className="h-5 w-5 text-red-500" /> },
+                { label: "MRR Total", value: `R$${(stats.mrr / 100).toFixed(2).replace(".", ",")}`, icon: <CreditCard className="h-4 w-4 md:h-5 md:w-5 text-primary" /> },
+                { label: "Ativas", value: String(stats.activeSubs), icon: <CheckCircle2 className="h-4 w-4 md:h-5 md:w-5 text-green-500" /> },
+                { label: "Canceladas", value: String(stats.canceledSubs), icon: <XCircle className="h-4 w-4 md:h-5 md:w-5 text-orange-500" /> },
+                { label: "Inadimplentes", value: String(stats.pastDueSubs), icon: <Clock className="h-4 w-4 md:h-5 md:w-5 text-red-500" /> },
               ].map((s) => (
-                <div key={s.label} className="rounded-xl border border-border bg-card p-5">
+                <div key={s.label} className="rounded-xl border border-border bg-card p-3 md:p-5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
-                      <div className="text-2xl font-display font-bold text-foreground mt-2">{s.value}</div>
+                      <p className="text-[10px] md:text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                      <div className="text-lg md:text-2xl font-display font-bold text-foreground mt-1 md:mt-2">{s.value}</div>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">{s.icon}</div>
+                    <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg bg-primary/10">{s.icon}</div>
                   </div>
                 </div>
               ))}
