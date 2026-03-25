@@ -453,46 +453,80 @@ export default function Admin() {
                 </div>
               ) : (
                 <div className="rounded-xl border border-border overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-muted/40">
-                      <tr>
-                        <th className="text-center px-4 py-3 font-medium text-muted-foreground w-12">#</th>
-                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Mestre</th>
-                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Nível</th>
-                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Título</th>
-                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">XP</th>
-                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Badges</th>
-                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border">
-                      {xpRanking.map((r, idx) => (
-                        <tr key={r.user_id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 text-center font-display font-bold text-secondary">{idx + 1}</td>
-                          <td className="px-4 py-3">
-                            <p className="font-medium text-foreground">{r.name || "—"}</p>
-                            <p className="text-[10px] text-muted-foreground">{r.email}</p>
-                          </td>
-                          <td className="px-4 py-3 text-center font-bold text-foreground">{r.current_level}</td>
-                          <td className="px-4 py-3 text-center">
-                            <Badge variant="outline" className="text-[10px]">{r.current_title}</Badge>
-                          </td>
-                          <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_xp}</td>
-                          <td className="px-4 py-3 text-center text-muted-foreground">{r.badge_count}</td>
-                          <td className="px-4 py-3 text-center">
-                            <div className="flex items-center justify-center gap-1">
-                              <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2" onClick={() => adjustXp(r.user_id, 50)}>
-                                <Plus className="h-3 w-3" /> 50
-                              </Button>
-                              <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 text-destructive" onClick={() => adjustXp(r.user_id, -50)}>
-                                -50
-                              </Button>
-                            </div>
-                          </td>
+                  {/* Desktop table */}
+                  <div className="hidden md:block">
+                    <table className="w-full text-sm">
+                      <thead className="bg-muted/40">
+                        <tr>
+                          <th className="text-center px-4 py-3 font-medium text-muted-foreground w-12">#</th>
+                          <th className="text-left px-4 py-3 font-medium text-muted-foreground">Mestre</th>
+                          <th className="text-center px-4 py-3 font-medium text-muted-foreground">Nível</th>
+                          <th className="text-center px-4 py-3 font-medium text-muted-foreground">Título</th>
+                          <th className="text-right px-4 py-3 font-medium text-muted-foreground">XP</th>
+                          <th className="text-center px-4 py-3 font-medium text-muted-foreground">Badges</th>
+                          <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-border">
+                        {xpRanking.map((r, idx) => (
+                          <tr key={r.user_id} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 text-center font-display font-bold text-secondary">{idx + 1}</td>
+                            <td className="px-4 py-3">
+                              <p className="font-medium text-foreground">{r.name || "—"}</p>
+                              <p className="text-[10px] text-muted-foreground">{r.email}</p>
+                            </td>
+                            <td className="px-4 py-3 text-center font-bold text-foreground">{r.current_level}</td>
+                            <td className="px-4 py-3 text-center">
+                              <Badge variant="outline" className="text-[10px]">{r.current_title}</Badge>
+                            </td>
+                            <td className="px-4 py-3 text-right font-display font-bold text-primary">{r.total_xp}</td>
+                            <td className="px-4 py-3 text-center text-muted-foreground">{r.badge_count}</td>
+                            <td className="px-4 py-3 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2" onClick={() => adjustXp(r.user_id, 50)}>
+                                  <Plus className="h-3 w-3" /> 50
+                                </Button>
+                                <Button variant="ghost" size="sm" className="text-[10px] h-7 px-2 text-destructive" onClick={() => adjustXp(r.user_id, -50)}>
+                                  -50
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                  {/* Mobile card stack */}
+                  <div className="md:hidden divide-y divide-border">
+                    {xpRanking.map((r, idx) => (
+                      <div key={r.user_id} className="p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-display font-bold text-secondary">#{idx + 1}</span>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{r.name || "—"}</p>
+                              <p className="text-[10px] text-muted-foreground">{r.email}</p>
+                            </div>
+                          </div>
+                          <span className="text-lg font-display font-bold text-primary">{r.total_xp} XP</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-[10px]">Lv.{r.current_level} · {r.current_title}</Badge>
+                            <span className="text-[10px] text-muted-foreground">{r.badge_count} badges</span>
+                          </div>
+                          <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="sm" className="text-[10px] h-8 px-2 min-w-[44px]" onClick={() => adjustXp(r.user_id, 50)}>
+                              +50
+                            </Button>
+                            <Button variant="ghost" size="sm" className="text-[10px] h-8 px-2 min-w-[44px] text-destructive" onClick={() => adjustXp(r.user_id, -50)}>
+                              -50
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
