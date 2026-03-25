@@ -20,7 +20,6 @@ interface SettingsState {
   founderBoostsPerMonth: number;
   founderDurationMonths: number;
   platformFeePercent: number;
-  // status
   stripeConfigured: boolean;
   googleOAuthConfigured: boolean;
   webhookSecret: boolean;
@@ -35,7 +34,6 @@ export default function AdminSettings() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Editable fields
   const [cpcRate, setCpcRate] = useState("0.50");
   const [founderLimit, setFounderLimit] = useState("10");
   const [founderBoosts, setFounderBoosts] = useState("2");
@@ -70,7 +68,7 @@ export default function AdminSettings() {
       founderBoostsPerMonth: Number(getSetting("founder_boosts_per_month", 2)),
       founderDurationMonths: Number(getSetting("founder_duration_months", 3)),
       platformFeePercent: Number(getSetting("platform_fee_percent", 10)),
-      stripeConfigured: true, // secrets exist per project config
+      stripeConfigured: true,
       googleOAuthConfigured: true,
       webhookSecret: true,
       plansCount: plansRes.data?.length || 0,
@@ -112,9 +110,9 @@ export default function AdminSettings() {
   if (loading) {
     return (
       <AdminLayout>
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <Skeleton className="h-10 w-64" />
-          <div className="grid gap-6 lg:grid-cols-2">
+          <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-2">
             {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-60 rounded-xl" />)}
           </div>
         </div>
@@ -124,17 +122,17 @@ export default function AdminSettings() {
 
   return (
     <AdminLayout>
-      <div className="space-y-8">
+      <div className="space-y-5 md:space-y-8">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-            <Settings className="h-6 w-6 text-primary" /> Configurações
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground flex items-center gap-2">
+            <Settings className="h-5 w-5 md:h-6 md:w-6 text-primary" /> Configurações
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm">
             Parâmetros operacionais e comerciais da plataforma.
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 lg:grid-cols-2">
           {/* GENERAL */}
           <ConfigBlock
             icon={<Globe className="h-5 w-5 text-primary" />}
@@ -152,7 +150,7 @@ export default function AdminSettings() {
             title="Comercial"
             description="Parâmetros de monetização e pricing."
             footer={
-              <Button variant="hero" size="sm" onClick={saveCommercialSettings} disabled={saving} className="gap-2">
+              <Button variant="hero" size="sm" onClick={saveCommercialSettings} disabled={saving} className="gap-2 w-full md:w-auto min-h-[44px]">
                 <Save className="h-4 w-4" /> {saving ? "Salvando..." : "Salvar"}
               </Button>
             }
@@ -201,17 +199,17 @@ function ConfigBlock({ icon, title, description, children, footer }: {
 }) {
   return (
     <div className="rounded-xl border border-border bg-card overflow-hidden">
-      <div className="p-5 border-b border-border">
+      <div className="p-4 md:p-5 border-b border-border">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">{icon}</div>
+          <div className="flex h-9 w-9 md:h-10 md:w-10 items-center justify-center rounded-lg bg-primary/10">{icon}</div>
           <div>
             <h3 className="text-sm font-display font-semibold text-foreground">{title}</h3>
             <p className="text-[10px] text-muted-foreground">{description}</p>
           </div>
         </div>
       </div>
-      <div className="p-5 space-y-4">{children}</div>
-      {footer && <div className="px-5 pb-5 flex justify-end">{footer}</div>}
+      <div className="p-4 md:p-5 space-y-3 md:space-y-4">{children}</div>
+      {footer && <div className="px-4 pb-4 md:px-5 md:pb-5 flex justify-end">{footer}</div>}
     </div>
   );
 }
@@ -220,7 +218,7 @@ function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <label className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{label}</label>
-      <div className="mt-1 rounded-lg bg-surface px-3 py-2 text-sm text-foreground">{value}</div>
+      <div className="mt-1 rounded-lg bg-surface px-3 py-2.5 text-sm text-foreground min-h-[44px] flex items-center">{value}</div>
     </div>
   );
 }
@@ -233,7 +231,7 @@ function EditableField({ label, value, onChange, type = "text" }: { label: strin
         type={type}
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1 bg-surface border-border text-sm"
+        className="mt-1 bg-surface border-border text-sm min-h-[44px]"
       />
     </div>
   );
@@ -241,11 +239,11 @@ function EditableField({ label, value, onChange, type = "text" }: { label: strin
 
 function StatusRow({ label, value, ok }: { label: string; value: string; ok: boolean }) {
   return (
-    <div className="flex items-center justify-between py-1.5">
+    <div className="flex items-center justify-between py-2 min-h-[44px]">
       <span className="text-xs text-muted-foreground">{label}</span>
       <div className="flex items-center gap-2">
         <span className="text-xs font-medium text-foreground">{value}</span>
-        {ok ? <CheckCircle2 className="h-3.5 w-3.5 text-success" /> : <XCircle className="h-3.5 w-3.5 text-destructive" />}
+        {ok ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
       </div>
     </div>
   );
