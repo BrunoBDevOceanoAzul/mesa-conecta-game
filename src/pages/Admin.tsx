@@ -857,60 +857,97 @@ export default function Admin() {
               </div>
             ) : (
               <div className="rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/40">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Campanha</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Responsável</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Impressões</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Cliques</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground">CTR</th>
-                      <th className="text-right px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Reservas</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden lg:table-cell">Período</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {allCampaigns.map((c) => {
-                      const ctr = c.impressions > 0 ? ((c.clicks / c.impressions) * 100).toFixed(1) : "0.0";
-                      const statusCfg: Record<string, { label: string; cls: string }> = {
-                        active: { label: "Ativo", cls: "bg-green-500/10 text-green-500 border-green-500/20" },
-                        paused: { label: "Pausado", cls: "bg-secondary/10 text-secondary border-secondary/20" },
-                        ended: { label: "Encerrado", cls: "bg-muted text-muted-foreground border-border" },
-                      };
-                      const sc = statusCfg[c.status] || statusCfg.ended;
-                      return (
-                        <tr key={c.id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-2">
-                              {c.is_founder_benefit && <Gift className="h-3.5 w-3.5 text-secondary shrink-0" />}
-                              <span className="font-medium text-foreground truncate max-w-[180px]">{c.target_title}</span>
+                {/* Desktop */}
+                <div className="hidden md:block">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Campanha</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Responsável</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">Impressões</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">Cliques</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">CTR</th>
+                        <th className="text-right px-4 py-3 font-medium text-muted-foreground">Reservas</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {allCampaigns.map((c) => {
+                        const ctr = c.impressions > 0 ? ((c.clicks / c.impressions) * 100).toFixed(1) : "0.0";
+                        const statusCfg: Record<string, { label: string; cls: string }> = {
+                          active: { label: "Ativo", cls: "bg-green-500/10 text-green-500 border-green-500/20" },
+                          paused: { label: "Pausado", cls: "bg-secondary/10 text-secondary border-secondary/20" },
+                          ended: { label: "Encerrado", cls: "bg-muted text-muted-foreground border-border" },
+                        };
+                        const sc = statusCfg[c.status] || statusCfg.ended;
+                        return (
+                          <tr key={c.id} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3">
+                              <div className="flex items-center gap-2">
+                                {c.is_founder_benefit && <Gift className="h-3.5 w-3.5 text-secondary shrink-0" />}
+                                <span className="font-medium text-foreground truncate max-w-[180px]">{c.target_title}</span>
+                              </div>
+                              <p className="text-[10px] text-muted-foreground mt-0.5">{c.target_type === "mesa" ? "Mesa" : "Publicação"}</p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <p className="text-xs text-foreground">{c.user_name || "—"}</p>
+                              <Badge variant={c.user_role === "gm" ? "default" : "secondary"} className="text-[9px] mt-0.5">
+                                {c.user_role === "gm" ? "Mestre" : "Luderia"}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${sc.cls}`}>{sc.label}</span>
+                            </td>
+                            <td className="px-4 py-3 text-right font-medium">{c.impressions}</td>
+                            <td className="px-4 py-3 text-right font-medium">{c.clicks}</td>
+                            <td className="px-4 py-3 text-right font-medium">{ctr}%</td>
+                            <td className="px-4 py-3 text-right font-medium">{c.reservations}</td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile card stack */}
+                <div className="md:hidden divide-y divide-border">
+                  {allCampaigns.map((c) => {
+                    const ctr = c.impressions > 0 ? ((c.clicks / c.impressions) * 100).toFixed(1) : "0.0";
+                    const statusCfg: Record<string, { label: string; cls: string }> = {
+                      active: { label: "Ativo", cls: "bg-green-500/10 text-green-500 border-green-500/20" },
+                      paused: { label: "Pausado", cls: "bg-secondary/10 text-secondary border-secondary/20" },
+                      ended: { label: "Encerrado", cls: "bg-muted text-muted-foreground border-border" },
+                    };
+                    const sc = statusCfg[c.status] || statusCfg.ended;
+                    return (
+                      <div key={c.id} className="p-3 space-y-2">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              {c.is_founder_benefit && <Gift className="h-3 w-3 text-secondary shrink-0" />}
+                              <span className="text-sm font-medium text-foreground truncate">{c.target_title}</span>
                             </div>
-                            <p className="text-[10px] text-muted-foreground mt-0.5">{c.target_type === "mesa" ? "Mesa" : "Publicação"}</p>
-                          </td>
-                          <td className="px-4 py-3 hidden sm:table-cell">
-                            <p className="text-xs text-foreground">{c.user_name || "—"}</p>
-                            <Badge variant={c.user_role === "gm" ? "default" : "secondary"} className="text-[9px] mt-0.5">
-                              {c.user_role === "gm" ? "Mestre" : "Luderia"}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${sc.cls}`}>{sc.label}</span>
-                          </td>
-                          <td className="px-4 py-3 text-right font-medium hidden md:table-cell">{c.impressions}</td>
-                          <td className="px-4 py-3 text-right font-medium hidden md:table-cell">{c.clicks}</td>
-                          <td className="px-4 py-3 text-right font-medium">{ctr}%</td>
-                          <td className="px-4 py-3 text-right font-medium hidden lg:table-cell">{c.reservations}</td>
-                          <td className="px-4 py-3 hidden lg:table-cell">
-                            <p className="text-[10px] text-muted-foreground">
-                              {new Date(c.starts_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })} — {new Date(c.ends_at).toLocaleDateString("pt-BR", { day: "2-digit", month: "short" })}
-                            </p>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                            <p className="text-[10px] text-muted-foreground">{c.user_name || "—"} · {c.target_type === "mesa" ? "Mesa" : "Post"}</p>
+                          </div>
+                          <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium shrink-0 ${sc.cls}`}>{sc.label}</span>
+                        </div>
+                        <div className="grid grid-cols-3 gap-2 text-center">
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Impressões</p>
+                            <p className="text-sm font-bold text-foreground">{c.impressions}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">Cliques</p>
+                            <p className="text-sm font-bold text-foreground">{c.clicks}</p>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-muted-foreground">CTR</p>
+                            <p className="text-sm font-bold text-primary">{ctr}%</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
