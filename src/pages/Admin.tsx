@@ -333,28 +333,31 @@ export default function Admin() {
 
   return (
     <DashboardLayout role="admin" navItems={navItems} userName={user?.user_metadata?.name || "Admin"}>
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         <div>
-          <h1 className="text-2xl font-display font-bold text-foreground flex items-center gap-2">
-            <Shield className="h-6 w-6 text-primary" /> Centro de Operações
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground flex items-center gap-2">
+            <Shield className="h-5 w-5 md:h-6 md:w-6 text-primary" /> Centro de Operações
           </h1>
-          <p className="text-muted-foreground mt-1 text-sm">Gestão centralizada da plataforma HIVIUM.</p>
+          <p className="text-muted-foreground mt-1 text-xs md:text-sm">Gestão centralizada da plataforma HIVIUM.</p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-medium transition-all whitespace-nowrap ${
-                tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t.icon}
-              {t.label}
-            </button>
-          ))}
+        {/* Tabs — mobile: horizontal scroll snap */}
+        <div className="relative">
+          <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-background to-transparent z-10 md:hidden" />
+          <div className="flex gap-1 rounded-xl bg-muted/40 p-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-1">
+            {tabs.map((t) => (
+              <button
+                key={t.key}
+                onClick={() => setTab(t.key)}
+                className={`flex items-center gap-1.5 md:gap-2 rounded-lg px-3 md:px-4 py-2.5 text-xs md:text-sm font-medium transition-all whitespace-nowrap snap-center min-h-[44px] ${
+                  tab === t.key ? "bg-card text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {t.icon}
+                {t.label}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* ─── OVERVIEW ─── */}
