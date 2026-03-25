@@ -830,20 +830,20 @@ export default function Admin() {
         {tab === "campaigns" && (
           <div className="space-y-5">
             {/* Aggregated metrics */}
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
               {[
-                { label: "Total Destaques", value: String(allCampaigns.length), icon: <Sparkles className="h-5 w-5 text-accent" /> },
-                { label: "Impressões", value: String(totalCampaignImpressions), icon: <Eye className="h-5 w-5 text-primary" /> },
-                { label: "Cliques", value: String(totalCampaignClicks), icon: <MousePointerClick className="h-5 w-5 text-secondary" /> },
-                { label: "CTR Plataforma", value: `${platformCTR}%`, icon: <TrendingUp className="h-5 w-5 text-accent" /> },
+                { label: "Total", value: String(allCampaigns.length), icon: <Sparkles className="h-4 w-4 md:h-5 md:w-5 text-accent" /> },
+                { label: "Impressões", value: String(totalCampaignImpressions), icon: <Eye className="h-4 w-4 md:h-5 md:w-5 text-primary" /> },
+                { label: "Cliques", value: String(totalCampaignClicks), icon: <MousePointerClick className="h-4 w-4 md:h-5 md:w-5 text-secondary" /> },
+                { label: "CTR", value: `${platformCTR}%`, icon: <TrendingUp className="h-4 w-4 md:h-5 md:w-5 text-accent" /> },
               ].map((s) => (
-                <div key={s.label} className="group relative overflow-hidden rounded-xl border border-border bg-card p-5 transition-all hover:shadow-lg hover:shadow-primary/5">
+                <div key={s.label} className="group relative overflow-hidden rounded-xl border border-border bg-card p-3 md:p-5 transition-all hover:shadow-lg hover:shadow-primary/5">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
-                      <div className="text-2xl font-display font-bold text-foreground mt-2">{s.value}</div>
+                      <p className="text-[10px] md:text-xs font-medium uppercase tracking-wider text-muted-foreground">{s.label}</p>
+                      <div className="text-lg md:text-2xl font-display font-bold text-foreground mt-1 md:mt-2">{s.value}</div>
                     </div>
-                    <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">{s.icon}</div>
+                    <div className="flex h-8 w-8 md:h-10 md:w-10 items-center justify-center rounded-lg bg-primary/10">{s.icon}</div>
                   </div>
                 </div>
               ))}
