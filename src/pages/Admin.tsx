@@ -731,68 +731,96 @@ export default function Admin() {
               </div>
             ) : (
               <div className="rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/40">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Usuário</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Perfil</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Plano</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Válido até</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Founder</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {eligibleUsers.map((eu) => {
-                      const isFounder = founders.some((f) => f.user_id === eu.user_id);
-                      const canBeFounder = eu.role === "gm" && !isFounder && founders.length < 10;
-                      return (
-                        <tr key={eu.user_id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3">
-                            <p className="font-medium text-foreground">{eu.name || "—"}</p>
-                            <p className="text-[10px] text-muted-foreground">{eu.email}</p>
-                          </td>
-                          <td className="px-4 py-3">
-                            <Badge variant={eu.role === "gm" ? "default" : "secondary"} className="text-[10px]">
-                              {eu.role === "gm" ? "Mestre" : eu.role === "store" ? "Luderia" : eu.role}
-                            </Badge>
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell text-xs">{eu.plan_name || "—"}</td>
-                          <td className="px-4 py-3 text-muted-foreground hidden md:table-cell text-xs">
-                            {eu.plan_end ? new Date(eu.plan_end).toLocaleDateString("pt-BR") : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-500">
-                              <CheckCircle2 className="h-3 w-3" /> Elegível
-                            </span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {eu.role === "gm" ? (
-                              isFounder ? (
-                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-secondary">
-                                  <Gift className="h-3 w-3" /> Founder
-                                </span>
-                              ) : canBeFounder ? (
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-xs gap-1 text-secondary hover:text-secondary"
-                                  onClick={() => toggleFounderStatus(eu.user_id, false)}
-                                >
-                                  <ToggleLeft className="h-3.5 w-3.5" /> Ativar
-                                </Button>
+                {/* Desktop */}
+                <div className="hidden md:block">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Usuário</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Perfil</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Plano</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Válido até</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Founder</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {eligibleUsers.map((eu) => {
+                        const isFounder = founders.some((f) => f.user_id === eu.user_id);
+                        const canBeFounder = eu.role === "gm" && !isFounder && founders.length < 10;
+                        return (
+                          <tr key={eu.user_id} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3">
+                              <p className="font-medium text-foreground">{eu.name || "—"}</p>
+                              <p className="text-[10px] text-muted-foreground">{eu.email}</p>
+                            </td>
+                            <td className="px-4 py-3">
+                              <Badge variant={eu.role === "gm" ? "default" : "secondary"} className="text-[10px]">
+                                {eu.role === "gm" ? "Mestre" : eu.role === "store" ? "Luderia" : eu.role}
+                              </Badge>
+                            </td>
+                            <td className="px-4 py-3 text-muted-foreground text-xs">{eu.plan_name || "—"}</td>
+                            <td className="px-4 py-3 text-muted-foreground text-xs">
+                              {eu.plan_end ? new Date(eu.plan_end).toLocaleDateString("pt-BR") : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-500">
+                                <CheckCircle2 className="h-3 w-3" /> Elegível
+                              </span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {eu.role === "gm" ? (
+                                isFounder ? (
+                                  <span className="inline-flex items-center gap-1 text-[10px] font-medium text-secondary"><Gift className="h-3 w-3" /> Founder</span>
+                                ) : canBeFounder ? (
+                                  <Button variant="ghost" size="sm" className="text-xs gap-1 text-secondary hover:text-secondary" onClick={() => toggleFounderStatus(eu.user_id, false)}>
+                                    <ToggleLeft className="h-3.5 w-3.5" /> Ativar
+                                  </Button>
+                                ) : (
+                                  <span className="text-[10px] text-muted-foreground">Vagas cheias</span>
+                                )
                               ) : (
-                                <span className="text-[10px] text-muted-foreground">Vagas cheias</span>
-                              )
-                            ) : (
-                              <span className="text-[10px] text-muted-foreground">—</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                                <span className="text-[10px] text-muted-foreground">—</span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile card stack */}
+                <div className="md:hidden divide-y divide-border">
+                  {eligibleUsers.map((eu) => {
+                    const isFounder = founders.some((f) => f.user_id === eu.user_id);
+                    const canBeFounder = eu.role === "gm" && !isFounder && founders.length < 10;
+                    return (
+                      <div key={eu.user_id} className="p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="text-sm font-medium text-foreground">{eu.name || "—"}</p>
+                            <p className="text-[10px] text-muted-foreground">{eu.email}</p>
+                          </div>
+                          <Badge variant={eu.role === "gm" ? "default" : "secondary"} className="text-[10px]">
+                            {eu.role === "gm" ? "Mestre" : eu.role === "store" ? "Luderia" : eu.role}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">{eu.plan_name || "—"}</span>
+                          {eu.role === "gm" ? (
+                            isFounder ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-secondary"><Gift className="h-3 w-3" /> Founder</span>
+                            ) : canBeFounder ? (
+                              <Button variant="ghost" size="sm" className="text-[10px] h-8 min-w-[44px] text-secondary hover:text-secondary" onClick={() => toggleFounderStatus(eu.user_id, false)}>
+                                <ToggleLeft className="h-3.5 w-3.5" /> Ativar
+                              </Button>
+                            ) : null
+                          ) : null}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
