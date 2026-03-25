@@ -536,13 +536,13 @@ export default function Admin() {
               <h3 className="text-sm font-display font-semibold text-foreground mb-4 flex items-center gap-2">
                 <Star className="h-4 w-4 text-secondary" /> Conceder Badge Manualmente
               </h3>
-              <div className="flex flex-wrap gap-3 items-end">
+              <div className="grid gap-3 sm:grid-cols-2">
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">User ID</label>
                   <input
                     value={awardUserId}
                     onChange={(e) => setAwardUserId(e.target.value)}
-                    className="mt-1 block w-64 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                    className="mt-1 block w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 min-h-[44px]"
                     placeholder="UUID do usuário"
                   />
                 </div>
@@ -551,7 +551,7 @@ export default function Admin() {
                   <select
                     value={awardBadgeId}
                     onChange={(e) => setAwardBadgeId(e.target.value)}
-                    className="mt-1 block w-64 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30"
+                    className="mt-1 block w-full rounded-lg border border-border bg-background px-3 py-2.5 text-sm text-foreground outline-none focus:ring-2 focus:ring-primary/30 min-h-[44px]"
                   >
                     <option value="">Selecionar badge...</option>
                     {badgeDefs.map((d: any) => (
@@ -559,10 +559,10 @@ export default function Admin() {
                     ))}
                   </select>
                 </div>
-                <Button variant="hero" size="sm" onClick={awardBadgeManually} disabled={!awardUserId || !awardBadgeId}>
-                  <Gift className="h-4 w-4" /> Conceder
-                </Button>
               </div>
+              <Button variant="hero" size="sm" onClick={awardBadgeManually} disabled={!awardUserId || !awardBadgeId} className="w-full sm:w-auto min-h-[44px]">
+                <Gift className="h-4 w-4" /> Conceder
+              </Button>
             </div>
 
             {/* Badge Catalog */}
