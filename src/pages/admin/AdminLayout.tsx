@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft, Shield } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 import logoImg from "@/assets/hivium-logo.png";
 
 interface AdminLayoutProps {
@@ -18,7 +19,7 @@ const navItems = [
   { label: "Campanha", path: "/admin/campanha", icon: "📣" },
   { label: "Catálogo", path: "/admin/catalogo", icon: "🎲" },
   { label: "Social", path: "/admin/social", icon: "🔗" },
-  { label: "Configurações", path: "/admin/configuracoes", icon: "⚙️" },
+  { label: "Config", path: "/admin/configuracoes", icon: "⚙️" },
 ];
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
@@ -26,6 +27,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, signOut } = useAuth();
+  const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     await signOut();
@@ -37,6 +39,60 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     return location.pathname.startsWith(path);
   };
 
+  // Mobile: bottom navigation bar
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col">
+        {/* Mobile header */}
+        <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-card/90 backdrop-blur-xl px-3 safe-area-top">
+          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          <button onClick={() => navigate("/")} className="flex items-center gap-2">
+            <img src={logoImg} alt="HIVIUM" className="h-6 w-6 object-contain" />
+            <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
+          </button>
+          <div className="ml-auto flex items-center gap-1">
+            <div className="h-7 w-7 rounded-full bg-primary/12 flex items-center justify-center">
+              <Shield className="h-3.5 w-3.5 text-primary" />
+            </div>
+          </div>
+        </header>
+
+        {/* Main content — with bottom padding for nav */}
+        <main className="flex-1 min-w-0 pb-20">
+          <div className="p-3">{children}</div>
+        </main>
+
+        {/* Bottom navigation */}
+        <nav className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-card/95 backdrop-blur-xl safe-area-bottom">
+          <div className="flex overflow-x-auto scrollbar-hide snap-x snap-mandatory px-1 py-1.5 gap-0.5">
+            {navItems.map((item) => {
+              const active = isActive(item.path);
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => navigate(item.path)}
+                  className={`flex flex-col items-center justify-center min-w-[60px] min-h-[48px] rounded-lg px-2 py-1.5 snap-center transition-all ${
+                    active
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  <span className="text-lg leading-none">{item.icon}</span>
+                  <span className={`text-[9px] mt-0.5 whitespace-nowrap ${active ? "font-semibold" : "font-medium"}`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </nav>
+      </div>
+    );
+  }
+
+  // Desktop: sidebar layout
   return (
     <div className="min-h-screen bg-background flex">
       <aside
