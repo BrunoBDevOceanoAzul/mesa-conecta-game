@@ -618,66 +618,99 @@ export default function Admin() {
               </div>
             ) : (
               <div className="rounded-xl border border-border overflow-hidden">
-                <table className="w-full text-sm">
-                  <thead className="bg-muted/40">
-                    <tr>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">#</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground">Mestre</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden sm:table-cell">Início</th>
-                      <th className="text-left px-4 py-3 font-medium text-muted-foreground hidden md:table-cell">Expiração</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Usados/Mês</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Restantes</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
-                      <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {founders.map((f) => {
-                      const expired = f.founder_expires_at ? new Date(f.founder_expires_at) < new Date() : true;
-                      const remaining = expired ? 0 : Math.max(0, 2 - f.free_boosts_used_current_month);
-                      return (
-                        <tr key={f.user_id} className="hover:bg-muted/30 transition-colors">
-                          <td className="px-4 py-3 font-display font-bold text-secondary">{f.founder_rank || "—"}</td>
-                          <td className="px-4 py-3">
-                            <p className="font-medium text-foreground">{f.name || "—"}</p>
-                            <p className="text-[10px] text-muted-foreground">{f.email}</p>
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell text-xs">
-                            {f.founder_started_at ? new Date(f.founder_started_at).toLocaleDateString("pt-BR") : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-muted-foreground hidden md:table-cell text-xs">
-                            {f.founder_expires_at ? new Date(f.founder_expires_at).toLocaleDateString("pt-BR") : "—"}
-                          </td>
-                          <td className="px-4 py-3 text-center font-medium">{f.free_boosts_used_current_month}/2</td>
-                          <td className="px-4 py-3 text-center">
-                            <span className={`font-bold ${remaining > 0 ? "text-secondary" : "text-muted-foreground"}`}>{remaining}</span>
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            {expired ? (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
-                                <XCircle className="h-3 w-3" /> Expirado
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-500">
-                                <CheckCircle2 className="h-3 w-3" /> Ativo
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 text-center">
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-xs gap-1 text-destructive hover:text-destructive"
-                              onClick={() => toggleFounderStatus(f.user_id, true)}
-                            >
-                              <ToggleRight className="h-3.5 w-3.5" /> Desativar
-                            </Button>
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+                {/* Desktop */}
+                <div className="hidden md:block">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted/40">
+                      <tr>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">#</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Mestre</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Início</th>
+                        <th className="text-left px-4 py-3 font-medium text-muted-foreground">Expiração</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Usados/Mês</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Restantes</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Status</th>
+                        <th className="text-center px-4 py-3 font-medium text-muted-foreground">Ações</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {founders.map((f) => {
+                        const expired = f.founder_expires_at ? new Date(f.founder_expires_at) < new Date() : true;
+                        const remaining = expired ? 0 : Math.max(0, 2 - f.free_boosts_used_current_month);
+                        return (
+                          <tr key={f.user_id} className="hover:bg-muted/30 transition-colors">
+                            <td className="px-4 py-3 font-display font-bold text-secondary">{f.founder_rank || "—"}</td>
+                            <td className="px-4 py-3">
+                              <p className="font-medium text-foreground">{f.name || "—"}</p>
+                              <p className="text-[10px] text-muted-foreground">{f.email}</p>
+                            </td>
+                            <td className="px-4 py-3 text-muted-foreground text-xs">
+                              {f.founder_started_at ? new Date(f.founder_started_at).toLocaleDateString("pt-BR") : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-muted-foreground text-xs">
+                              {f.founder_expires_at ? new Date(f.founder_expires_at).toLocaleDateString("pt-BR") : "—"}
+                            </td>
+                            <td className="px-4 py-3 text-center font-medium">{f.free_boosts_used_current_month}/2</td>
+                            <td className="px-4 py-3 text-center">
+                              <span className={`font-bold ${remaining > 0 ? "text-secondary" : "text-muted-foreground"}`}>{remaining}</span>
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              {expired ? (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                                  <XCircle className="h-3 w-3" /> Expirado
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-500">
+                                  <CheckCircle2 className="h-3 w-3" /> Ativo
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 text-center">
+                              <Button variant="ghost" size="sm" className="text-xs gap-1 text-destructive hover:text-destructive" onClick={() => toggleFounderStatus(f.user_id, true)}>
+                                <ToggleRight className="h-3.5 w-3.5" /> Desativar
+                              </Button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                {/* Mobile card stack */}
+                <div className="md:hidden divide-y divide-border">
+                  {founders.map((f) => {
+                    const expired = f.founder_expires_at ? new Date(f.founder_expires_at) < new Date() : true;
+                    const remaining = expired ? 0 : Math.max(0, 2 - f.free_boosts_used_current_month);
+                    return (
+                      <div key={f.user_id} className="p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg font-display font-bold text-secondary">#{f.founder_rank || "—"}</span>
+                            <div>
+                              <p className="text-sm font-medium text-foreground">{f.name || "—"}</p>
+                              <p className="text-[10px] text-muted-foreground">{f.email}</p>
+                            </div>
+                          </div>
+                          {expired ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-muted-foreground">
+                              <XCircle className="h-3 w-3" /> Expirado
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-medium text-green-500">
+                              <CheckCircle2 className="h-3 w-3" /> Ativo
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span>Usados: {f.free_boosts_used_current_month}/2 · Restam: {remaining}</span>
+                          <Button variant="ghost" size="sm" className="text-[10px] h-8 min-w-[44px] text-destructive hover:text-destructive" onClick={() => toggleFounderStatus(f.user_id, true)}>
+                            <ToggleRight className="h-3.5 w-3.5" /> Desativar
+                          </Button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             )}
           </div>
