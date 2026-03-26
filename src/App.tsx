@@ -46,9 +46,18 @@ import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import CharacterSheets from "./pages/CharacterSheets";
 import CharacterSheetEdit from "./pages/CharacterSheetEdit";
 import ParaLojas from "./pages/ParaLojas";
+import ParaMarcas from "./pages/ParaMarcas";
 import QuemSomos from "./pages/QuemSomos";
 import Contato from "./pages/Contato";
 import Unsubscribe from "./pages/Unsubscribe";
+import EditProfile from "./pages/EditProfile";
+import Favorites from "./pages/Favorites";
+import MyBookings from "./pages/MyBookings";
+import AccountSettings from "./pages/AccountSettings";
+import Referral from "./pages/Referral";
+import HelpCenter from "./pages/HelpCenter";
+import PricingPage from "./pages/PricingPage";
+import FAQPage from "./pages/FAQPage";
 const queryClient = new QueryClient();
 
 const App = () => (
