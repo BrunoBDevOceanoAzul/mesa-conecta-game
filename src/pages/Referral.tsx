@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Gift, Copy, Check, Share2, Users, Trophy, Loader2 } from "lucide-react";
@@ -9,7 +10,37 @@ import { toast } from "sonner";
 export default function Referral() {
   const { user } = useAuth();
   const [copied, setCopied] = useState(false);
-  const code = user?.id?.slice(0, 8).toUpperCase() || "SOCIO123";
+  const [referral, setReferral] = useState<{ code: string; uses_count: number } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+    const init = async () => {
+      // Try to fetch existing code
+      const { data } = await supabase
+        .from("referral_codes")
+        .select("code, uses_count")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (data) {
+        setReferral(data);
+      } else {
+        // Create one
+        const code = user.id.slice(0, 8).toUpperCase();
+        const { data: newCode } = await supabase
+          .from("referral_codes")
+          .insert({ user_id: user.id, code })
+          .select("code, uses_count")
+          .single();
+        if (newCode) setReferral(newCode);
+      }
+      setLoading(false);
+    };
+    init();
+  }, [user]);
+
+  const code = referral?.code || "";
   const link = `${window.location.origin}/cadastro?ref=${code}`;
 
   const copyLink = () => {
@@ -21,15 +52,23 @@ export default function Referral() {
 
   const shareLink = async () => {
     if (navigator.share) {
-      await navigator.share({ title: "Sócio do Tabuleiro", text: "Junte-se à maior comunidade de RPG do Brasil!", url: link });
+      await navigator.share({ title: "HIVIUM", text: "Junte-se à maior comunidade tabletop do Brasil!", url: link });
     } else {
       copyLink();
     }
   };
 
   const navItems = [
-    { label: "Indicações", path: "/indicacoes", icon: <Gift className="h-4 w-4" /> },
+    { label: "Indicações", path: "/indicar", icon: <Gift className="h-4 w-4" /> },
   ];
+
+  if (loading) {
+    return (
+      <DashboardLayout role="player" navItems={navItems} userName={user?.user_metadata?.name || "Usuário"}>
+        <div className="flex justify-center py-20"><Loader2 className="h-6 w-6 animate-spin text-muted-foreground" /></div>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout role="player" navItems={navItems} userName={user?.user_metadata?.name || "Usuário"}>
@@ -40,7 +79,7 @@ export default function Referral() {
           </div>
           <h1 className="text-h2 text-foreground">Convide Amigos</h1>
           <p className="text-muted-foreground mt-2 max-w-md mx-auto">
-            Compartilhe seu código e ganhe recompensas quando seus amigos se cadastrarem na Sócio do Tabuleiro.
+            Compartilhe seu código e ganhe recompensas quando seus amigos se cadastrarem na HIVIUM.
           </p>
         </div>
 
@@ -59,11 +98,11 @@ export default function Referral() {
           </div>
         </div>
 
-        {/* Rewards */}
+        {/* Stats */}
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="rounded-xl border border-border bg-card p-5 text-center space-y-2">
             <Users className="h-6 w-6 text-primary mx-auto" />
-            <p className="text-2xl font-bold text-foreground">0</p>
+            <p className="text-2xl font-bold text-foreground">{referral?.uses_count || 0}</p>
             <p className="text-xs text-muted-foreground">Amigos convidados</p>
           </div>
           <div className="rounded-xl border border-border bg-card p-5 text-center space-y-2">
