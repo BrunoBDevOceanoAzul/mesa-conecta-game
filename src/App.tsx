@@ -97,6 +97,11 @@ const App = () => (
               <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/mensagens" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/agenda" element={<ProtectedRoute allowedRoles={["gm", "store"]}><Agenda /></ProtectedRoute>} />
+              <Route path="/editar-perfil" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+              <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+              <Route path="/minhas-reservas" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+              <Route path="/conta" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+              <Route path="/indicar" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/post/:slug" element={<PostDetail />} />
               <Route path="/explorar" element={<ExploreMesas />} />
