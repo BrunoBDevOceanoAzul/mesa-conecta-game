@@ -372,7 +372,7 @@ export function StoreManager() {
       gm_id: detailStore.owner_id,
       gm_name: detailStore.name,
       organizer_name: detailStore.name,
-      store_id: detailStore.id,
+      store_id: detailStore.owner_id, // store_id = owner's user_id (convention)
       board_game_id: mesaForm.board_game_id || null,
       status: "aberta",
       tags: ["boardgame"],
