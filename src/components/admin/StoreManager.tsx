@@ -396,7 +396,7 @@ export function StoreManager() {
       setExpandedStore(null);
     } else {
       setExpandedStore(store.id);
-      fetchStoreMesas(store.id);
+      fetchStoreMesas(store.owner_id);
     }
   };
 
