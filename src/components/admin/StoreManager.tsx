@@ -136,12 +136,12 @@ export function StoreManager() {
 
   useEffect(() => { fetchStores(); }, [fetchStores]);
 
-  const fetchStoreMesas = useCallback(async (storeId: string) => {
+  const fetchStoreMesas = useCallback(async (storeOwnerId: string) => {
     setMesasLoading(true);
     const { data } = await supabase
       .from("mesas")
       .select("id, title, system, mesa_type, session_type, format, status, start_at, end_at, seats_total, seats_available, min_price, city, store_id")
-      .eq("store_id", storeId)
+      .eq("store_id", storeOwnerId)
       .order("start_at", { ascending: false })
       .limit(50);
     setStoreMesas((data as MesaRow[]) || []);
