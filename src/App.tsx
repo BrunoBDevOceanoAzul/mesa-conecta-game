@@ -46,9 +46,18 @@ import MesaCharacterSheet from "./pages/MesaCharacterSheet";
 import CharacterSheets from "./pages/CharacterSheets";
 import CharacterSheetEdit from "./pages/CharacterSheetEdit";
 import ParaLojas from "./pages/ParaLojas";
+import ParaMarcas from "./pages/ParaMarcas";
 import QuemSomos from "./pages/QuemSomos";
 import Contato from "./pages/Contato";
 import Unsubscribe from "./pages/Unsubscribe";
+import EditProfile from "./pages/EditProfile";
+import Favorites from "./pages/Favorites";
+import MyBookings from "./pages/MyBookings";
+import AccountSettings from "./pages/AccountSettings";
+import Referral from "./pages/Referral";
+import HelpCenter from "./pages/HelpCenter";
+import PricingPage from "./pages/PricingPage";
+import FAQPage from "./pages/FAQPage";
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -73,6 +82,10 @@ const App = () => (
               <Route path="/quem-somos" element={<QuemSomos />} />
               <Route path="/contato" element={<Contato />} />
               <Route path="/unsubscribe" element={<Unsubscribe />} />
+              <Route path="/para-marcas" element={<ParaMarcas />} />
+              <Route path="/precos" element={<PricingPage />} />
+              <Route path="/faq" element={<FAQPage />} />
+              <Route path="/ajuda" element={<HelpCenter />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
@@ -84,6 +97,11 @@ const App = () => (
               <Route path="/notificacoes" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/mensagens" element={<ProtectedRoute><Messages /></ProtectedRoute>} />
               <Route path="/agenda" element={<ProtectedRoute allowedRoles={["gm", "store"]}><Agenda /></ProtectedRoute>} />
+              <Route path="/editar-perfil" element={<ProtectedRoute><EditProfile /></ProtectedRoute>} />
+              <Route path="/favoritos" element={<ProtectedRoute><Favorites /></ProtectedRoute>} />
+              <Route path="/minhas-reservas" element={<ProtectedRoute><MyBookings /></ProtectedRoute>} />
+              <Route path="/conta" element={<ProtectedRoute><AccountSettings /></ProtectedRoute>} />
+              <Route path="/indicar" element={<ProtectedRoute><Referral /></ProtectedRoute>} />
               <Route path="/feed" element={<Feed />} />
               <Route path="/post/:slug" element={<PostDetail />} />
               <Route path="/explorar" element={<ExploreMesas />} />

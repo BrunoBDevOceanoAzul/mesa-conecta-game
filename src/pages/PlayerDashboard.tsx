@@ -22,9 +22,9 @@ import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 const navItems = [
   { label: "Início", path: "/dashboard/jogador", icon: <Gamepad2 className="h-4 w-4" /> },
   { label: "Explorar", path: "/explorar", icon: <Compass className="h-4 w-4" /> },
-  { label: "Minhas Reservas", path: "/dashboard/jogador", icon: <Calendar className="h-4 w-4" /> },
+  { label: "Minhas Reservas", path: "/minhas-reservas", icon: <Calendar className="h-4 w-4" /> },
   { label: "Assinatura", path: "/billing", icon: <CreditCard className="h-4 w-4" /> },
-  { label: "Favoritos", path: "/dashboard/jogador", icon: <Heart className="h-4 w-4" /> },
+  { label: "Favoritos", path: "/favoritos", icon: <Heart className="h-4 w-4" /> },
   { label: "Feed", path: "/feed", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 

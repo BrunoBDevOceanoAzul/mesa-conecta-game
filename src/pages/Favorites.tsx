@@ -6,6 +6,7 @@ import { Heart, Gamepad2, Compass, Calendar, CreditCard, BarChart3, Loader2, Tra
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 
 const navItems = [
   { label: "Início", path: "/dashboard/jogador", icon: <Gamepad2 className="h-4 w-4" /> },
@@ -22,25 +23,32 @@ export default function Favorites() {
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchFavorites = async () => {
     if (!user) return;
-    // Favorites table may not exist yet - gracefully handle
-    supabase
-      .from("bookings")
-      .select("*, mesas:game_table_id(id, title, system, city, min_price, max_price, seats_total, seats_available, gm_name, start_at, image_url, format, session_type, tags, play_styles, status)")
-      .eq("player_user_id", user.id)
-      .eq("status", "confirmed")
-      .order("created_at", { ascending: false })
-      .limit(20)
-      .then(({ data }) => { setFavorites(data || []); setLoading(false); });
-  }, [user]);
+    setLoading(true);
+    const { data } = await supabase
+      .from("favorites")
+      .select("id, mesa_id, created_at, mesas:mesa_id(id, title, system, city, min_price, max_price, seats_total, seats_available, gm_name, start_at, image_url, format, session_type, tags, play_styles, status)")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false });
+    setFavorites(data || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchFavorites(); }, [user]);
+
+  const removeFavorite = async (favId: string) => {
+    await supabase.from("favorites").delete().eq("id", favId);
+    setFavorites((prev) => prev.filter((f) => f.id !== favId));
+    toast.success("Removido dos favoritos");
+  };
 
   return (
     <DashboardLayout role="player" navItems={navItems} userName={user?.user_metadata?.name || "Jogador"}>
       <div className="space-y-6">
         <div>
           <h1 className="text-h2 text-foreground flex items-center gap-2"><Heart className="h-6 w-6 text-primary" /> Meus Favoritos</h1>
-          <p className="text-sm text-muted-foreground mt-1">Mesas e mestres que você salvou</p>
+          <p className="text-sm text-muted-foreground mt-1">Mesas que você salvou para acompanhar</p>
         </div>
 
         {loading ? (
@@ -59,7 +67,19 @@ export default function Favorites() {
             {favorites.map((fav) => {
               const m = fav.mesas;
               if (!m) return null;
-              return <MesaCard key={fav.id} mesa={m} />;
+              return (
+                <div key={fav.id} className="relative group">
+                  <MesaCard mesa={m} />
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm h-8 w-8"
+                    onClick={() => removeFavorite(fav.id)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 text-destructive" />
+                  </Button>
+                </div>
+              );
             })}
           </div>
         )}
