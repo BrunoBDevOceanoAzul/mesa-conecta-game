@@ -136,12 +136,12 @@ export function StoreManager() {
 
   useEffect(() => { fetchStores(); }, [fetchStores]);
 
-  const fetchStoreMesas = useCallback(async (storeId: string) => {
+  const fetchStoreMesas = useCallback(async (storeOwnerId: string) => {
     setMesasLoading(true);
     const { data } = await supabase
       .from("mesas")
       .select("id, title, system, mesa_type, session_type, format, status, start_at, end_at, seats_total, seats_available, min_price, city, store_id")
-      .eq("store_id", storeId)
+      .eq("store_id", storeOwnerId)
       .order("start_at", { ascending: false })
       .limit(50);
     setStoreMesas((data as MesaRow[]) || []);
@@ -372,7 +372,7 @@ export function StoreManager() {
       gm_id: detailStore.owner_id,
       gm_name: detailStore.name,
       organizer_name: detailStore.name,
-      store_id: detailStore.id,
+      store_id: detailStore.owner_id, // store_id = owner's user_id (convention)
       board_game_id: mesaForm.board_game_id || null,
       status: "aberta",
       tags: ["boardgame"],
@@ -386,7 +386,7 @@ export function StoreManager() {
     } else {
       toast({ title: "Mesa criada!", description: `"${mesaForm.title}" na ${detailStore.name}` });
       setMesaDialogOpen(false);
-      if (expandedStore === detailStore.id) fetchStoreMesas(detailStore.id);
+      if (expandedStore === detailStore.id) fetchStoreMesas(detailStore.owner_id);
     }
     setMesaSaving(false);
   };
@@ -396,7 +396,7 @@ export function StoreManager() {
       setExpandedStore(null);
     } else {
       setExpandedStore(store.id);
-      fetchStoreMesas(store.id);
+      fetchStoreMesas(store.owner_id);
     }
   };
 
