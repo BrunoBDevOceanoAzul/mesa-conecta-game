@@ -25,6 +25,7 @@ export default function AdminPainel() {
     { key: "bookings", label: "Reservas", icon: <Ticket className="h-4 w-4" /> },
     { key: "mesas", label: "Mesas", icon: <Gamepad2 className="h-4 w-4" /> },
     { key: "stores", label: "Luderias", icon: <Store className="h-4 w-4" /> },
+    { key: "cart", label: "Carrinho", icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "gamification", label: "Gamificação", icon: <Trophy className="h-4 w-4" /> },
     { key: "coupons", label: "Cupons", icon: <Gift className="h-4 w-4" /> },
     { key: "golive", label: "Go-Live", icon: <CheckCircle2 className="h-4 w-4" /> },
