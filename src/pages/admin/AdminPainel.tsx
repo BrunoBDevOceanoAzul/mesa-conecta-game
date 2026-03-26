@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon, FileText } from "lucide-react";
+import { Shield, Trophy, Gift, CheckCircle2, Lightbulb, ShoppingCart, Ticket, Gamepad2, LifeBuoy, Ban, Users, ImageIcon, FileText, Store } from "lucide-react";
 import { InsightsDashboard } from "@/components/admin/InsightsDashboard";
 import { GamificationConfig } from "@/components/admin/GamificationConfig";
 import { CouponManager } from "@/components/admin/CouponManager";
@@ -12,9 +12,10 @@ import { BlocklistManager } from "@/components/admin/BlocklistManager";
 import { AmbassadorManager } from "@/components/admin/AmbassadorManager";
 import { SiteImageManager } from "@/components/admin/SiteImageManager";
 import { SiteContentManager } from "@/components/admin/SiteContentManager";
+import { StoreManager } from "@/components/admin/StoreManager";
 import AdminLayout from "./AdminLayout";
 
-type SubTab = "insights" | "bookings" | "mesas" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images" | "content";
+type SubTab = "insights" | "bookings" | "mesas" | "stores" | "gamification" | "coupons" | "golive" | "cart" | "tickets" | "blocklist" | "ambassadors" | "images" | "content";
 
 export default function AdminPainel() {
   const [subTab, setSubTab] = useState<SubTab>("insights");
@@ -23,6 +24,7 @@ export default function AdminPainel() {
     { key: "insights", label: "Inteligência", icon: <Lightbulb className="h-4 w-4" /> },
     { key: "bookings", label: "Reservas", icon: <Ticket className="h-4 w-4" /> },
     { key: "mesas", label: "Mesas", icon: <Gamepad2 className="h-4 w-4" /> },
+    { key: "stores", label: "Luderias", icon: <Store className="h-4 w-4" /> },
     { key: "cart", label: "Carrinho", icon: <ShoppingCart className="h-4 w-4" /> },
     { key: "gamification", label: "Gamificação", icon: <Trophy className="h-4 w-4" /> },
     { key: "coupons", label: "Cupons", icon: <Gift className="h-4 w-4" /> },
@@ -72,6 +74,7 @@ export default function AdminPainel() {
         {subTab === "insights" && <InsightsDashboard />}
         {subTab === "bookings" && <BookingManagement />}
         {subTab === "mesas" && <MesaManagement />}
+        {subTab === "stores" && <StoreManager />}
         {subTab === "cart" && <CartAbandonmentDashboard />}
         {subTab === "gamification" && <GamificationConfig />}
         {subTab === "coupons" && <CouponManager />}
