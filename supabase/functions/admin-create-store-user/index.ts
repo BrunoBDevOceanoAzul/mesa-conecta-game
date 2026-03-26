@@ -79,12 +79,13 @@ serve(async (req) => {
 
     logStep("Profile upserted");
 
-    // 3. Create store record
+    // 3. Create store record with id = userId for FK consistency
     const autoSlug = slug?.trim() || store_name.trim().toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
     const { data: store, error: storeError } = await supabase.from("stores").insert({
+      id: userId, // Match store.id to user.id for mesa store_id FK
       name: store_name.trim(),
       slug: autoSlug,
       owner_id: userId,
