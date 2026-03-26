@@ -386,7 +386,7 @@ export function StoreManager() {
     } else {
       toast({ title: "Mesa criada!", description: `"${mesaForm.title}" na ${detailStore.name}` });
       setMesaDialogOpen(false);
-      if (expandedStore === detailStore.id) fetchStoreMesas(detailStore.id);
+      if (expandedStore === detailStore.id) fetchStoreMesas(detailStore.owner_id);
     }
     setMesaSaving(false);
   };
