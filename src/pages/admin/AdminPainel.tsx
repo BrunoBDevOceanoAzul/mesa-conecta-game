@@ -73,6 +73,7 @@ export default function AdminPainel() {
         {subTab === "insights" && <InsightsDashboard />}
         {subTab === "bookings" && <BookingManagement />}
         {subTab === "mesas" && <MesaManagement />}
+        {subTab === "stores" && <StoreManager />}
         {subTab === "cart" && <CartAbandonmentDashboard />}
         {subTab === "gamification" && <GamificationConfig />}
         {subTab === "coupons" && <CouponManager />}
