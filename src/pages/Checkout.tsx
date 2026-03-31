@@ -728,6 +728,83 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* PIX Payment Modal */}
+      <Dialog open={pixModal.open} onOpenChange={(open) => {
+        if (!open) {
+          setPixModal((prev) => ({ ...prev, open: false }));
+          toast({ title: "Assinatura criada!", description: "Efetue o pagamento via PIX para ativar." });
+          navigate("/billing?checkout=pending");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5 text-primary" />
+              Pague via PIX
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center space-y-1">
+              <p className="text-sm text-muted-foreground">{pixModal.planName}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {formatBRL(pixModal.amountCents)}
+              </p>
+            </div>
+
+            {pixModal.qrCode && (
+              <div className="flex justify-center">
+                <div className="bg-white p-3 rounded-xl border">
+                  <img
+                    src={`data:image/png;base64,${pixModal.qrCode}`}
+                    alt="QR Code PIX"
+                    className="w-48 h-48"
+                  />
+                </div>
+              </div>
+            )}
+
+            {pixModal.copyPaste && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground text-center">Ou copie o código PIX:</p>
+                <div className="flex gap-2">
+                  <input
+                    readOnly
+                    value={pixModal.copyPaste}
+                    className="flex-1 text-xs bg-muted rounded-lg px-3 py-2 font-mono truncate border border-border"
+                  />
+                  <Button size="sm" variant="outline" onClick={handleCopyPix} className="shrink-0 gap-1.5">
+                    {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Copiado" : "Copiar"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {pixModal.expiration && (
+              <p className="text-xs text-muted-foreground text-center">
+                Expira em: {new Date(pixModal.expiration).toLocaleString("pt-BR")}
+              </p>
+            )}
+
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-xs text-muted-foreground text-center">
+              <Shield className="h-4 w-4 text-primary inline mr-1" />
+              Após o pagamento, sua assinatura será ativada automaticamente.
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setPixModal((prev) => ({ ...prev, open: false }));
+                navigate("/billing?checkout=pending");
+              }}
+            >
+              Já paguei — ir para Faturamento
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
