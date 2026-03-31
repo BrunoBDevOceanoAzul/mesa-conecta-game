@@ -6,10 +6,11 @@ import { usePrivileges } from "@/hooks/use-privileges";
 import { CouponInput } from "@/components/checkout/CouponInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, ArrowRight, CreditCard, Crown, Gamepad2, Loader2,
-  Lock, Shield, Sparkles, Store, Check, Zap, Calendar
+  Lock, Shield, Sparkles, Store, Check, Zap, Calendar, Copy, QrCode, CheckCircle2
 } from "lucide-react";
 
 /* ─── Types ─── */
@@ -123,6 +124,15 @@ export default function Checkout() {
     (searchParams.get("interval") as BillingInterval) || "monthly"
   );
   const [coupon, setCoupon] = useState<ValidatedCoupon | null>(null);
+  const [pixModal, setPixModal] = useState<{
+    open: boolean;
+    qrCode: string | null;
+    copyPaste: string | null;
+    expiration: string | null;
+    planName: string;
+    amountCents: number;
+  }>({ open: false, qrCode: null, copyPaste: null, expiration: null, planName: "", amountCents: 0 });
+  const [copied, setCopied] = useState(false);
 
   // Check if user has any bookings (first mesa = free)
   useEffect(() => {
@@ -306,6 +316,7 @@ export default function Checkout() {
       const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: {
           plan_code: resolvedPlan.code,
+          billing_type: "PIX",
           coupon_code: coupon?.public_code || undefined,
         },
       });
@@ -320,7 +331,7 @@ export default function Checkout() {
           "Erro ao processar assinatura";
 
         if (errorCode === "ASAAS_IP_NOT_ALLOWED") {
-          throw new Error("Pagamentos temporariamente indisponíveis: o provedor bloqueou o IP da integração. Ajuste a liberação de IP no painel do Asaas para concluir assinaturas.");
+          throw new Error("Pagamentos temporariamente indisponíveis. Tente novamente em instantes.");
         }
 
         throw new Error(message);
@@ -335,6 +346,23 @@ export default function Checkout() {
         throw new Error(message);
       }
 
+      const result = data as Record<string, unknown>;
+
+      // If we got PIX data, show the QR code modal
+      if (result.pix_qr_code || result.pix_copy_paste) {
+        setPixModal({
+          open: true,
+          qrCode: (result.pix_qr_code as string) || null,
+          copyPaste: (result.pix_copy_paste as string) || null,
+          expiration: (result.pix_expiration as string) || null,
+          planName: (result.plan_name as string) || resolvedPlan.name,
+          amountCents: (result.amount_cents as number) || resolvedPlan.price_monthly,
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // No PIX data (e.g. credit card) — go to billing
       toast({
         title: "Assinatura criada! 🎉",
         description: "Sua assinatura foi processada. Confira os detalhes em Faturamento.",
@@ -345,6 +373,14 @@ export default function Checkout() {
       toast({ title: "Erro no checkout", description: msg, variant: "destructive" });
       setSubmitting(false);
     }
+  }
+
+  function handleCopyPix() {
+    if (!pixModal.copyPaste) return;
+    navigator.clipboard.writeText(pixModal.copyPaste);
+    setCopied(true);
+    toast({ title: "Copiado!", description: "Código PIX copiado para a área de transferência." });
+    setTimeout(() => setCopied(false), 3000);
   }
 
   // Canceled return
@@ -692,6 +728,83 @@ export default function Checkout() {
           </div>
         </div>
       </div>
+
+      {/* PIX Payment Modal */}
+      <Dialog open={pixModal.open} onOpenChange={(open) => {
+        if (!open) {
+          setPixModal((prev) => ({ ...prev, open: false }));
+          toast({ title: "Assinatura criada!", description: "Efetue o pagamento via PIX para ativar." });
+          navigate("/billing?checkout=pending");
+        }
+      }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <QrCode className="h-5 w-5 text-primary" />
+              Pague via PIX
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="text-center space-y-1">
+              <p className="text-sm text-muted-foreground">{pixModal.planName}</p>
+              <p className="text-2xl font-bold text-foreground">
+                {formatBRL(pixModal.amountCents)}
+              </p>
+            </div>
+
+            {pixModal.qrCode && (
+              <div className="flex justify-center">
+                <div className="bg-white p-3 rounded-xl border">
+                  <img
+                    src={`data:image/png;base64,${pixModal.qrCode}`}
+                    alt="QR Code PIX"
+                    className="w-48 h-48"
+                  />
+                </div>
+              </div>
+            )}
+
+            {pixModal.copyPaste && (
+              <div className="space-y-2">
+                <p className="text-xs text-muted-foreground text-center">Ou copie o código PIX:</p>
+                <div className="flex gap-2">
+                  <input
+                    readOnly
+                    value={pixModal.copyPaste}
+                    className="flex-1 text-xs bg-muted rounded-lg px-3 py-2 font-mono truncate border border-border"
+                  />
+                  <Button size="sm" variant="outline" onClick={handleCopyPix} className="shrink-0 gap-1.5">
+                    {copied ? <CheckCircle2 className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
+                    {copied ? "Copiado" : "Copiar"}
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {pixModal.expiration && (
+              <p className="text-xs text-muted-foreground text-center">
+                Expira em: {new Date(pixModal.expiration).toLocaleString("pt-BR")}
+              </p>
+            )}
+
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-3 text-xs text-muted-foreground text-center">
+              <Shield className="h-4 w-4 text-primary inline mr-1" />
+              Após o pagamento, sua assinatura será ativada automaticamente.
+            </div>
+
+            <Button
+              variant="outline"
+              className="w-full"
+              onClick={() => {
+                setPixModal((prev) => ({ ...prev, open: false }));
+                navigate("/billing?checkout=pending");
+              }}
+            >
+              Já paguei — ir para Faturamento
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
