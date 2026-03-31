@@ -11,13 +11,39 @@ const log = (step: string, details?: unknown) =>
 
 const PLATFORM_SPLIT_PERCENT = 5;
 
-/** Strip formatting and validate CPF (11) or CNPJ (14) length */
+/** Strip formatting and validate CPF (11) or CNPJ (14) with digit check */
 function normalizeCpfCnpj(raw: string | null | undefined): string | null {
   if (!raw) return null;
   const digits = raw.replace(/[.\-\/\s]/g, "");
   if (digits.length !== 11 && digits.length !== 14) return null;
-  if (/^0+$/.test(digits)) return null;
-  return digits;
+  if (/^(\d)\1+$/.test(digits)) return null; // all same digit
+  if (digits.length === 11) return isValidCpf(digits) ? digits : null;
+  if (digits.length === 14) return isValidCnpj(digits) ? digits : null;
+  return null;
+}
+
+function isValidCpf(cpf: string): boolean {
+  const nums = cpf.split("").map(Number);
+  const calc = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += nums[i] * (len + 1 - i);
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(9) === nums[9] && calc(10) === nums[10];
+}
+
+function isValidCnpj(cnpj: string): boolean {
+  const nums = cnpj.split("").map(Number);
+  const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+  const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+  const calc = (w: number[]) => {
+    let sum = 0;
+    for (let i = 0; i < w.length; i++) sum += nums[i] * w[i];
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(w1) === nums[12] && calc(w2) === nums[13];
 }
 
 serve(async (req) => {
@@ -92,7 +118,7 @@ serve(async (req) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name, name, cpf, mobile_phone")
+      .select("display_name, name, mobile_phone")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -102,18 +128,17 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    // 1. asaas_customers → 2. billing_profiles → 3. profiles
+    // 1. asaas_customers → 2. billing_profiles
     const cpfCnpj =
       normalizeCpfCnpj(playerCustomer?.cpf_cnpj) ??
       normalizeCpfCnpj(billingProfile?.tax_document) ??
-      normalizeCpfCnpj(profile?.cpf) ??
       null;
 
     log("CPF/CNPJ resolution", {
       fromCustomer: !!normalizeCpfCnpj(playerCustomer?.cpf_cnpj),
       fromBilling: !!normalizeCpfCnpj(billingProfile?.tax_document),
-      fromProfile: !!normalizeCpfCnpj(profile?.cpf),
       resolved: !!cpfCnpj,
+      rawBillingDoc: billingProfile?.tax_document || null,
     });
 
     const customerName =
@@ -127,13 +152,16 @@ serve(async (req) => {
     const customerEmail = billingProfile?.billing_email || user.email;
     const customerPhone = billingProfile?.billing_phone || profile?.mobile_phone || null;
 
-    // ── If CPF/CNPJ is still missing, return structured error ────────
+    // ── If CPF/CNPJ is missing or invalid, return structured error ────
     if (!cpfCnpj) {
-      log("BLOCKED — CPF/CNPJ missing after full cascade");
+      const hasRawDoc = !!(billingProfile?.tax_document || playerCustomer?.cpf_cnpj);
+      log("BLOCKED — CPF/CNPJ invalid or missing", { hasRawDoc });
       return new Response(JSON.stringify({
-        error: "missing_cpf_cnpj",
+        error: hasRawDoc ? "invalid_cpf_cnpj" : "missing_cpf_cnpj",
         error_code: "MISSING_CPF_CNPJ",
-        message: "Para concluir o pagamento, precisamos do seu CPF ou CNPJ.",
+        message: hasRawDoc
+          ? "O CPF ou CNPJ cadastrado é inválido. Por favor, corrija o dado."
+          : "Para concluir o pagamento, precisamos do seu CPF ou CNPJ.",
         details: "Esse dado é exigido pela operadora de pagamento. Você só precisa preencher uma vez.",
         missing_fields: ["cpf_cnpj"],
       }), {
