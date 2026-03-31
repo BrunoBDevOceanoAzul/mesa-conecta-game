@@ -152,13 +152,16 @@ serve(async (req) => {
     const customerEmail = billingProfile?.billing_email || user.email;
     const customerPhone = billingProfile?.billing_phone || profile?.mobile_phone || null;
 
-    // ── If CPF/CNPJ is still missing, return structured error ────────
+    // ── If CPF/CNPJ is missing or invalid, return structured error ────
     if (!cpfCnpj) {
-      log("BLOCKED — CPF/CNPJ missing after full cascade");
+      const hasRawDoc = !!(billingProfile?.tax_document || playerCustomer?.cpf_cnpj);
+      log("BLOCKED — CPF/CNPJ invalid or missing", { hasRawDoc });
       return new Response(JSON.stringify({
-        error: "missing_cpf_cnpj",
+        error: hasRawDoc ? "invalid_cpf_cnpj" : "missing_cpf_cnpj",
         error_code: "MISSING_CPF_CNPJ",
-        message: "Para concluir o pagamento, precisamos do seu CPF ou CNPJ.",
+        message: hasRawDoc
+          ? "O CPF ou CNPJ cadastrado é inválido. Por favor, corrija o dado."
+          : "Para concluir o pagamento, precisamos do seu CPF ou CNPJ.",
         details: "Esse dado é exigido pela operadora de pagamento. Você só precisa preencher uma vez.",
         missing_fields: ["cpf_cnpj"],
       }), {
