@@ -9,6 +9,15 @@ const corsHeaders = {
 const log = (step: string, details?: unknown) =>
   console.log(`[ASAAS-SUBSCRIPTION] ${step}${details ? ` - ${JSON.stringify(details)}` : ""}`);
 
+const parseAsaasError = (raw: string): { code?: string; description?: string } | null => {
+  try {
+    const parsed = JSON.parse(raw) as { errors?: Array<{ code?: string; description?: string }> };
+    return parsed?.errors?.[0] ?? null;
+  } catch {
+    return null;
+  }
+};
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -110,6 +119,19 @@ serve(async (req) => {
     if (!asaasRes.ok) {
       const errBody = await asaasRes.text();
       log("Asaas API error", { status: asaasRes.status, body: errBody });
+
+      const asaasError = parseAsaasError(errBody);
+      if (asaasError?.code === "not_allowed_ip") {
+        return new Response(JSON.stringify({
+          error: "Integração de pagamentos temporariamente indisponível.",
+          error_code: "ASAAS_IP_NOT_ALLOWED",
+          message: "A API de pagamentos está bloqueada por IP no provedor. Libere o acesso em Configurações > Integrações no Asaas para concluir assinaturas.",
+        }), {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       throw new Error(`Asaas API error: ${asaasRes.status} - ${errBody}`);
     }
 
@@ -165,8 +187,11 @@ serve(async (req) => {
   } catch (error) {
     const msg = error instanceof Error ? error.message : String(error);
     log("ERROR", { message: msg });
+    const status = msg.includes("plan_code is required") || msg.includes("No authorization header") || msg.includes("Authentication failed")
+      ? 400
+      : 500;
     return new Response(JSON.stringify({ error: msg }), {
-      status: 400,
+      status,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }

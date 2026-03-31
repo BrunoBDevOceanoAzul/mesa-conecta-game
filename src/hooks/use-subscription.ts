@@ -230,7 +230,28 @@ export function useSubscription(): SubscriptionState {
       const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: { plan_code: planCode },
       });
-      if (error) throw error;
+
+      if (error) {
+        const errorBody = (data && typeof data === "object") ? (data as Record<string, unknown>) : {};
+        const message =
+          (typeof errorBody.message === "string" && errorBody.message) ||
+          (typeof errorBody.error === "string" && errorBody.error) ||
+          error.message ||
+          "Erro ao criar assinatura";
+
+        console.error("Asaas subscription error:", {
+          message,
+          errorCode: errorBody.error_code,
+          rawError: error,
+        });
+        return false;
+      }
+
+      if (data && typeof data === "object" && "error" in data) {
+        console.error("Asaas subscription error:", data);
+        return false;
+      }
+
       // Refresh after creation
       await fetchData();
       return true;
