@@ -310,7 +310,30 @@ export default function Checkout() {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        const errorBody = (data && typeof data === "object") ? (data as Record<string, unknown>) : {};
+        const errorCode = typeof errorBody.error_code === "string" ? errorBody.error_code : "";
+        const message =
+          (typeof errorBody.message === "string" && errorBody.message) ||
+          (typeof errorBody.error === "string" && errorBody.error) ||
+          error.message ||
+          "Erro ao processar assinatura";
+
+        if (errorCode === "ASAAS_IP_NOT_ALLOWED") {
+          throw new Error("Pagamentos temporariamente indisponíveis: o provedor bloqueou o IP da integração. Ajuste a liberação de IP no painel do Asaas para concluir assinaturas.");
+        }
+
+        throw new Error(message);
+      }
+
+      if (data && typeof data === "object" && "error" in data) {
+        const payload = data as Record<string, unknown>;
+        const message =
+          (typeof payload.message === "string" && payload.message) ||
+          (typeof payload.error === "string" && payload.error) ||
+          "Erro ao processar assinatura";
+        throw new Error(message);
+      }
 
       toast({
         title: "Assinatura criada! 🎉",
