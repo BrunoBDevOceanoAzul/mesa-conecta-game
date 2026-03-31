@@ -11,13 +11,39 @@ const log = (step: string, details?: unknown) =>
 
 const PLATFORM_SPLIT_PERCENT = 5;
 
-/** Strip formatting and validate CPF (11) or CNPJ (14) length */
+/** Strip formatting and validate CPF (11) or CNPJ (14) with digit check */
 function normalizeCpfCnpj(raw: string | null | undefined): string | null {
   if (!raw) return null;
   const digits = raw.replace(/[.\-\/\s]/g, "");
   if (digits.length !== 11 && digits.length !== 14) return null;
-  if (/^0+$/.test(digits)) return null;
-  return digits;
+  if (/^(\d)\1+$/.test(digits)) return null; // all same digit
+  if (digits.length === 11) return isValidCpf(digits) ? digits : null;
+  if (digits.length === 14) return isValidCnpj(digits) ? digits : null;
+  return null;
+}
+
+function isValidCpf(cpf: string): boolean {
+  const nums = cpf.split("").map(Number);
+  const calc = (len: number) => {
+    let sum = 0;
+    for (let i = 0; i < len; i++) sum += nums[i] * (len + 1 - i);
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(9) === nums[9] && calc(10) === nums[10];
+}
+
+function isValidCnpj(cnpj: string): boolean {
+  const nums = cnpj.split("").map(Number);
+  const w1 = [5,4,3,2,9,8,7,6,5,4,3,2];
+  const w2 = [6,5,4,3,2,9,8,7,6,5,4,3,2];
+  const calc = (w: number[]) => {
+    let sum = 0;
+    for (let i = 0; i < w.length; i++) sum += nums[i] * w[i];
+    const r = sum % 11;
+    return r < 2 ? 0 : 11 - r;
+  };
+  return calc(w1) === nums[12] && calc(w2) === nums[13];
 }
 
 serve(async (req) => {
