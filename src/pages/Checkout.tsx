@@ -124,6 +124,15 @@ export default function Checkout() {
     (searchParams.get("interval") as BillingInterval) || "monthly"
   );
   const [coupon, setCoupon] = useState<ValidatedCoupon | null>(null);
+  const [pixModal, setPixModal] = useState<{
+    open: boolean;
+    qrCode: string | null;
+    copyPaste: string | null;
+    expiration: string | null;
+    planName: string;
+    amountCents: number;
+  }>({ open: false, qrCode: null, copyPaste: null, expiration: null, planName: "", amountCents: 0 });
+  const [copied, setCopied] = useState(false);
 
   // Check if user has any bookings (first mesa = free)
   useEffect(() => {
