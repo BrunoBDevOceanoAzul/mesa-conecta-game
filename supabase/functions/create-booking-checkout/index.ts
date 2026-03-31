@@ -265,52 +265,95 @@ serve(async (req) => {
 
     log("Split calculated", { total: amount, platform: platformAmount, gm: gmAmount, store: storeAmount });
 
-    // ── Create Asaas payment ─────────────────────────────────────────
+    // ── Create Asaas payment (with auto-recreation on invalid_customer) ──
     const dueDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
-    const asaasPayload: Record<string, unknown> = {
-      customer: playerCustomer.asaas_id,
-      billingType: billing_type,
-      value: amount,
-      dueDate,
-      description: `Reserva: ${mesa.title || "Mesa RPG"} - HIVIUM`,
-      externalReference: `booking:${booking.id}`,
+    const buildPayload = (customerId: string) => {
+      const payload: Record<string, unknown> = {
+        customer: customerId,
+        billingType: billing_type,
+        value: amount,
+        dueDate,
+        description: `Reserva: ${mesa.title || "Mesa RPG"} - HIVIUM`,
+        externalReference: `booking:${booking.id}`,
+      };
+      if (splitRules.length > 0) payload.split = splitRules;
+      return payload;
     };
 
-    if (splitRules.length > 0) {
-      asaasPayload.split = splitRules;
-    }
-
-    const asaasRes = await fetch(`${ASAAS_BASE}/payments`, {
+    let asaasRes = await fetch(`${ASAAS_BASE}/payments`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "access_token": apiKey },
-      body: JSON.stringify(asaasPayload),
+      body: JSON.stringify(buildPayload(playerCustomer.asaas_id)),
     });
 
+    // If customer is invalid (e.g. sandbox ID), re-create in production and retry
     if (!asaasRes.ok) {
       const errBody = await asaasRes.text();
+      let asaasErrorCode: string | null = null;
+      try {
+        const parsed = JSON.parse(errBody);
+        asaasErrorCode = parsed?.errors?.[0]?.code ?? null;
+      } catch { /* ignore */ }
 
+      if (asaasErrorCode === "invalid_customer") {
+        log("Invalid customer detected, re-creating in Asaas production", { oldId: playerCustomer.asaas_id });
+
+        const createBody: Record<string, unknown> = {
+          name: customerName,
+          email: customerEmail,
+          cpfCnpj: cpfCnpj,
+          externalReference: user.id,
+          notificationDisabled: true,
+        };
+        if (customerPhone) createBody.mobilePhone = customerPhone;
+
+        const recreateRes = await fetch(`${ASAAS_BASE}/customers`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "access_token": apiKey },
+          body: JSON.stringify(createBody),
+        });
+
+        if (!recreateRes.ok) {
+          const recreateErr = await recreateRes.text();
+          log("Customer re-creation failed", { status: recreateRes.status, body: recreateErr });
+          await supabase.from("bookings").update({ status: "canceled", payment_status: "failed" }).eq("id", booking.id);
+          throw new Error("Falha ao recriar perfil de pagamento. Tente novamente.");
+        }
+
+        const newCust = await recreateRes.json();
+        log("Customer re-created in production", { newId: newCust.id });
+
+        // Update local record
+        await supabase.from("asaas_customers")
+          .update({ asaas_id: newCust.id, cpf_cnpj: cpfCnpj, name: customerName, email: customerEmail })
+          .eq("user_id", user.id);
+
+        playerCustomer.asaas_id = newCust.id;
+
+        // Retry payment with new customer ID
+        asaasRes = await fetch(`${ASAAS_BASE}/payments`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "access_token": apiKey },
+          body: JSON.stringify(buildPayload(newCust.id)),
+        });
+      }
+    }
+
+    // Final error handling
+    if (!asaasRes.ok) {
+      const errBody = await asaasRes.text();
       let asaasErrorCode: string | null = null;
       let asaasErrorDescription: string | null = null;
-
       try {
         const parsed = JSON.parse(errBody);
         asaasErrorCode = parsed?.errors?.[0]?.code ?? null;
         asaasErrorDescription = parsed?.errors?.[0]?.description ?? null;
-      } catch {
-        // non-JSON error body, keep raw logs only
-      }
+      } catch { /* ignore */ }
 
-      log("Asaas payment API error", {
-        status: asaasRes.status,
-        body: errBody,
-        asaasErrorCode,
-      });
+      log("Asaas payment API error", { status: asaasRes.status, body: errBody, asaasErrorCode });
 
-      // Cancel the pending booking since payment failed
-      await supabase.from("bookings")
-        .update({ status: "canceled", payment_status: "failed" })
-        .eq("id", booking.id);
+      await supabase.from("bookings").update({ status: "canceled", payment_status: "failed" }).eq("id", booking.id);
 
       if (asaasRes.status === 403 && asaasErrorCode === "not_allowed_ip") {
         return new Response(JSON.stringify({
