@@ -118,7 +118,7 @@ serve(async (req) => {
 
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name, name, cpf, mobile_phone")
+      .select("display_name, name, mobile_phone")
       .eq("user_id", user.id)
       .maybeSingle();
 
@@ -128,18 +128,17 @@ serve(async (req) => {
       .eq("user_id", user.id)
       .maybeSingle();
 
-    // 1. asaas_customers → 2. billing_profiles → 3. profiles
+    // 1. asaas_customers → 2. billing_profiles
     const cpfCnpj =
       normalizeCpfCnpj(playerCustomer?.cpf_cnpj) ??
       normalizeCpfCnpj(billingProfile?.tax_document) ??
-      normalizeCpfCnpj(profile?.cpf) ??
       null;
 
     log("CPF/CNPJ resolution", {
       fromCustomer: !!normalizeCpfCnpj(playerCustomer?.cpf_cnpj),
       fromBilling: !!normalizeCpfCnpj(billingProfile?.tax_document),
-      fromProfile: !!normalizeCpfCnpj(profile?.cpf),
       resolved: !!cpfCnpj,
+      rawBillingDoc: billingProfile?.tax_document || null,
     });
 
     const customerName =
