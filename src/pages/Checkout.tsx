@@ -316,6 +316,7 @@ export default function Checkout() {
       const { data, error } = await supabase.functions.invoke("create-asaas-subscription", {
         body: {
           plan_code: resolvedPlan.code,
+          billing_type: "PIX",
           coupon_code: coupon?.public_code || undefined,
         },
       });
@@ -330,7 +331,7 @@ export default function Checkout() {
           "Erro ao processar assinatura";
 
         if (errorCode === "ASAAS_IP_NOT_ALLOWED") {
-          throw new Error("Pagamentos temporariamente indisponíveis: o provedor bloqueou o IP da integração. Ajuste a liberação de IP no painel do Asaas para concluir assinaturas.");
+          throw new Error("Pagamentos temporariamente indisponíveis. Tente novamente em instantes.");
         }
 
         throw new Error(message);
@@ -345,6 +346,23 @@ export default function Checkout() {
         throw new Error(message);
       }
 
+      const result = data as Record<string, unknown>;
+
+      // If we got PIX data, show the QR code modal
+      if (result.pix_qr_code || result.pix_copy_paste) {
+        setPixModal({
+          open: true,
+          qrCode: (result.pix_qr_code as string) || null,
+          copyPaste: (result.pix_copy_paste as string) || null,
+          expiration: (result.pix_expiration as string) || null,
+          planName: (result.plan_name as string) || resolvedPlan.name,
+          amountCents: (result.amount_cents as number) || resolvedPlan.price_monthly,
+        });
+        setSubmitting(false);
+        return;
+      }
+
+      // No PIX data (e.g. credit card) — go to billing
       toast({
         title: "Assinatura criada! 🎉",
         description: "Sua assinatura foi processada. Confira os detalhes em Faturamento.",
@@ -355,6 +373,14 @@ export default function Checkout() {
       toast({ title: "Erro no checkout", description: msg, variant: "destructive" });
       setSubmitting(false);
     }
+  }
+
+  function handleCopyPix() {
+    if (!pixModal.copyPaste) return;
+    navigator.clipboard.writeText(pixModal.copyPaste);
+    setCopied(true);
+    toast({ title: "Copiado!", description: "Código PIX copiado para a área de transferência." });
+    setTimeout(() => setCopied(false), 3000);
   }
 
   // Canceled return
