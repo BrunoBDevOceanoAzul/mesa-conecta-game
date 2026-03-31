@@ -6,10 +6,11 @@ import { usePrivileges } from "@/hooks/use-privileges";
 import { CouponInput } from "@/components/checkout/CouponInput";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   ArrowLeft, ArrowRight, CreditCard, Crown, Gamepad2, Loader2,
-  Lock, Shield, Sparkles, Store, Check, Zap, Calendar
+  Lock, Shield, Sparkles, Store, Check, Zap, Calendar, Copy, QrCode, CheckCircle2
 } from "lucide-react";
 
 /* ─── Types ─── */
