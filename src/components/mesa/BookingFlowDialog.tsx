@@ -248,22 +248,24 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         body: { mesa_id: mesa.id, billing_type: "PIX" },
       });
 
-      // Handle structured missing CPF error (422 returned as FunctionsHttpError)
+      // Handle structured function errors
       if (error) {
         // supabase.functions.invoke puts 4xx/5xx body in `data` when available
         const errorBody = data || {};
         const errorCode = errorBody?.error_code || errorBody?.error;
+
         if (errorCode === "MISSING_CPF_CNPJ" || errorCode === "missing_cpf_cnpj") {
           setStep("collect_cpf");
           return;
         }
-        // Also check if the error message itself hints at missing CPF
-        const msg = error?.message || "";
-        if (msg.includes("non-2xx") || msg.includes("422")) {
-          // Likely a CPF issue that wasn't parsed — fallback to collect_cpf
-          setStep("collect_cpf");
-          return;
+
+        if (errorCode === "ASAAS_NOT_ALLOWED_IP") {
+          throw new Error(
+            errorBody?.message ||
+            "A operadora de pagamento ainda está bloqueando por IP. Verifique os IPs autorizados no Asaas."
+          );
         }
+
         throw new Error(errorBody?.message || error.message || "Erro ao criar pagamento");
       }
       if (data?.error_code === "MISSING_CPF_CNPJ" || data?.error === "missing_cpf_cnpj") {

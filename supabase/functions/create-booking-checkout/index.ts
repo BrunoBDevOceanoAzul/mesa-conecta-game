@@ -289,11 +289,41 @@ serve(async (req) => {
 
     if (!asaasRes.ok) {
       const errBody = await asaasRes.text();
-      log("Asaas payment API error", { status: asaasRes.status, body: errBody });
+
+      let asaasErrorCode: string | null = null;
+      let asaasErrorDescription: string | null = null;
+
+      try {
+        const parsed = JSON.parse(errBody);
+        asaasErrorCode = parsed?.errors?.[0]?.code ?? null;
+        asaasErrorDescription = parsed?.errors?.[0]?.description ?? null;
+      } catch {
+        // non-JSON error body, keep raw logs only
+      }
+
+      log("Asaas payment API error", {
+        status: asaasRes.status,
+        body: errBody,
+        asaasErrorCode,
+      });
+
       // Cancel the pending booking since payment failed
       await supabase.from("bookings")
         .update({ status: "canceled", payment_status: "failed" })
         .eq("id", booking.id);
+
+      if (asaasRes.status === 403 && asaasErrorCode === "not_allowed_ip") {
+        return new Response(JSON.stringify({
+          error: "Integração de pagamento bloqueada no Asaas por IP não autorizado.",
+          error_code: "ASAAS_NOT_ALLOWED_IP",
+          message: "O Asaas ainda está bloqueando por IP. Desative a restrição de IPs autorizados no painel Asaas e tente novamente.",
+          details: asaasErrorDescription,
+        }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 503,
+        });
+      }
+
       throw new Error("Falha ao gerar cobrança. Tente novamente em alguns instantes.");
     }
 
