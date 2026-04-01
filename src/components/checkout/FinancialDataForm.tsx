@@ -105,10 +105,46 @@ export function FinancialDataForm({ role, missingFields, onSaved, onCancel }: Pr
 
   const isReceiver = role !== "player";
 
+  const isValidCpf = (cpf: string): boolean => {
+    if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(cpf[i]) * (10 - i);
+    let rem = (sum * 10) % 11;
+    if (rem === 10) rem = 0;
+    if (rem !== parseInt(cpf[9])) return false;
+    sum = 0;
+    for (let i = 0; i < 10; i++) sum += parseInt(cpf[i]) * (11 - i);
+    rem = (sum * 10) % 11;
+    if (rem === 10) rem = 0;
+    return rem === parseInt(cpf[10]);
+  };
+
+  const isValidCnpj = (cnpj: string): boolean => {
+    if (cnpj.length !== 14 || /^(\d)\1{13}$/.test(cnpj)) return false;
+    const weights1 = [5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    const weights2 = [6, 5, 4, 3, 2, 9, 8, 7, 6, 5, 4, 3, 2];
+    let sum = 0;
+    for (let i = 0; i < 12; i++) sum += parseInt(cnpj[i]) * weights1[i];
+    let rem = sum % 11;
+    if (parseInt(cnpj[12]) !== (rem < 2 ? 0 : 11 - rem)) return false;
+    sum = 0;
+    for (let i = 0; i < 13; i++) sum += parseInt(cnpj[i]) * weights2[i];
+    rem = sum % 11;
+    return parseInt(cnpj[13]) === (rem < 2 ? 0 : 11 - rem);
+  };
+
   const validate = (): boolean => {
     const doc = taxDocument.replace(/\D/g, "");
     if (!doc || (doc.length !== 11 && doc.length !== 14)) {
       setError("CPF (11 dígitos) ou CNPJ (14 dígitos) inválido.");
+      return false;
+    }
+    if (doc.length === 11 && !isValidCpf(doc)) {
+      setError("CPF inválido. Verifique os dígitos e tente novamente.");
+      return false;
+    }
+    if (doc.length === 14 && !isValidCnpj(doc)) {
+      setError("CNPJ inválido. Verifique os dígitos e tente novamente.");
       return false;
     }
     if (!fullName.trim()) { setError("Nome completo é obrigatório."); return false; }
