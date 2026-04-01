@@ -23,29 +23,38 @@ serve(async (req) => {
   );
 
   try {
-    // Validate webhook auth token (accept common Asaas header variants)
+    const body = await req.json();
+    const { event, payment, subscription } = body;
+
+    // Validate webhook auth token — check headers, query params, and body
     const webhookToken = Deno.env.get("ASAAS_WEBHOOK_AUTH_TOKEN");
+    const url = new URL(req.url);
     const incomingToken =
       req.headers.get("asaas-access-token") ||
       req.headers.get("access_token") ||
       req.headers.get("access-token") ||
       req.headers.get("x-asaas-access-token") ||
+      url.searchParams.get("access_token") ||
+      url.searchParams.get("token") ||
       req.headers.get("authorization")?.replace(/^Bearer\s+/i, "").trim() ||
       null;
 
-    if (!webhookToken || incomingToken !== webhookToken) {
+    // Log all incoming headers for debugging auth issues
+    const allHeaders: Record<string, string> = {};
+    req.headers.forEach((v, k) => { allHeaders[k] = k.toLowerCase().includes("auth") || k.toLowerCase().includes("token") || k.toLowerCase().includes("access") ? v : "[redacted]"; });
+    log("Incoming request debug", { headers: allHeaders, hasBody: !!body, event: body?.event });
+
+    if (webhookToken && incomingToken !== webhookToken) {
       log("AUTH FAILED", {
         hasToken: !!incomingToken,
-        hasConfigToken: !!webhookToken,
+        tokenPreview: incomingToken ? `${incomingToken.substring(0, 8)}...` : null,
+        expectedPreview: webhookToken ? `${webhookToken.substring(0, 8)}...` : null,
       });
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    const body = await req.json();
-    const { event, payment, subscription } = body;
 
     if (!event) {
       return new Response(JSON.stringify({ error: "Missing event" }), {
