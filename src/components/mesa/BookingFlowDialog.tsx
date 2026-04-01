@@ -244,35 +244,37 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     setSubmitting(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("create-booking-checkout", {
-        body: { mesa_id: mesa.id, billing_type: "PIX" },
+      // Use fetch directly to avoid SDK swallowing non-2xx response bodies
+      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
+      const response = await fetch(`${supabaseUrl}/functions/v1/create-booking-checkout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": supabaseKey,
+          ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {}),
+        },
+        body: JSON.stringify({ mesa_id: mesa.id, billing_type: "PIX" }),
       });
 
-      // Handle structured function errors
-      if (error) {
-        // supabase.functions.invoke puts 4xx/5xx body in `data` when available
-        const errorBody = data || {};
-        const errorCode = errorBody?.error_code || errorBody?.error;
+      const data = await response.json();
+      console.log("[BookingFlow] Checkout response:", response.status, data);
 
-        if (errorCode === "MISSING_CPF_CNPJ" || errorCode === "missing_cpf_cnpj") {
-          setStep("collect_cpf");
-          return;
-        }
-
-        if (errorCode === "ASAAS_NOT_ALLOWED_IP") {
-          throw new Error(
-            errorBody?.message ||
-            "A operadora de pagamento ainda está bloqueando por IP. Verifique os IPs autorizados no Asaas."
-          );
-        }
-
-        throw new Error(errorBody?.message || error.message || "Erro ao criar pagamento");
-      }
-      if (data?.error_code === "MISSING_CPF_CNPJ" || data?.error === "missing_cpf_cnpj") {
+      // Handle business errors from the response body
+      const errorCode = data?.error_code || data?.error;
+      if (errorCode === "MISSING_CPF_CNPJ" || errorCode === "missing_cpf_cnpj") {
         setStep("collect_cpf");
         return;
       }
-      if (data?.error) throw new Error(data.message || data.error);
+      if (errorCode === "ASAAS_NOT_ALLOWED_IP") {
+        throw new Error(data?.message || "Operadora bloqueando por IP.");
+      }
+      if (!response.ok || data?.error) {
+        throw new Error(data?.message || data?.error || "Erro ao criar pagamento");
+      }
 
       setPaymentResult(data as PaymentResult);
       setStep("payment");
