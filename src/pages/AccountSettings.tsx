@@ -14,7 +14,7 @@ interface SubInfo {
   plan_name: string | null;
   status: string;
   current_period_end: string | null;
-  billing_product_id: string | null;
+  plan_id: string | null;
 }
 
 export default function AccountSettings() {
