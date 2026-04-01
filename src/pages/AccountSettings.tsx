@@ -33,7 +33,7 @@ export default function AccountSettings() {
     Promise.all([
       supabase
         .from("subscriptions")
-        .select("plan_name, status, current_period_end, billing_product_id")
+        .select("plan_name, status, current_period_end, plan_id")
         .eq("user_id", user.id)
         .eq("status", "active")
         .order("created_at", { ascending: false })
