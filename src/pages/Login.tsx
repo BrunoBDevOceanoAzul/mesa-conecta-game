@@ -36,13 +36,15 @@ export default function Login() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) {
-        const isUnconfirmed = error.message.toLowerCase().includes("email not confirmed");
+        const msg = error.message.toLowerCase();
+        const isUnconfirmed = msg.includes("email not confirmed");
+        const isInvalidCreds = error.message === "Invalid login credentials";
         toast({
           title: isUnconfirmed ? "Email não confirmado" : "Não foi possível entrar",
           description: isUnconfirmed
             ? "Verifique sua caixa de entrada e clique no link de confirmação que enviamos para " + email
-            : error.message === "Invalid login credentials"
-              ? "Email ou senha incorretos. Tente novamente."
+            : isInvalidCreds
+              ? "Credenciais inválidas ou e-mail não confirmado. Verifique sua caixa de entrada ou tente novamente."
               : error.message,
           variant: "destructive",
         });

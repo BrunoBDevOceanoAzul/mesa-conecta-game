@@ -68,25 +68,42 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     );
 
-    // Then get the initial session
-    supabase.auth.getSession().then(({ data: { session: initSession }, error }) => {
-      if (error) {
-        console.warn("[Auth] getSession error:", error.message);
-        // Don't block the app — let it load without a session
-      }
-      if (!initialized.current) {
-        setSession(initSession);
-        setUser(initSession?.user ?? null);
-        setLoading(false);
-        initialized.current = true;
+    // Then get the initial session — with timeout para evitar loading travado
+    const getSessionWithTimeout = () =>
+      Promise.race([
+        supabase.auth.getSession(),
+        new Promise<never>((_, reject) =>
+          setTimeout(() => reject(new Error("Timeout getting session")), 5000)
+        ),
+      ]) as ReturnType<typeof supabase.auth.getSession>;
 
-        if (initSession?.user) {
-          lastSeenInterval.current = setInterval(() => {
-            updateLastSeen(initSession.user.id);
-          }, 5 * 60 * 1000);
+    getSessionWithTimeout()
+      .then(({ data: { session: initSession }, error }) => {
+        if (error) {
+          console.warn("[Auth] getSession error:", error.message);
         }
-      }
-    });
+        if (!initialized.current) {
+          setSession(initSession);
+          setUser(initSession?.user ?? null);
+          setLoading(false);
+          initialized.current = true;
+
+          if (initSession?.user) {
+            lastSeenInterval.current = setInterval(() => {
+              updateLastSeen(initSession.user.id);
+            }, 5 * 60 * 1000);
+          }
+        }
+      })
+      .catch((err) => {
+        console.warn("[Auth] getSession timeout or error:", err?.message);
+        if (!initialized.current) {
+          setSession(null);
+          setUser(null);
+          setLoading(false);
+          initialized.current = true;
+        }
+      });
 
     return () => {
       subscription.unsubscribe();
