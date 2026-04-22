@@ -98,7 +98,15 @@ export default function Signup() {
       });
 
       if (error) {
-        toast({ title: "Erro ao criar acesso", description: error.message, variant: "destructive" });
+        const msg = error.message?.toLowerCase() ?? "";
+        const isWeakPassword = msg.includes("weak") || msg.includes("easy to guess");
+        toast({
+          title: isWeakPassword ? "Senha muito fraca" : "Erro ao criar acesso",
+          description: isWeakPassword
+            ? "Senha muito fraca ou comum. Por favor, escolha uma senha mais forte combinando letras, números e símbolos."
+            : error.message,
+          variant: "destructive",
+        });
         setLoading(false);
         return;
       }
