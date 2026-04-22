@@ -10,31 +10,18 @@ const roleToDash: Record<string, string> = {
 
 export async function resolveRedirect(userId: string, _fallbackRole?: string): Promise<string> {
   try {
-    // Check admin role first
-    let isAdmin = false;
-    try {
-      const { data } = await supabase.rpc("is_admin", { _user_id: userId });
-      isAdmin = !!data;
-    } catch {
-      // RPC might not exist or fail — not critical
-    }
+    // Paralelizando a RPC e a query de profiles para evitar a 'tela branca'
+    const [adminResult, profileResult] = await Promise.allSettled([
+      supabase.rpc("is_admin", { _user_id: userId }),
+      supabase.from("profiles").select("role").eq("user_id", userId).maybeSingle(),
+    ]);
+
+    const isAdmin = adminResult.status === "fulfilled" && adminResult.value.data === true;
     if (isAdmin) return "/admin";
 
-    // Fetch profile
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, onboarding_completed, can_play, can_gm")
-      .eq("user_id", userId)
-      .maybeSingle();
+    const role = profileResult.status === "fulfilled" ? profileResult.value.data?.role : null;
+    if (!role) return "/cadastro";
 
-    const role = profile?.role;
-
-    // No role yet → send to signup to pick one
-    if (!role) {
-      return "/cadastro";
-    }
-
-    // Go directly to dashboard — no more mandatory onboarding gate
     return roleToDash[role] || "/explorar";
   } catch (err) {
     console.warn("[auth-redirect] Error resolving redirect:", err);
