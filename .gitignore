@@ -26,3 +26,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local development docs (not for commits)
+docs/DEV-IMPLEMENTATION.md
+docs/produto/
+AGENTS.md
