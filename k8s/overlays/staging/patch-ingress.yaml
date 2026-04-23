@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mesa-web
+spec:
+  rules:
+    - host: staging.mesa.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-web-staging
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - staging.mesa.example.com
+      secretName: mesa-web-staging-tls

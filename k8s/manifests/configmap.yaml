@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mesa-web-config
+  labels:
+    app.kubernetes.io/name: mesa-web
+data:
+  NODE_ENV: production
+  VITE_ENV: production

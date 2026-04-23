@@ -1,0 +1,90 @@
+name: __APP_NAME__
+region: __APP_REGION__
+
+alerts:
+  - rule: DEPLOYMENT_FAILED
+  - rule: DOMAIN_FAILED
+
+ingress:
+  rules:
+    - component:
+        name: mesa-web
+      match:
+        path:
+          prefix: /
+    - component:
+        name: mesa-api
+      match:
+        path:
+          prefix: /api
+
+static_sites:
+  - name: mesa-web
+    github:
+      repo: BrunoBDevOceanoAzul/mesa-conecta-game
+      branch: __APP_BRANCH__
+      deploy_on_push: false
+    source_dir: /
+    build_command: npm ci && npm run build
+    output_dir: dist
+    catchall_document: index.html
+    environment_slug: node-js
+    envs:
+      - key: VITE_SUPABASE_URL
+        scope: BUILD_TIME
+        value: "__VITE_SUPABASE_URL__"
+      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        scope: BUILD_TIME
+        value: "__VITE_SUPABASE_PUBLISHABLE_KEY__"
+      - key: VITE_APP_URL
+        scope: BUILD_TIME
+        value: "__VITE_APP_URL__"
+      - key: VITE_MESA_API_URL
+        scope: BUILD_TIME
+        value: "/api"
+      - key: VITE_ENV
+        scope: BUILD_TIME
+        value: "__APP_ENV__"
+
+services:
+  - name: mesa-api
+    github:
+      repo: BrunoBDevOceanoAzul/mesa-conecta-game
+      branch: __APP_BRANCH__
+      deploy_on_push: false
+    source_dir: apps/mesa-api
+    environment_slug: node-js
+    build_command: npm install && npm run build
+    run_command: npm start
+    http_port: 8787
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-0.5gb
+    health_check:
+      http_path: /health
+    envs:
+      - key: NODE_ENV
+        scope: RUN_TIME
+        value: "__NODE_ENV_VALUE__"
+      - key: PORT
+        scope: RUN_TIME
+        value: "8787"
+      - key: DATABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: "__DATABASE_URL__"
+      - key: SUPABASE_URL
+        scope: RUN_TIME
+        type: SECRET
+        value: "__SUPABASE_URL__"
+      - key: SUPABASE_ANON_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: "__SUPABASE_ANON_KEY__"
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: "__SUPABASE_SERVICE_ROLE_KEY__"
+      - key: JWT_SECRET
+        scope: RUN_TIME
+        type: SECRET
+        value: "__JWT_SECRET__"
