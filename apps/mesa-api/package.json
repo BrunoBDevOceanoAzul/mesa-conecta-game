@@ -5,8 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "start": "tsx src/server.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck && npm test",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "db:introspect": "drizzle-kit introspect",
     "db:studio": "drizzle-kit studio"
   },
