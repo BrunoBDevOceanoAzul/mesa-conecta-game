@@ -11,6 +11,9 @@ const envSchema = z.object({
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   // Token de deploy/integracao — nunca comitar no git
   DEPLOY_TOKEN: z.string().optional(),
+  // Chave secreta para assinatura/verificacao de JWT — nunca comitar no git
+  // Use: openssl rand -base64 64
+  JWT_SECRET: z.string().min(32).optional(),
 });
 
 export const env = envSchema.parse(process.env);

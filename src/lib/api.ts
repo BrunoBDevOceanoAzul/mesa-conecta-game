@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Usa URL absoluta quando definida (dev), ou caminho relativo quando no mesmo servidor (produção)
-const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || "";
+// Usa URL absoluta quando definida, ou fallback para o backend no Render
+const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || "https://mesa-api-xscg.onrender.com";
 
 /**
  * Cliente HTTP para a API Mesa
