@@ -4,6 +4,7 @@ import { env } from "./lib/env.js";
 import { authPlugin } from "./modules/auth/plugin.js";
 import { eventRoutes } from "./modules/events/routes.js";
 import { recommendationRoutes } from "./modules/recommendations/routes.js";
+import { profileRoutes } from "./modules/profiles/routes.js";
 
 export async function buildApp() {
   const app = Fastify({
@@ -32,6 +33,9 @@ export async function buildApp() {
 
   // Rotas de recomendações
   await app.register(recommendationRoutes);
+
+  // Rotas de perfis
+  await app.register(profileRoutes);
 
   return app;
 }
