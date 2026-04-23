@@ -1,0 +1,12 @@
+node_modules
+dist
+dist-ssr
+.git
+.github
+.env
+.env.*
+!.env.example
+apps/mesa-api/.env
+coverage
+*.log
+.DS_Store
