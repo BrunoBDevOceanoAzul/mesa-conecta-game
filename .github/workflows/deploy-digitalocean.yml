@@ -1,0 +1,153 @@
+name: deploy-digitalocean
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+    paths:
+      - "src/**"
+      - "public/**"
+      - "apps/mesa-api/**"
+      - ".do/**"
+      - "scripts/render-do-app-spec.sh"
+      - "package.json"
+      - "package-lock.json"
+      - "vite.config.ts"
+      - "index.html"
+      - ".github/workflows/deploy-digitalocean.yml"
+  workflow_dispatch:
+    inputs:
+      target:
+        description: "Ambiente de deploy"
+        required: true
+        default: dev
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  resolve-target:
+    name: Resolve target environment
+    runs-on: ubuntu-24.04
+    outputs:
+      target: ${{ steps.resolve.outputs.target }}
+      template: ${{ steps.resolve.outputs.template }}
+    steps:
+      - name: Resolve environment
+        id: resolve
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            target="${{ inputs.target }}"
+          elif [ "${{ github.ref_name }}" = "main" ]; then
+            target="prod"
+          else
+            target="dev"
+          fi
+
+          echo "target=$target" >> "$GITHUB_OUTPUT"
+          echo "template=.do/app.$target.yaml" >> "$GITHUB_OUTPUT"
+
+  validate:
+    name: Validate app before deploy
+    runs-on: ubuntu-24.04
+    needs: resolve-target
+    environment: ${{ needs.resolve-target.outputs.target }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
+          VITE_MESA_API_URL: /api
+          VITE_ENV: ${{ needs.resolve-target.outputs.target }}
+        run: npm run build
+
+      - name: Install API dependencies
+        working-directory: apps/mesa-api
+        run: npm install
+
+      - name: Typecheck API
+        working-directory: apps/mesa-api
+        run: npm run typecheck
+
+      - name: Test API
+        working-directory: apps/mesa-api
+        run: npm test
+
+  deploy:
+    name: Deploy to DigitalOcean App Platform
+    runs-on: ubuntu-24.04
+    needs:
+      - resolve-target
+      - validate
+    environment: ${{ needs.resolve-target.outputs.target }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Render app spec
+        env:
+          APP_NAME: ${{ vars.DO_APP_NAME }}
+          APP_BRANCH: ${{ vars.DO_GITHUB_BRANCH }}
+          APP_ENV: ${{ needs.resolve-target.outputs.target }}
+          APP_REGION: ${{ vars.DO_APP_REGION }}
+          NODE_ENV_VALUE: ${{ vars.DO_NODE_ENV }}
+          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
+        run: |
+          chmod +x scripts/render-do-app-spec.sh
+          scripts/render-do-app-spec.sh \
+            "${{ needs.resolve-target.outputs.template }}" \
+            /tmp/do-app-spec.yaml
+
+      - name: Validate app spec
+        run: doctl apps spec validate /tmp/do-app-spec.yaml
+
+      - name: Update app
+        run: doctl apps update "$DO_APP_ID" --spec /tmp/do-app-spec.yaml --wait
+        env:
+          DO_APP_ID: ${{ secrets.DO_APP_ID }}
+
+      - name: Summarize deployment
+        run: |
+          cat <<EOF >> "$GITHUB_STEP_SUMMARY"
+          ## DigitalOcean deploy concluido
+
+          - Ambiente: ${{ needs.resolve-target.outputs.target }}
+          - App: ${{ vars.DO_APP_NAME }}
+          - Frontend: ${{ vars.VITE_APP_URL }}
+          - API: ${{ vars.VITE_APP_URL }}/api
+          - Health: ${{ vars.VITE_APP_URL }}/api/health
+          - Commit: ${{ github.sha }}
+          EOF
