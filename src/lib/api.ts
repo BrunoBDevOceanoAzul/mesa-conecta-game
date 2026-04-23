@@ -1,6 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
-const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || "http://localhost:8787";
+// Usa URL absoluta quando definida (dev), ou caminho relativo quando no mesmo servidor (produção)
+const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || "";
 
 /**
  * Cliente HTTP para a API Mesa
