@@ -25,6 +25,8 @@ spec:
         app.kubernetes.io/part-of: mesa-conecta-game
     spec:
       automountServiceAccountToken: false
+      imagePullSecrets:
+        - name: gitlab-registry
       securityContext:
         runAsNonRoot: true
         runAsUser: 101
