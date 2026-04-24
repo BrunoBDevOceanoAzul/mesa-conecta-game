@@ -1,13 +1,15 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-nameSuffix: -staging
-namespace: mesa-staging
+namespace: mesa-homolog
+namePrefix: homolog-
 resources:
-  - ../../manifests
+  - ../../base
+  - sealed-secret.yaml
 patches:
   - path: patch-deployment.yaml
   - path: patch-ingress.yaml
-  - path: patch-prometheusrule.yaml
 images:
   - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
-    newTag: staging
+    newTag: homolog
+  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
+    newTag: homolog

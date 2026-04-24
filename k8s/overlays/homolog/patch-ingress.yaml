@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mesa-ingress
+spec:
+  rules:
+    - host: homolog.mesaconecta.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-api
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-web
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - homolog.mesaconecta.com
+      secretName: homolog-mesaconecta-tls
