@@ -1,10 +1,10 @@
-import type { MockTable } from "@/data/mock";
+import type { Table } from "@/data/constants";
 import { MatchBadge } from "./MatchBadge";
 import { MapPin, Calendar, Users, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 interface TableCardProps {
-  table: MockTable;
+  table: Table;
 }
 
 export function TableCard({ table }: TableCardProps) {

@@ -1,4 +1,4 @@
-import type { MockPost, UserRole } from "@/data/mock";
+import type { Post, UserRole } from "@/data/constants";
 import { Heart, MessageCircle, Share2, Sparkles } from "lucide-react";
 
 const roleBadge: Record<UserRole, { label: string; className: string }> = {
@@ -9,7 +9,7 @@ const roleBadge: Record<UserRole, { label: string; className: string }> = {
 };
 
 interface PostCardProps {
-  post: MockPost;
+  post: Post;
 }
 
 export function PostCard({ post }: PostCardProps) {
