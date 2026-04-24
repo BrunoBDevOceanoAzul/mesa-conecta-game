@@ -4,6 +4,7 @@ metadata:
   name: mesa-web
   labels:
     app.kubernetes.io/name: mesa-web
+    app.kubernetes.io/part-of: mesa-conecta-game
 spec:
   type: ClusterIP
   selector:
@@ -11,4 +12,4 @@ spec:
   ports:
     - name: http
       port: 80
-      targetPort: http
+      targetPort: 8080

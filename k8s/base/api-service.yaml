@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mesa-api
+  labels:
+    app.kubernetes.io/name: mesa-api
+    app.kubernetes.io/part-of: mesa-conecta-game
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: mesa-api
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000

@@ -1,0 +1,15 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: mesa-prod
+namePrefix: prod-
+resources:
+  - ../../base
+  - sealed-secret.yaml
+patches:
+  - path: patch-deployment.yaml
+  - path: patch-ingress.yaml
+images:
+  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
+    newTag: main
+  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
+    newTag: main

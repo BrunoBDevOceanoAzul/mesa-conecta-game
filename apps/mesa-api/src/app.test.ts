@@ -21,3 +21,22 @@ test("GET /health returns the mesa API health payload", async () => {
     await app.close();
   }
 });
+
+test("GET /api/health returns the mesa API health payload", async () => {
+  const { buildApp } = await import("./app.js");
+  const app = await buildApp();
+
+  try {
+    const response = await app.inject({
+      method: "GET",
+      url: "/api/health",
+    });
+
+    assert.equal(response.statusCode, 200);
+    const json = response.json();
+    assert.equal(json.status, "ok");
+    assert.equal(json.service, "mesa-api");
+  } finally {
+    await app.close();
+  }
+});

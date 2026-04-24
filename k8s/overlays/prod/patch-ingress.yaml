@@ -1,0 +1,52 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mesa-ingress
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "10m"
+    nginx.ingress.kubernetes.io/server-snippet: |
+      # Redireciona www para non-www
+      if ($host = 'www.sociodotabuleiro.app.br') {
+        return 301 https://sociodotabuleiro.app.br$request_uri;
+      }
+      # Redireciona qualquer slug para o frontend (SPA routing)
+      location ~ ^/([a-z0-9-]+)$ {
+        try_files /index.html =404;
+      }
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: sociodotabuleiro.app.br
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-api
+                port:
+                  number: 3000
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-web
+                port:
+                  number: 80
+    - host: www.sociodotabuleiro.app.br
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-web
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - sociodotabuleiro.app.br
+        - www.sociodotabuleiro.app.br
+      secretName: sociodotabuleiro-tls

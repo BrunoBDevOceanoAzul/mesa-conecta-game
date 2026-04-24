@@ -31,3 +31,9 @@ dist-ssr
 docs/DEV-IMPLEMENTATION.md
 docs/produto/
 AGENTS.md
+.mcp.json
+
+# DOKS / Kubernetes
+sealed-secrets-cert.pem
+kubeconfig-*.yaml
+*.kubeconfig
