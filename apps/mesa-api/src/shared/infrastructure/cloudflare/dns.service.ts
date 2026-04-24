@@ -1,8 +1,22 @@
 export class CloudflareDNSService {
   constructor(
-    private readonly apiToken: string,
-    private readonly zoneId: string
+    private readonly zoneId: string,
+    private readonly auth: { email: string; apiKey: string } | { apiToken: string }
   ) {}
+
+  private getHeaders(): Record<string, string> {
+    if ("apiToken" in this.auth) {
+      return {
+        Authorization: `Bearer ${this.auth.apiToken}`,
+        "Content-Type": "application/json",
+      };
+    }
+    return {
+      "X-Auth-Email": this.auth.email,
+      "X-Auth-Key": this.auth.apiKey,
+      "Content-Type": "application/json",
+    };
+  }
 
   async createSubdomainRecord(
     slug: string,
@@ -13,15 +27,12 @@ export class CloudflareDNSService {
       `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records`,
       {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${this.apiToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
         body: JSON.stringify({
           type: "CNAME",
           name: `${slug}.sociodotabuleiro.app.br`,
           content: target,
-          ttl: 1, // Auto
+          ttl: 1,
           proxied,
         }),
       }
@@ -40,10 +51,7 @@ export class CloudflareDNSService {
       `https://api.cloudflare.com/client/v4/zones/${this.zoneId}/dns_records/${recordId}`,
       {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${this.apiToken}`,
-          "Content-Type": "application/json",
-        },
+        headers: this.getHeaders(),
       }
     );
 
@@ -62,10 +70,7 @@ export class CloudflareDNSService {
     if (name) url.searchParams.append("name", name);
 
     const response = await fetch(url.toString(), {
-      headers: {
-        Authorization: `Bearer ${this.apiToken}`,
-        "Content-Type": "application/json",
-      },
+      headers: this.getHeaders(),
     });
 
     const data = await response.json();
@@ -78,15 +83,22 @@ export class CloudflareDNSService {
   }
 
   async verifyToken(): Promise<boolean> {
-    const response = await fetch(
-      "https://api.cloudflare.com/client/v4/user/tokens/verify",
-      {
-        headers: {
-          Authorization: `Bearer ${this.apiToken}`,
-        },
-      }
-    );
-    const data = await response.json();
-    return data.success === true;
+    if ("apiToken" in this.auth) {
+      const response = await fetch(
+        "https://api.cloudflare.com/client/v4/user/tokens/verify",
+        {
+          headers: { Authorization: `Bearer ${this.auth.apiToken}` },
+        }
+      );
+      const data = await response.json();
+      return data.success === true;
+    }
+    // Global API Key doesn't have a verify endpoint, test with zone read
+    try {
+      await this.listRecords();
+      return true;
+    } catch {
+      return false;
+    }
   }
 }
