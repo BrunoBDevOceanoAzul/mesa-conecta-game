@@ -1,0 +1,26 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: mesa-web
+  labels:
+    app.kubernetes.io/name: mesa-web
+spec:
+  groups:
+    - name: mesa-web.rules
+      rules:
+        - alert: MesaWebDeploymentUnavailable
+          expr: kube_deployment_status_replicas_available{deployment="mesa-web", namespace="mesa"} < 1
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: Mesa frontend is unavailable
+            description: No available replicas for mesa-web in namespace mesa for more than 5 minutes.
+        - alert: MesaWebRestartingFrequently
+          expr: increase(kube_pod_container_status_restarts_total{namespace="mesa", container="mesa-web"}[15m]) > 3
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: Mesa frontend is restarting frequently
+            description: mesa-web restarted more than 3 times in the last 15 minutes.

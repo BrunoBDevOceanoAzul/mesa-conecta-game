@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: mesa-web
+  labels:
+    app.kubernetes.io/name: mesa-web
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: mesa.example.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: mesa-web
+                port:
+                  name: http
+  tls:
+    - hosts:
+        - mesa.example.com
+      secretName: mesa-web-tls
