@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
+import { profilesApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -57,36 +58,15 @@ export default function EditProfile() {
   useEffect(() => {
     if (!user) return;
     Promise.all([
-      supabase
-        .from("profiles")
-        .select("display_name, bio, avatar_url, instagram_handle, city, whatsapp, role, can_play, can_gm, can_manage_store, can_manage_brand, preferred_systems, play_styles, preferred_format, experience_level")
-        .eq("user_id", user.id)
-        .maybeSingle(),
+      profilesApi.getMe().catch(() => null),
       supabase
         .from("billing_profiles")
         .select("tax_document")
         .eq("user_id", user.id)
         .maybeSingle(),
-    ]).then(([profileRes, billingRes]) => {
-      if (profileRes.data) {
-        const d = profileRes.data;
-        setProfile({
-          display_name: d.display_name || "",
-          bio: d.bio || "",
-          avatar_url: d.avatar_url || "",
-          instagram_handle: d.instagram_handle || "",
-          city: d.city || "",
-          whatsapp: d.whatsapp || "",
-          role: d.role || "",
-          can_play: d.can_play ?? false,
-          can_gm: d.can_gm ?? false,
-          can_manage_store: d.can_manage_store ?? false,
-          can_manage_brand: d.can_manage_brand ?? false,
-          preferred_systems: d.preferred_systems || [],
-          play_styles: d.play_styles || [],
-          preferred_format: d.preferred_format || "",
-          experience_level: d.experience_level || "",
-        });
+    ]).then(([profileData, billingRes]) => {
+      if (profileData) {
+        setProfile(profileData);
       }
       if (billingRes.data) {
         setCpf(billingRes.data.tax_document || "");
@@ -148,9 +128,8 @@ export default function EditProfile() {
     if (!user) return;
     setSaving(true);
 
-    const profileUpdate = supabase
-      .from("profiles")
-      .update({
+    try {
+      await profilesApi.updateMe({
         display_name: profile.display_name,
         bio: profile.bio,
         avatar_url: profile.avatar_url,
@@ -166,20 +145,23 @@ export default function EditProfile() {
         play_styles: profile.play_styles,
         preferred_format: profile.preferred_format,
         experience_level: profile.experience_level,
-      })
-      .eq("user_id", user.id);
+      });
 
-    const cleanCpf = cpf.replace(/\D/g, "");
-    const billingUpdate = cleanCpf
-      ? supabase
-          .from("billing_profiles")
-          .upsert({ user_id: user.id, tax_document: cleanCpf }, { onConflict: "user_id" })
-      : Promise.resolve({ error: null });
+      const cleanCpf = cpf.replace(/\D/g, "");
+      const billingUpdate = cleanCpf
+        ? supabase
+            .from("billing_profiles")
+            .upsert({ user_id: user.id, tax_document: cleanCpf }, { onConflict: "user_id" })
+        : Promise.resolve({ error: null });
 
-    const [pRes, bRes] = await Promise.all([profileUpdate, billingUpdate]);
-    if (pRes.error || bRes.error) toast.error("Erro ao salvar alguns dados.");
-    else toast.success("Perfil atualizado!");
-    setSaving(false);
+      const bRes = await billingUpdate;
+      if (bRes.error) toast.error("Erro ao salvar dados financeiros.");
+      else toast.success("Perfil atualizado!");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar perfil.");
+    } finally {
+      setSaving(false);
+    }
   };
 
   const filteredSystems = systemSearch.length >= 2
