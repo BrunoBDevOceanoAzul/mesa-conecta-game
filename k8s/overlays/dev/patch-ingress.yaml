@@ -9,7 +9,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: homolog.sociodotabuleiro.app.br
+    - host: dev.sociodotabuleiro.app.br
       http:
         paths:
           - path: /api
@@ -28,5 +28,5 @@ spec:
                   number: 80
   tls:
     - hosts:
-        - homolog.sociodotabuleiro.app.br
-      secretName: homolog-sociodotabuleiro-tls
+        - dev.sociodotabuleiro.app.br
+      secretName: dev-sociodotabuleiro-tls

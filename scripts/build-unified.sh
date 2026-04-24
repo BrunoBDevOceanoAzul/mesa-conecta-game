@@ -23,22 +23,16 @@ cd "$ROOT_DIR"
 echo "Installing root dependencies..."
 npm ci
 
-cd "$API_DIR"
-echo "Installing API dependencies..."
-npm ci
-
 echo "Running API typecheck..."
-npm run typecheck
+npm run -w apps/mesa-api typecheck
 
 echo "Running API tests..."
-npm test
+npm run -w apps/mesa-api test
 
-cd "$ROOT_DIR"
 echo "Building frontend..."
 npm run build
 
-cd "$API_DIR"
 echo "Building API..."
-npm run build
+npm run -w apps/mesa-api build
 
 echo "=== Build complete ==="
