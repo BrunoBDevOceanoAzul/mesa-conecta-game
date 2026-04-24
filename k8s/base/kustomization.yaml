@@ -4,12 +4,15 @@ namespace: mesa
 resources:
   - namespace.yaml
   - configmap.yaml
-  - deployment.yaml
-  - service.yaml
+  - cluster-issuer.yaml
+  - web-deployment.yaml
+  - web-service.yaml
+  - api-deployment.yaml
+  - api-service.yaml
   - ingress.yaml
-  - sealed-secret-template.yaml
-  - servicemonitor.yaml
-  - prometheusrule.yaml
+  - network-policy.yaml
 images:
   - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
+    newTag: latest
+  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
     newTag: latest

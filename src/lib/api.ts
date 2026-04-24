@@ -1,7 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Usa URL absoluta quando definida, ou fallback para o backend no Render
-const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || "https://mesa-api-xscg.onrender.com";
+// Em dev local o backend roda em localhost; em deploy integrado usamos /api.
+const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || (import.meta.env.DEV ? "http://localhost:8787" : "/api");
 
 /**
  * Cliente HTTP para a API Mesa
