@@ -1,7 +1,7 @@
 import { ReactNode, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
-import type { UserRole } from "@/data/mock";
+import type { UserRole } from "@/data/constants";
 import { useAuth } from "@/contexts/AuthContext";
 import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { ChatBadge } from "@/components/chat/ChatBadge";

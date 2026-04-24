@@ -13,7 +13,7 @@ import {
   CreditCard, ArrowUpRight, Sparkles, Clock, ChevronRight, Shield,
   Store, Lock
 } from "lucide-react";
-import { creditPackages } from "@/data/mock";
+import { creditPackages } from "@/data/constants";
 
 type Tab = "wallet" | "campaigns" | "create" | "metrics";
 

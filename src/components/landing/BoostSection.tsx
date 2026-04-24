@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { creditPackages } from "@/data/mock";
+import { creditPackages } from "@/data/constants";
 import { Button } from "@/components/ui/button";
 import { Rocket, TrendingUp, Eye, MousePointerClick } from "lucide-react";
 
