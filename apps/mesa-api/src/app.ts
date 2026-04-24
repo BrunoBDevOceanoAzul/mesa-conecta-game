@@ -8,7 +8,7 @@ import { env } from "./lib/env.js";
 import { authPlugin } from "./modules/auth/plugin.js";
 import { eventRoutes } from "./modules/events/routes.js";
 import { recommendationRoutes } from "./modules/recommendations/routes.js";
-import { profileRoutes } from "./modules/profiles/routes.js";
+import { profileController } from "./modules/profiles/infrastructure/profile.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -29,7 +29,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
 
   await app.register(eventRoutes, { prefix: `${routePrefix}/events` });
   await app.register(recommendationRoutes, { prefix: routePrefix });
-  await app.register(profileRoutes, { prefix: routePrefix });
+  await app.register(profileController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
