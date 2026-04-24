@@ -16,16 +16,21 @@ stages:
   - notify
 
 variables:
+  # Docker-in-Docker (DinD) — obrigatório para builds no GitLab shared runners
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  DOCKER_BUILDKIT: "1"
+  # Node.js
   NODE_VERSION: "22.16.0"
   # GitLab Container Registry (automático)
   IMAGE_WEB: $CI_REGISTRY_IMAGE/mesa-web
   IMAGE_API: $CI_REGISTRY_IMAGE/mesa-api
   # Kubernetes
   KUBECTL_VERSION: "1.33"
-  # Build args
+  # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
   VITE_MESA_API_URL: "/api"
+  # URLs por ambiente (sobrescritas nos jobs de build por branch)
+  VITE_APP_URL: "https://dev.sociodotabuleiro.app.br"
 
 default:
   tags:
@@ -79,6 +84,16 @@ build:frontend:
       optional: true
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - |
+      # Define VITE_APP_URL por branch/ambiente
+      if [ "$CI_COMMIT_BRANCH" = "main" ]; then
+        export VITE_APP_URL="https://sociodotabuleiro.app.br"
+      elif [ "$CI_COMMIT_BRANCH" = "homolog" ]; then
+        export VITE_APP_URL="https://homolog.sociodotabuleiro.app.br"
+      else
+        export VITE_APP_URL="https://dev.sociodotabuleiro.app.br"
+      fi
+      echo "Building for: $VITE_APP_URL"
   script:
     - >
       docker build
@@ -86,6 +101,7 @@ build:frontend:
       --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL
       --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
       --build-arg VITE_APP_URL=$VITE_APP_URL
+      --build-arg VITE_MESA_API_URL=$VITE_MESA_API_URL
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG
       -f Dockerfile
