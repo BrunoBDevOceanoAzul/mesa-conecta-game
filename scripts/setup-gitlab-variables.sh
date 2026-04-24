@@ -213,7 +213,7 @@ if [ -z "$KUBECONFIG_DEV" ]; then
     read -rp "Cole o KUBECONFIG_HOMOLOG em base64 (ou deixe em branco): " KUBECONFIG_HOMOLOG
     read -rp "Cole o KUBECONFIG_PROD em base64 (ou deixe em branco): " KUBECONFIG_PROD
 else
-    log_ok "Kubeconfigs gerados automaticamente do contexto atual ($kubectl config current-context 2>/dev/null || echo 'default')"
+    log_ok "Kubeconfigs gerados automaticamente do contexto atual ($(kubectl config current-context 2>/dev/null || echo 'default'))"
 fi
 
 # =============================================================================
