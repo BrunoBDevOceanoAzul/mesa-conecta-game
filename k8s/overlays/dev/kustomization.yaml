@@ -8,7 +8,9 @@ resources:
 patches:
   - path: patch-deployment.yaml
 images:
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
+  - name: mesa-web
+    newName: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
     newTag: develop
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
+  - name: mesa-api
+    newName: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
     newTag: develop

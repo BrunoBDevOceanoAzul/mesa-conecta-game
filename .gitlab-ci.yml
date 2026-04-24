@@ -1,0 +1,322 @@
+# ============================================================
+# GitLab CI/CD Pipeline — Mesa Conecta
+# ============================================================
+# Pipeline completo: validate → build → scan → deploy → notify
+# Mapeamento de branches:
+#   develop  → dev
+#   homolog  → homolog
+#   main     → prod (manual)
+# ============================================================
+
+stages:
+  - validate
+  - build
+  - scan
+  - deploy
+  - notify
+
+variables:
+  DOCKER_DRIVER: overlay2
+  DOCKER_TLS_CERTDIR: ""
+  NODE_VERSION: "22.16.0"
+  # GitLab Container Registry (automático)
+  IMAGE_WEB: $CI_REGISTRY_IMAGE/mesa-web
+  IMAGE_API: $CI_REGISTRY_IMAGE/mesa-api
+  # Kubernetes
+  KUBECTL_VERSION: "1.33"
+  # Build args
+  VITE_MESA_API_URL: "/api"
+
+default:
+  tags:
+    - docker
+
+# ============================================================
+# CACHE
+# ============================================================
+.node-cache: &node-cache
+  cache:
+    key: ${CI_COMMIT_REF_SLUG}
+    paths:
+      - node_modules/
+      - apps/mesa-api/node_modules/
+    policy: pull-push
+
+# ============================================================
+# VALIDATE
+# ============================================================
+validate:
+  stage: validate
+  image: node:${NODE_VERSION}-alpine
+  <<: *node-cache
+  before_script:
+    - npm ci
+  script:
+    - npm run lint || echo "Lint warnings present"
+    - npm test -- --run
+    - npm run -w apps/mesa-api typecheck
+    - npm run -w apps/mesa-api test
+    - >
+      VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+      VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
+      VITE_APP_URL=$VITE_APP_URL
+      VITE_MESA_API_URL=$VITE_MESA_API_URL
+      npm run build
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "homolog" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
+
+# ============================================================
+# BUILD — Docker Images
+# ============================================================
+build:frontend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  needs:
+    - job: validate
+      optional: true
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - >
+      docker build
+      --platform linux/amd64
+      --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL
+      --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
+      --build-arg VITE_APP_URL=$VITE_APP_URL
+      -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+      -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG
+      -f Dockerfile
+      .
+    - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+
+build:backend:
+  stage: build
+  image: docker:24
+  services:
+    - docker:24-dind
+  needs:
+    - job: validate
+      optional: true
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - >
+      docker build
+      --platform linux/amd64
+      -t $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+      -t $IMAGE_API:$CI_COMMIT_REF_SLUG
+      -f apps/mesa-api/Dockerfile
+      apps/mesa-api
+    - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+    - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+
+# ============================================================
+# SCAN — Trivy Security Scan
+# ============================================================
+scan:frontend:
+  stage: scan
+  image: aquasec/trivy:latest
+  needs:
+    - build:frontend
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 0 $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  allow_failure: true
+  artifacts:
+    when: always
+    paths:
+      - trivy-frontend-report.json
+    reports:
+      dependency_scanning: trivy-frontend-report.json
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+
+scan:backend:
+  stage: scan
+  image: aquasec/trivy:latest
+  needs:
+    - build:backend
+  script:
+    - trivy image --severity HIGH,CRITICAL --exit-code 0 $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
+  allow_failure: true
+  artifacts:
+    when: always
+    paths:
+      - trivy-backend-report.json
+    reports:
+      dependency_scanning: trivy-backend-report.json
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+
+# ============================================================
+# DEPLOY — Kubernetes (DOKS)
+# ============================================================
+.deploy_template: &deploy_template
+  stage: deploy
+  image: bitnami/kubectl:${KUBECTL_VERSION}
+  before_script:
+    - |
+      echo "Setting up kubeconfig..."
+      mkdir -p ~/.kube
+      echo "$KUBECONFIG_CONTENT" | base64 -d > ~/.kube/config
+      export KUBECONFIG=~/.kube/config
+      kubectl version --client
+  script:
+    - |
+      echo "Updating image tags in overlay..."
+      cd k8s/overlays/${ENV_NAME}
+      kustomize edit set image \
+        mesa-web=$IMAGE_WEB:$CI_COMMIT_REF_SLUG \
+        mesa-api=$IMAGE_API:$CI_COMMIT_REF_SLUG
+      cd ../../..
+    - |
+      echo "Applying manifests..."
+      kubectl kustomize k8s/overlays/${ENV_NAME} | kubectl apply -f -
+    - |
+      echo "Waiting for rollout..."
+      kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
+      kubectl rollout status deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} --timeout=300s
+    - |
+      echo "Verifying ingress..."
+      kubectl get ingress -n mesa-${ENV_NAME}
+
+deploy:dev:
+  <<: *deploy_template
+  variables:
+    ENV_NAME: dev
+    KUBECONFIG_CONTENT: $KUBECONFIG_DEV
+  environment:
+    name: dev
+    url: https://dev.sociodotabuleiro.app.br
+  needs:
+    - build:frontend
+    - build:backend
+    - scan:frontend
+    - scan:backend
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+
+deploy:homolog:
+  <<: *deploy_template
+  variables:
+    ENV_NAME: homolog
+    KUBECONFIG_CONTENT: $KUBECONFIG_HOMOLOG
+  environment:
+    name: homolog
+    url: https://homolog.sociodotabuleiro.app.br
+  needs:
+    - build:frontend
+    - build:backend
+    - scan:frontend
+    - scan:backend
+  rules:
+    - if: $CI_COMMIT_BRANCH == "homolog"
+
+deploy:prod:
+  <<: *deploy_template
+  variables:
+    ENV_NAME: prod
+    KUBECONFIG_CONTENT: $KUBECONFIG_PROD
+  environment:
+    name: production
+    url: https://sociodotabuleiro.app.br
+  needs:
+    - build:frontend
+    - build:backend
+    - scan:frontend
+    - scan:backend
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
+      when: manual
+  allow_failure: false
+
+# ============================================================
+# NOTIFY — SendGrid Email Notifications
+# ============================================================
+.notify_template: &notify_template
+  stage: notify
+  image: alpine/curl:latest
+  variables:
+    SENDGRID_URL: https://api.sendgrid.com/v3/mail/send
+    TO_EMAIL: bruno@sociodotabuleiro.app.br
+    FROM_EMAIL: noreply@mesaconecta.com
+  script:
+    - |
+      ENV_LABEL="${CI_ENVIRONMENT_NAME:-$CI_COMMIT_BRANCH}"
+      if [ "$NOTIFY_STATUS" = "success" ]; then
+        SUBJECT="✅ [$ENV_LABEL] Deploy concluído — Mesa Conecta"
+        HTML_BODY="<h2>Deploy concluído com sucesso ✅</h2>
+          <p><strong>Projeto:</strong> $CI_PROJECT_NAME</p>
+          <p><strong>Branch:</strong> $CI_COMMIT_REF_NAME</p>
+          <p><strong>Commit:</strong> $CI_COMMIT_SHORT_SHA</p>
+          <p><strong>Autor:</strong> $GITLAB_USER_NAME</p>
+          <p><strong>Pipeline:</strong> <a href=\"$CI_PIPELINE_URL\">$CI_PIPELINE_URL</a></p>
+          <p><strong>Timestamp:</strong> $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)</p>"
+      else
+        SUBJECT="❌ [$ENV_LABEL] Deploy falhou — Mesa Conecta"
+        HTML_BODY="<h2>Deploy falhou ❌</h2>
+          <p><strong>Projeto:</strong> $CI_PROJECT_NAME</p>
+          <p><strong>Branch:</strong> $CI_COMMIT_REF_NAME</p>
+          <p><strong>Commit:</strong> $CI_COMMIT_SHORT_SHA</p>
+          <p><strong>Autor:</strong> $GITLAB_USER_NAME</p>
+          <p><strong>Pipeline:</strong> <a href=\"$CI_PIPELINE_URL\">$CI_PIPELINE_URL</a></p>
+          <p><strong>Job:</strong> <a href=\"$CI_JOB_URL\">$CI_JOB_URL</a></p>
+          <p><strong>Timestamp:</strong> $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)</p>"
+      fi
+
+      curl -s -X POST "$SENDGRID_URL" \
+        -H "Authorization: Bearer $SENDGRID_API_KEY" \
+        -H "Content-Type: application/json" \
+        -d "{
+          \"personalizations\": [{
+            \"to\": [{\"email\": \"$TO_EMAIL\"}]
+          }],
+          \"from\": {\"email\": \"$FROM_EMAIL\", \"name\": \"Mesa Conecta CI\"},
+          \"subject\": \"$SUBJECT\",
+          \"content\": [{\"type\": \"text/html\", \"value\": \"$HTML_BODY\"}]
+        }"
+
+notify:success:
+  <<: *notify_template
+  variables:
+    NOTIFY_STATUS: success
+  dependencies: []
+  needs:
+    - job: deploy:dev
+      optional: true
+    - job: deploy:homolog
+      optional: true
+    - job: deploy:prod
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+      when: on_success
+
+notify:failure:
+  <<: *notify_template
+  variables:
+    NOTIFY_STATUS: failure
+  dependencies: []
+  needs:
+    - job: validate
+      optional: true
+    - job: build:frontend
+      optional: true
+    - job: build:backend
+      optional: true
+    - job: deploy:dev
+      optional: true
+    - job: deploy:homolog
+      optional: true
+    - job: deploy:prod
+      optional: true
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+      when: on_failure
