@@ -1,42 +1,43 @@
-import assert from "node:assert/strict";
-import { test } from "node:test";
+import { describe, it, expect } from "vitest";
 
 process.env.DATABASE_URL ??= "postgresql://mesa:mesa@localhost:5432/mesa_test";
 
-test("GET /health returns the mesa API health payload", async () => {
-  const { buildApp } = await import("./app.js");
-  const app = await buildApp();
+describe("App Health", () => {
+  it("GET /health returns the mesa API health payload", async () => {
+    const { buildApp } = await import("./app.js");
+    const app = await buildApp();
 
-  try {
-    const response = await app.inject({
-      method: "GET",
-      url: "/health",
-    });
+    try {
+      const response = await app.inject({
+        method: "GET",
+        url: "/health",
+      });
 
-    assert.equal(response.statusCode, 200);
-    const json = response.json();
-    assert.equal(json.status, "ok");
-    assert.equal(json.service, "mesa-api");
-  } finally {
-    await app.close();
-  }
-});
+      expect(response.statusCode).toBe(200);
+      const json = response.json();
+      expect(json.status).toBe("ok");
+      expect(json.service).toBe("mesa-api");
+    } finally {
+      await app.close();
+    }
+  });
 
-test("GET /api/health returns the mesa API health payload", async () => {
-  const { buildApp } = await import("./app.js");
-  const app = await buildApp();
+  it("GET /api/health returns the mesa API health payload", async () => {
+    const { buildApp } = await import("./app.js");
+    const app = await buildApp();
 
-  try {
-    const response = await app.inject({
-      method: "GET",
-      url: "/api/health",
-    });
+    try {
+      const response = await app.inject({
+        method: "GET",
+        url: "/api/health",
+      });
 
-    assert.equal(response.statusCode, 200);
-    const json = response.json();
-    assert.equal(json.status, "ok");
-    assert.equal(json.service, "mesa-api");
-  } finally {
-    await app.close();
-  }
+      expect(response.statusCode).toBe(200);
+      const json = response.json();
+      expect(json.status).toBe("ok");
+      expect(json.service).toBe("mesa-api");
+    } finally {
+      await app.close();
+    }
+  });
 });

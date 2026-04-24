@@ -4,14 +4,14 @@ ARG NODE_VERSION=22.16.0
 # Stage 1: Dependencies
 FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
-COPY package.json package-lock.json ./
-RUN npm ci --omit=dev
+COPY package.json ./
+RUN npm install --omit=dev
 
 # Stage 2: Build
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
-COPY package.json package-lock.json tsconfig.json tsconfig.build.json ./
-RUN npm ci
+COPY package.json tsconfig.json tsconfig.build.json ./
+RUN npm install
 COPY src ./src
 RUN npm run build
 

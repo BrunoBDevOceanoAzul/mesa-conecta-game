@@ -1,5 +1,7 @@
 import { FastifyInstance, FastifyPluginOptions, FastifyRequest } from "fastify";
 import { env } from "../../lib/env.js";
+import { VerifyTokenUseCase } from "./application/verify-token.use-case.js";
+import { SupabaseAuthRepository } from "./infrastructure/supabase-auth.repository.js";
 
 export interface AuthenticatedRequest extends FastifyRequest {
   user?: {
@@ -7,42 +9,6 @@ export interface AuthenticatedRequest extends FastifyRequest {
     email?: string;
     role?: string;
   };
-}
-
-interface SupabaseUserResponse {
-  id: string;
-  email?: string;
-  role?: string;
-  user_metadata?: Record<string, unknown>;
-}
-
-/**
- * Verifica um JWT do Supabase via API Auth.
- * Retorna os dados do usuário se válido, ou null se inválido/inacessível.
- */
-async function verifySupabaseToken(token: string): Promise<SupabaseUserResponse | null> {
-  if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
-    return null;
-  }
-
-  try {
-    const response = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
-      method: "GET",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        apikey: env.SUPABASE_ANON_KEY,
-      },
-    });
-
-    if (!response.ok) {
-      return null;
-    }
-
-    const data = (await response.json()) as SupabaseUserResponse;
-    return data;
-  } catch {
-    return null;
-  }
 }
 
 /**
@@ -61,10 +27,17 @@ function parseJwtPayload(token: string): { sub?: string; email?: string; role?: 
   }
 }
 
-export async function authPlugin(fastify: FastifyInstance, options: FastifyPluginOptions) {
+export async function authPlugin(fastify: FastifyInstance, _options: FastifyPluginOptions) {
+  // Instancia o repositório e o caso de uso (Clean Architecture)
+  const authRepository = new SupabaseAuthRepository(
+    env.SUPABASE_URL ?? "",
+    env.SUPABASE_ANON_KEY ?? ""
+  );
+  const verifyTokenUseCase = new VerifyTokenUseCase(authRepository);
+
   fastify.decorateRequest("user", null);
 
-  fastify.addHook("onRequest", async (request: AuthenticatedRequest, reply) => {
+  fastify.addHook("onRequest", async (request: AuthenticatedRequest) => {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
@@ -74,20 +47,18 @@ export async function authPlugin(fastify: FastifyInstance, options: FastifyPlugi
     const token = authHeader.substring(7);
 
     // Tenta verificar o token via Supabase Auth API (seguro)
-    const userData = await verifySupabaseToken(token);
+    const user = await verifyTokenUseCase.execute(token);
 
-    if (userData) {
+    if (user) {
       request.user = {
-        id: userData.id,
-        email: userData.email,
-        role: userData.role || "user",
+        id: user.id,
+        email: user.email,
+        role: user.role,
       };
       return;
     }
 
     // Fallback: parse local do JWT (não verifica assinatura)
-    // Isso permite desenvolvimento local sem depender da API do Supabase,
-    // mas em produção a verificação via API é preferida.
     if (!env.SUPABASE_URL) {
       const payload = parseJwtPayload(token);
       if (payload?.sub) {

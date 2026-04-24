@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import assert from "node:assert";
+import { describe, it, expect } from "vitest";
 import { CloudflareDNSService } from "./dns.service.js";
 
 describe("CloudflareDNSService", () => {
@@ -15,10 +14,9 @@ describe("CloudflareDNSService", () => {
     const service = new CloudflareDNSService("zone-id", {
       apiToken: "bad-token",
     });
-    await assert.rejects(
-      () => service.createSubdomainRecord("test", "target.com"),
-      /Cloudflare DNS error: Invalid token/
-    );
+    await expect(
+      service.createSubdomainRecord("test", "target.com")
+    ).rejects.toThrow("Cloudflare DNS error: Invalid token");
   });
 
   it("creates subdomain successfully with API token", async () => {
@@ -26,7 +24,7 @@ describe("CloudflareDNSService", () => {
     global.fetch = async (url: string | URL | Request, init?: RequestInit) => {
       fetchCalled = true;
       const body = init?.body as string;
-      assert.ok(body.includes("mestre-joao.sociodotabuleiro.app.br"));
+      expect(body).toContain("mestre-joao.sociodotabuleiro.app.br");
       return {
         json: async () => ({
           success: true,
@@ -42,7 +40,7 @@ describe("CloudflareDNSService", () => {
       "mestre-joao",
       "sociodotabuleiro.app.br"
     );
-    assert.ok(fetchCalled);
+    expect(fetchCalled).toBe(true);
   });
 
   it("creates subdomain successfully with Global API Key", async () => {
@@ -50,8 +48,8 @@ describe("CloudflareDNSService", () => {
     global.fetch = async (url: string | URL | Request, init?: RequestInit) => {
       fetchCalled = true;
       const headers = init?.headers as Record<string, string>;
-      assert.equal(headers["X-Auth-Email"], "bruno@oceanoazul.dev.br");
-      assert.equal(headers["X-Auth-Key"], "global-key");
+      expect(headers["X-Auth-Email"]).toBe("bruno@oceanoazul.dev.br");
+      expect(headers["X-Auth-Key"]).toBe("global-key");
       return {
         json: async () => ({
           success: true,
@@ -65,6 +63,6 @@ describe("CloudflareDNSService", () => {
       apiKey: "global-key",
     });
     await service.createSubdomainRecord("loja-magica", "sociodotabuleiro.app.br");
-    assert.ok(fetchCalled);
+    expect(fetchCalled).toBe(true);
   });
 });
