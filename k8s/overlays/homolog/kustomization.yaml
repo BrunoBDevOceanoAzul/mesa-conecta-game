@@ -9,7 +9,9 @@ patches:
   - path: patch-deployment.yaml
   - path: patch-ingress.yaml
 images:
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
+  - name: mesa-web
+    newName: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
     newTag: homolog
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
+  - name: mesa-api
+    newName: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
     newTag: homolog

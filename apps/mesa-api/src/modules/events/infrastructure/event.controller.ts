@@ -1,11 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { db } from "../../db/client.js";
-import { events } from "../../db/schema/events.js";
-import { AuthenticatedRequest } from "../auth/plugin.js";
-import { createEventSchema } from "./schemas.js";
+import { AuthenticatedRequest } from "../../auth/plugin.js";
+import { CreateEventUseCase } from "../application/create-event.use-case.js";
+import { DrizzleEventRepository } from "./drizzle-event.repository.js";
+import { createEventSchema } from "../schemas.js";
 
-export async function eventRoutes(fastify: FastifyInstance) {
+export async function eventController(fastify: FastifyInstance) {
+  const repository = new DrizzleEventRepository();
+  const createEventUseCase = new CreateEventUseCase(repository);
+
   fastify.post("/", async (request: AuthenticatedRequest, reply) => {
     const body = createEventSchema.safeParse(request.body);
 
@@ -19,24 +22,21 @@ export async function eventRoutes(fastify: FastifyInstance) {
     const { eventType, mesaId, gmId, payload, source, sessionId } = body.data;
 
     try {
-      const [event] = await db
-        .insert(events)
-        .values({
-          eventType,
-          userId: request.user?.id || null,
-          mesaId: mesaId || null,
-          gmId: gmId || null,
-          payload: payload || {},
-          source: source || null,
-          sessionId: sessionId || null,
-          ipHash: request.ip ? await hashIp(request.ip) : null,
-          userAgent: request.headers["user-agent"] || null,
-        })
-        .returning();
+      const event = await createEventUseCase.execute({
+        eventType,
+        userId: request.user?.id || null,
+        mesaId: mesaId || null,
+        gmId: gmId || null,
+        payload: payload || {},
+        source: source || null,
+        sessionId: sessionId || null,
+        ipHash: request.ip ? await hashIp(request.ip) : null,
+        userAgent: request.headers["user-agent"] || null,
+      });
 
       return reply.status(201).send({
         success: true,
-        data: event,
+        data: event.toJSON(),
       });
     } catch (err) {
       fastify.log.error({ err }, "Failed to create event");
