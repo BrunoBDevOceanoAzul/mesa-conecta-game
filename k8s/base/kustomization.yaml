@@ -4,6 +4,7 @@ namespace: mesa
 resources:
   - namespace.yaml
   - configmap.yaml
+  - cluster-issuer.yaml
   - web-deployment.yaml
   - web-service.yaml
   - api-deployment.yaml
