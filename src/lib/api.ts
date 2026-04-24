@@ -134,6 +134,81 @@ export const recommendationsApi = {
 };
 
 /**
+ * Perfil — GET /auth/me e PUT /profiles/me
+ */
+export const profilesApi = {
+  /**
+   * Busca perfil completo do usuário autenticado
+   */
+  getMe: async () => {
+    const result = await fetchWithAuth("/auth/me");
+    // Normaliza camelCase da API para snake_case do frontend
+    const d = result.data;
+    return {
+      display_name: d.displayName || "",
+      bio: d.bio || "",
+      avatar_url: d.avatarUrl || "",
+      instagram_handle: d.instagramHandle || "",
+      city: d.city || "",
+      whatsapp: d.whatsapp || "",
+      role: d.role || "",
+      can_play: d.capabilities?.canPlay ?? false,
+      can_gm: d.capabilities?.canGm ?? false,
+      can_manage_store: d.capabilities?.canManageStore ?? false,
+      can_manage_brand: d.capabilities?.canManageBrand ?? false,
+      preferred_systems: d.preferences?.preferredSystems || [],
+      play_styles: d.preferences?.playStyles || [],
+      preferred_format: d.preferences?.preferredFormat || "",
+      experience_level: d.preferences?.experienceLevel || "",
+    };
+  },
+
+  /**
+   * Atualiza perfil do usuário autenticado
+   */
+  updateMe: async (profile: {
+    display_name?: string;
+    bio?: string;
+    avatar_url?: string;
+    instagram_handle?: string;
+    city?: string;
+    whatsapp?: string;
+    role?: string;
+    can_play?: boolean;
+    can_gm?: boolean;
+    can_manage_store?: boolean;
+    can_manage_brand?: boolean;
+    preferred_systems?: string[];
+    play_styles?: string[];
+    preferred_format?: string;
+    experience_level?: string;
+  }) => {
+    // Mapeia snake_case do frontend para camelCase da API
+    const body: Record<string, unknown> = {};
+    if (profile.display_name !== undefined) body.displayName = profile.display_name;
+    if (profile.bio !== undefined) body.bio = profile.bio;
+    if (profile.avatar_url !== undefined) body.avatarUrl = profile.avatar_url;
+    if (profile.instagram_handle !== undefined) body.instagramHandle = profile.instagram_handle;
+    if (profile.city !== undefined) body.city = profile.city;
+    if (profile.whatsapp !== undefined) body.whatsapp = profile.whatsapp;
+    if (profile.role !== undefined) body.role = profile.role;
+    if (profile.can_play !== undefined) body.canPlay = profile.can_play;
+    if (profile.can_gm !== undefined) body.canGm = profile.can_gm;
+    if (profile.can_manage_store !== undefined) body.canManageStore = profile.can_manage_store;
+    if (profile.can_manage_brand !== undefined) body.canManageBrand = profile.can_manage_brand;
+    if (profile.preferred_systems !== undefined) body.preferredSystems = profile.preferred_systems;
+    if (profile.play_styles !== undefined) body.playStyles = profile.play_styles;
+    if (profile.preferred_format !== undefined) body.preferredFormat = profile.preferred_format;
+    if (profile.experience_level !== undefined) body.experienceLevel = profile.experience_level;
+
+    return fetchWithAuth("/profiles/me", {
+      method: "PUT",
+      body: JSON.stringify(body),
+    });
+  },
+};
+
+/**
  * Health check da API
  */
 export const healthApi = {
