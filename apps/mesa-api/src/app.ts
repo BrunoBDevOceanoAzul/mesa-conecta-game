@@ -9,6 +9,10 @@ import { authPlugin } from "./modules/auth/plugin.js";
 import { eventController } from "./modules/events/infrastructure/event.controller.js";
 import { recommendationsController } from "./modules/recommendations/infrastructure/recommendations.controller.js";
 import { profileController } from "./modules/profiles/infrastructure/profile.controller.js";
+import { mesaController } from "./modules/mesas/infrastructure/mesa.controller.js";
+import { bookingController } from "./modules/bookings/infrastructure/booking.controller.js";
+import { sseController } from "./modules/notifications/infrastructure/sse.controller.js";
+import { paymentController } from "./modules/payments/infrastructure/payment.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -30,6 +34,10 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(eventController, { prefix: `${routePrefix}/events` });
   await app.register(recommendationsController, { prefix: routePrefix });
   await app.register(profileController, { prefix: routePrefix });
+  await app.register(mesaController, { prefix: routePrefix });
+  await app.register(bookingController, { prefix: routePrefix });
+  await app.register(sseController, { prefix: routePrefix });
+  await app.register(paymentController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
@@ -68,8 +76,16 @@ export async function buildApp() {
         url.startsWith("/api/health") ||
         url.startsWith("/events") ||
         url.startsWith("/api/events") ||
-        url.startsWith("/mesas/recomendadas") ||
-        url.startsWith("/api/mesas/recomendadas") ||
+        url.startsWith("/mesas") ||
+        url.startsWith("/api/mesas") ||
+        url.startsWith("/bookings") ||
+        url.startsWith("/api/bookings") ||
+        url.startsWith("/events/stream") ||
+        url.startsWith("/api/events/stream") ||
+        url.startsWith("/payments") ||
+        url.startsWith("/api/payments") ||
+        url.startsWith("/webhooks") ||
+        url.startsWith("/api/webhooks") ||
         url.startsWith("/auth") ||
         url.startsWith("/api/auth") ||
         url.startsWith("/profiles") ||
