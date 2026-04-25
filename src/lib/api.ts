@@ -209,6 +209,131 @@ export const profilesApi = {
 };
 
 /**
+ * Mesas — CRUD e discovery
+ */
+export const mesasApi = {
+  /**
+   * Lista mesas com filtros
+   */
+  list: async (params?: {
+    city?: string;
+    system?: string;
+    format?: "presencial" | "online" | "hibrido";
+    minPrice?: number;
+    maxPrice?: number;
+    startDate?: string;
+    endDate?: string;
+    status?: string;
+    lat?: number;
+    lng?: number;
+    radiusKm?: number;
+    limit?: number;
+    offset?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.city) queryParams.set("city", params.city);
+    if (params?.system) queryParams.set("system", params.system);
+    if (params?.format) queryParams.set("format", params.format);
+    if (params?.minPrice !== undefined) queryParams.set("minPrice", String(params.minPrice));
+    if (params?.maxPrice !== undefined) queryParams.set("maxPrice", String(params.maxPrice));
+    if (params?.startDate) queryParams.set("startDate", params.startDate);
+    if (params?.endDate) queryParams.set("endDate", params.endDate);
+    if (params?.status) queryParams.set("status", params.status);
+    if (params?.lat !== undefined) queryParams.set("lat", String(params.lat));
+    if (params?.lng !== undefined) queryParams.set("lng", String(params.lng));
+    if (params?.radiusKm !== undefined) queryParams.set("radiusKm", String(params.radiusKm));
+    if (params?.limit !== undefined) queryParams.set("limit", String(params.limit));
+    if (params?.offset !== undefined) queryParams.set("offset", String(params.offset));
+
+    return fetchWithAuth(`/mesas?${queryParams.toString()}`);
+  },
+
+  /**
+   * Busca detalhe da mesa por ID
+   */
+  getById: async (id: string) => {
+    return fetchWithAuth(`/mesas/${id}`);
+  },
+
+  /**
+   * Cria uma nova mesa
+   */
+  create: async (mesa: {
+    title: string;
+    description?: string;
+    system: string;
+    format?: "presencial" | "online" | "hibrido";
+    sessionType?: "oneshot" | "campanha" | "aventura" | "modulo";
+    mesaType?: string;
+    status?: "aberta" | "lotada" | "encerrada" | "cancelada";
+    gmId: string;
+    gmName: string;
+    storeId?: string;
+    storeSlotId?: string;
+    boardGameId?: string;
+    address?: string;
+    city?: string;
+    venue?: string;
+    lat?: number;
+    lng?: number;
+    startAt: string;
+    endAt?: string;
+    seatsTotal?: number;
+    seatsAvailable?: number;
+    minPrice?: string;
+    maxPrice?: string;
+    playStyles?: string[];
+    tags?: string[];
+    imageUrl?: string;
+    coverImageUrl?: string;
+    organizerName?: string;
+  }) => {
+    return fetchWithAuth("/mesas", {
+      method: "POST",
+      body: JSON.stringify(mesa),
+    });
+  },
+};
+
+/**
+ * Bookings — Reservas
+ */
+export const bookingsApi = {
+  /**
+   * Cria uma reserva
+   */
+  create: async (booking: {
+    gameTableId: string;
+    tableSessionId?: string;
+    seatsReserved?: number;
+    amount?: string;
+    currency?: string;
+    sourceType?: "organic" | "referral" | "campaign" | "boost";
+  }) => {
+    return fetchWithAuth("/bookings", {
+      method: "POST",
+      body: JSON.stringify(booking),
+    });
+  },
+
+  /**
+   * Lista minhas reservas
+   */
+  listMine: async () => {
+    return fetchWithAuth("/bookings/me");
+  },
+
+  /**
+   * Cancela uma reserva
+   */
+  cancel: async (id: string) => {
+    return fetchWithAuth(`/bookings/${id}/cancel`, {
+      method: "PATCH",
+    });
+  },
+};
+
+/**
  * Health check da API
  */
 export const healthApi = {
