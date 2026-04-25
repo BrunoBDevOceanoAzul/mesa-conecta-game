@@ -4,7 +4,6 @@ import { eq, and, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { profiles, userRoles, playerProfiles, gmProfiles } from "../../db/schema/profiles.js";
 import { mesas } from "../../db/schema/mesas.js";
-import { AuthenticatedRequest } from "../auth/plugin.js";
 import { profileUpdateSchema } from "./schemas.js";
 
 const paramsSchema = z.object({
@@ -13,7 +12,7 @@ const paramsSchema = z.object({
 
 export async function profileRoutes(fastify: FastifyInstance) {
   // GET /auth/me — Perfil completo do usuário autenticado
-  fastify.get("/auth/me", async (request: AuthenticatedRequest, reply) => {
+  fastify.get("/auth/me", async (request, reply) => {
     if (!request.user?.id) {
       return reply.status(401).send({ error: "Unauthorized" });
     }
@@ -127,7 +126,7 @@ export async function profileRoutes(fastify: FastifyInstance) {
   });
 
   // GET /profiles/:id — Perfil público
-  fastify.get("/profiles/:id", async (request: AuthenticatedRequest, reply) => {
+  fastify.get("/profiles/:id", async (request, reply) => {
     const params = paramsSchema.safeParse(request.params);
     if (!params.success) {
       return reply.status(400).send({ error: "Invalid profile ID", details: params.error.flatten() });
@@ -206,7 +205,7 @@ export async function profileRoutes(fastify: FastifyInstance) {
   });
 
   // PUT /profiles/me — Atualizar perfil do usuário autenticado
-  fastify.put("/profiles/me", async (request: AuthenticatedRequest, reply) => {
+  fastify.put("/profiles/me", async (request, reply) => {
     if (!request.user?.id) {
       return reply.status(401).send({ error: "Unauthorized" });
     }

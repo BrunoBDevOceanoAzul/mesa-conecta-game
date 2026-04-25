@@ -3,12 +3,14 @@ import { env } from "../../lib/env.js";
 import { VerifyTokenUseCase } from "./application/verify-token.use-case.js";
 import { SupabaseAuthRepository } from "./infrastructure/supabase-auth.repository.js";
 
-export interface AuthenticatedRequest extends FastifyRequest {
-  user?: {
-    id: string;
-    email?: string;
-    role?: string;
-  };
+declare module "fastify" {
+  interface FastifyRequest {
+    user?: {
+      id: string;
+      email?: string;
+      role?: string;
+    };
+  }
 }
 
 /**
@@ -35,9 +37,9 @@ export async function authPlugin(fastify: FastifyInstance, _options: FastifyPlug
   );
   const verifyTokenUseCase = new VerifyTokenUseCase(authRepository);
 
-  fastify.decorateRequest("user", null);
+  fastify.decorateRequest("user", undefined);
 
-  fastify.addHook("onRequest", async (request: AuthenticatedRequest) => {
+  fastify.addHook("onRequest", async (request: FastifyRequest) => {
     const authHeader = request.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {

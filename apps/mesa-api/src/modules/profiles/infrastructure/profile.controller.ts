@@ -1,6 +1,5 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../../auth/plugin.js";
 import { GetMyProfileUseCase } from "../application/get-my-profile.use-case.js";
 import { GetPublicProfileUseCase, ProfilePrivateError } from "../application/get-public-profile.use-case.js";
 import { UpdateProfileUseCase } from "../application/update-profile.use-case.js";
@@ -18,7 +17,7 @@ export async function profileController(fastify: FastifyInstance) {
   const updateProfileUseCase = new UpdateProfileUseCase(repository);
 
   // GET /auth/me — Perfil completo do usuário autenticado
-  fastify.get("/auth/me", async (request: AuthenticatedRequest, reply) => {
+  fastify.get("/auth/me", async (request, reply) => {
     if (!request.user?.id) {
       return reply.status(401).send({ error: "Unauthorized" });
     }
@@ -38,7 +37,7 @@ export async function profileController(fastify: FastifyInstance) {
   });
 
   // GET /profiles/:id — Perfil público
-  fastify.get("/profiles/:id", async (request: AuthenticatedRequest, reply) => {
+  fastify.get("/profiles/:id", async (request, reply) => {
     const params = paramsSchema.safeParse(request.params);
     if (!params.success) {
       return reply.status(400).send({ error: "Invalid profile ID", details: params.error.flatten() });
@@ -66,7 +65,7 @@ export async function profileController(fastify: FastifyInstance) {
   });
 
   // PUT /profiles/me — Atualizar perfil do usuário autenticado
-  fastify.put("/profiles/me", async (request: AuthenticatedRequest, reply) => {
+  fastify.put("/profiles/me", async (request, reply) => {
     if (!request.user?.id) {
       return reply.status(401).send({ error: "Unauthorized" });
     }

@@ -11,8 +11,3 @@ resources:
   - api-service.yaml
   - ingress.yaml
   - network-policy.yaml
-images:
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-web
-    newTag: latest
-  - name: ghcr.io/brunobdevoceanoazul/mesa-conecta-game/mesa-api
-    newTag: latest

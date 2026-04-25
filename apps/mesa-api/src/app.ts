@@ -1,4 +1,4 @@
-import Fastify, { type FastifyInstance } from "fastify";
+import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyReply } from "fastify";
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
 import fs from "fs";
@@ -59,7 +59,7 @@ export async function buildApp() {
 
     // Catch-all para SPA: retorna index.html para rotas não-API
     // Isso permite que o React Router lide com rotas como /dashboard, /perfil, etc.
-    app.get("/*", async (request, reply) => {
+    app.get("/*", async (request: FastifyRequest, reply: FastifyReply) => {
       const url = request.url;
 
       // Não intercepta rotas da API

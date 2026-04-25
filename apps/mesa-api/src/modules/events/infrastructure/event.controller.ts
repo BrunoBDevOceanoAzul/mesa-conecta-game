@@ -1,6 +1,5 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../../auth/plugin.js";
 import { CreateEventUseCase } from "../application/create-event.use-case.js";
 import { DrizzleEventRepository } from "./drizzle-event.repository.js";
 import { createEventSchema } from "../schemas.js";
@@ -9,7 +8,7 @@ export async function eventController(fastify: FastifyInstance) {
   const repository = new DrizzleEventRepository();
   const createEventUseCase = new CreateEventUseCase(repository);
 
-  fastify.post("/", async (request: AuthenticatedRequest, reply) => {
+  fastify.post("/", async (request, reply) => {
     const body = createEventSchema.safeParse(request.body);
 
     if (!body.success) {
