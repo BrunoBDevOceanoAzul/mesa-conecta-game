@@ -15,12 +15,12 @@ import {
 
 import { authUsers } from "./auth.js";
 
+// Alinhado com o banco remoto Supabase (migrations)
 export const mesaStatusEnum = pgEnum("mesa_status", [
   "aberta",
-  "fechada",
+  "lotada",
+  "encerrada",
   "cancelada",
-  "concluida",
-  "rascunho",
 ]);
 
 export const sessionTypeEnum = pgEnum("session_type", [
