@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore } from "@/lib/match-scoring";
+import { mesasApi } from "@/lib/api";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
@@ -70,29 +71,30 @@ export default function ExploreMesas() {
   useEffect(() => {
     async function fetchMesas() {
       setLoading(true);
-      const [mesasRes, boostRes] = await Promise.all([
-        supabase
-          .from("mesas")
-          .select("*")
-          .eq("status", "aberta")
-          .gte("start_at", new Date().toISOString())
-          .order("start_at", { ascending: true }),
-        supabase
-          .from("boost_campaigns")
-          .select("target_id, is_founder_benefit")
-          .eq("target_type", "mesa")
-          .eq("status", "active"),
-      ]);
-      setMesas((mesasRes.data as Mesa[]) || []);
-      const boosted = new Set<string>();
-      const founder = new Set<string>();
-      (boostRes.data || []).forEach((c: any) => {
-        boosted.add(c.target_id);
-        if (c.is_founder_benefit) founder.add(c.target_id);
-      });
-      setBoostedMesaIds(boosted);
-      setFounderMesaIds(founder);
-      setLoading(false);
+      try {
+        const [mesasResult, boostRes] = await Promise.all([
+          mesasApi.list({ status: "aberta", startDate: new Date().toISOString(), limit: 200 }),
+          supabase
+            .from("boost_campaigns")
+            .select("target_id, is_founder_benefit")
+            .eq("target_type", "mesa")
+            .eq("status", "active"),
+        ]);
+        setMesas((mesasResult.data as Mesa[]) || []);
+        const boosted = new Set<string>();
+        const founder = new Set<string>();
+        (boostRes.data || []).forEach((c: any) => {
+          boosted.add(c.target_id);
+          if (c.is_founder_benefit) founder.add(c.target_id);
+        });
+        setBoostedMesaIds(boosted);
+        setFounderMesaIds(founder);
+      } catch (err) {
+        console.error("Erro ao carregar mesas:", err);
+        setMesas([]);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchMesas();
   }, []);

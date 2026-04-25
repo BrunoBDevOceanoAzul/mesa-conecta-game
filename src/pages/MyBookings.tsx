@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { bookingsApi } from "@/lib/api";
 import { Calendar, Gamepad2, Compass, Heart, CreditCard, BarChart3, Loader2, MapPin, Clock, CheckCircle2, XCircle, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,12 +33,10 @@ export default function MyBookings() {
 
   useEffect(() => {
     if (!user) return;
-    supabase
-      .from("bookings")
-      .select("*, mesas:game_table_id(title, system, city, start_at, image_url)")
-      .eq("player_user_id", user.id)
-      .order("created_at", { ascending: false })
-      .then(({ data }) => { setBookings(data || []); setLoading(false); });
+    bookingsApi
+      .listMine()
+      .then(({ data }) => { setBookings(data || []); setLoading(false); })
+      .catch(() => { setBookings([]); setLoading(false); });
   }, [user]);
 
   return (

@@ -1,10 +1,13 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { eq, desc } from "drizzle-orm";
 import { CreateBookingUseCase } from "../application/create-booking.use-case.js";
 import { GetMyBookingsUseCase } from "../application/get-my-bookings.use-case.js";
 import { CancelBookingUseCase } from "../application/cancel-booking.use-case.js";
 import { DrizzleBookingRepository } from "./drizzle-booking.repository.js";
 import { notifyBookingConfirmed, notifyBookingCanceled } from "../../notifications/infrastructure/notification.helpers.js";
+import { db } from "../../../db/client.js";
+import { bookings } from "../../../db/schema/bookings.js";
 
 const createBookingBodySchema = z.object({
   gameTableId: z.string().uuid(),
@@ -13,6 +16,7 @@ const createBookingBodySchema = z.object({
   amount: z.string().default("0"),
   currency: z.string().default("BRL"),
   sourceType: z.enum(["organic", "referral", "campaign", "boost"]).default("organic"),
+  status: z.enum(["pending", "confirmed", "canceled", "completed", "refunded", "waitlist"]).default("pending"),
 });
 
 export async function bookingController(fastify: FastifyInstance) {
@@ -47,11 +51,11 @@ export async function bookingController(fastify: FastifyInstance) {
         playerUserId: user.id,
         gmUserId: user.id, // TODO: buscar gmId da mesa
         storeUserId: null,
-        status: "pending",
+        status: body.data.status,
         seatsReserved: body.data.seatsReserved,
         amount: body.data.amount,
         currency: body.data.currency,
-        paymentStatus: "unpaid",
+        paymentStatus: body.data.status === "confirmed" ? "paid" : "unpaid",
         sourceType: body.data.sourceType,
         stripeCheckoutSessionId: null,
       });
@@ -80,7 +84,7 @@ export async function bookingController(fastify: FastifyInstance) {
     }
   });
 
-  // GET /bookings/me — Minhas reservas
+  // GET /bookings/me — Minhas reservas (com dados da mesa)
   fastify.get("/bookings/me", async (request, reply) => {
     const user = request.user;
     if (!user?.id) {
@@ -91,13 +95,45 @@ export async function bookingController(fastify: FastifyInstance) {
     }
 
     try {
-      const result = await getMyBookingsUseCase.execute(user.id);
+      const rows = await db.query.bookings.findMany({
+        where: eq(bookings.playerUserId, user.id),
+        orderBy: [desc(bookings.createdAt)],
+        with: { gameTable: true },
+      });
+
       return reply.send({
         ok: true,
-        data: result.bookings.map((b) => b.toJSON()),
-        meta: {
-          total: result.total,
-        },
+        data: rows.map((row) => ({
+          id: row.id,
+          game_table_id: row.gameTableId,
+          table_session_id: row.tableSessionId,
+          player_user_id: row.playerUserId,
+          gm_user_id: row.gmUserId,
+          store_user_id: row.storeUserId,
+          status: row.status,
+          seats_reserved: row.seatsReserved,
+          amount: row.amount,
+          currency: row.currency,
+          payment_status: row.paymentStatus,
+          booked_at: row.bookedAt,
+          canceled_at: row.canceledAt,
+          completed_at: row.completedAt,
+          source_type: row.sourceType,
+          stripe_checkout_session_id: row.stripeCheckoutSessionId,
+          created_at: row.createdAt,
+          updated_at: row.updatedAt,
+          mesas: row.gameTable
+            ? {
+                id: row.gameTable.id,
+                title: row.gameTable.title,
+                system: row.gameTable.system,
+                city: row.gameTable.city,
+                start_at: row.gameTable.startAt,
+                image_url: row.gameTable.imageUrl,
+              }
+            : null,
+        })),
+        meta: { total: rows.length },
       });
     } catch (err) {
       fastify.log.error({ err }, "Failed to get my bookings");
