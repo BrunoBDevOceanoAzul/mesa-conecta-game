@@ -4,6 +4,7 @@ import { CreateBookingUseCase } from "../application/create-booking.use-case.js"
 import { GetMyBookingsUseCase } from "../application/get-my-bookings.use-case.js";
 import { CancelBookingUseCase } from "../application/cancel-booking.use-case.js";
 import { DrizzleBookingRepository } from "./drizzle-booking.repository.js";
+import { notifyBookingConfirmed, notifyBookingCanceled } from "../../notifications/infrastructure/notification.helpers.js";
 
 const createBookingBodySchema = z.object({
   gameTableId: z.string().uuid(),
@@ -54,6 +55,9 @@ export async function bookingController(fastify: FastifyInstance) {
         sourceType: body.data.sourceType,
         stripeCheckoutSessionId: null,
       });
+
+      // Notificar jogador via SSE
+      notifyBookingConfirmed(user.id, booking.toJSON());
 
       return reply.status(201).send({
         ok: true,
@@ -122,6 +126,9 @@ export async function bookingController(fastify: FastifyInstance) {
         userId: user.id,
         isAdmin: user.role === "admin",
       });
+
+      // Notificar jogador via SSE
+      notifyBookingCanceled(user.id, booking.toJSON());
 
       return reply.send({
         ok: true,

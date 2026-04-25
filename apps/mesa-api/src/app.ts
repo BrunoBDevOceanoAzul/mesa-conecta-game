@@ -11,6 +11,7 @@ import { recommendationsController } from "./modules/recommendations/infrastruct
 import { profileController } from "./modules/profiles/infrastructure/profile.controller.js";
 import { mesaController } from "./modules/mesas/infrastructure/mesa.controller.js";
 import { bookingController } from "./modules/bookings/infrastructure/booking.controller.js";
+import { sseController } from "./modules/notifications/infrastructure/sse.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -34,6 +35,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(profileController, { prefix: routePrefix });
   await app.register(mesaController, { prefix: routePrefix });
   await app.register(bookingController, { prefix: routePrefix });
+  await app.register(sseController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
@@ -76,6 +78,8 @@ export async function buildApp() {
         url.startsWith("/api/mesas") ||
         url.startsWith("/bookings") ||
         url.startsWith("/api/bookings") ||
+        url.startsWith("/events/stream") ||
+        url.startsWith("/api/events/stream") ||
         url.startsWith("/auth") ||
         url.startsWith("/api/auth") ||
         url.startsWith("/profiles") ||
