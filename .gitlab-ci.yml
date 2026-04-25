@@ -32,10 +32,6 @@ variables:
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
   VITE_APP_URL: "https://dev.sociodotabuleiro.app.br"
 
-default:
-  tags:
-    - docker
-
 # ============================================================
 # CACHE
 # ============================================================
