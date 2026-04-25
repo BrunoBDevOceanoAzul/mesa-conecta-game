@@ -77,8 +77,66 @@ export class Profile {
   get isPublic(): boolean { return this.props.isPublic; }
   get capabilities(): ProfileCapabilities { return this.props.capabilities; }
 
-  toJSON(): ProfileProps {
-    return { ...this.props };
+  /**
+   * Retorna apenas dados seguros para o usuário autenticado (próprio perfil).
+   * NÃO inclui dados sensíveis como email, phone, whatsapp.
+   */
+  toJSON(): Record<string, unknown> {
+    return {
+      id: this.props.id,
+      displayName: this.props.displayName,
+      name: this.props.name,
+      slug: this.props.slug,
+      bio: this.props.bio,
+      avatarUrl: this.props.avatarUrl,
+      coverImageUrl: this.props.coverImageUrl,
+      city: this.props.city,
+      state: this.props.state,
+      country: this.props.country,
+      role: this.props.role,
+      roles: this.props.roles,
+      isPublic: this.props.isPublic,
+      capabilities: this.props.capabilities,
+      preferences: this.props.preferences,
+      onboarding: this.props.onboarding,
+      stats: this.props.stats,
+    };
+  }
+
+  /**
+   * Retorna dados públicos visíveis para qualquer usuário.
+   * Remove dados pessoais e de contato.
+   */
+  toPublicJSON(): Record<string, unknown> {
+    return {
+      id: this.props.id,
+      displayName: this.props.displayName,
+      name: this.props.name,
+      slug: this.props.slug,
+      bio: this.props.bio,
+      avatarUrl: this.props.avatarUrl,
+      coverImageUrl: this.props.coverImageUrl,
+      city: this.props.city,
+      state: this.props.state,
+      country: this.props.country,
+      role: this.props.role,
+      capabilities: {
+        canPlay: this.props.capabilities.canPlay,
+        canGm: this.props.capabilities.canGm,
+        canManageStore: this.props.capabilities.canManageStore,
+        canManageBrand: this.props.capabilities.canManageBrand,
+      },
+      preferences: {
+        preferredSystems: this.props.preferences.preferredSystems,
+        playStyles: this.props.preferences.playStyles,
+        experienceLevel: this.props.preferences.experienceLevel,
+        preferredFormat: this.props.preferences.preferredFormat,
+      },
+      stats: {
+        gm: this.props.stats.gm,
+        player: this.props.stats.player,
+      },
+    };
   }
 
   canBeViewedBy(viewerUserId?: string): boolean {
