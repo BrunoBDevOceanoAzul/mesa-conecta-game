@@ -12,12 +12,15 @@ import {
 import { authUsers } from "./auth.js";
 import { mesas } from "./mesas.js";
 
+// Alinhado com o banco remoto Supabase (migrations)
+// Nota: ortografia americana 'canceled' conforme banco
 export const bookingStatusEnum = pgEnum("booking_status", [
   "pending",
   "confirmed",
-  "cancelled",
+  "canceled",
   "completed",
-  "no_show",
+  "refunded",
+  "waitlist",
 ]);
 
 export const bookingPaymentStatusEnum = pgEnum("booking_payment_status", [
