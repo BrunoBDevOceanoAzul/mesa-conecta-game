@@ -14,6 +14,8 @@ const envSchema = z.object({
   // Chave secreta para assinatura/verificacao de JWT — nunca comitar no git
   // Use: openssl rand -base64 64
   JWT_SECRET: z.string().min(32).optional(),
+  // Asaas API Key — nunca comitar no git
+  ASAAS_API_KEY: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);
