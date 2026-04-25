@@ -8,7 +8,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "types": ["node", "vitest"]
+    "types": ["node"]
   },
   "include": ["src/**/*.ts", "drizzle.config.ts"],
   "exclude": ["src/**/*.test.ts", "src/**/*.spec.ts"]
