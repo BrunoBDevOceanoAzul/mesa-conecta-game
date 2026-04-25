@@ -1,6 +1,5 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { AuthenticatedRequest } from "../../auth/plugin.js";
 import { GetRecommendationsUseCase } from "../application/get-recommendations.use-case.js";
 import { DrizzleRecommendationsRepository } from "./drizzle-recommendations.repository.js";
 
@@ -20,7 +19,7 @@ export async function recommendationsController(fastify: FastifyInstance) {
   const repository = new DrizzleRecommendationsRepository();
   const getRecommendationsUseCase = new GetRecommendationsUseCase(repository);
 
-  fastify.get("/mesas/recomendadas", async (request: AuthenticatedRequest, reply) => {
+  fastify.get("/mesas/recomendadas", async (request, reply) => {
     const query = querySchema.safeParse(request.query);
 
     if (!query.success) {
