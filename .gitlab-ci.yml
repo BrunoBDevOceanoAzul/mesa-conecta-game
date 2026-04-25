@@ -26,7 +26,7 @@ variables:
   IMAGE_WEB: $CI_REGISTRY_IMAGE/mesa-web
   IMAGE_API: $CI_REGISTRY_IMAGE/mesa-api
   # Kubernetes
-  KUBECTL_VERSION: "1.32"
+  KUBECTL_VERSION: "latest"
   # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
   VITE_MESA_API_URL: "/api"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
