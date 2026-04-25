@@ -54,7 +54,8 @@ export async function profileController(fastify: FastifyInstance) {
         return reply.status(404).send({ error: "Profile not found" });
       }
 
-      return reply.send({ data: profile.toJSON() });
+      // Usa toPublicJSON para não expor dados sensíveis (email, phone, etc.)
+      return reply.send({ data: profile.toPublicJSON() });
     } catch (err) {
       if (err instanceof ProfilePrivateError) {
         return reply.status(403).send({ error: "Profile is private" });

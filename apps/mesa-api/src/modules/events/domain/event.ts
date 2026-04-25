@@ -27,7 +27,20 @@ export class Event {
     return this.props.userId;
   }
 
-  toJSON(): EventProps {
-    return { ...this.props };
+  /**
+   * Retorna dados do evento sem informações sensíveis de IP/UA.
+   */
+  toJSON(): Record<string, unknown> {
+    return {
+      id: this.props.id,
+      eventType: this.props.eventType,
+      userId: this.props.userId,
+      mesaId: this.props.mesaId,
+      gmId: this.props.gmId,
+      payload: this.props.payload,
+      source: this.props.source,
+      sessionId: this.props.sessionId,
+      createdAt: this.props.createdAt,
+    };
   }
 }
