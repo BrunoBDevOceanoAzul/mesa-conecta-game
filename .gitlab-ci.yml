@@ -135,7 +135,9 @@ build:backend:
 # ============================================================
 scan:frontend:
   stage: scan
-  image: aquasec/trivy:latest
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
   needs:
     - build:frontend
   script:
@@ -152,7 +154,9 @@ scan:frontend:
 
 scan:backend:
   stage: scan
-  image: aquasec/trivy:latest
+  image:
+    name: aquasec/trivy:latest
+    entrypoint: [""]
   needs:
     - build:backend
   script:
@@ -172,7 +176,9 @@ scan:backend:
 # ============================================================
 .deploy_template: &deploy_template
   stage: deploy
-  image: bitnami/kubectl:${KUBECTL_VERSION}
+  image:
+    name: bitnami/kubectl:${KUBECTL_VERSION}
+    entrypoint: [""]
   before_script:
     - |
       echo "Setting up kubeconfig..."
