@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { bookingsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
 import { useFinancialReadiness } from "@/hooks/use-financial-readiness";
@@ -187,51 +188,36 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     if (open) loadData();
   }, [open, loadData]);
 
-  // Free mesa: direct booking
+  // Free mesa: direct booking via API (transação atômica)
   const handleFreeBook = async () => {
     if (!user) return;
     setSubmitting(true);
 
     try {
-      const { data: existing } = await supabase
-        .from("bookings")
-        .select("id")
-        .eq("game_table_id", mesa.id)
-        .eq("player_user_id", user.id)
-        .neq("status", "canceled")
-        .maybeSingle();
-
-      if (existing) {
-        toast({ title: "Já reservado", description: "Você já tem uma reserva nesta mesa.", variant: "destructive" });
-        onOpenChange(false);
-        return;
-      }
-
-      const { error } = await supabase.from("bookings").insert({
-        game_table_id: mesa.id,
-        player_user_id: user.id,
-        gm_user_id: mesa.gm_id,
-        seats_reserved: 1,
+      await bookingsApi.create({
+        gameTableId: mesa.id,
+        seatsReserved: 1,
         status: "confirmed",
-        amount: 0,
-        currency: "brl",
-        payment_status: isSuperUser ? "bypassed" : "free",
-        source_type: "platform",
-        booked_at: new Date().toISOString(),
+        amount: "0",
+        currency: "BRL",
+        sourceType: "organic",
       });
-
-      if (error) throw error;
-
-      await supabase
-        .from("mesas")
-        .update({ seats_available: mesa.seats_available - 1 })
-        .eq("id", mesa.id);
 
       setStep("success");
       toast({ title: "Vaga reservada! 🎉", description: `Você está na mesa "${mesa.title}"` });
     } catch (err: any) {
       console.error("[BookingFlow] Booking error:", err);
-      setErrorMsg(err?.message || "Erro ao reservar vaga");
+      const msg = err?.message || "";
+      if (msg.includes("already has") || msg.includes("duplicate")) {
+        toast({ title: "Já reservado", description: "Você já tem uma reserva nesta mesa.", variant: "destructive" });
+        onOpenChange(false);
+        return;
+      }
+      if (msg.includes("Not enough")) {
+        setErrorMsg("Não há vagas disponíveis nesta mesa.");
+      } else {
+        setErrorMsg(msg || "Erro ao reservar vaga");
+      }
       setStep("error");
     } finally {
       setSubmitting(false);

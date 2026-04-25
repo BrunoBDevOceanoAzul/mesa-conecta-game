@@ -538,6 +538,29 @@ Observação:
 - em qualquer tarefa envolvendo Supabase, banco, RLS, migrations ou Postgres, usar a skill `supabase`
 - em modelagem e otimização de Postgres, usar também `supabase-postgres-best-practices`
 
+## Manifesto Local De MCPs E Skills
+
+Foi criado um manifesto local na raiz do projeto:
+
+- `.mcp.json`
+
+Objetivo:
+
+- centralizar os MCPs e skills operacionais esperados para este projeto
+- registrar de forma estável quais integrações devem ser usadas nas sessões
+- separar contexto operacional de credenciais reais
+
+Entradas registradas no manifesto:
+
+- MCPs: `render`, `supabase`, `netlify`, `vite`, `pencil`, `google-auth`
+- Skills: `skill-superpower-de-prompt`, `skill-de-projeto-otimizacao-de-tarefas`
+
+Regras:
+
+- o arquivo nao armazena secrets
+- credenciais continuam em `.env`, dashboards e secrets do CI/CD
+- nomes das integrações devem permanecer estáveis para evitar ambiguidade operacional
+
 ## Validações Mais Recentes
 
 Validações que passaram:
@@ -561,66 +584,224 @@ Pendência conhecida:
 - o workflow CI/CD trata lint como auditoria não bloqueante por enquanto (`continue-on-error`)
 - testes, build e Kustomize seguem como validações bloqueantes
 
-## O Que Ainda Nao Foi Executado
+## O Que Foi Executado Nesta Sessão
 
-Ainda nao foi feito:
+### API Mesa — Endpoints Auth/Profiles
 
-- curadoria manual do schema Drizzle por domínio a partir do banco já provisionado
-- criação de endpoints de domínio
-- migração do frontend
-- configuração real dos secrets de CI/CD e cluster
-- substituição final dos templates de secrets por valores selados
-- conexão operacional do Argo CD com o cluster real
+Foram criados os primeiros endpoints REST da API:
+
+- `GET /auth/me` — retorna perfil completo do usuário autenticado (inclui stats de GM, player profile, roles)
+- `GET /profiles/:id` — retorna perfil público (sanitizado, respeita `isPublic`)
+- `PUT /profiles/me` — atualiza perfil do usuário autenticado com validação Zod
+
+Arquivos:
+
+- `apps/mesa-api/src/modules/profiles/routes.ts`
+- `apps/mesa-api/src/modules/profiles/schemas.ts`
+
+### Schemas Drizzle Expandidos
+
+- `apps/mesa-api/src/db/schema/mesas.ts` — tabelas `mesas`, `mesa_views`, `mesa_popularity_scores`, `mesa_boosts`
+- `apps/mesa-api/src/db/schema/events.ts` — tabela `events` para tracking comportamental
+
+### Eventos e Recomendações
+
+- `POST /events` — coleta eventos comportamentais do frontend
+- `GET /mesas/recomendadas` — algoritmo de scoring v1 com pesos (proximidade, preferências, qualidade GM, popularidade, frescor, boost)
+
+### Cliente Frontend da API
+
+- `src/lib/api.ts` — cliente HTTP com `fetchWithAuth`, intercepta token Supabase automaticamente
+- Inclui `eventsApi`, `recommendationsApi`, `healthApi`
+
+### Autenticação JWT
+
+- Plugin `authPlugin` verifica token via Supabase Auth API (`/auth/v1/user`)
+- Fallback para parse local do payload quando Supabase não está configurado (apenas dev)
+- Adicionado `JWT_SECRET` ao schema de env para assinatura/verificação de JWTs internos no futuro
+
+### Hospedagem DigitalOcean — Direção Atual
+
+Foi aprovada a substituição do deploy `Netlify + Render` por `DigitalOcean App Platform` com dois ambientes:
+
+- **dev** → app dedicado ligado à branch `develop`
+- **prod** → app dedicado ligado à branch `main`
+
+Cada ambiente usa um app único com dois componentes:
+
+- `mesa-web` como `static_site`
+- `mesa-api` como `service`
+
+Roteamento aprovado:
+
+- frontend no path `/`
+- API no path `/api`
+
+### GitHub Actions — Deploy DigitalOcean
+
+O caminho ativo de deploy agora é um workflow único:
+
+1. `.github/workflows/deploy-digitalocean.yml`
+   - Dispara em push para `develop` e `main`
+   - Faz build do frontend
+   - Roda typecheck e testes da API
+   - Renderiza o spec da DigitalOcean a partir de `.do/app.dev.yaml` ou `.do/app.prod.yaml`
+   - Valida com `doctl apps spec validate`
+   - Executa `doctl apps update --spec ... --wait`
+
+### Scripts e Documentação
+
+- `scripts/build-unified.sh` — script de build que auto-detecta raiz do projeto (funciona tanto da raiz quanto de `apps/mesa-api`)
+- `scripts/render-do-app-spec.sh` — renderiza o spec da DigitalOcean com vars/secrets sem commitar credenciais
+- `.do/app.dev.yaml` — template declarativo do ambiente dev
+- `.do/app.prod.yaml` — template declarativo do ambiente prod
+- `docs/ENVIRONMENT-VARIABLES.md` — checklist completo de vars/secrets para DigitalOcean + GitHub Environments
+- `docs/DEPLOY-SECRETS.md` — referência rápida para o setup dos environments `dev` e `prod`
+
+### MCP Local Do Frontend Vite
+
+Foi integrada a dependência `vite-plugin-mcp` ao frontend para expor contexto MCP durante desenvolvimento local.
+
+Arquivos afetados:
+
+- `package.json`
+- `package-lock.json`
+- `vite.config.ts`
+
+Configuração adotada:
+
+- o plugin `ViteMcp` roda apenas em `development`
+- `updateConfig: false` foi definido para impedir escrita automática de arquivos MCP no projeto ou no home
+- o endpoint MCP do frontend fica disponível no dev server local em `http://localhost:8080/__mcp/sse`
+
+Uso operacional:
+
+- este MCP e local ao ambiente de desenvolvimento
+- clientes locais, como OpenCode Terminal, devem apontar para a URL SSE do Vite quando o `npm run dev` estiver ativo
+- nenhuma configuração local de MCP do usuário deve ser commitada no repositório
+
+### Estado Do Banco Remoto
+
+- Projeto Supabase: `xqjiizwtfavpvxytqzvv`
+- `110` tabelas no schema `public`
+- Tabela `mesas` já existe no banco (criada via migrations antigas do Supabase)
+- As novas tabelas do schema Drizzle (`events`, `mesa_views`, etc.) ainda **não foram criadas** no banco remoto — são usadas apenas no código por enquanto
+- A estratégia é curar o schema por domínio e depois gerar migrations formais
+
+## O Que Ainda Não Foi Executado
+
+### Configuração De Ambiente (Pendente Manual)
+
+**GitLab CI/CD Variables (14/15 configuradas):**
+- [x] Secret `DATABASE_URL` (não-masked devido a caracteres especiais na URL)
+- [x] Secret `SUPABASE_URL`
+- [x] Secret `SUPABASE_ANON_KEY`
+- [x] Secret `SUPABASE_SERVICE_ROLE_KEY`
+- [x] Secret `JWT_SECRET`
+- [x] Secret `SENDGRID_API_KEY`
+- [x] Secret `KUBECONFIG_DEV` (base64, masked)
+- [x] Secret `KUBECONFIG_HOMOLOG` (base64, masked)
+- [x] Secret `KUBECONFIG_PROD` (base64, masked)
+- [x] Secret `VITE_SUPABASE_URL`
+- [x] Secret `VITE_SUPABASE_PUBLISHABLE_KEY`
+- [x] Variable `VITE_APP_URL` (dinâmica por branch: dev/homolog/prod)
+- [x] Variable `DOCKER_DRIVER` (overlay2)
+- [x] Variable `DOCKER_TLS_CERTDIR` ("")
+- [x] Variable `DOCKER_BUILDKIT` (1)
+- [x] Secret `DEPLOY_TOKEN` (via GitLab Registry, automático)
+
+**Cluster Kubernetes:**
+- [x] Criar `imagePullSecret` `gitlab-registry` nos 3 namespaces
+- [x] Verificar Sealed Secrets aplicados em todos os namespaces
+- [x] Ajustar username do deploy token (placeholder: `gitlab-deploy-token`)
+
+**Docker Driver (GitLab Shared Runners):**
+- [x] Configurar `DOCKER_DRIVER: overlay2` (obrigatório para DinD)
+- [x] Configurar `DOCKER_TLS_CERTDIR: ""` (desabilita TLS interno)
+- [x] Configurar `DOCKER_BUILDKIT: "1"` (builds otimizadas)
+
+### Desenvolvimento De Domínio
+
+- [x] Frontend consumir `GET /auth/me` ao invés de `supabase.from("profiles")`
+- [x] Frontend consumir `PUT /profiles/me` ao invés de `supabase.from("profiles").update()`
+- [x] Tela de perfil do membro integrada com API (EditProfile.tsx usa profilesApi)
+- [x] Curadoria Drizzle de `bookings`, `billing`, `social`, `reviews` — schemas criados
+- [ ] Migrations formais das novas tabelas no banco remoto
+- [x] Remover dependências de `src/data/mock.ts` — substituído por `src/data/constants.ts`
+
+## URLs E Recursos Importantes
+
+| Recurso | URL |
+|---------|-----|
+| DigitalOcean Kubernetes | `https://cloud.digitalocean.com/kubernetes/clusters` |
+| Dev App | `https://dev.sociodotabuleiro.app.br` |
+| Homolog App | `https://homolog.sociodotabuleiro.app.br` |
+| Prod App | `https://sociodotabuleiro.app.br` |
+| API Health | `https://dev.sociodotabuleiro.app.br/api/health` |
+| Supabase Project | `https://supabase.com/dashboard/project/xqjiizwtfavpvxytqzvv` |
+| GitHub PR #1 | `https://github.com/BrunoBDevOceanoAzul/mesa-conecta-game/pull/1` |
+| GitLab Project | `https://gitlab.com/socio-do-tabuleiro/socio-do-tabuleiro` |
 
 ## Próximos Passos Aprovados
 
-Ordem recomendada para a próxima sessão de execução:
-
-1. revisar a PR `#1` e decidir se ela continua como draft ou se será marcada como pronta
-2. validar se a branch `frontend-gitops-mesa-baseline` segue limpa e sincronizada
-3. transformar o banco provisionado em schema Drizzle útil por domínio
-4. iniciar `auth/profiles`
-5. seguir para `mesas/bookings`
-6. mapear `billing` com cuidado por causa de assinaturas, trial, wallet e Asaas
-7. alinhar o frontend para consumir a API `mesa` por módulos
-8. configurar secrets reais de CI/CD, registry e cluster quando a infra de deploy for ativada
+1. **Aguardar pipeline** do GitLab rodar e validar deploy no dev
+2. **Promover para homolog** e testar fluxo completo
+3. **Seguir curadoria Drizzle** — `bookings`, `billing`, `social`, `reviews`
 
 ## Ponto Atual De Retomada
 
-Parada atual:
+- Branch atual: `frontend-gitops-mesa-baseline`
+- Código pushado para **GitLab** (origin) e GitHub (github)
+- **Infraestrutura: DOKS (Kubernetes)**
+  - Cluster `mesa-cluster` em nyc1 com 2 nodes
+  - Ingress-Nginx, Cert-Manager, Sealed Secrets instalados
+  - Namespaces: `mesa-dev`, `mesa-homolog`, `mesa-prod`
+  - DNS Cloudflare configurado: dev, homolog, prod, *.sociodotabuleiro.app.br
+- **CI/CD: GitLab CI** (pipeline ativa)
+  - `.gitlab-ci.yml` com stages: validate → build → scan → deploy → notify
+  - Deploy automático dev/homolog, manual para prod
+  - Docker driver: `overlay2` + `DOCKER_TLS_CERTDIR=""` + `DOCKER_BUILDKIT=1`
+  - `VITE_APP_URL` dinâmico por branch (dev/homolog/prod)
+  - Variáveis configuradas no GitLab (15/15 completas)
+  - `imagePullSecret` criado nos 3 namespaces
+- **Segurança:** Corrigido vazamento de dados sensíveis (email, phone, whatsapp, ipHash, userAgent) nos JSON responses
+- **Clean Architecture implementada:**
+  - Auth (VerifyTokenUseCase + SupabaseAuthRepository)
+  - Profiles (GetMyProfile, GetPublicProfile, UpdateProfile)
+  - Events (CreateEventUseCase)
+  - Recommendations (GetRecommendationsUseCase + algoritmo scoring v1)
+- **Testes: 26 passando** (9 arquivos de teste, Vitest)
+- Manifestos K8s com imagePullSecret para GitLab Registry
+- Schema Drizzle curado: `auth/profiles`, `mesas`, `events`, `reviews`, `bookings`, `billing`, `social`
+- **Frontend integrado com API:**
+  - `EditProfile.tsx` consome `GET /auth/me` e `PUT /profiles/me`
+  - `profilesApi` em `src/lib/api.ts` com mapeamento camelCase/snake_case
+  - `src/data/mock.ts` removido — substituído por `src/data/constants.ts`
+- `AGENTS.md` não deve ser commitado — manter local apenas
 
-- PR `#1` aberta em draft de `frontend-gitops-mesa-baseline` para `develop`
-- branch `develop` criada no remoto
-- baseline GitOps, Docker, K8s, Kustomize e Argo CD versionado
-- arquitetura da API `mesa` definida
-- estratégia de banco com `Supabase + Drizzle` definida
-- módulos da API definidos
-- escala de prioridade definida
-- `AGENTS.md` consolidado como memória única
-- estrutura inicial da API criada em `apps/mesa-api`
-- stack base configurada com `Fastify`, `TypeScript`, `Drizzle`, `postgres-js` e `Zod`
-- `DATABASE_URL` da API ajustada para o pooler do Supabase com `postgres.<project-ref>` e senha URL-encoded
-- `typecheck` da API passando
-- projeto Supabase oficial confirmado como `xqjiizwtfavpvxytqzvv`
-- as 80 migrations existentes em `supabase/migrations` foram aplicadas com sucesso no banco remoto correto via `supabase db push --db-url ...`
-- validação manual confirmou `110` tabelas no schema `public` do projeto correto
-- Supabase agent skills instaladas localmente e devem estar disponíveis após reiniciar o Codex/CLI
-- validações de API, build, testes e Kustomize passaram
-- lint ainda falha por dívida técnica preexistente e foi registrado como pendência conhecida
+### Comando Útil Para Retomar
 
-Observação importante:
+```bash
+# Verificar estado do repositório
+git status
+git log --oneline -5
 
-- a introspecção automática do `drizzle-kit` contra o banco já provisionado detecta as tabelas e policies, mas nesta versão/combinação de CLI ela não concluiu com geração útil de schema versionado; os arquivos `drizzle/schema.ts` e `drizzle/relations.ts` permaneceram praticamente vazios
-- por isso, o próximo passo aprovado deixa de ser “introspectar mais uma vez” e passa a ser “curar o schema Drizzle por domínio a partir do banco já provisionado”
+# Verificar se branch está sincronizada
+git fetch origin
+git status
 
-Na próxima retomada, nao reabrir o debate arquitetural do zero.
+# Rodar validações locais
+NPM_CONFIG_CACHE=/tmp/mesa-npm-cache npm --prefix apps/mesa-api run verify
+npm run build
+npm test
 
-O próximo trabalho deve começar por:
+# Disparar deploy do backend
+curl -X POST "https://api.render.com/deploy/srv-d7knpg68bjmc73dbc4u0?key=FWw6gbTKThE"
 
-- confirmar estado da PR `#1`
-- gerar o schema Drizzle útil por domínios prioritários (`auth/profiles`, `mesas/bookings`, `billing`)
-- usar o banco remoto `xqjiizwtfavpvxytqzvv` já provisionado como fonte de conferência
-- iniciar os primeiros módulos da API `mesa`
+# Verificar endpoints online
+curl https://mesa-api-xscg.onrender.com/health
+curl -s -o /dev/null -w '%{http_code}' https://mesa-api-xscg.onrender.com/auth/me  # Esperado: 401
+```
 
 ## Como Usar Este Arquivo Em Sessões Futuras
 

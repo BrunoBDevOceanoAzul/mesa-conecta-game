@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
+import { mesasApi, eventsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useWaitlist } from "@/hooks/use-waitlist";
@@ -136,21 +137,14 @@ export default function TableDetail() {
 
   useEffect(() => {
     if (!id) return;
-    supabase
-      .from("mesas")
-      .select("*")
-      .eq("id", id)
-      .single()
+    mesasApi
+      .getById(id)
       .then(({ data }) => {
         if (data) {
           setMesa(data as Mesa);
-          // Track page view metric
+          // Track page view via API
           if (user) {
-            supabase.from("mesa_engagement_metrics").insert({
-              mesa_id: id,
-              user_id: user.id,
-              event_type: "view",
-            }).then(() => {});
+            eventsApi.pageView(id).catch(() => {});
           }
           // Dynamic OG meta tags for social sharing crawlers
           const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
@@ -163,7 +157,8 @@ export default function TableDetail() {
           document.querySelector('meta[name="twitter:image"]')?.setAttribute("content", ogUrl);
         }
         setLoading(false);
-      });
+      })
+      .catch(() => setLoading(false));
   }, [id]);
 
   if (loading) {

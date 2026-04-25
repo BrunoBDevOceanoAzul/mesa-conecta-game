@@ -1,4 +1,5 @@
 import { sql } from "drizzle-orm";
+import { relations } from "drizzle-orm";
 import {
   integer,
   numeric,
@@ -76,6 +77,13 @@ export const mesaWaitlist = pgTable("mesa_waitlist", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const bookingsRelations = relations(bookings, ({ one }) => ({
+  gameTable: one(mesas, {
+    fields: [bookings.gameTableId],
+    references: [mesas.id],
+  }),
+}));
 
 export type Booking = typeof bookings.$inferSelect;
 export type NewBooking = typeof bookings.$inferInsert;

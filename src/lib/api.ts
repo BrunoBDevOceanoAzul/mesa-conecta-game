@@ -209,6 +209,42 @@ export const profilesApi = {
 };
 
 /**
+ * Mapper: converte resposta camelCase da API para snake_case do frontend
+ */
+function mapMesaFromApi(m: Record<string, unknown>): Record<string, unknown> {
+  return {
+    id: m.id,
+    title: m.title,
+    description: m.description ?? null,
+    system: m.system,
+    session_type: m.sessionType ?? m.session_type ?? null,
+    format: m.format,
+    city: m.city ?? null,
+    venue: m.venue ?? null,
+    min_price: m.minPrice ?? m.min_price ?? 0,
+    max_price: m.maxPrice ?? m.max_price ?? 0,
+    seats_total: m.seatsTotal ?? m.seats_total ?? 0,
+    seats_available: m.seatsAvailable ?? m.seats_available ?? 0,
+    gm_id: m.gmId ?? m.gm_id ?? null,
+    gm_name: m.gmName ?? m.gm_name ?? null,
+    start_at: m.startAt ?? m.start_at ?? null,
+    end_at: m.endAt ?? m.end_at ?? null,
+    status: m.status,
+    tags: m.tags ?? null,
+    play_styles: m.playStyles ?? m.play_styles ?? null,
+    image_url: m.imageUrl ?? m.image_url ?? null,
+    cover_image_url: m.coverImageUrl ?? m.cover_image_url ?? null,
+    mesa_type: m.mesaType ?? m.mesa_type ?? null,
+    board_game_id: m.boardGameId ?? m.board_game_id ?? null,
+    store_id: m.storeId ?? m.store_id ?? null,
+    store_slot_id: m.storeSlotId ?? m.store_slot_id ?? null,
+    organizer_name: m.organizerName ?? m.organizer_name ?? null,
+    created_at: m.createdAt ?? m.created_at ?? null,
+    updated_at: m.updatedAt ?? m.updated_at ?? null,
+  };
+}
+
+/**
  * Mesas — CRUD e discovery
  */
 export const mesasApi = {
@@ -245,14 +281,22 @@ export const mesasApi = {
     if (params?.limit !== undefined) queryParams.set("limit", String(params.limit));
     if (params?.offset !== undefined) queryParams.set("offset", String(params.offset));
 
-    return fetchWithAuth(`/mesas?${queryParams.toString()}`);
+    const result = await fetchWithAuth(`/mesas?${queryParams.toString()}`);
+    if (Array.isArray(result.data)) {
+      result.data = result.data.map(mapMesaFromApi);
+    }
+    return result;
   },
 
   /**
    * Busca detalhe da mesa por ID
    */
   getById: async (id: string) => {
-    return fetchWithAuth(`/mesas/${id}`);
+    const result = await fetchWithAuth(`/mesas/${id}`);
+    if (result.data) {
+      result.data = mapMesaFromApi(result.data as Record<string, unknown>);
+    }
+    return result;
   },
 
   /**
