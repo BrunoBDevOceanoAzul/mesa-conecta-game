@@ -52,7 +52,7 @@ services:
       repo: BrunoBDevOceanoAzul/mesa-conecta-game
       branch: __APP_BRANCH__
       deploy_on_push: false
-    source_dir: apps/mesa-api
+    source_dir: backend
     environment_slug: node-js
     build_command: npm install && npm run build
     run_command: npm start

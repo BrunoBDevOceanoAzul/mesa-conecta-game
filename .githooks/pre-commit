@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 set -eu
 
-scripts/verify-before-commit.sh
+infra/scripts/verify-before-commit.sh
