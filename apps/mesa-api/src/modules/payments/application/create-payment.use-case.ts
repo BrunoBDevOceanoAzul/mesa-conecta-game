@@ -7,15 +7,13 @@ export class CreatePaymentUseCase implements UseCase<CreatePaymentInput, Payment
     private readonly paymentRepository: PaymentRepository
   ) {}
 
-  async execute(input: CreatePaymentInput): Promise<Payment> {
+  async execute(input: CreatePaymentInput & { userId: string }): Promise<Payment> {
     if (input.amount <= 0) {
       throw new Error("Amount must be greater than 0");
     }
 
-    // Criar cobrança no Asaas
     const asaasResponse = await this.asaasGateway.createPayment(input);
 
-    // Buscar QR code PIX se for PIX
     let pixQrCode: string | null = null;
     let pixCopiaCola: string | null = null;
 
@@ -27,17 +25,22 @@ export class CreatePaymentUseCase implements UseCase<CreatePaymentInput, Payment
       }
     }
 
-    // Salvar no banco
     const payment = await this.paymentRepository.create({
-      bookingId: input.bookingId,
-      asaasPaymentId: asaasResponse.id,
-      amount: String(input.amount),
+      userId: input.userId,
+      externalPaymentId: asaasResponse.id,
+      amount: input.amount,
       currency: "BRL",
-      billingType: input.billingType,
-      status: "PENDING",
-      invoiceUrl: asaasResponse.invoiceUrl || null,
-      pixQrCode,
-      pixCopiaCola,
+      status: "pending",
+      description: input.description,
+      provider: "asaas",
+      paymentType: "one_time",
+      metadataJson: {
+        bookingId: input.bookingId,
+        billingType: input.billingType,
+        pixQrCode,
+        pixCopiaCola,
+        invoiceUrl: asaasResponse.invoiceUrl,
+      },
     });
 
     return payment;

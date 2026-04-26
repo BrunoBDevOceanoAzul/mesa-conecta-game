@@ -1,14 +1,14 @@
 export interface PaymentData {
   id: string;
-  bookingId: string;
-  asaasPaymentId: string;
-  amount: string;
+  userId: string;
+  externalPaymentId: string | null;
+  amount: number;
   currency: string;
-  billingType: "PIX" | "CREDIT_CARD" | "BOLETO";
-  status: "PENDING" | "RECEIVED" | "CONFIRMED" | "OVERDUE" | "REFUNDED" | "CANCELLED";
-  invoiceUrl: string | null;
-  pixQrCode: string | null;
-  pixCopiaCola: string | null;
+  status: string;
+  description: string | null;
+  provider: string;
+  paymentType: string;
+  metadataJson: Record<string, unknown> | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -17,16 +17,17 @@ export class Payment {
   constructor(private readonly data: PaymentData) {}
 
   get id(): string { return this.data.id; }
-  get bookingId(): string { return this.data.bookingId; }
-  get asaasPaymentId(): string { return this.data.asaasPaymentId; }
-  get amount(): string { return this.data.amount; }
+  get userId(): string { return this.data.userId; }
+  get externalPaymentId(): string | null { return this.data.externalPaymentId; }
+  get amount(): number { return this.data.amount; }
   get status(): string { return this.data.status; }
-  get pixQrCode(): string | null { return this.data.pixQrCode; }
-  get pixCopiaCola(): string | null { return this.data.pixCopiaCola; }
-  get invoiceUrl(): string | null { return this.data.invoiceUrl; }
+  get description(): string | null { return this.data.description; }
+  get provider(): string { return this.data.provider; }
+  get paymentType(): string { return this.data.paymentType; }
+  get metadataJson(): Record<string, unknown> | null { return this.data.metadataJson; }
 
   get isConfirmed(): boolean {
-    return this.data.status === "RECEIVED" || this.data.status === "CONFIRMED";
+    return this.data.status === "paid" || this.data.status === "RECEIVED" || this.data.status === "CONFIRMED";
   }
 
   toJSON() {
@@ -42,6 +43,12 @@ export interface CreatePaymentInput {
   amount: number;
   billingType: "PIX" | "CREDIT_CARD" | "BOLETO";
   description: string;
+}
+
+export interface SplitInput {
+  walletId: string;
+  percentualValue?: number;
+  fixedValue?: number;
 }
 
 export interface AsaasPaymentResponse {
@@ -61,5 +68,6 @@ export interface PaymentRepository {
 
 export interface AsaasGateway {
   createPayment(input: CreatePaymentInput): Promise<AsaasPaymentResponse>;
+  createSplitPayment(input: CreatePaymentInput & { split: SplitInput }): Promise<AsaasPaymentResponse>;
   getPixQrCode(asaasPaymentId: string): Promise<{ qrCode: string; copiaCola: string } | null>;
 }

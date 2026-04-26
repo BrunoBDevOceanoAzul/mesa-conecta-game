@@ -2,6 +2,8 @@ import { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { CreatePaymentUseCase } from "../application/create-payment.use-case.js";
 import { HttpAsaasGateway } from "./http-asaas.gateway.js";
+import { DrizzlePaymentRepository } from "./drizzle-payment.repository.js";
+import { DrizzleAsaasAccountRepository } from "../../asaas-accounts/infrastructure/drizzle-asaas-account.repository.js";
 import { env } from "../../../lib/env.js";
 
 const createPaymentBodySchema = z.object({
@@ -12,6 +14,7 @@ const createPaymentBodySchema = z.object({
   amount: z.number().positive(),
   billingType: z.enum(["PIX", "CREDIT_CARD", "BOLETO"]).default("PIX"),
   description: z.string().min(1),
+  gmUserId: z.string().uuid().optional(),
 });
 
 const asaasWebhookBodySchema = z.object({
@@ -26,11 +29,11 @@ const asaasWebhookBodySchema = z.object({
 
 export async function paymentController(fastify: FastifyInstance) {
   const asaasGateway = new HttpAsaasGateway(env.ASAAS_API_KEY || "");
-  // TODO: implementar PaymentRepository quando tivermos a tabela payments
-  // const paymentRepository = new DrizzlePaymentRepository();
-  // const createPaymentUseCase = new CreatePaymentUseCase(asaasGateway, paymentRepository);
+  const paymentRepository = new DrizzlePaymentRepository();
+  const asaasAccountRepository = new DrizzleAsaasAccountRepository();
+  const createPaymentUseCase = new CreatePaymentUseCase(asaasGateway, paymentRepository);
 
-  // POST /payments — Criar pagamento (PIX)
+  // POST /payments — Criar pagamento (PIX) com split para GM
   fastify.post("/payments", async (request, reply) => {
     const body = createPaymentBodySchema.safeParse(request.body);
     if (!body.success) {
@@ -50,11 +53,67 @@ export async function paymentController(fastify: FastifyInstance) {
     }
 
     try {
-      // Por enquanto retornamos um stub — o pagamento real é feito via edge function
-      // ou via integração direta com Asaas que será implementada na Fase 2
-      return reply.status(501).send({
-        ok: false,
-        error: "Payment processing via API not yet implemented. Use edge function create-booking-payment for now.",
+      const data = body.data;
+      let asaasResponse;
+
+      // Se houver gmUserId, busca a subconta Asaas do GM e cria split
+      if (data.gmUserId) {
+        const gmAccount = await asaasAccountRepository.findByUserId(data.gmUserId);
+        if (gmAccount?.isActive && gmAccount.asaasWalletId) {
+          // Split: 5% plataforma, 95% GM (para RPG)
+          asaasResponse = await asaasGateway.createSplitPayment({
+            ...data,
+            split: {
+              walletId: gmAccount.asaasWalletId,
+              percentualValue: 95,
+            },
+          });
+        } else {
+          // GM sem subconta ativa, cria pagamento sem split
+          asaasResponse = await asaasGateway.createPayment(data);
+        }
+      } else {
+        asaasResponse = await asaasGateway.createPayment(data);
+      }
+
+      // Buscar QR code PIX
+      let pixQrCode: string | null = null;
+      let pixCopiaCola: string | null = null;
+
+      if (data.billingType === "PIX" && asaasResponse.id) {
+        const pixData = await asaasGateway.getPixQrCode(asaasResponse.id);
+        if (pixData) {
+          pixQrCode = pixData.qrCode;
+          pixCopiaCola = pixData.copiaCola;
+        }
+      }
+
+      const payment = await paymentRepository.create({
+        userId: user.id,
+        externalPaymentId: asaasResponse.id,
+        amount: data.amount,
+        currency: "BRL",
+        status: "pending",
+        description: data.description,
+        provider: "asaas",
+        paymentType: "one_time",
+        metadataJson: {
+          bookingId: data.bookingId,
+          billingType: data.billingType,
+          pixQrCode,
+          pixCopiaCola,
+          invoiceUrl: asaasResponse.invoiceUrl,
+        },
+      });
+
+      return reply.status(201).send({
+        ok: true,
+        data: {
+          ...payment.toJSON(),
+          pixQrCode,
+          pixCopiaCola,
+          invoiceUrl: asaasResponse.invoiceUrl,
+        },
       });
     } catch (err) {
       fastify.log.error({ err }, "Failed to create payment");
@@ -81,15 +140,27 @@ export async function paymentController(fastify: FastifyInstance) {
 
       fastify.log.info({ event, payment }, "Asaas webhook received");
 
-      // TODO: Processar webhook e atualizar booking
-      // 1. Buscar payment pelo asaasId
-      // 2. Atualizar status
-      // 3. Se RECEIVED/CONFIRMED, atualizar booking para confirmed
-      // 4. Notificar usuário via SSE
+      if (payment?.id) {
+        const dbPayment = await paymentRepository.findByAsaasId(payment.id);
+        if (dbPayment) {
+          const newStatus = payment.status === "RECEIVED" || payment.status === "CONFIRMED"
+            ? "RECEIVED"
+            : payment.status === "OVERDUE"
+            ? "OVERDUE"
+            : payment.status === "REFUNDED"
+            ? "REFUNDED"
+            : payment.status === "CANCELLED"
+            ? "CANCELLED"
+            : "PENDING";
+
+          await paymentRepository.updateStatus(dbPayment.id, newStatus);
+          fastify.log.info({ paymentId: dbPayment.id, newStatus }, "Payment status updated");
+        }
+      }
 
       return reply.send({
         ok: true,
-        message: "Webhook received",
+        message: "Webhook processed",
       });
     } catch (err) {
       fastify.log.error({ err }, "Failed to process Asaas webhook");
