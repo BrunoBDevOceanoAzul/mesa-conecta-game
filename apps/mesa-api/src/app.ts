@@ -14,6 +14,10 @@ import { bookingController } from "./modules/bookings/infrastructure/booking.con
 import { sseController } from "./modules/notifications/infrastructure/sse.controller.js";
 import { paymentController } from "./modules/payments/infrastructure/payment.controller.js";
 import { asaasAccountController } from "./modules/asaas-accounts/infrastructure/asaas-account.controller.js";
+import { postController } from "./modules/posts/infrastructure/post.controller.js";
+import { commentController } from "./modules/comments/infrastructure/comment.controller.js";
+import { likeController } from "./modules/likes/infrastructure/like.controller.js";
+import { notificationController } from "./modules/notifications/infrastructure/notification.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -40,6 +44,10 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(sseController, { prefix: routePrefix });
   await app.register(paymentController, { prefix: routePrefix });
   await app.register(asaasAccountController, { prefix: routePrefix });
+  await app.register(postController, { prefix: routePrefix });
+  await app.register(commentController, { prefix: routePrefix });
+  await app.register(likeController, { prefix: routePrefix });
+  await app.register(notificationController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
@@ -93,7 +101,13 @@ export async function buildApp() {
         url.startsWith("/profiles") ||
         url.startsWith("/api/profiles") ||
         url.startsWith("/asaas") ||
-        url.startsWith("/api/asaas")
+        url.startsWith("/api/asaas") ||
+        url.startsWith("/posts") ||
+        url.startsWith("/api/posts") ||
+        url.startsWith("/comments") ||
+        url.startsWith("/api/comments") ||
+        url.startsWith("/notifications") ||
+        url.startsWith("/api/notifications")
       ) {
         return reply.callNotFound();
       }
