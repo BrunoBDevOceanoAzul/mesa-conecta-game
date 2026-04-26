@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Gamepad2, Dices, FileText, Plus, Loader2 } from 'lucide-react';
+import { useHive } from '@/context/HiveContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -14,6 +15,7 @@ interface CharacterSheet {
 
 export default function PlaygroundContent() {
   const { user } = useAuth();
+  const { openOverlay } = useHive();
   const [sheets, setSheets] = useState<CharacterSheet[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -87,13 +89,13 @@ export default function PlaygroundContent() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {sheets.map((sheet, i) => (
-              <motion.a
+              <motion.div
                 key={sheet.id}
-                href={`/fichas/${sheet.id}`}
+                onClick={() => openOverlay('sheet', { id: sheet.id })}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all group"
+                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#C6871F]/30 to-[#662583]/20 flex items-center justify-center">
@@ -108,7 +110,7 @@ export default function PlaygroundContent() {
                     </p>
                   </div>
                 </div>
-              </motion.a>
+              </motion.div>
             ))}
           </div>
         )}

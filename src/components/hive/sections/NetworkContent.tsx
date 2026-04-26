@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Briefcase, MessageCircle, Loader2, Send } from 'lucide-react';
+import { useHive } from '@/context/HiveContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
@@ -20,6 +21,7 @@ interface Conversation {
 
 export default function NetworkContent() {
   const { user } = useAuth();
+  const { openOverlay } = useHive();
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -117,13 +119,13 @@ export default function NetworkContent() {
         ) : (
           <div className="space-y-3">
             {conversations.map((conv, i) => (
-              <motion.a
+              <motion.div
                 key={conv.id}
-                href={`/mensagens?conversation=${conv.id}`}
+                onClick={() => openOverlay('messages', { conversationId: conv.id })}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all"
+                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-[#662583]/30 flex items-center justify-center text-sm font-bold flex-shrink-0">
@@ -161,7 +163,7 @@ export default function NetworkContent() {
                     </div>
                   ) : null}
                 </div>
-              </motion.a>
+              </motion.div>
             ))}
           </div>
         )}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { GraduationCap, BookOpen, MessageSquare, Heart, Loader2 } from 'lucide-react';
+import { useHive } from '@/context/HiveContext';
 import { usePosts } from '@/hooks/use-posts';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
@@ -9,6 +10,7 @@ import { ptBR } from 'date-fns/locale';
 export default function AcademyContent() {
   const { posts, loading, refetch } = usePosts({ limit: 20 });
   const { user } = useAuth();
+  const { openOverlay } = useHive();
   const [newPostContent, setNewPostContent] = useState('');
 
   const handleCreatePost = async () => {
@@ -90,10 +92,11 @@ export default function AcademyContent() {
             {posts.map((post: any, i: number) => (
               <motion.div
                 key={post.id}
+                onClick={() => openOverlay('post', { slug: post.slug })}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/[0.07] transition-colors"
+                className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/[0.07] transition-colors cursor-pointer"
               >
                 <div className="flex items-center gap-3 mb-3">
                   <div className="w-8 h-8 rounded-full bg-[#662583]/30 flex items-center justify-center text-xs font-bold">
