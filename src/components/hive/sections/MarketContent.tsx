@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { ShoppingBag, Search, MapPin, Calendar, Users, Loader2 } from 'lucide-react';
+import { useHive } from '@/context/HiveContext';
 import { mesasApi } from '@/lib/api';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -25,6 +26,7 @@ export default function MarketContent() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const { openOverlay } = useHive();
 
   useEffect(() => {
     async function fetchMesas() {
@@ -102,13 +104,13 @@ export default function MarketContent() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {filteredMesas.map((mesa, i) => (
-              <motion.a
+              <motion.div
                 key={mesa.id}
-                href={`/mesa/${mesa.id}`}
+                onClick={() => openOverlay('mesa', { id: mesa.id })}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.05 }}
-                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all group"
+                className="block bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-4 hover:bg-white/10 hover:border-white/20 transition-all group cursor-pointer"
               >
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-[#662583]/30 to-[#F7A731]/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -150,7 +152,7 @@ export default function MarketContent() {
                     {mesa.max_price > mesa.min_price && ` - ${mesa.max_price}`}
                   </span>
                 </div>
-              </motion.a>
+              </motion.div>
             ))}
           </div>
         )}

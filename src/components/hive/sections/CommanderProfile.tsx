@@ -26,7 +26,7 @@ interface ProfileData {
 }
 
 export default function CommanderProfile() {
-  const { isGhostMode, handleHexClick } = useHive();
+  const { isGhostMode, handleHexClick, openOverlay } = useHive();
   const { user } = useAuth();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -92,7 +92,7 @@ export default function CommanderProfile() {
     { 
       icon: Zap, 
       label: 'Criar Mesa', 
-      href: '/mesa/nova', 
+      action: () => openOverlay('mesa', { mode: 'create' }), 
       color: 'bg-[#662583]' 
     },
     { 
@@ -104,7 +104,7 @@ export default function CommanderProfile() {
     { 
       icon: Calendar, 
       label: 'Agenda', 
-      href: '/agenda', 
+      action: () => openOverlay('agenda'), 
       color: 'bg-[#C6871F]' 
     },
     { 
