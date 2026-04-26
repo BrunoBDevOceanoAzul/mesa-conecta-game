@@ -384,10 +384,13 @@ export const postsApi = {
   /**
    * Listar posts (feed público)
    */
-  list: async (params?: { limit?: number; offset?: number }) => {
+  list: async (params?: { limit?: number; offset?: number; role?: string; type?: string; sponsored?: boolean }) => {
     const query = new URLSearchParams();
     if (params?.limit) query.set("limit", String(params.limit));
     if (params?.offset) query.set("offset", String(params.offset));
+    if (params?.role) query.set("role", params.role);
+    if (params?.type) query.set("type", params.type);
+    if (params?.sponsored) query.set("sponsored", "true");
     return fetchWithAuth(`/posts?${query.toString()}`);
   },
 

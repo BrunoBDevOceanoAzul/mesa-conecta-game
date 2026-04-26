@@ -67,6 +67,9 @@ export async function postController(fastify: FastifyInstance) {
         properties: {
           limit: { type: "integer", default: 20, maximum: 50 },
           offset: { type: "integer", default: 0 },
+          role: { type: "string" },
+          type: { type: "string" },
+          sponsored: { type: "boolean" },
         },
       },
       response: {
@@ -75,11 +78,14 @@ export async function postController(fastify: FastifyInstance) {
       },
     },
   }, async (request, reply) => {
-    const { limit = "20", offset = "0" } = request.query as Record<string, string>;
+    const { limit = "20", offset = "0", role, type, sponsored } = request.query as Record<string, string>;
     try {
       const result = await repository.listFeed({
         limit: Math.min(Number(limit), 50),
         offset: Number(offset),
+        role: role || undefined,
+        type: type || undefined,
+        sponsored: sponsored === "true" ? true : undefined,
       });
       return reply.send({ ok: true, data: result.posts.map((p) => p.toJSON()), meta: { total: result.total, limit: Number(limit), offset: Number(offset) } });
     } catch (err) {

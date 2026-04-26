@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/Footer";
 import { MessageCircle, Sparkles, Filter, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { useFeedPosts } from "@/hooks/use-feed-posts";
+import { usePosts } from "@/hooks/use-posts";
 import { FeedPostCard } from "@/components/feed/FeedPostCard";
 import { CreatePostDialog } from "@/components/feed/CreatePostDialog";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,13 +35,26 @@ export default function Feed() {
     if (!tab || activeFilter === "all") return {};
     if ("filterKey" in tab) {
       if (tab.filterKey === "role") return { role: tab.key };
-      if (tab.filterKey === "postType") return { postType: tab.key };
+      if (tab.filterKey === "postType") {
+        // Map frontend post types to API types
+        const typeMap: Record<string, string> = {
+          table_announcement: "mesa_share",
+          event: "event",
+          institutional: "announcement",
+        };
+        return { type: typeMap[tab.key] || tab.key };
+      }
       if (tab.filterKey === "sponsored") return { sponsored: true };
     }
     return {};
   })();
 
-  const { posts, loading, refetch } = useFeedPosts(filters);
+  const { posts, loading, error, refetch } = usePosts({
+    limit: 50,
+    role: filters.role,
+    type: filters.type,
+    sponsored: filters.sponsored,
+  });
 
   return (
     <div className="min-h-screen bg-background">

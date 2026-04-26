@@ -24,10 +24,13 @@ export class DrizzlePostRepository implements PostRepository {
     return row ? this.toDomain(row as any) : null;
   }
 
-  async listFeed(params: { limit: number; offset: number; userId?: string }): Promise<{ posts: Post[]; total: number }> {
-    const where = params.userId
-      ? and(eq(posts.userId, params.userId), eq(posts.isPublic, true))
-      : eq(posts.isPublic, true);
+  async listFeed(params: { limit: number; offset: number; userId?: string; role?: string; type?: string; sponsored?: boolean }): Promise<{ posts: Post[]; total: number }> {
+    const conditions = [eq(posts.isPublic, true)];
+    if (params.userId) conditions.push(eq(posts.userId, params.userId));
+    if (params.type) conditions.push(eq(posts.type, params.type as any));
+    if (params.sponsored) conditions.push(eq(posts.isPinned, true));
+
+    const where = conditions.length > 1 ? and(...conditions) : conditions[0];
 
     const items = await db.query.posts.findMany({
       where,
@@ -37,10 +40,19 @@ export class DrizzlePostRepository implements PostRepository {
       with: { user: true, mesa: true },
     });
 
+    // Apply role filter in JS (Drizzle relations don't easily filter on JSONB)
+    let filtered = items;
+    if (params.role) {
+      filtered = items.filter((item: any) => {
+        const role = item.user?.rawUserMetaData?.role;
+        return role === params.role;
+      });
+    }
+
     const [count] = await db.select({ count: sql<number>`count(*)` }).from(posts).where(where);
 
     return {
-      posts: items.map((r) => this.toDomain(r as any)),
+      posts: filtered.map((r) => this.toDomain(r as any)),
       total: count?.count ?? 0,
     };
   }
