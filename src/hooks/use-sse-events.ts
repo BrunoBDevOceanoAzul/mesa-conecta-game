@@ -51,11 +51,11 @@ export function useSseEvents() {
       );
 
       es.onopen = () => {
-        console.log("[SSE] Connected");
+        // SSE connection established
       };
 
-      es.addEventListener("connected", (e) => {
-        console.log("[SSE] Server says:", e.data);
+      es.addEventListener("connected", (_e) => {
+        // Server confirmed connection
       });
 
       es.addEventListener("booking:confirmed", (e) => {
@@ -79,7 +79,6 @@ export function useSseEvents() {
       });
 
       es.onerror = () => {
-        console.log("[SSE] Error, reconnecting...");
         es.close();
         if (isActive) {
           reconnectTimeoutRef.current = setTimeout(connect, 5000);
