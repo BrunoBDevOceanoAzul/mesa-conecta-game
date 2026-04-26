@@ -59,7 +59,35 @@ export async function mesaController(fastify: FastifyInstance) {
   const createMesaUseCase = new CreateMesaUseCase(repository);
 
   // GET /mesas — Listar mesas com filtros
-  fastify.get("/mesas", async (request, reply) => {
+  fastify.get("/mesas", {
+    schema: {
+      tags: ["Mesas"],
+      summary: "Listar mesas",
+      querystring: {
+        type: "object",
+        properties: {
+          city: { type: "string" },
+          system: { type: "string" },
+          format: { type: "string", enum: ["presencial", "online", "hibrido"] },
+          minPrice: { type: "number", minimum: 0 },
+          maxPrice: { type: "number", minimum: 0 },
+          startDate: { type: "string", format: "date-time" },
+          endDate: { type: "string", format: "date-time" },
+          status: { type: "string" },
+          lat: { type: "number" },
+          lng: { type: "number" },
+          radiusKm: { type: "number", minimum: 0.1, maximum: 100 },
+          limit: { type: "integer", default: 20, maximum: 50 },
+          offset: { type: "integer", default: 0 },
+        },
+      },
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "array" }, meta: { type: "object" } } },
+        400: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const query = listMesasQuerySchema.safeParse(request.query);
     if (!query.success) {
       return reply.status(400).send({

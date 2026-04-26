@@ -1,6 +1,8 @@
 import Fastify, { type FastifyInstance, type FastifyRequest, type FastifyReply } from "fastify";
 import cors from "@fastify/cors";
 import fastifyStatic from "@fastify/static";
+import swagger from "@fastify/swagger";
+import swaggerUi from "@fastify/swagger-ui";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -57,6 +59,34 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
 export async function buildApp() {
   const app = Fastify({
     logger: true,
+  });
+
+  // Swagger / OpenAPI docs
+  await app.register(swagger, {
+    openapi: {
+      info: {
+        title: "Mesa API",
+        description: "API da plataforma Mesa Conecta - Backend principal",
+        version: "1.0.0",
+      },
+      servers: [
+        { url: "https://dev.sociodotabuleiro.app.br/api", description: "Dev" },
+        { url: "http://localhost:8787", description: "Local" },
+      ],
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: "http",
+            scheme: "bearer",
+            bearerFormat: "JWT",
+          },
+        },
+      },
+    },
+  });
+  await app.register(swaggerUi, {
+    routePrefix: "/docs",
+    uiConfig: { docExpansion: "list", deepLinking: true },
   });
 
   // CORS para permitir requisições do frontend

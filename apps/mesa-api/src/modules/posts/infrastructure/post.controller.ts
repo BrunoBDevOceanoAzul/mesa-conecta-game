@@ -14,7 +14,30 @@ export async function postController(fastify: FastifyInstance) {
   const repository = new DrizzlePostRepository();
 
   // POST /posts — Criar post
-  fastify.post("/posts", async (request, reply) => {
+  fastify.post("/posts", {
+    schema: {
+      tags: ["Posts"],
+      summary: "Criar post",
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: "object",
+        properties: {
+          content: { type: "string", minLength: 1, maxLength: 2000 },
+          type: { type: "string", enum: ["text", "image", "video", "mesa_share", "review_share", "event", "announcement"], default: "text" },
+          mesaId: { type: "string", format: "uuid" },
+          mediaUrls: { type: "array", items: { type: "string", format: "uri" }, maxItems: 5 },
+          isPublic: { type: "boolean", default: true },
+        },
+        required: ["content"],
+      },
+      response: {
+        201: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "object" } } },
+        400: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        401: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const body = createPostBodySchema.safeParse(request.body);
     if (!body.success) {
       return reply.status(400).send({ ok: false, error: "Invalid request body", details: body.error.flatten() });
@@ -35,7 +58,23 @@ export async function postController(fastify: FastifyInstance) {
   });
 
   // GET /posts — Feed público
-  fastify.get("/posts", async (request, reply) => {
+  fastify.get("/posts", {
+    schema: {
+      tags: ["Posts"],
+      summary: "Listar posts (feed)",
+      querystring: {
+        type: "object",
+        properties: {
+          limit: { type: "integer", default: 20, maximum: 50 },
+          offset: { type: "integer", default: 0 },
+        },
+      },
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "array" }, meta: { type: "object" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const { limit = "20", offset = "0" } = request.query as Record<string, string>;
     try {
       const result = await repository.listFeed({
@@ -50,7 +89,22 @@ export async function postController(fastify: FastifyInstance) {
   });
 
   // GET /posts/:id — Detalhe do post
-  fastify.get("/posts/:id", async (request, reply) => {
+  fastify.get("/posts/:id", {
+    schema: {
+      tags: ["Posts"],
+      summary: "Detalhe do post",
+      params: {
+        type: "object",
+        properties: { id: { type: "string", format: "uuid" } },
+        required: ["id"],
+      },
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "object" } } },
+        404: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     try {
       const post = await repository.findById(id);
@@ -65,7 +119,24 @@ export async function postController(fastify: FastifyInstance) {
   });
 
   // DELETE /posts/:id — Deletar post
-  fastify.delete("/posts/:id", async (request, reply) => {
+  fastify.delete("/posts/:id", {
+    schema: {
+      tags: ["Posts"],
+      summary: "Deletar post",
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: "object",
+        properties: { id: { type: "string", format: "uuid" } },
+        required: ["id"],
+      },
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" } } },
+        401: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        404: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const user = request.user;
     if (!user?.id) {
