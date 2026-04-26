@@ -2,8 +2,9 @@ import { Heart, MessageCircle, Share2, Sparkles, ExternalLink, MapPin, Calendar,
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { likesApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "@/hooks/use-toast";
 import { SharePostModal } from "@/components/feed/SharePostModal";
@@ -86,10 +87,19 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
     setLikesCount((c) => c + (newLiked ? 1 : -1));
     onLikeToggle?.(post.id, newLiked);
 
-    if (newLiked) {
-      await supabase.from("post_likes").insert({ post_id: post.id, user_id: user.id });
-    } else {
-      await supabase.from("post_likes").delete().eq("post_id", post.id).eq("user_id", user.id);
+    try {
+      const response = await likesApi.togglePostLike(post.id);
+      const data = await response.json();
+      if (data.ok) {
+        setLiked(data.liked ?? newLiked);
+        if (typeof data.likeCount === "number") {
+          setLikesCount(data.likeCount);
+        }
+      }
+    } catch (err) {
+      // Revert on error
+      setLiked(liked);
+      setLikesCount(likesCount);
     }
   };
 
