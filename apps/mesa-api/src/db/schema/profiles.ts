@@ -81,6 +81,8 @@ export const profiles = pgTable(
     brandObjective: text("brand_objective"),
     brandAudience: text("brand_audience").array().default(sql`'{}'::text[]`),
     brandBudget: text("brand_budget"),
+    ghostMode: boolean("ghost_mode").default(false),
+    privacySettings: jsonb("privacy_settings").default(sql`'{"network": true, "hives": true, "market": true, "academy": true, "playground": true, "radar": true}'::jsonb`),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
