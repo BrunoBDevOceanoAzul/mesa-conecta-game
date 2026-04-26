@@ -9,6 +9,7 @@ import { notifyBookingConfirmed, notifyBookingCanceled } from "../../notificatio
 import { db } from "../../../db/client.js";
 import { bookings } from "../../../db/schema/bookings.js";
 import { mesas } from "../../../db/schema/mesas.js";
+import { hives, hiveMembers } from "../../../db/schema/hives.js";
 
 const createBookingBodySchema = z.object({
   gameTableId: z.string().uuid(),
@@ -93,6 +94,27 @@ export async function bookingController(fastify: FastifyInstance) {
 
       // Notificar jogador via SSE
       notifyBookingConfirmed(user.id, booking.toJSON());
+
+      // Auto-join: adicionar jogador ao clã do mestre (Hive CRM)
+      try {
+        const [gmHive] = await db.select({ id: hives.id })
+          .from(hives)
+          .where(eq(hives.ownerId, gmUserId))
+          .limit(1);
+
+        if (gmHive) {
+          await db.insert(hiveMembers)
+            .values({
+              hiveId: gmHive.id,
+              userId: user.id,
+              role: 'member',
+            })
+            .onConflictDoNothing();
+        }
+      } catch (joinErr) {
+        // Não falhar o booking se o auto-join der erro
+        fastify.log.warn({ err: joinErr }, "Auto-join to hive failed, but booking succeeded");
+      }
 
       return reply.status(201).send({
         ok: true,
