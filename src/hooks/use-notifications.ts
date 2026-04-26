@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { notificationsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
 
 export interface AppNotification {
@@ -15,60 +15,104 @@ export interface AppNotification {
   updated_at: string;
 }
 
+function mapApiNotification(apiNotification: any): AppNotification {
+  return {
+    id: apiNotification.id,
+    user_id: apiNotification.userId,
+    notification_type: apiNotification.type,
+    title: apiNotification.title ?? "",
+    body: apiNotification.body ?? null,
+    action_url: apiNotification.dataJson?.actionUrl ?? null,
+    is_read: apiNotification.isRead ?? false,
+    read_at: apiNotification.readAt ?? null,
+    created_at: apiNotification.createdAt,
+    updated_at: apiNotification.createdAt,
+  };
+}
+
 export function useNotifications() {
   const { user } = useAuth();
   const [notifications, setNotifications] = useState<AppNotification[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const fetchNotifications = useCallback(async () => {
-    if (!user) { setNotifications([]); setLoading(false); return; }
-    const { data } = await supabase
-      .from("notifications")
-      .select("*")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false })
-      .limit(50);
-    setNotifications((data as AppNotification[] | null) ?? []);
-    setLoading(false);
+    if (!user) {
+      setNotifications([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await notificationsApi.list({ limit: 50 });
+      const data = await response.json();
+      if (data.ok && Array.isArray(data.data)) {
+        setNotifications(data.data.map(mapApiNotification));
+      } else {
+        setError(data.error || "Falha ao carregar notificações");
+        setNotifications([]);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro de rede");
+      setNotifications([]);
+    } finally {
+      setLoading(false);
+    }
   }, [user]);
 
-  useEffect(() => { fetchNotifications(); }, [fetchNotifications]);
-
-  // realtime
   useEffect(() => {
-    if (!user) return;
-    const channel = supabase
-      .channel("notifications-" + user.id)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${user.id}` },
-        () => fetchNotifications()
-      )
-      .subscribe();
-    return () => { supabase.removeChannel(channel); };
-  }, [user, fetchNotifications]);
+    fetchNotifications();
+  }, [fetchNotifications]);
 
   const markAsRead = useCallback(async (id: string) => {
-    await supabase
-      .from("notifications")
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .eq("id", id);
-    setNotifications((prev) =>
-      prev.map((n) => (n.id === id ? { ...n, is_read: true, read_at: new Date().toISOString() } : n))
-    );
+    try {
+      const response = await notificationsApi.markAsRead(id);
+      const data = await response.json();
+      if (data.ok) {
+        setNotifications((prev) =>
+          prev.map((n) =>
+            n.id === id
+              ? { ...n, is_read: true, read_at: new Date().toISOString() }
+              : n
+          )
+        );
+      }
+      return data;
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : "Erro de rede" };
+    }
   }, []);
 
   const markAllAsRead = useCallback(async () => {
     if (!user) return;
-    await supabase
-      .from("notifications")
-      .update({ is_read: true, read_at: new Date().toISOString() })
-      .eq("user_id", user.id)
-      .eq("is_read", false);
-    setNotifications((prev) => prev.map((n) => ({ ...n, is_read: true, read_at: new Date().toISOString() })));
+    try {
+      const response = await notificationsApi.markAllAsRead();
+      const data = await response.json();
+      if (data.ok) {
+        setNotifications((prev) =>
+          prev.map((n) => ({
+            ...n,
+            is_read: true,
+            read_at: new Date().toISOString(),
+          }))
+        );
+      }
+      return data;
+    } catch (err) {
+      return { ok: false, error: err instanceof Error ? err.message : "Erro de rede" };
+    }
   }, [user]);
 
-  return { notifications, unreadCount, loading, markAsRead, markAllAsRead, refetch: fetchNotifications };
+  return {
+    notifications,
+    unreadCount,
+    loading,
+    error,
+    markAsRead,
+    markAllAsRead,
+    refetch: fetchNotifications,
+  };
 }
