@@ -26,7 +26,33 @@ export async function bookingController(fastify: FastifyInstance) {
   const cancelBookingUseCase = new CancelBookingUseCase(repository);
 
   // POST /bookings — Criar reserva
-  fastify.post("/bookings", async (request, reply) => {
+  fastify.post("/bookings", {
+    schema: {
+      tags: ["Bookings"],
+      summary: "Criar reserva",
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: "object",
+        properties: {
+          gameTableId: { type: "string", format: "uuid" },
+          tableSessionId: { type: "string", format: "uuid" },
+          seatsReserved: { type: "integer", minimum: 1, maximum: 10, default: 1 },
+          amount: { type: "string", default: "0" },
+          currency: { type: "string", default: "BRL" },
+          sourceType: { type: "string", enum: ["organic", "referral", "campaign", "boost"], default: "organic" },
+          status: { type: "string", enum: ["pending", "confirmed", "canceled", "completed", "refunded", "waitlist"], default: "pending" },
+        },
+        required: ["gameTableId"],
+      },
+      response: {
+        201: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "object" } } },
+        400: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        401: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        409: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const body = createBookingBodySchema.safeParse(request.body);
     if (!body.success) {
       return reply.status(400).send({
@@ -85,7 +111,18 @@ export async function bookingController(fastify: FastifyInstance) {
   });
 
   // GET /bookings/me — Minhas reservas (com dados da mesa)
-  fastify.get("/bookings/me", async (request, reply) => {
+  fastify.get("/bookings/me", {
+    schema: {
+      tags: ["Bookings"],
+      summary: "Minhas reservas",
+      security: [{ bearerAuth: [] }],
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "array" }, meta: { type: "object" } } },
+        401: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const user = request.user;
     if (!user?.id) {
       return reply.status(401).send({
@@ -148,7 +185,26 @@ export async function bookingController(fastify: FastifyInstance) {
   });
 
   // PATCH /bookings/:id/cancel — Cancelar reserva
-  fastify.patch("/bookings/:id/cancel", async (request, reply) => {
+  fastify.patch("/bookings/:id/cancel", {
+    schema: {
+      tags: ["Bookings"],
+      summary: "Cancelar reserva",
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: "object",
+        properties: { id: { type: "string", format: "uuid" } },
+        required: ["id"],
+      },
+      response: {
+        200: { type: "object", properties: { ok: { type: "boolean" }, data: { type: "object" } } },
+        401: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        403: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        404: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        409: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+        500: { type: "object", properties: { ok: { type: "boolean" }, error: { type: "string" } } },
+      },
+    },
+  }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const user = request.user;
 
