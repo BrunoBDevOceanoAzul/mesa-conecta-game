@@ -197,6 +197,8 @@ scan:backend:
       kustomize version
     - |
       echo "Installing doctl..."
+      export USER=gitlab
+      export HOME=$PWD
       curl -sL https://github.com/digitalocean/doctl/releases/download/v1.120.0/doctl-1.120.0-linux-amd64.tar.gz | tar -xzv -C ./bin/
       export PATH=$PWD/bin:$PATH
       doctl version
