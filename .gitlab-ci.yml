@@ -191,9 +191,9 @@ scan:backend:
     - |
       echo "Installing kustomize..."
       curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-      mkdir -p ~/.local/bin
-      mv kustomize ~/.local/bin/
-      export PATH=$HOME/.local/bin:$PATH
+      mkdir -p ./bin
+      mv kustomize ./bin/
+      export PATH=$PWD/bin:$PATH
       kustomize version
     - |
       echo "Setting up kubeconfig..."
