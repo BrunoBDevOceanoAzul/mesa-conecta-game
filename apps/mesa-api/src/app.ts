@@ -13,6 +13,7 @@ import { mesaController } from "./modules/mesas/infrastructure/mesa.controller.j
 import { bookingController } from "./modules/bookings/infrastructure/booking.controller.js";
 import { sseController } from "./modules/notifications/infrastructure/sse.controller.js";
 import { paymentController } from "./modules/payments/infrastructure/payment.controller.js";
+import { asaasAccountController } from "./modules/asaas-accounts/infrastructure/asaas-account.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -38,6 +39,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(bookingController, { prefix: routePrefix });
   await app.register(sseController, { prefix: routePrefix });
   await app.register(paymentController, { prefix: routePrefix });
+  await app.register(asaasAccountController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
@@ -89,7 +91,9 @@ export async function buildApp() {
         url.startsWith("/auth") ||
         url.startsWith("/api/auth") ||
         url.startsWith("/profiles") ||
-        url.startsWith("/api/profiles")
+        url.startsWith("/api/profiles") ||
+        url.startsWith("/asaas") ||
+        url.startsWith("/api/asaas")
       ) {
         return reply.callNotFound();
       }
