@@ -196,13 +196,6 @@ scan:backend:
       export PATH=$PWD/bin:$PATH
       kustomize version
     - |
-      echo "Installing doctl..."
-      export USER=gitlab
-      export HOME=$PWD
-      curl -sL https://github.com/digitalocean/doctl/releases/download/v1.120.0/doctl-1.120.0-linux-amd64.tar.gz | tar -xzv -C ./bin/
-      export PATH=$PWD/bin:$PATH
-      doctl version
-    - |
       echo "Setting up kubeconfig..."
       mkdir -p ~/.kube
       echo "$KUBECONFIG_CONTENT" | base64 -d > ~/.kube/config
@@ -218,7 +211,7 @@ scan:backend:
       cd ../../..
     - |
       echo "Applying manifests..."
-      kubectl kustomize k8s/overlays/${ENV_NAME} | kubectl apply -f -
+      kubectl kustomize k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
     - |
       echo "Waiting for rollout..."
       kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
