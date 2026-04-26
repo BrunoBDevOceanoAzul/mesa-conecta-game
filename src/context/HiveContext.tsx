@@ -37,6 +37,12 @@ export interface PrivacySettings {
   radar: boolean;
 }
 
+/** Configuração de overlay aberto */
+export interface OverlayConfig {
+  id: string;
+  params: Record<string, string>;
+}
+
 interface HiveContextType {
   // Estado
   isGhostMode: boolean;
@@ -44,6 +50,7 @@ interface HiveContextType {
   isExpanded: boolean;
   isMobile: boolean;
   privacySettings: PrivacySettings;
+  overlays: OverlayConfig[];
   
   // Ações
   toggleGhostMode: () => void;
@@ -51,6 +58,8 @@ interface HiveContextType {
   handleHexClick: (id: HiveFrequency | 'user') => void;
   setPrivacySettings: (settings: Partial<PrivacySettings>) => void;
   goHome: () => void;
+  openOverlay: (id: string, params?: Record<string, string>) => void;
+  closeOverlay: () => void;
 }
 
 const DEFAULT_PRIVACY: PrivacySettings = {
@@ -70,6 +79,7 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [privacySettings, setPrivacyState] = useState<PrivacySettings>(DEFAULT_PRIVACY);
+  const [overlays, setOverlays] = useState<OverlayConfig[]>([]);
 
   // Detectar mobile
   useEffect(() => {
@@ -140,6 +150,15 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  // Gerenciar overlays
+  const openOverlay = useCallback((id: string, params?: Record<string, string>) => {
+    setOverlays((prev) => [...prev, { id, params: params || {} }]);
+  }, []);
+
+  const closeOverlay = useCallback(() => {
+    setOverlays((prev) => prev.slice(0, -1));
+  }, []);
+
   return (
     <HiveContext.Provider value={{ 
       isGhostMode, 
@@ -152,6 +171,9 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
       privacySettings,
       setPrivacySettings,
       goHome,
+      overlays,
+      openOverlay,
+      closeOverlay,
     }}>
       {children}
     </HiveContext.Provider>
