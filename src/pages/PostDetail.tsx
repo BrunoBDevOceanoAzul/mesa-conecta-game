@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { postsApi, likesApi } from "@/lib/api";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { PostComments } from "@/components/feed/PostComments";
@@ -37,9 +38,63 @@ export default function PostDetail() {
 
   const fetchPost = async () => {
     setLoading(true);
-    // Try slug first, then id
+
+    // Try API first if slug looks like UUID
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(slug || "");
+
+    if (isUuid) {
+      try {
+        const response = await postsApi.getById(slug!);
+        const result = await response.json();
+        if (result.ok && result.data) {
+          const p = result.data;
+          const enriched: FeedPost = {
+            id: p.id,
+            author_id: p.userId,
+            author_role: p.author?.role ?? "player",
+            post_type: p.type,
+            title: null,
+            content: p.content,
+            image_url: p.mediaUrls?.[0] ?? null,
+            status: "published",
+            is_sponsored: false,
+            sponsor_label: null,
+            related_table_id: p.mesaId ?? null,
+            cta_text: null,
+            cta_url: null,
+            tags: [],
+            impressions: 0,
+            clicks: 0,
+            shares: p.shareCount ?? 0,
+            likes_count: p.likeCount ?? 0,
+            published_at: p.createdAt,
+            slug: p.author?.slug ?? null,
+            author_name: p.author?.name ?? "Usuário",
+            author_avatar_url: p.author?.avatarUrl ?? undefined,
+            author_slug: p.author?.slug ?? undefined,
+            author_city: p.author?.city ?? undefined,
+            table_title: p.mesa?.title ?? undefined,
+            table_system: p.mesa?.system ?? undefined,
+            table_seats: undefined,
+            table_start_at: p.mesa?.startAt ?? undefined,
+            table_slug: p.mesa?.slug ?? undefined,
+            user_liked: p.userLiked ?? false,
+          };
+          setPost(enriched);
+          setLiked(p.userLiked ?? false);
+          setLikesCount(p.likeCount ?? 0);
+          setLoading(false);
+          // SEO and related posts still via Supabase for now
+          fetchRelated(p.userId, p.id, []);
+          return;
+        }
+      } catch (err) {
+        // Fall through to Supabase fallback
+      }
+    }
+
+    // Fallback to Supabase for slug-based lookup
     let query = supabase.from("community_posts").select("*").eq("status", "published");
-    const isUuid = /^[0-9a-f]{8}-/.test(slug || "");
     if (isUuid) {
       query = query.eq("id", slug!);
     } else {
@@ -206,13 +261,26 @@ export default function PostDetail() {
 
   const handleLike = async () => {
     if (!user) { navigate("/login"); return; }
+    if (!post) return;
+
+    // Optimistic update
     const newLiked = !liked;
     setLiked(newLiked);
     setLikesCount((c) => c + (newLiked ? 1 : -1));
-    if (newLiked) {
-      await supabase.from("post_likes").insert({ post_id: post!.id, user_id: user.id });
-    } else {
-      await supabase.from("post_likes").delete().eq("post_id", post!.id).eq("user_id", user.id);
+
+    try {
+      const result = await likesApi.togglePostLike(post.id);
+      const data = await result.json();
+      if (data.ok) {
+        setLiked(data.liked ?? newLiked);
+        if (typeof data.likeCount === "number") {
+          setLikesCount(data.likeCount);
+        }
+      }
+    } catch (err) {
+      // Revert on error
+      setLiked(liked);
+      setLikesCount(likesCount);
     }
   };
 
