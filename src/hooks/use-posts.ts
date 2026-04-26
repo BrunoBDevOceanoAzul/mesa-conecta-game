@@ -6,6 +6,9 @@ import type { FeedPost } from "@/components/feed/FeedPostCard";
 interface UsePostsOptions {
   limit?: number;
   offset?: number;
+  role?: string;
+  type?: string;
+  sponsored?: boolean;
 }
 
 function mapApiPostToFeedPost(apiPost: any): FeedPost {
@@ -57,6 +60,9 @@ export function usePosts(options: UsePostsOptions = {}) {
       const response = await postsApi.list({
         limit: options.limit ?? 20,
         offset: options.offset ?? 0,
+        role: options.role,
+        type: options.type,
+        sponsored: options.sponsored,
       });
       const data = await response.json();
       if (data.ok && Array.isArray(data.data)) {
@@ -72,7 +78,7 @@ export function usePosts(options: UsePostsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [options.limit, options.offset]);
+  }, [options.limit, options.offset, options.role, options.type, options.sponsored]);
 
   useEffect(() => {
     fetchPosts();

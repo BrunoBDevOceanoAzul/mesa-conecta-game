@@ -66,7 +66,7 @@ export interface CreatePostInput {
 export interface PostRepository {
   create(data: CreatePostInput): Promise<Post>;
   findById(id: string): Promise<Post | null>;
-  listFeed(params: { limit: number; offset: number; userId?: string }): Promise<{ posts: Post[]; total: number }>;
+  listFeed(params: { limit: number; offset: number; userId?: string; role?: string; type?: string; sponsored?: boolean }): Promise<{ posts: Post[]; total: number }>;
   listByUser(userId: string, params: { limit: number; offset: number }): Promise<{ posts: Post[]; total: number }>;
   delete(id: string, userId: string): Promise<boolean>;
 }
