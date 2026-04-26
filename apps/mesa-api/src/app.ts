@@ -18,6 +18,7 @@ import { postController } from "./modules/posts/infrastructure/post.controller.j
 import { commentController } from "./modules/comments/infrastructure/comment.controller.js";
 import { likeController } from "./modules/likes/infrastructure/like.controller.js";
 import { notificationController } from "./modules/notifications/infrastructure/notification.controller.js";
+import { adminController } from "./modules/admin/infrastructure/admin.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,6 +49,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(commentController, { prefix: routePrefix });
   await app.register(likeController, { prefix: routePrefix });
   await app.register(notificationController, { prefix: routePrefix });
+  await app.register(adminController, { prefix: routePrefix });
 }
 
 export async function buildApp() {
@@ -107,7 +109,9 @@ export async function buildApp() {
         url.startsWith("/comments") ||
         url.startsWith("/api/comments") ||
         url.startsWith("/notifications") ||
-        url.startsWith("/api/notifications")
+        url.startsWith("/api/notifications") ||
+        url.startsWith("/admin") ||
+        url.startsWith("/api/admin")
       ) {
         return reply.callNotFound();
       }
