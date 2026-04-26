@@ -378,6 +378,144 @@ export const bookingsApi = {
 };
 
 /**
+ * Posts — Feed e comunidade
+ */
+export const postsApi = {
+  /**
+   * Listar posts (feed público)
+   */
+  list: async (params?: { limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.offset) query.set("offset", String(params.offset));
+    return fetchWithAuth(`/posts?${query.toString()}`);
+  },
+
+  /**
+   * Buscar post por ID
+   */
+  getById: async (id: string) => {
+    return fetchWithAuth(`/posts/${id}`);
+  },
+
+  /**
+   * Criar post
+   */
+  create: async (post: {
+    content: string;
+    type?: "text" | "image" | "video" | "mesa_share" | "review_share" | "event" | "announcement";
+    mesaId?: string;
+    mediaUrls?: string[];
+    isPublic?: boolean;
+  }) => {
+    return fetchWithAuth("/posts", {
+      method: "POST",
+      body: JSON.stringify(post),
+    });
+  },
+
+  /**
+   * Deletar post
+   */
+  delete: async (id: string) => {
+    return fetchWithAuth(`/posts/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+/**
+ * Comments — Comentários
+ */
+export const commentsApi = {
+  /**
+   * Listar comentários de um post
+   */
+  listByPost: async (postId: string, params?: { limit?: number; offset?: number }) => {
+    const query = new URLSearchParams();
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.offset) query.set("offset", String(params.offset));
+    return fetchWithAuth(`/posts/${postId}/comments?${query.toString()}`);
+  },
+
+  /**
+   * Criar comentário
+   */
+  create: async (postId: string, content: string) => {
+    return fetchWithAuth(`/posts/${postId}/comments`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+    });
+  },
+
+  /**
+   * Deletar comentário
+   */
+  delete: async (id: string) => {
+    return fetchWithAuth(`/comments/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+/**
+ * Likes — Curtidas
+ */
+export const likesApi = {
+  /**
+   * Toggle like em post (curtir/descurtir)
+   */
+  togglePostLike: async (postId: string) => {
+    return fetchWithAuth(`/posts/${postId}/like`, {
+      method: "POST",
+    });
+  },
+
+  /**
+   * Toggle like em comentário
+   */
+  toggleCommentLike: async (commentId: string) => {
+    return fetchWithAuth(`/comments/${commentId}/like`, {
+      method: "POST",
+    });
+  },
+};
+
+/**
+ * Notifications — Notificações
+ */
+export const notificationsApi = {
+  /**
+   * Listar notificações
+   */
+  list: async (params?: { limit?: number; offset?: number; unreadOnly?: boolean }) => {
+    const query = new URLSearchParams();
+    if (params?.limit) query.set("limit", String(params.limit));
+    if (params?.offset) query.set("offset", String(params.offset));
+    if (params?.unreadOnly) query.set("unreadOnly", "true");
+    return fetchWithAuth(`/notifications?${query.toString()}`);
+  },
+
+  /**
+   * Marcar notificação como lida
+   */
+  markAsRead: async (id: string) => {
+    return fetchWithAuth(`/notifications/${id}/read`, {
+      method: "PATCH",
+    });
+  },
+
+  /**
+   * Marcar todas como lidas
+   */
+  markAllAsRead: async () => {
+    return fetchWithAuth("/notifications/read-all", {
+      method: "PATCH",
+    });
+  },
+};
+
+/**
  * Health check da API
  */
 export const healthApi = {
