@@ -53,7 +53,8 @@ validate:
   before_script:
     - npm ci
   script:
-    - npm run lint || echo "Lint warnings present"
+    # Lint: non-blocking during migration. Full cleanup in FASE D (sanitization)
+    - npm run lint || true
     - npm test -- --run
     - npm run -w apps/mesa-api typecheck
     - npm run -w apps/mesa-api test
@@ -211,7 +212,7 @@ scan:backend:
       cd ../../..
     - |
       echo "Applying manifests..."
-      kubectl kustomize k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
+      ./bin/kustomize build k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
     - |
       echo "Waiting for rollout..."
       kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
