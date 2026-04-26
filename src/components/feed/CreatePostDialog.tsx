@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { PenSquare, Send, Loader2, Sparkles, Wand2, ImagePlus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { postsApi } from "@/lib/api";
 import { toast } from "@/hooks/use-toast";
 import { containsProfanity, PROFANITY_WARNING } from "@/lib/profanity-filter";
 import { Badge } from "@/components/ui/badge";
@@ -100,29 +101,37 @@ export function CreatePostDialog({ onCreated }: CreatePostDialogProps) {
       return;
     }
     setLoading(true);
-    const slug = title.trim() ? generateSlug(title) + "-" + Date.now().toString(36) : null;
 
-    const { error } = await supabase.from("community_posts").insert({
-      author_id: user.id,
-      author_role: profile.role,
-      post_type: postType,
-      title: title.trim() || null,
-      content: content.trim(),
-      image_url: imageUrl.trim() || null,
-      related_table_id: relatedTableId || null,
-      tags: tags.length > 0 ? tags : null,
-      slug,
-      status: "published",
-    });
-    setLoading(false);
-    if (error) {
-      toast({ title: "Erro ao publicar", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Publicado!", description: "Seu post está no ar." });
-      setContent(""); setTitle(""); setImageUrl(""); setRelatedTableId("");
-      setPostType("organic"); setTags([]); setTagInput("");
-      setOpen(false);
-      onCreated?.();
+    // Map frontend post types to API types
+    const typeMap: Record<string, string> = {
+      organic: "text",
+      table_announcement: "mesa_share",
+      event: "event",
+      institutional: "announcement",
+    };
+
+    try {
+      const response = await postsApi.create({
+        content: content.trim(),
+        type: (typeMap[postType] || "text") as any,
+        mesaId: relatedTableId || undefined,
+        mediaUrls: imageUrl.trim() ? [imageUrl.trim()] : undefined,
+      });
+      const data = await response.json();
+      setLoading(false);
+
+      if (!data.ok) {
+        toast({ title: "Erro ao publicar", description: data.error || "Tente novamente.", variant: "destructive" });
+      } else {
+        toast({ title: "Publicado!", description: "Seu post está no ar." });
+        setContent(""); setTitle(""); setImageUrl(""); setRelatedTableId("");
+        setPostType("organic"); setTags([]); setTagInput("");
+        setOpen(false);
+        onCreated?.();
+      }
+    } catch (err) {
+      setLoading(false);
+      toast({ title: "Erro ao publicar", description: err instanceof Error ? err.message : "Erro de rede", variant: "destructive" });
     }
   };
 
