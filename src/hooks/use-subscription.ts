@@ -269,14 +269,12 @@ export function useSubscription(): SubscriptionState {
 
   const cancelSubscription = useCallback(async (): Promise<boolean> => {
     if (!subscription?.stripe_subscription_id) return false;
-    // TODO: implement cancel-asaas-subscription edge function
-    console.warn("Cancel not yet implemented for Asaas");
+    // Not yet implemented — requires Asaas subscription cancellation API
     return false;
   }, [subscription]);
 
   const reactivateSubscription = useCallback(async (): Promise<boolean> => {
-    // TODO: implement reactivation
-    console.warn("Reactivate not yet implemented for Asaas");
+    // Not yet implemented — requires Asaas subscription reactivation API
     return false;
   }, []);
 

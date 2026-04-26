@@ -4,6 +4,7 @@ import { eq, and, sql } from "drizzle-orm";
 import { db } from "../../db/client.js";
 import { profiles, userRoles, playerProfiles, gmProfiles } from "../../db/schema/profiles.js";
 import { mesas } from "../../db/schema/mesas.js";
+import { bookings } from "../../db/schema/bookings.js";
 import { profileUpdateSchema } from "./schemas.js";
 
 const paramsSchema = z.object({
@@ -46,8 +47,13 @@ export async function profileRoutes(fastify: FastifyInstance) {
         .from(mesas)
         .where(eq(mesas.gmId, userId));
 
-      // Busca estatísticas de player (assumindo que há uma tabela de bookings no futuro)
-      // Por enquanto retornamos placeholders que serão preenchidos quando o módulo bookings estiver pronto
+      // Busca estatísticas de player
+      const [playerStats] = await db
+        .select({
+          totalBookings: sql<number>`count(*)::int`,
+        })
+        .from(bookings)
+        .where(eq(bookings.playerUserId, userId));
 
       // Busca playerProfile e gmProfile se existirem
       const [playerProfile] = await db
@@ -108,8 +114,7 @@ export async function profileRoutes(fastify: FastifyInstance) {
               reputationScore: gmProfile?.reputationScore || "0",
             },
             player: {
-              // TODO: Preencher quando o módulo bookings estiver completo
-              totalBookings: 0,
+              totalBookings: playerStats?.totalBookings || 0,
               totalReviews: 0,
             },
             memberSince: profile.createdAt,

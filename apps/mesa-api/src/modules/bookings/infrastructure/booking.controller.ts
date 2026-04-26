@@ -8,6 +8,7 @@ import { DrizzleBookingRepository } from "./drizzle-booking.repository.js";
 import { notifyBookingConfirmed, notifyBookingCanceled } from "../../notifications/infrastructure/notification.helpers.js";
 import { db } from "../../../db/client.js";
 import { bookings } from "../../../db/schema/bookings.js";
+import { mesas } from "../../../db/schema/mesas.js";
 
 const createBookingBodySchema = z.object({
   gameTableId: z.string().uuid(),
@@ -71,11 +72,15 @@ export async function bookingController(fastify: FastifyInstance) {
     }
 
     try {
+      // Buscar gmId da mesa
+      const [mesa] = await db.select({ gmId: mesas.gmId }).from(mesas).where(eq(mesas.id, body.data.gameTableId)).limit(1);
+      const gmUserId = mesa?.gmId ?? user.id;
+
       const booking = await createBookingUseCase.execute({
         gameTableId: body.data.gameTableId,
         tableSessionId: body.data.tableSessionId ?? null,
         playerUserId: user.id,
-        gmUserId: user.id, // TODO: buscar gmId da mesa
+        gmUserId,
         storeUserId: null,
         status: body.data.status,
         seatsReserved: body.data.seatsReserved,
