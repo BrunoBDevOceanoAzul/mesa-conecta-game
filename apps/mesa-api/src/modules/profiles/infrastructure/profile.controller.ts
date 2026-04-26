@@ -1,10 +1,13 @@
 import { FastifyInstance } from "fastify";
 import { z } from "zod";
+import { eq } from "drizzle-orm";
 import { GetMyProfileUseCase } from "../application/get-my-profile.use-case.js";
 import { GetPublicProfileUseCase, ProfilePrivateError } from "../application/get-public-profile.use-case.js";
 import { UpdateProfileUseCase } from "../application/update-profile.use-case.js";
 import { DrizzleProfileRepository } from "../infrastructure/drizzle-profile.repository.js";
 import { profileUpdateSchema } from "../schemas.js";
+import { db } from "../../../db/client.js";
+import { profiles } from "../../../db/schema/profiles.js";
 
 const paramsSchema = z.object({
   id: z.string().uuid(),
@@ -89,6 +92,104 @@ export async function profileController(fastify: FastifyInstance) {
     } catch (err) {
       fastify.log.error({ err }, "Failed to update profile");
       return reply.status(500).send({ error: "Internal server error" });
+    }
+  });
+
+  // PATCH /profiles/me/ghost — Toggle Ghost Mode
+  fastify.patch("/profiles/me/ghost", {
+    schema: {
+      tags: ["Profiles"],
+      summary: "Toggle Ghost Mode",
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: "object",
+        properties: {
+          ghostMode: { type: "boolean" },
+        },
+        required: ["ghostMode"],
+      },
+    },
+  }, async (request, reply) => {
+    if (!request.user?.id) {
+      return reply.status(401).send({ ok: false, error: "Unauthorized" });
+    }
+
+    const bodySchema = z.object({ ghostMode: z.boolean() });
+    const body = bodySchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ ok: false, error: "Invalid body", details: body.error.flatten() });
+    }
+
+    try {
+      await db.update(profiles)
+        .set({ ghostMode: body.data.ghostMode, updatedAt: new Date() })
+        .where(eq(profiles.userId, request.user.id));
+      
+      return reply.send({ ok: true, ghostMode: body.data.ghostMode });
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to update ghost mode");
+      return reply.status(500).send({ ok: false, error: "Internal server error" });
+    }
+  });
+
+  // PATCH /profiles/me/privacy — Update Privacy Settings
+  fastify.patch("/profiles/me/privacy", {
+    schema: {
+      tags: ["Profiles"],
+      summary: "Update Privacy Settings",
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: "object",
+        properties: {
+          network: { type: "boolean" },
+          hives: { type: "boolean" },
+          market: { type: "boolean" },
+          academy: { type: "boolean" },
+          playground: { type: "boolean" },
+          radar: { type: "boolean" },
+        },
+      },
+    },
+  }, async (request, reply) => {
+    if (!request.user?.id) {
+      return reply.status(401).send({ ok: false, error: "Unauthorized" });
+    }
+
+    const bodySchema = z.object({
+      network: z.boolean().optional(),
+      hives: z.boolean().optional(),
+      market: z.boolean().optional(),
+      academy: z.boolean().optional(),
+      playground: z.boolean().optional(),
+      radar: z.boolean().optional(),
+    });
+    const body = bodySchema.safeParse(request.body);
+    if (!body.success) {
+      return reply.status(400).send({ ok: false, error: "Invalid body", details: body.error.flatten() });
+    }
+
+    try {
+      // Get current privacy settings
+      const [profile] = await db.select({ privacySettings: profiles.privacySettings })
+        .from(profiles)
+        .where(eq(profiles.userId, request.user.id))
+        .limit(1);
+
+      const current = (profile?.privacySettings as Record<string, boolean>) || {
+        network: true, hives: true, market: true, 
+        academy: true, playground: true, radar: true,
+      };
+
+      const updated = { ...current, ...body.data };
+
+      await db.update(profiles)
+        .set({ privacySettings: updated, updatedAt: new Date() })
+        .where(eq(profiles.userId, request.user.id));
+
+      return reply.send({ ok: true, privacySettings: updated });
+    } catch (err) {
+      fastify.log.error({ err }, "Failed to update privacy settings");
+      return reply.status(500).send({ ok: false, error: "Internal server error" });
     }
   });
 }
