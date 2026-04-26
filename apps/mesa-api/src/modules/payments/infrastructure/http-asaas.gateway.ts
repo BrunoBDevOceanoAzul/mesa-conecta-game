@@ -3,10 +3,11 @@ import {
   CreatePaymentInput,
   AsaasPaymentResponse,
 } from "../domain/payment.js";
+import { AsaasCustomerGateway } from "../../asaas-accounts/domain/asaas-account.js";
 
 const ASAAS_BASE = "https://api.asaas.com/v3";
 
-export class HttpAsaasGateway implements AsaasGateway {
+export class HttpAsaasGateway implements AsaasGateway, AsaasCustomerGateway {
   constructor(private readonly apiKey: string) {}
 
   private async fetchAsaas(path: string, options: RequestInit = {}): Promise<unknown> {
@@ -25,6 +26,25 @@ export class HttpAsaasGateway implements AsaasGateway {
     }
 
     return response.json();
+  }
+
+  async createCustomer(input: {
+    name: string;
+    email: string;
+    cpfCnpj?: string;
+    phone?: string;
+    postalCode?: string;
+    externalReference?: string;
+  }): Promise<{ id: string; walletId?: string }> {
+    const result = await this.fetchAsaas("/customers", {
+      method: "POST",
+      body: JSON.stringify(input),
+    });
+    const data = result as Record<string, unknown>;
+    return {
+      id: String(data.id),
+      walletId: data.walletId ? String(data.walletId) : undefined,
+    };
   }
 
   async createPayment(input: CreatePaymentInput): Promise<AsaasPaymentResponse> {

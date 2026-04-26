@@ -280,6 +280,33 @@ export const couponRedemptions = pgTable("coupon_redemptions", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ============================================================
+// ASAAS ACCOUNTS (Subcontas)
+// ============================================================
+
+export const asaasAccountStatusEnum = pgEnum("asaas_account_status", [
+  "pending",
+  "active",
+  "inactive",
+  "suspended",
+]);
+
+export const asaasAccounts = pgTable("asaas_accounts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id").references(() => authUsers.id, { onDelete: "cascade" }).notNull().unique(),
+  asaasCustomerId: text("asaas_customer_id").notNull().unique(),
+  asaasWalletId: text("asaas_wallet_id"),
+  name: text("name"),
+  email: text("email"),
+  cpfCnpj: text("cpf_cnpj"),
+  phone: text("phone"),
+  postalCode: text("postal_code"),
+  status: asaasAccountStatusEnum("status").default("pending"),
+  metadataJson: jsonb("metadata_json").default(sql`'{}'::jsonb`),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
 export type BillingProduct = typeof billingProducts.$inferSelect;
 export type Plan = typeof plans.$inferSelect;
 export type Subscription = typeof subscriptions.$inferSelect;
@@ -290,3 +317,4 @@ export type CreditWallet = typeof creditWallets.$inferSelect;
 export type CreditTransaction = typeof creditTransactions.$inferSelect;
 export type DiscountCoupon = typeof discountCoupons.$inferSelect;
 export type CouponRedemption = typeof couponRedemptions.$inferSelect;
+export type AsaasAccount = typeof asaasAccounts.$inferSelect;
