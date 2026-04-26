@@ -247,7 +247,6 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
       });
 
       const data = await response.json();
-      console.log("[BookingFlow] Checkout response:", response.status, data);
 
       // Handle business errors from the response body
       const errorCode = data?.error_code || data?.error;
