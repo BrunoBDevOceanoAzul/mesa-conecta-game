@@ -123,14 +123,17 @@ export async function bookingController(fastify: FastifyInstance) {
           created_at: row.createdAt,
           updated_at: row.updatedAt,
           mesas: row.gameTable
-            ? {
-                id: row.gameTable.id,
-                title: row.gameTable.title,
-                system: row.gameTable.system,
-                city: row.gameTable.city,
-                start_at: row.gameTable.startAt,
-                image_url: row.gameTable.imageUrl,
-              }
+            ? (() => {
+                const gt = row.gameTable as Record<string, any>;
+                return {
+                  id: gt.id,
+                  title: gt.title,
+                  system: gt.system,
+                  city: gt.city,
+                  start_at: gt.startAt,
+                  image_url: gt.imageUrl,
+                };
+              })()
             : null,
         })),
         meta: { total: rows.length },
