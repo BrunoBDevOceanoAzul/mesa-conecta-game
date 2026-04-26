@@ -72,7 +72,10 @@ export class DrizzlePostRepository implements PostRepository {
     return !!row;
   }
 
-  private toDomain(row: any): Post {
+  private toDomain(row: any, currentUserId?: string): Post {
+    const user = row.user;
+    const mesa = row.mesa;
+
     return new Post({
       id: row.id,
       userId: row.userId,
@@ -86,6 +89,25 @@ export class DrizzlePostRepository implements PostRepository {
       likeCount: row.likeCount ?? 0,
       commentCount: row.commentCount ?? 0,
       shareCount: row.shareCount ?? 0,
+      author: user
+        ? {
+            name: user.rawUserMetaData?.name ?? user.rawUserMetaData?.full_name ?? null,
+            avatarUrl: user.rawUserMetaData?.avatar_url ?? null,
+            slug: user.rawUserMetaData?.slug ?? null,
+            city: user.rawUserMetaData?.city ?? null,
+            role: user.rawUserMetaData?.role ?? null,
+          }
+        : null,
+      mesa: mesa
+        ? {
+            id: mesa.id,
+            title: mesa.title,
+            system: mesa.system,
+            startAt: mesa.startAt ?? null,
+            slug: mesa.slug ?? null,
+          }
+        : null,
+      userLiked: false,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     });

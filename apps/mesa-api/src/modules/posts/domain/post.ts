@@ -1,3 +1,19 @@
+export interface PostAuthor {
+  name: string | null;
+  avatarUrl: string | null;
+  slug: string | null;
+  city: string | null;
+  role: string | null;
+}
+
+export interface PostMesa {
+  id: string | null;
+  title: string | null;
+  system: string | null;
+  startAt: Date | null;
+  slug: string | null;
+}
+
 export interface PostData {
   id: string;
   userId: string;
@@ -11,6 +27,9 @@ export interface PostData {
   likeCount: number;
   commentCount: number;
   shareCount: number;
+  author: PostAuthor | null;
+  mesa: PostMesa | null;
+  userLiked: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +45,8 @@ export class Post {
   get isPinned(): boolean { return this.data.isPinned; }
   get likeCount(): number { return this.data.likeCount; }
   get commentCount(): number { return this.data.commentCount; }
+  get author(): PostAuthor | null { return this.data.author; }
+  get mesa(): PostMesa | null { return this.data.mesa; }
   get createdAt(): Date { return this.data.createdAt; }
 
   toJSON() {
