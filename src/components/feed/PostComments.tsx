@@ -1,20 +1,11 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useComments } from "@/hooks/use-comments";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
-
-interface Comment {
-  id: string;
-  content: string;
-  author_user_id: string;
-  created_at: string;
-  author_name?: string;
-  author_role?: string;
-}
 
 const roleBadge: Record<string, string> = {
   gm: "Mestre",
@@ -27,61 +18,20 @@ const roleBadge: Record<string, string> = {
 export function PostComments({ postId }: { postId: string }) {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [comments, setComments] = useState<Comment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { comments, loading, createComment } = useComments({ postId, limit: 100 });
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
-
-  const fetchComments = async () => {
-    setLoading(true);
-    const { data: rawComments } = await supabase
-      .from("post_comments")
-      .select("*")
-      .eq("post_id", postId)
-      .eq("status", "published")
-      .order("created_at", { ascending: true })
-      .limit(100);
-
-    if (!rawComments || rawComments.length === 0) {
-      setComments([]);
-      setLoading(false);
-      return;
-    }
-
-    const authorIds = [...new Set(rawComments.map((c: any) => c.author_user_id))];
-    const { data: profiles } = await supabase
-      .from("profiles")
-      .select("user_id, name, role")
-      .in("user_id", authorIds);
-
-    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
-
-    setComments(
-      rawComments.map((c: any) => {
-        const p = profileMap.get(c.author_user_id);
-        return { ...c, author_name: p?.name || "Usuário", author_role: p?.role || "player" };
-      })
-    );
-    setLoading(false);
-  };
-
-  useEffect(() => { fetchComments(); }, [postId]);
 
   const handleSubmit = async () => {
     if (!user) { navigate("/login"); return; }
     if (!content.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from("post_comments").insert({
-      post_id: postId,
-      author_user_id: user.id,
-      content: content.trim(),
-    });
+    const result = await createComment(content.trim());
     setSubmitting(false);
-    if (error) {
-      toast({ title: "Erro ao comentar", description: error.message, variant: "destructive" });
+    if (!result.ok) {
+      toast({ title: "Erro ao comentar", description: result.error || "Tente novamente.", variant: "destructive" });
     } else {
       setContent("");
-      fetchComments();
     }
   };
 
@@ -137,13 +87,13 @@ export function PostComments({ postId }: { postId: string }) {
             <div key={c.id} className="rounded-lg border border-border bg-card/50 p-4">
               <div className="flex items-center gap-2 mb-2">
                 <div className="h-7 w-7 rounded-full bg-primary/10 flex items-center justify-center text-xs font-bold text-primary">
-                  {c.author_name?.charAt(0) || "?"}
+                  {c.authorName?.charAt(0) || "?"}
                 </div>
-                <span className="text-sm font-semibold text-foreground">{c.author_name}</span>
+                <span className="text-sm font-semibold text-foreground">{c.authorName}</span>
                 <span className="text-[10px] text-muted-foreground bg-muted rounded-full px-2 py-0.5">
-                  {roleBadge[c.author_role || "player"] || "Jogador"}
+                  {roleBadge["player"] || "Jogador"}
                 </span>
-                <span className="text-xs text-muted-foreground ml-auto">{timeAgo(c.created_at)}</span>
+                <span className="text-xs text-muted-foreground ml-auto">{timeAgo(c.createdAt)}</span>
               </div>
               <p className="text-sm text-foreground/85 leading-relaxed">{c.content}</p>
             </div>
