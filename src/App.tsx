@@ -53,6 +53,8 @@ import Unsubscribe from "./pages/Unsubscribe";
 import EditProfile from "./pages/EditProfile";
 import Favorites from "./pages/Favorites";
 import MyBookings from "./pages/MyBookings";
+import Hive from "./pages/Hive";
+import HiveAdmin from "./pages/HiveAdmin";
 import AccountSettings from "./pages/AccountSettings";
 import Referral from "./pages/Referral";
 import HelpCenter from "./pages/HelpCenter";
@@ -69,7 +71,12 @@ const App = () => (
         <BrowserRouter>
           <ErrorBoundary>
             <Routes>
-              <Route path="/" element={<Index />} />
+              <Route path="/" element={<ProtectedRoute><Hive /></ProtectedRoute>} />
+              <Route path="/hive" element={<ProtectedRoute><Hive /></ProtectedRoute>} />
+              <Route path="/hive_admin/:userId" element={<ProtectedRoute allowedRoles={["admin"]}><HiveAdmin /></ProtectedRoute>} />
+              <Route path="/dashboard/jogador" element={<Navigate to="/hive" replace />} />
+              <Route path="/dashboard/mestre" element={<Navigate to="/hive" replace />} />
+              <Route path="/dashboard/loja" element={<Navigate to="/hive" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/cadastro" element={<Signup />} />
               <Route path="/reset-password" element={<ResetPassword />} />
@@ -88,9 +95,6 @@ const App = () => (
               <Route path="/ajuda" element={<HelpCenter />} />
               <Route path="/onboarding" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
               <Route path="/onboarding/:role" element={<ProtectedRoute><Onboarding /></ProtectedRoute>} />
-              <Route path="/dashboard/jogador" element={<ProtectedRoute><PlayerDashboard /></ProtectedRoute>} />
-              <Route path="/dashboard/mestre" element={<ProtectedRoute><GMDashboard /></ProtectedRoute>} />
-              <Route path="/dashboard/loja" element={<ProtectedRoute><StoreDashboard /></ProtectedRoute>} />
               <Route path="/dashboard/marca" element={<ProtectedRoute allowedRoles={["brand"]}><BrandDashboard /></ProtectedRoute>} />
               <Route path="/boost" element={<ProtectedRoute allowedRoles={["gm", "store"]}><BoostDashboard /></ProtectedRoute>} />
               <Route path="/billing" element={<ProtectedRoute><Billing /></ProtectedRoute>} />

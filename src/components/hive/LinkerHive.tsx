@@ -15,7 +15,7 @@
 
 'use client';
 
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { HexagonAgent } from './HexagonAgent';
 import { useHive } from '@/context/HiveContext';
@@ -35,46 +35,79 @@ interface LinkerHiveProps {
 
 export const LinkerHive = memo(function LinkerHive({ hexagons }: LinkerHiveProps) {
   const { activeFrequency, isExpanded, isMobile, handleHexClick } = useHive();
+  const [showDock, setShowDock] = useState(true);
+  const lastScrollY = useRef(0);
   
   const centralHex = hexagons.find(h => h.isCentral);
   const satellites = hexagons.filter(h => !h.isCentral);
+
+  // Mobile: Dock flutuante com scroll detection
+  useEffect(() => {
+    if (!isMobile) return;
+    
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      // Mostrar dock quando scrolla pra cima ou está no topo
+      // Esconder quando scrolla pra baixo e já passou de 100px
+      if (currentScrollY < 100) {
+        setShowDock(true);
+      } else if (currentScrollY > lastScrollY.current) {
+        setShowDock(false);
+      } else {
+        setShowDock(true);
+      }
+      lastScrollY.current = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [isMobile]);
   
-  // Mobile: Renderizar como dock inferior
+  // Mobile: Renderizar como dock inferior flutuante
   if (isMobile) {
     return (
-      <motion.nav 
-        className="fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 safe-area-bottom"
-        initial={{ y: 100 }}
-        animate={{ y: 0 }}
-        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-      >
-        <div className="flex items-center justify-around px-2 py-2">
-          {hexagons.map((hex) => (
-            <button
-              key={hex.id}
-              onClick={() => handleHexClick(hex.id as HiveFrequency | 'user')}
-              className={`
-                flex flex-col items-center gap-1 p-2 rounded-xl transition-all min-w-[64px]
-                ${activeFrequency === hex.id 
-                  ? 'text-[#F7A731] scale-110' 
-                  : 'text-white/60 hover:text-white/80'
-                }
-              `}
-            >
-              <hex.icon className="w-5 h-5" strokeWidth={1.5} />
-              <span className="text-[9px] font-medium uppercase tracking-wider">
-                {hex.label}
-              </span>
-              {activeFrequency === hex.id && (
-                <motion.div
-                  className="absolute -top-1 w-1 h-1 rounded-full bg-[#F7A731]"
-                  layoutId="mobileIndicator"
-                />
-              )}
-            </button>
-          ))}
-        </div>
-      </motion.nav>
+      <>
+        {/* Área sensível na borda inferior para reexibir dock */}
+        {!showDock && (
+          <div 
+            className="fixed bottom-0 left-0 right-0 h-8 z-40"
+            onClick={() => setShowDock(true)}
+          />
+        )}
+        <motion.nav 
+          className="fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 safe-area-bottom"
+          initial={{ y: 100 }}
+          animate={{ y: showDock ? 0 : 100 }}
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+        >
+          <div className="flex items-center justify-around px-2 py-2">
+            {hexagons.map((hex) => (
+              <button
+                key={hex.id}
+                onClick={() => handleHexClick(hex.id as HiveFrequency | 'user')}
+                className={`
+                  flex flex-col items-center gap-1 p-2 rounded-xl transition-all min-w-[64px]
+                  ${activeFrequency === hex.id 
+                    ? 'text-[#F7A731] scale-110' 
+                    : 'text-white/60 hover:text-white/80'
+                  }
+                `}
+              >
+                <hex.icon className="w-5 h-5" strokeWidth={1.5} />
+                <span className="text-[9px] font-medium uppercase tracking-wider">
+                  {hex.label}
+                </span>
+                {activeFrequency === hex.id && (
+                  <motion.div
+                    className="absolute -top-1 w-1 h-1 rounded-full bg-[#F7A731]"
+                    layoutId="mobileIndicator"
+                  />
+                )}
+              </button>
+            ))}
+          </div>
+        </motion.nav>
+      </>
     );
   }
   

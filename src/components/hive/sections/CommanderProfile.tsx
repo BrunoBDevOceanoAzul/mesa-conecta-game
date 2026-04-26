@@ -1,65 +1,147 @@
-/**
- * @file CommanderProfile.tsx
- * @description Perfil do Comandante - Dashboard pessoal do usuário
- * @module components/hive/sections/CommanderProfile
- * 
- * ## Funcionalidades
- * - Resumo do perfil do usuário
- * - Estatísticas: mesas, bookings, XP
- * - Ações rápidas: criar mesa, explorar, etc.
- * - Integração com API: GET /auth/me
- * 
- * ## Mobile-First
- * - Layout em cards empilhados
- * - Touch targets >= 44px
- * - Scroll horizontal para stats
- */
-
-'use client';
-
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Sword, Shield, Crown, Star, Zap, MapPin, 
-  Calendar, Users, ChevronRight 
+  Calendar, Users, ChevronRight, Loader2 
 } from 'lucide-react';
 import { useHive } from '@/context/HiveContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+
+interface ProfileData {
+  name?: string;
+  displayName?: string;
+  email?: string;
+  avatarUrl?: string;
+  role?: string;
+  stats?: {
+    gm?: {
+      totalMesas?: number;
+      totalBookings?: number;
+    };
+    player?: {
+      totalBookings?: number;
+    };
+  };
+}
 
 export default function CommanderProfile() {
-  const { isGhostMode } = useHive();
+  const { isGhostMode, handleHexClick } = useHive();
   const { user } = useAuth();
-  
-  // Mock stats - integrar com API depois
+  const [profile, setProfile] = useState<ProfileData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        const token = session?.access_token;
+        if (!token) {
+          setLoading(false);
+          return;
+        }
+        const res = await fetch('/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setProfile(data.data || data);
+        }
+      } catch (err) {
+        console.warn('[CommanderProfile] Failed to fetch profile:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, []);
+
+  const displayName = profile?.displayName || profile?.name || user?.email?.split('@')[0] || 'Comandante';
+  const avatarUrl = profile?.avatarUrl;
+  const email = profile?.email || user?.email || '';
+
   const stats = [
-    { icon: Sword, label: 'Mesas Mestradas', value: 12, color: 'text-[#662583]' },
-    { icon: Shield, label: 'Mesas Jogadas', value: 34, color: 'text-[#2C8E8B]' },
-    { icon: Crown, label: 'Nível', value: 'Veterano', color: 'text-[#C6871F]' },
-    { icon: Star, label: 'Avaliação', value: '4.8', color: 'text-[#D94367]' },
+    { 
+      icon: Sword, 
+      label: 'Mesas Mestradas', 
+      value: profile?.stats?.gm?.totalMesas ?? 0, 
+      color: 'text-[#662583]' 
+    },
+    { 
+      icon: Shield, 
+      label: 'Mesas Jogadas', 
+      value: profile?.stats?.player?.totalBookings ?? 0, 
+      color: 'text-[#2C8E8B]' 
+    },
+    { 
+      icon: Crown, 
+      label: 'Nível', 
+      value: profile?.role === 'gm' ? 'Mestre' : profile?.role === 'admin' ? 'Admin' : 'Jogador', 
+      color: 'text-[#C6871F]' 
+    },
+    { 
+      icon: Star, 
+      label: 'Avaliação', 
+      value: '4.8', 
+      color: 'text-[#D94367]' 
+    },
   ];
-  
+
   const quickActions = [
-    { icon: Zap, label: 'Criar Mesa', href: '/mesa/nova', color: 'bg-[#662583]' },
-    { icon: MapPin, label: 'Explorar', href: '/explorar', color: 'bg-[#2C8E8B]' },
-    { icon: Calendar, label: 'Agenda', href: '/agenda', color: 'bg-[#C6871F]' },
-    { icon: Users, label: 'Comunidade', href: '/feed', color: 'bg-[#D94367]' },
+    { 
+      icon: Zap, 
+      label: 'Criar Mesa', 
+      href: '/mesa/nova', 
+      color: 'bg-[#662583]' 
+    },
+    { 
+      icon: MapPin, 
+      label: 'Explorar', 
+      action: () => handleHexClick('market'), 
+      color: 'bg-[#2C8E8B]' 
+    },
+    { 
+      icon: Calendar, 
+      label: 'Agenda', 
+      href: '/agenda', 
+      color: 'bg-[#C6871F]' 
+    },
+    { 
+      icon: Users, 
+      label: 'Comunidade', 
+      action: () => handleHexClick('academy'), 
+      color: 'bg-[#D94367]' 
+    },
   ];
-  
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-[#0a0612] via-[#0f0a1a] to-[#050505] text-white flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-[#662583]" />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0a0612] via-[#0f0a1a] to-[#050505] text-white p-4 pb-24 md:p-8 md:pb-8">
-      {/* Header do Comandante */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-4xl mx-auto"
       >
+        {/* Header do Comandante */}
         <div className="flex items-center gap-4 mb-6">
           <div className="relative">
             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-[#662583] to-[#F7A731] p-[2px]">
-              <div className="w-full h-full rounded-full bg-[#0a0612] flex items-center justify-center">
-                <span className="text-2xl font-bold">
-                  {user?.email?.charAt(0).toUpperCase() || '?'}
-                </span>
+              <div className="w-full h-full rounded-full bg-[#0a0612] flex items-center justify-center overflow-hidden">
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={displayName} className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-2xl font-bold">
+                    {displayName.charAt(0).toUpperCase()}
+                  </span>
+                )}
               </div>
             </div>
             {isGhostMode && (
@@ -71,15 +153,15 @@ export default function CommanderProfile() {
           
           <div>
             <h1 className="text-2xl font-bold font-display">
-              {isGhostMode ? 'Comandante Anônimo' : 'Comandante'}
+              {isGhostMode ? 'Comandante Anônimo' : displayName}
             </h1>
             <p className="text-white/60 text-sm">
-              {user?.email || 'Visitante'}
+              {email}
             </p>
           </div>
         </div>
         
-        {/* Stats em scroll horizontal mobile */}
+        {/* Stats */}
         <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-4">
           {stats.map((stat, i) => (
             <motion.div
@@ -104,22 +186,31 @@ export default function CommanderProfile() {
           </h2>
           
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-            {quickActions.map((action, i) => (
-              <motion.a
-                key={action.label}
-                href={action.href}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.3 + i * 0.05 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className={`${action.color} bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all`}
-              >
-                <action.icon className="w-6 h-6 mb-2" strokeWidth={1.5} />
-                <div className="text-sm font-medium">{action.label}</div>
-                <ChevronRight className="w-4 h-4 mt-2 opacity-50" />
-              </motion.a>
-            ))}
+            {quickActions.map((action, i) => {
+              const content = (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.3 + i * 0.05 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`${action.color} bg-opacity-20 backdrop-blur-sm rounded-2xl p-4 border border-white/10 hover:border-white/20 transition-all cursor-pointer`}
+                >
+                  <action.icon className="w-6 h-6 mb-2" strokeWidth={1.5} />
+                  <div className="text-sm font-medium">{action.label}</div>
+                  <ChevronRight className="w-4 h-4 mt-2 opacity-50" />
+                </motion.div>
+              );
+
+              if (action.href) {
+                return <a key={action.label} href={action.href}>{content}</a>;
+              }
+              return (
+                <div key={action.label} onClick={action.action}>
+                  {content}
+                </div>
+              );
+            })}
           </div>
         </div>
         
