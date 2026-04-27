@@ -53,6 +53,8 @@ sed -i.bak \
   -e "s/__SUPABASE_ANON_KEY__/$(escape_sed "$SUPABASE_ANON_KEY")/g" \
   -e "s/__SUPABASE_SERVICE_ROLE_KEY__/$(escape_sed "$SUPABASE_SERVICE_ROLE_KEY")/g" \
   -e "s/__JWT_SECRET__/$(escape_sed "$JWT_SECRET")/g" \
+  -e "s/__CUSTOMERIO_CDP_WRITE_KEY__/$(escape_sed "${CUSTOMERIO_CDP_WRITE_KEY:-}")/g" \
+  -e "s/__CUSTOMERIO_CDP_API_BASE_URL__/$(escape_sed "${CUSTOMERIO_CDP_API_BASE_URL:-https://cdp.customer.io/v1}")/g" \
   "$output"
 
 rm -f "$output.bak"

@@ -47,6 +47,42 @@ Configurar em `Settings > Environments > <env> > Secrets`.
 | `VITE_SUPABASE_URL` | Sim | URL pública usada no build do frontend |
 | `VITE_SUPABASE_PUBLISHABLE_KEY` | Sim | Chave pública usada no build do frontend |
 
+## Supabase Edge Functions
+
+Configurar estes valores como Supabase secrets, não em arquivo versionado:
+
+```bash
+supabase secrets set CUSTOMERIO_APP_API_KEY=replace_with_customerio_app_api_key
+supabase secrets set CUSTOMERIO_TRANSACTIONAL_MESSAGE_ID=replace_with_customerio_transactional_message_id
+supabase secrets set CUSTOMERIO_API_BASE_URL=https://api.customer.io/v1
+```
+
+Use `CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS` quando houver um transactional message por template:
+
+```bash
+supabase secrets set 'CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS={"welcome":"replace_with_id","booking-confirmation":"replace_with_id"}'
+```
+
+Se a conta Customer.io for EU, troque `CUSTOMERIO_API_BASE_URL` para o endpoint EU da conta.
+
+Para identificar usuários e enviar eventos via Customer.io CDP/Pipelines pela `mesa-api`, configure também:
+
+| Nome | Obrigatória | Uso |
+|------|-------------|-----|
+| `CUSTOMERIO_CDP_WRITE_KEY` | Sim para CDP | Source write key usada em `https://cdp.customer.io/v1/identify` e `/track` |
+| `CUSTOMERIO_EVENTS_WRITE_KEY` | Opcional | Source write key específica para eventos; tem precedência sobre `CUSTOMERIO_CDP_WRITE_KEY` |
+| `CUSTOMERIO_CDP_API_BASE_URL` | Não | Default: `https://cdp.customer.io/v1` |
+
+Teste local sem gravar segredo:
+
+```bash
+CUSTOMERIO_CDP_WRITE_KEY=replace_with_source_write_key \
+curl --request POST https://cdp.customer.io/v1/identify \
+  --user "$CUSTOMERIO_CDP_WRITE_KEY:" \
+  --header "content-type: application/json" \
+  --data '{"userId":"test-user","traits":{"email":"test@example.com","name":"Test User"}}'
+```
+
 ## Variables por ambiente
 
 Configurar em `Settings > Environments > <env> > Variables`.

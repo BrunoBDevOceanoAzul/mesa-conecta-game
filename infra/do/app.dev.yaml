@@ -88,3 +88,10 @@ services:
         scope: RUN_TIME
         type: SECRET
         value: "__JWT_SECRET__"
+      - key: CUSTOMERIO_CDP_WRITE_KEY
+        scope: RUN_TIME
+        type: SECRET
+        value: "__CUSTOMERIO_CDP_WRITE_KEY__"
+      - key: CUSTOMERIO_CDP_API_BASE_URL
+        scope: RUN_TIME
+        value: "__CUSTOMERIO_CDP_API_BASE_URL__"
