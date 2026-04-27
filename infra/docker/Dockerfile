@@ -1,6 +1,5 @@
 # syntax=docker/dockerfile:1.7
 ARG NODE_VERSION=22.16.0
-ARG NGINX_VERSION=1.27.4
 
 FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
@@ -29,13 +28,11 @@ ENV NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
 RUN npm run build --prefix=frontend
 RUN ls -la /app/frontend/dist/index.html || (echo "ERROR: index.html not found" && exit 1)
 
-FROM nginx:${NGINX_VERSION}-alpine AS runtime
-RUN rm -rf /usr/share/nginx/html/*
-COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/frontend/dist /usr/share/nginx/html
-RUN ls -la /usr/share/nginx/html/index.html || (echo "ERROR: index.html not in html dir" && exit 1)
-RUN chmod -R 755 /usr/share/nginx/html
+FROM node:${NODE_VERSION}-alpine AS runtime
+WORKDIR /app
+RUN npm install -g serve
+COPY --from=build /app/frontend/dist ./dist
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["serve", "-s", "dist", "-l", "8080"]
