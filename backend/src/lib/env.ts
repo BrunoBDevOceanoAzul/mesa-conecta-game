@@ -16,6 +16,10 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(32).optional(),
   // Asaas API Key — nunca comitar no git
   ASAAS_API_KEY: z.string().optional(),
+  // Customer.io CDP/Pipelines source write key — nunca comitar no git
+  CUSTOMERIO_CDP_WRITE_KEY: z.string().optional(),
+  CUSTOMERIO_EVENTS_WRITE_KEY: z.string().optional(),
+  CUSTOMERIO_CDP_API_BASE_URL: z.string().url().default("https://cdp.customer.io/v1"),
 });
 
 export const env = envSchema.parse(process.env);

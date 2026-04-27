@@ -24,6 +24,7 @@ import { adminController } from "./modules/admin/infrastructure/admin.controller
 import { analyticsController } from "./modules/analytics/infrastructure/analytics.controller.js";
 import { hiveAdminController } from "./modules/hive-admin/infrastructure/hive-admin.controller.js";
 import { hivesController } from "./modules/hives/infrastructure/hives.controller.js";
+import { customerIoController } from "./modules/customerio/infrastructure/customerio.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -58,6 +59,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(analyticsController, { prefix: routePrefix });
   await app.register(hiveAdminController, { prefix: routePrefix });
   await app.register(hivesController, { prefix: routePrefix });
+  await app.register(customerIoController, { prefix: `${routePrefix}/integrations` });
 }
 
 export async function buildApp() {
@@ -153,7 +155,9 @@ export async function buildApp() {
         url.startsWith("/hive-admin") ||
         url.startsWith("/api/hive-admin") ||
         url.startsWith("/hives") ||
-        url.startsWith("/api/hives")
+        url.startsWith("/api/hives") ||
+        url.startsWith("/integrations") ||
+        url.startsWith("/api/integrations")
       ) {
         return reply.callNotFound();
       }

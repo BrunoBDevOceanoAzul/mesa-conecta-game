@@ -1,4 +1,3 @@
-import { sendLovableEmail } from 'npm:@lovable.dev/email-js'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const MAX_RETRIES = 5
@@ -6,10 +5,36 @@ const DEFAULT_BATCH_SIZE = 10
 const DEFAULT_SEND_DELAY_MS = 200
 const DEFAULT_AUTH_TTL_MINUTES = 15
 const DEFAULT_TRANSACTIONAL_TTL_MINUTES = 60
+const DEFAULT_CUSTOMERIO_API_BASE_URL = 'https://api.customer.io/v1'
+
+interface EmailPayload {
+  run_id?: string
+  message_id?: string
+  to?: string
+  from?: string
+  sender_domain?: string
+  subject?: string
+  html?: string
+  text?: string
+  purpose?: string
+  label?: string
+  idempotency_key?: string
+  unsubscribe_token?: string
+  queued_at?: string
+}
+
+class EmailProviderError extends Error {
+  constructor(
+    message: string,
+    readonly status?: number,
+    readonly retryAfterSeconds?: number | null
+  ) {
+    super(message)
+    this.name = 'EmailProviderError'
+  }
+}
 
 // Check if an error is a rate-limit (429) response.
-// Uses EmailAPIError.status when available (email-js >=0.x with structured errors),
-// falls back to parsing the error message for older versions.
 function isRateLimited(error: unknown): boolean {
   if (error && typeof error === 'object' && 'status' in error) {
     return (error as { status: number }).status === 429
@@ -32,6 +57,129 @@ function getRetryAfterSeconds(error: unknown): number {
     return (error as { retryAfterSeconds: number | null }).retryAfterSeconds ?? 60
   }
   return 60
+}
+
+function parseRetryAfter(headerValue: string | null): number | null {
+  if (!headerValue) return null
+
+  const seconds = Number(headerValue)
+  if (Number.isFinite(seconds) && seconds > 0) {
+    return Math.ceil(seconds)
+  }
+
+  const retryDate = Date.parse(headerValue)
+  if (Number.isFinite(retryDate)) {
+    return Math.max(1, Math.ceil((retryDate - Date.now()) / 1000))
+  }
+
+  return null
+}
+
+function parseTransactionalMessageIds(): Record<string, string | number> {
+  const raw = Deno.env.get('CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS')
+  if (!raw) return {}
+
+  try {
+    const parsed = JSON.parse(raw) as Record<string, unknown>
+    return Object.fromEntries(
+      Object.entries(parsed)
+        .filter(([, value]) => typeof value === 'string' || typeof value === 'number')
+        .map(([key, value]) => [key, value as string | number])
+    )
+  } catch (error) {
+    console.error('Invalid CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS JSON', { error })
+    return {}
+  }
+}
+
+function normalizeTransactionalMessageId(value: string | number): string | number {
+  if (typeof value === 'number') return value
+  return /^\d+$/.test(value) ? Number(value) : value
+}
+
+function getTransactionalMessageId(label: string | undefined): string | number | undefined {
+  const idsByLabel = parseTransactionalMessageIds()
+  const fallbackId = Deno.env.get('CUSTOMERIO_TRANSACTIONAL_MESSAGE_ID')
+  const configuredId = (label && idsByLabel[label]) || fallbackId
+
+  if (!configuredId) {
+    if (Deno.env.get('CUSTOMERIO_ALLOW_UNCATEGORIZED') === 'true') {
+      return undefined
+    }
+
+    if (Deno.env.get('CUSTOMERIO_REQUIRE_TRANSACTIONAL_MESSAGE_ID') === 'true') {
+      throw new EmailProviderError(
+        'CUSTOMERIO_TRANSACTIONAL_MESSAGE_ID is required unless CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS maps this template'
+      )
+    }
+
+    throw new EmailProviderError(
+      'Customer.io transactional message id is not configured; set CUSTOMERIO_TRANSACTIONAL_MESSAGE_ID or CUSTOMERIO_TRANSACTIONAL_MESSAGE_IDS, or set CUSTOMERIO_ALLOW_UNCATEGORIZED=true'
+    )
+  }
+
+  return normalizeTransactionalMessageId(configuredId)
+}
+
+async function sendCustomerIoEmail(apiKey: string, payload: EmailPayload): Promise<unknown> {
+  if (!payload.to || !payload.from || !payload.subject || !payload.html) {
+    throw new EmailProviderError('Email payload missing to, from, subject, or html')
+  }
+
+  const apiBaseUrl = Deno.env.get('CUSTOMERIO_API_BASE_URL') || DEFAULT_CUSTOMERIO_API_BASE_URL
+  const transactionalMessageId = getTransactionalMessageId(payload.label)
+  const requestBody = {
+    ...(transactionalMessageId ? { transactional_message_id: transactionalMessageId } : {}),
+    to: payload.to,
+    identifiers: {
+      email: payload.to,
+    },
+    from: payload.from,
+    subject: payload.subject,
+    body: payload.html,
+    message_data: {
+      text: payload.text,
+      purpose: payload.purpose,
+      label: payload.label,
+      run_id: payload.run_id,
+      message_id: payload.message_id,
+      unsubscribe_token: payload.unsubscribe_token,
+    },
+    headers: {
+      ...(payload.message_id ? { 'X-Mesa-Message-Id': payload.message_id } : {}),
+      ...(payload.idempotency_key ? { 'Idempotency-Key': payload.idempotency_key } : {}),
+    },
+  }
+
+  const response = await fetch(`${apiBaseUrl.replace(/\/$/, '')}/send/email`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(requestBody),
+  })
+
+  const responseText = await response.text()
+  let responseBody: unknown = null
+  if (responseText) {
+    try {
+      responseBody = JSON.parse(responseText)
+    } catch {
+      responseBody = responseText
+    }
+  }
+
+  if (!response.ok) {
+    const retryAfterSeconds = parseRetryAfter(response.headers.get('retry-after'))
+    throw new EmailProviderError(
+      `Customer.io API error ${response.status}: ${responseText || response.statusText}`,
+      response.status,
+      retryAfterSeconds
+    )
+  }
+
+  return responseBody
 }
 
 function parseJwtClaims(token: string): Record<string, unknown> | null {
@@ -79,7 +227,7 @@ async function moveToDlq(
 }
 
 Deno.serve(async (req) => {
-  const apiKey = Deno.env.get('LOVABLE_API_KEY')
+  const apiKey = Deno.env.get('CUSTOMERIO_APP_API_KEY')
   const supabaseUrl = Deno.env.get('SUPABASE_URL')
   const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 
@@ -246,26 +394,7 @@ Deno.serve(async (req) => {
       }
 
       try {
-        await sendLovableEmail(
-          {
-            run_id: payload.run_id,
-            to: payload.to,
-            from: payload.from,
-            sender_domain: payload.sender_domain,
-            subject: payload.subject,
-            html: payload.html,
-            text: payload.text,
-            purpose: payload.purpose,
-            label: payload.label,
-            idempotency_key: payload.idempotency_key,
-            unsubscribe_token: payload.unsubscribe_token,
-            message_id: payload.message_id,
-          },
-          // sendUrl is optional — when LOVABLE_SEND_URL is not set, the library
-          // falls back to the default Lovable API endpoint (https://api.lovable.dev).
-          // Set LOVABLE_SEND_URL as a Supabase secret to override (e.g. for local dev).
-          { apiKey, sendUrl: Deno.env.get('LOVABLE_SEND_URL') }
-        )
+        const providerResponse = await sendCustomerIoEmail(apiKey, payload)
 
         // Log success
         await supabase.from('email_send_log').insert({
@@ -273,6 +402,10 @@ Deno.serve(async (req) => {
           template_name: payload.label || queue,
           recipient_email: payload.to,
           status: 'sent',
+          metadata: {
+            provider: 'customerio',
+            response: providerResponse,
+          },
         })
 
         // Delete from queue
