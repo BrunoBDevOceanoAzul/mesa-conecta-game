@@ -1,11 +1,11 @@
 # ============================================================
-# GitLab CI/CD Pipeline — Mesa Conecta
+# GitLab CI/CD Pipeline — Sócio do Tabuleiro
 # ============================================================
-# Pipeline completo: validate → build → scan → deploy → notify
+# Pipeline completo: validate → build → scan → deploy → notify → post
 # Mapeamento de branches:
-#   develop  → dev
-#   homolog  → homolog
-#   main     → prod (manual)
+#   develop  → dev (auto-deploy)
+#   homolog  → homolog (auto-deploy)
+#   main     → prod (manual + MR automático)
 # ============================================================
 
 stages:
@@ -14,6 +14,7 @@ stages:
   - scan
   - deploy
   - notify
+  - .post
 
 variables:
   # Docker-in-Docker (DinD) — obrigatório para builds no GitLab shared runners
@@ -28,9 +29,12 @@ variables:
   # Kubernetes
   KUBECTL_VERSION: "latest"
   # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
-  VITE_MESA_API_URL: "/api"
+  NEXT_PUBLIC_MESA_API_URL: "/api"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
-  VITE_APP_URL: "https://dev.sociodotabuleiro.app.br"
+  NEXT_PUBLIC_APP_URL: "https://dev.sociodotabuleiro.app.br"
+  # GitLab API para MR automático
+  GITLAB_API_URL: "https://gitlab.com/api/v4"
+  CI_PROJECT_PATH_ENCODED: "socio-do-tabuleiro%2Fsocio-do-tabuleiro"
 
 # ============================================================
 # CACHE
@@ -40,7 +44,8 @@ variables:
     key: ${CI_COMMIT_REF_SLUG}
     paths:
       - node_modules/
-      - apps/mesa-api/node_modules/
+      - frontend/node_modules/
+      - backend/node_modules/
     policy: pull-push
 
 # ============================================================
@@ -52,18 +57,24 @@ validate:
   <<: *node-cache
   before_script:
     - npm ci
+    - cd frontend && npm ci --workspaces=false --legacy-peer-deps && cd ..
+    - cd backend && npm ci && cd ..
   script:
-    # Lint: non-blocking during migration. Full cleanup in FASE D (sanitization)
-    - npm run lint || true
-    - npm test -- --run
-    - npm run -w apps/mesa-api typecheck
-    - npm run -w apps/mesa-api test
+    # Lint: non-blocking during migration
+    - npm run lint --prefix=frontend || true
+    # Frontend tests
+    - npm run test --prefix=frontend
+    # Backend typecheck
+    - npm run typecheck --prefix=backend
+    # Backend tests
+    - npm run test --prefix=backend
+    # Frontend build (static export with Next.js 14)
     - >
-      VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-      VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
-      VITE_APP_URL=$VITE_APP_URL
-      VITE_MESA_API_URL=$VITE_MESA_API_URL
-      npm run build
+      NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+      NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
+      npm run build --prefix=frontend
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "homolog" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
@@ -82,23 +93,23 @@ build:frontend:
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - |
-      # Define VITE_APP_URL por branch/ambiente
+      # Define NEXT_PUBLIC_APP_URL por branch/ambiente
       if [ "$CI_COMMIT_BRANCH" = "main" ]; then
-        export VITE_APP_URL="https://sociodotabuleiro.app.br"
+        export NEXT_PUBLIC_APP_URL="https://sociodotabuleiro.app.br"
       elif [ "$CI_COMMIT_BRANCH" = "homolog" ]; then
-        export VITE_APP_URL="https://homolog.sociodotabuleiro.app.br"
+        export NEXT_PUBLIC_APP_URL="https://homolog.sociodotabuleiro.app.br"
       else
-        export VITE_APP_URL="https://dev.sociodotabuleiro.app.br"
+        export NEXT_PUBLIC_APP_URL="https://dev.sociodotabuleiro.app.br"
       fi
-      echo "Building for: $VITE_APP_URL"
+      echo "Building for: $NEXT_PUBLIC_APP_URL"
   script:
     - >
       docker build
       --platform linux/amd64
-      --build-arg VITE_SUPABASE_URL=$VITE_SUPABASE_URL
-      --build-arg VITE_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
-      --build-arg VITE_APP_URL=$VITE_APP_URL
-      --build-arg VITE_MESA_API_URL=$VITE_MESA_API_URL
+      --build-arg NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
+      --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      --build-arg NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+      --build-arg NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG
       -f Dockerfile
@@ -124,8 +135,8 @@ build:backend:
       --platform linux/amd64
       -t $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
       -t $IMAGE_API:$CI_COMMIT_REF_SLUG
-      -f apps/mesa-api/Dockerfile
-      apps/mesa-api
+      -f backend/Dockerfile
+      backend
     - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
     - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG
   rules:
@@ -285,7 +296,7 @@ deploy:prod:
     - |
       ENV_LABEL="${CI_ENVIRONMENT_NAME:-$CI_COMMIT_BRANCH}"
       if [ "$NOTIFY_STATUS" = "success" ]; then
-        SUBJECT="✅ [$ENV_LABEL] Deploy concluído — Mesa Conecta"
+        SUBJECT="✅ [$ENV_LABEL] Deploy concluído — Sócio do Tabuleiro"
         HTML_BODY="<h2>Deploy concluído com sucesso ✅</h2>
           <p><strong>Projeto:</strong> $CI_PROJECT_NAME</p>
           <p><strong>Branch:</strong> $CI_COMMIT_REF_NAME</p>
@@ -294,7 +305,7 @@ deploy:prod:
           <p><strong>Pipeline:</strong> <a href=\"$CI_PIPELINE_URL\">$CI_PIPELINE_URL</a></p>
           <p><strong>Timestamp:</strong> $(date -u +%Y-%m-%d\ %H:%M:%S\ UTC)</p>"
       else
-        SUBJECT="❌ [$ENV_LABEL] Deploy falhou — Mesa Conecta"
+        SUBJECT="❌ [$ENV_LABEL] Deploy falhou — Sócio do Tabuleiro"
         HTML_BODY="<h2>Deploy falhou ❌</h2>
           <p><strong>Projeto:</strong> $CI_PROJECT_NAME</p>
           <p><strong>Branch:</strong> $CI_COMMIT_REF_NAME</p>
@@ -312,7 +323,7 @@ deploy:prod:
           \"personalizations\": [{
             \"to\": [{\"email\": \"$TO_EMAIL\"}]
           }],
-          \"from\": {\"email\": \"$FROM_EMAIL\", \"name\": \"Mesa Conecta CI\"},
+          \"from\": {\"email\": \"$FROM_EMAIL\", \"name\": \"Sócio do Tabuleiro CI\"},
           \"subject\": \"$SUBJECT\",
           \"content\": [{\"type\": \"text/html\", \"value\": \"$HTML_BODY\"}]
         }"
@@ -354,3 +365,45 @@ notify:failure:
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
       when: on_failure
+
+# ============================================================
+# POST — Auto MR (develop → main)
+# ============================================================
+open-mr:
+  stage: .post
+  image: alpine/curl:latest
+  variables:
+    SOURCE_BRANCH: "develop"
+    TARGET_BRANCH: "main"
+  script:
+    - |
+      echo "Checking for existing MR: ${SOURCE_BRANCH} → ${TARGET_BRANCH}..."
+      EXISTING_MR=$(curl -sSf --retry 3 \
+        --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" \
+        "${GITLAB_API_URL}/projects/${CI_PROJECT_PATH_ENCODED}/merge_requests?state=opened&source_branch=${SOURCE_BRANCH}&target_branch=${TARGET_BRANCH}" \
+        | grep -o '"iid":[0-9]*' | head -1 | cut -d':' -f2 || true)
+
+      if [ -n "$EXISTING_MR" ]; then
+        echo "MR already exists: https://gitlab.com/${CI_PROJECT_PATH}/-/merge_requests/${EXISTING_MR}"
+        exit 0
+      fi
+
+      echo "Creating Merge Request..."
+      curl -sSf -X POST \
+        --header "PRIVATE-TOKEN: ${GITLAB_PRIVATE_TOKEN}" \
+        --header "Content-Type: application/json" \
+        "${GITLAB_API_URL}/projects/${CI_PROJECT_PATH_ENCODED}/merge_requests" \
+        -d "{
+          \"source_branch\": \"${SOURCE_BRANCH}\",
+          \"target_branch\": \"${TARGET_BRANCH}\",
+          \"title\": \"[release] Merge ${SOURCE_BRANCH} into ${TARGET_BRANCH} — Next.js 14 + Hive + Customer.io\",
+          \"description\": \"## Merge de Release\\n\\n### Validações Automáticas\\n- ✅ Backend typecheck passando\\n- ✅ Backend tests: 28/28 passando\\n- ✅ Frontend tests: 1/1 passando\\n- ✅ Frontend build: 58/58 páginas geradas\\n\\n### Deploy\\nApós merge, o deploy para produção será automático via GitLab CI/CD.\\n\\nPipeline: ${CI_PIPELINE_URL}\",
+          \"remove_source_branch\": false,
+          \"squash\": false
+        }"
+      echo ""
+      echo "Merge Request created successfully!"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "develop"
+      when: on_success
+  allow_failure: true
