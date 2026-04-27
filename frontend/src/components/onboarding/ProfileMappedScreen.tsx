@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { CheckCircle2, ArrowRight, Sparkles, Instagram, Dice5, BookOpen, Store, Megaphone } from "lucide-react";
+import { CheckCircle2, ArrowRight, Sparkles, Dice5, BookOpen, Store, Megaphone } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { cn } from "@/lib/utils";
 import type { RoleKey } from "@/lib/onboarding-steps";
 import { generateBadges, generateProfileSummary, type Badge } from "@/lib/badge-generator";

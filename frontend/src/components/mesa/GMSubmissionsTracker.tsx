@@ -55,7 +55,7 @@ export function GMSubmissionsTracker({ gameTableId, tableTitle }: GMSubmissionsT
           .select("user_id, name, email")
           .in("user_id", userIds);
 
-        const profileMap = new Map(
+        const profileMap = new Map<string, any>(
           (profiles || []).map((p: any) => [p.user_id, p])
         );
 

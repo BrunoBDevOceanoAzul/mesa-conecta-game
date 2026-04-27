@@ -17,6 +17,8 @@ interface NearbyMesa {
   gm_name: string;
   start_at: string;
   distance?: number;
+  lat?: number;
+  lng?: number;
 }
 
 export default function RadarContent() {
@@ -28,7 +30,7 @@ export default function RadarContent() {
   const googleMapRef = useRef<google.maps.Map | null>(null);
   const markersRef = useRef<google.maps.Marker[]>([]);
 
-  const googleMapsApiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {
     if (!navigator.geolocation) {
@@ -47,7 +49,7 @@ export default function RadarContent() {
             status: 'aberta',
             lat: latitude,
             lng: longitude,
-            radius: 50,
+            radiusKm: 50,
             limit: 20,
           });
           const data = await res.json();

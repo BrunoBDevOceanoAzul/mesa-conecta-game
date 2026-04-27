@@ -12,13 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useSubscription } from "@/hooks/use-subscription";
 import type { Tables } from "@/integrations/supabase/types";
-import {
-  Store, Calendar, BarChart3, TrendingUp, Settings, Plus, Users,
-  MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2,
-  Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap,
-  CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText,
-  UserCheck, BookOpen, Star, Sparkles, Instagram
-} from "lucide-react";
+import { Store, Calendar, BarChart3, TrendingUp, Settings, Plus, Users, MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2, Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap, CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText, UserCheck, BookOpen, Star, Sparkles } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { ConnectStatusBlock } from "@/components/dashboard/ConnectStatusBlock";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 import { CreateMesaDialog } from "@/components/mesa/CreateMesaDialog";

@@ -188,20 +188,19 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
     if (open) loadData();
   }, [open, loadData]);
 
-  // Free mesa: direct booking via API (transação atômica)
-  const handleFreeBook = async () => {
-    if (!user) return;
-    setSubmitting(true);
+    // Free mesa: direct booking via API (transação atômica)
+    const handleFreeBook = async () => {
+      if (!user) return;
+      setSubmitting(true);
 
-    try {
-      await bookingsApi.create({
-        gameTableId: mesa.id,
-        seatsReserved: 1,
-        status: "confirmed",
-        amount: "0",
-        currency: "BRL",
-        sourceType: "organic",
-      });
+      try {
+        await bookingsApi.create({
+          gameTableId: mesa.id,
+          seatsReserved: 1,
+          amount: "0",
+          currency: "BRL",
+          sourceType: "organic",
+        });
 
       setStep("success");
       toast({ title: "Vaga reservada! 🎉", description: `Você está na mesa "${mesa.title}"` });
@@ -231,8 +230,8 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
     try {
       // Use fetch directly to avoid SDK swallowing non-2xx response bodies
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
 
@@ -240,7 +239,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "apikey": supabaseKey,
+          "apikey": supabaseKey || "",
           ...(accessToken ? { "Authorization": `Bearer ${accessToken}` } : {}),
         },
         body: JSON.stringify({ mesa_id: mesa.id, billing_type: "PIX" }),

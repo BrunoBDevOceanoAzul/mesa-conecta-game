@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
-import { Camera, User, Instagram, Sparkles, Loader2 } from "lucide-react";
+import { Camera, User, Sparkles, Loader2 } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils";

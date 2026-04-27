@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { ArrowRight, Instagram } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { useNavigate } from "react-router-dom";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 

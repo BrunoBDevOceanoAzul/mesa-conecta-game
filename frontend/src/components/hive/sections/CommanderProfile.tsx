@@ -25,6 +25,14 @@ interface ProfileData {
   };
 }
 
+interface QuickAction {
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  label: string;
+  action?: () => void;
+  href?: string;
+  color: string;
+}
+
 export default function CommanderProfile() {
   const { isGhostMode, handleHexClick, openOverlay } = useHive();
   const { user } = useAuth();
@@ -88,7 +96,7 @@ export default function CommanderProfile() {
     },
   ];
 
-  const quickActions = [
+  const quickActions: QuickAction[] = [
     { 
       icon: Zap, 
       label: 'Criar Mesa', 

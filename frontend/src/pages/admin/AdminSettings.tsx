@@ -62,7 +62,7 @@ export default function AdminSettings() {
     const state: SettingsState = {
       platformName: "HIVIUM",
       supportEmail: "bruno@sociodotabuleiro.app.br",
-      primaryDomain: "mesa-conecta-game.lovable.app",
+      primaryDomain: "sociodotabuleiro.app.br",
       cpcRate: Number(getSetting("cpc_rate", 0.5)),
       founderLimit: Number(getSetting("founder_limit", 10)),
       founderBoostsPerMonth: Number(getSetting("founder_boosts_per_month", 2)),

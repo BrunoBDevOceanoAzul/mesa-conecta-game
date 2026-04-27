@@ -12,7 +12,7 @@ export function HeroSection() {
       {/* Background image */}
       <div className="absolute inset-0">
         <img
-          src={heroImg}
+          src={heroImg.src}
           alt="Mesa de RPG com dados, miniaturas e fichas de personagens"
           className="h-full w-full object-cover"
           loading="eager"
@@ -101,7 +101,7 @@ export function HeroSection() {
         >
           <div className="relative rounded-2xl overflow-hidden shadow-2xl ring-1 ring-white/10">
             <img
-              src={heroImg}
+              src={heroImg.src}
               alt="Mesa de RPG em ação"
               className="w-full aspect-[4/3] object-cover"
               loading="eager"

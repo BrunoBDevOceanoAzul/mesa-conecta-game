@@ -10,11 +10,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
 import { StartChatButton } from "@/components/chat/StartChatButton";
 import { ReputationBadge } from "@/components/reviews/ReputationBadge";
-import {
-  MapPin, Star, Users, Swords, BookOpen, Calendar,
-  Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap,
-  Briefcase, Brain, Clock, Gamepad2, ChevronRight, Instagram
-} from "lucide-react";
+import { MapPin, Star, Users, Swords, BookOpen, Calendar, Shield, Sparkles, Award, ArrowRight, Heart, GraduationCap, Briefcase, Brain, Clock, Gamepad2, ChevronRight } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 
 interface GMData {
   profile: any;
@@ -61,7 +58,7 @@ export default function MestrePublicProfile() {
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
-      .eq("slug", slug)
+      .eq("slug", slug!)
       .eq("role", "gm")
       .maybeSingle();
 

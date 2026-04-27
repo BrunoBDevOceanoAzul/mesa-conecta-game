@@ -45,7 +45,7 @@ export function BookingManagement() {
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return data as Booking[];
+      return data as unknown as Booking[];
     },
   });
 
@@ -59,9 +59,9 @@ export function BookingManagement() {
     enabled: playerIds.length > 0,
     queryFn: async () => {
       const allIds = [...new Set([...playerIds, ...gmIds])];
-      const { data } = await supabase
+      const { data } = await (supabase
         .from("profiles")
-        .select("user_id, display_name, name, email")
+        .select("user_id, display_name, name, email") as any)
         .in("user_id", allIds);
       return data || [];
     },
@@ -71,16 +71,16 @@ export function BookingManagement() {
     queryKey: ["admin-booking-mesas", mesaIds.join(",")],
     enabled: mesaIds.length > 0,
     queryFn: async () => {
-      const { data } = await supabase
+      const { data } = await (supabase
         .from("mesas")
-        .select("id, title")
+        .select("id, title") as any)
         .in("id", mesaIds);
       return data || [];
     },
   });
 
-  const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) || []);
-  const mesaMap = new Map(mesas?.map((m) => [m.id, m]) || []);
+  const profileMap = new Map<string, any>(profiles?.map((p: any) => [p.user_id, p]) || []);
+  const mesaMap = new Map<string, any>(mesas?.map((m: any) => [m.id, m]) || []);
 
   const cancelMutation = useMutation({
     mutationFn: async ({ bookingId, reason, refund }: { bookingId: string; reason: string; refund: boolean }) => {

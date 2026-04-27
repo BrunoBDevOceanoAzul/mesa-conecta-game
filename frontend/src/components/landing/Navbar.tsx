@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard, Instagram } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";

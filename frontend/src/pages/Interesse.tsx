@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Users, Crown, Store, Sparkles, ChevronDown, Instagram, CheckCircle2 } from "lucide-react";
+import { ArrowRight, Users, Crown, Store, Sparkles, ChevronDown, CheckCircle2 } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { Button } from "@/components/ui/button";
 import { InterestForm } from "@/components/campaign/InterestForm";
 import { ThankYouScreen } from "@/components/campaign/ThankYouScreen";
@@ -28,20 +29,20 @@ export default function Interesse() {
     <div className="min-h-screen bg-background text-foreground font-body">
       {/* ── Navbar ── */}
       <nav className="fixed top-0 left-0 right-0 z-50 glass">
-        <div className="container max-w-6xl mx-auto flex items-center justify-between h-16 px-4">
-          <img src={logo} alt="HIVIUM" className="h-8" />
+       <div className="container max-w-6xl mx-auto flex items-center justify-between h-16 px-4">
+         <img src={logo.src} alt="HIVIUM" className="h-8" />
           <Button size="sm" onClick={() => { setShowForm(true); document.getElementById("form-section")?.scrollIntoView({ behavior: "smooth" }); }}>
             Quero fazer parte
           </Button>
         </div>
       </nav>
 
-      {/* ── HERO ── */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
-        <div className="absolute inset-0">
-          <img src={campaignHero} alt="" className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
-        </div>
+       {/* ── HERO ── */}
+       <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden pt-16">
+         <div className="absolute inset-0">
+           <img src={campaignHero.src} alt="" className="w-full h-full object-cover" />
+           <div className="absolute inset-0 bg-gradient-to-b from-background/60 via-background/80 to-background" />
+         </div>
 
         <div className="relative z-10 container max-w-4xl mx-auto px-4 text-center py-20">
           <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
@@ -185,17 +186,17 @@ export default function Interesse() {
         </div>
       </section>
 
-      {/* ── FOOTER ── */}
-      <footer className="border-t border-border py-8">
-        <div className="container max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-caption">
-          <img src={logo} alt="HIVIUM" className="h-6 opacity-60" />
-          <p>© {new Date().getFullYear()} HIVIUM. Todos os direitos reservados.</p>
-          <div className="flex gap-4">
-            <a href="/privacidade" className="hover:text-foreground transition-colors">Privacidade</a>
-            <a href="/termos" className="hover:text-foreground transition-colors">Termos</a>
-          </div>
-        </div>
-      </footer>
+       {/* ── FOOTER ── */}
+       <footer className="border-t border-border py-8">
+         <div className="container max-w-5xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-caption">
+           <img src={logo.src} alt="HIVIUM" className="h-6 opacity-60" />
+           <p>© {new Date().getFullYear()} HIVIUM. Todos os direitos reservados.</p>
+           <div className="flex gap-4">
+             <a href="/privacidade" className="hover:text-foreground transition-colors">Privacidade</a>
+             <a href="/termos" className="hover:text-foreground transition-colors">Termos</a>
+           </div>
+         </div>
+       </footer>
     </div>
   );
 }

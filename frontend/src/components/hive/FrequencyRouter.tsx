@@ -20,7 +20,7 @@ const FREQUENCY_COMPONENTS: Record<string, React.ComponentType> = {
   radar: RadarContent,
 };
 
-export function FrequencyRouter() {
+export default function FrequencyRouter() {
   const { activeFrequency } = useHive();
   const Component = FREQUENCY_COMPONENTS[activeFrequency] || CommanderProfile;
 

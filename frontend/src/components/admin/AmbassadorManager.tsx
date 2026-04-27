@@ -44,7 +44,7 @@ export function AmbassadorManager() {
       .from("ambassadors")
       .select("*")
       .order("sort_order");
-    setAmbassadors((data || []) as Ambassador[]);
+    setAmbassadors((data || []) as unknown as Ambassador[]);
     setLoading(false);
   };
 
@@ -87,10 +87,10 @@ export function AmbassadorManager() {
     };
 
     if (editing) {
-      await supabase.from("ambassadors").update(payload).eq("id", editing.id);
+      await (supabase.from("ambassadors").update(payload as any) as any).eq("id", editing.id);
       toast({ title: "Embaixador atualizado" });
     } else {
-      await supabase.from("ambassadors").insert(payload);
+      await (supabase.from("ambassadors").insert(payload as any) as any);
       toast({ title: "Embaixador adicionado" });
     }
 
@@ -100,7 +100,7 @@ export function AmbassadorManager() {
   };
 
   const remove = async (id: string) => {
-    await supabase.from("ambassadors").delete().eq("id", id);
+    await (supabase.from("ambassadors").delete() as any).eq("id", id);
     toast({ title: "Embaixador removido" });
     fetchAll();
   };

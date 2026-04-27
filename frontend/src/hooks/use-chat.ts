@@ -10,7 +10,7 @@ export interface Conversation {
   related_booking_id: string | null;
   related_store_id: string | null;
   status: string;
-  last_message_at: string;
+  last_message_at: string | null;
   last_message_preview: string | null;
   created_at: string;
   participants: ConversationParticipant[];
@@ -20,15 +20,16 @@ export interface Conversation {
 export interface ConversationParticipant {
   id: string;
   user_id: string;
-  role_label: string;
-  last_read_at: string;
+  role_label: string | null;
+  last_read_at: string | null;
   is_muted: boolean;
   profile?: {
-    name: string;
+    user_id: string;
+    name: string | null;
     display_name: string | null;
     avatar_url: string | null;
-    role: string;
-  };
+    role: string | null;
+  } | null;
 }
 
 export interface Message {
@@ -41,10 +42,10 @@ export interface Message {
   is_edited: boolean;
   created_at: string;
   sender?: {
-    name: string;
+    name: string | null;
     display_name: string | null;
     avatar_url: string | null;
-    role: string;
+    role: string | null;
   };
 }
 
@@ -118,7 +119,13 @@ export function useConversations() {
           .filter((p) => p.conversation_id === conv.id)
           .map((p) => ({
             ...p,
-            profile: profileMap[p.user_id],
+            profile: profileMap[p.user_id] ? {
+              user_id: profileMap[p.user_id].user_id,
+              name: profileMap[p.user_id].name,
+              display_name: profileMap[p.user_id].display_name,
+              avatar_url: profileMap[p.user_id].avatar_url,
+              role: profileMap[p.user_id].role
+            } : null
           }));
 
         return {
@@ -181,9 +188,18 @@ export function useMessages(conversationId: string | null) {
         (profiles || []).map((p) => [p.user_id, p])
       );
 
-      setMessages(
-        data.map((m) => ({ ...m, sender: profileMap[m.sender_user_id] }))
-      );
+       setMessages(
+         data.map((m) => ({
+           ...m,
+           sender: profileMap[m.sender_user_id] || {
+             user_id: m.sender_user_id,
+             name: null,
+             display_name: null,
+             avatar_url: null,
+             role: null
+           }
+         }))
+       );
     } else {
       setMessages([]);
     }

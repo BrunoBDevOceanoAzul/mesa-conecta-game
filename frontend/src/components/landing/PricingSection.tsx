@@ -22,10 +22,10 @@ interface DBPlan {
   price_monthly: number;
   feature_flags: Record<string, unknown>;
   sort_order: number;
-  trial_days: number;
+  trial_days: number | null;
   is_founder_plan: boolean;
-  founder_slots_total: number;
-  founder_slots_used: number;
+  founder_slots_total: number | null;
+  founder_slots_used: number | null;
 }
 
 // Priority order for feature display (lower = shown first)
@@ -211,7 +211,7 @@ export function PricingSection() {
                   )}
                 </div>
 
-                {plan.trial_days > 0 && (
+                {plan.trial_days && plan.trial_days > 0 && (
                   <p className="text-xs text-primary font-medium mt-1">
                     {plan.trial_days} dias grátis para testar
                   </p>
@@ -248,7 +248,7 @@ export function PricingSection() {
                 >
                   {plan.price_monthly === 0
                     ? "Criar conta grátis"
-                    : plan.trial_days > 0
+                    : plan.trial_days && plan.trial_days > 0
                       ? "Testar grátis"
                       : "Começar agora"}{" "}
                   <ArrowRight className="h-4 w-4" />

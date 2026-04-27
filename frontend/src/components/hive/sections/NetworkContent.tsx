@@ -36,7 +36,7 @@ export default function NetworkContent() {
         const { data, error } = await supabase
           .from('conversations')
           .select('*, messages(content, created_at)')
-          .contains('participant_ids', [user.id])
+          .contains('participant_ids', [user!.id])
           .order('updated_at', { ascending: false })
           .limit(20);
 
@@ -44,8 +44,8 @@ export default function NetworkContent() {
         
         // Process conversations to get other user info
         const processed = await Promise.all((data || []).map(async (conv: any) => {
-          const otherUserId = conv.participant_ids.find((id: string) => id !== user.id);
-          let otherUser = { name: 'Usuário' };
+          const otherUserId = conv.participant_ids.find((id: string) => id !== user!.id);
+          let otherUser = { name: 'Usuário', avatar_url: null as string | null | undefined };
           
           if (otherUserId) {
             const { data: profile } = await supabase

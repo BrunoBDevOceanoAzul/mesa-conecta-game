@@ -2,10 +2,11 @@ import { useState, useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import {
-  Share2, Copy, Check, MessageCircle, Send, Facebook,
-  Twitter, Link2, X, Instagram, Linkedin
-} from "lucide-react";
+import { Share2, Copy, Check, MessageCircle, Send, Link2, X } from "lucide-react";
+import Facebook from "lucide-react/dist/esm/icons/facebook";
+import Twitter from "lucide-react/dist/esm/icons/twitter";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
+import Linkedin from "lucide-react/dist/esm/icons/linkedin";
 
 interface ShareModalProps {
   entityType: string;
@@ -70,7 +71,7 @@ export function ShareModal({ entityType, entityId, entityTitle, entitySlug, onCl
     return data;
   };
 
-  const ogImageUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=${entityType}&id=${entityId}`;
+  const ogImageUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/og-image?type=${entityType}&id=${entityId}`;
 
   const handleShare = async (channel: string) => {
     setGenerating(true);

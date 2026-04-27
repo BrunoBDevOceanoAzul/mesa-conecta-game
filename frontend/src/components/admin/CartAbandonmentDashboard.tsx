@@ -39,15 +39,15 @@ export function CartAbandonmentDashboard() {
       .select("*")
       .order("abandoned_at", { ascending: false })
       .limit(500);
-    const items = (rows as CartAbandonment[]) || [];
+    const items = (rows as unknown as CartAbandonment[]) || [];
     setData(items);
 
     // Fetch GM names
     const gmIds = [...new Set(items.map(i => i.gm_user_id))];
     if (gmIds.length > 0) {
-      const { data: profiles } = await supabase
+      const { data: profiles } = await (supabase
         .from("profiles")
-        .select("user_id, display_name, name")
+        .select("user_id, display_name, name") as any)
         .in("user_id", gmIds);
       const map: Record<string, string> = {};
       (profiles || []).forEach((p: any) => { map[p.user_id] = p.display_name || p.name || "—"; });

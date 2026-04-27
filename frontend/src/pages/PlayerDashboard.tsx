@@ -12,7 +12,8 @@ import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { useSubscription } from "@/hooks/use-subscription";
 import { calculateMatchScore } from "@/lib/match-scoring";
 import { supabase } from "@/integrations/supabase/client";
-import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, Instagram, BookOpen, Plus } from "lucide-react";
+import { Search, Calendar, MapPin, Gamepad2, BarChart3, Heart, Compass, Sparkles, CreditCard, Crown, Lock, BookOpen, Plus } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { CreateCommunityMesaDialog } from "@/components/mesa/CreateCommunityMesaDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,25 +29,7 @@ const navItems = [
   { label: "Feed", path: "/feed", icon: <BarChart3 className="h-4 w-4" /> },
 ];
 
-type Mesa = {
-  id: string;
-  title: string;
-  system: string;
-  session_type: string;
-  format: string;
-  city: string | null;
-  venue: string | null;
-  min_price: number;
-  max_price: number;
-  seats_total: number;
-  seats_available: number;
-  gm_name: string;
-  start_at: string;
-  status: string;
-  tags: string[] | null;
-  play_styles: string[] | null;
-  image_url: string | null;
-};
+type Mesa = any;
 
 export default function PlayerDashboard() {
   const { user } = useAuth();
@@ -56,7 +39,7 @@ export default function PlayerDashboard() {
   const isPremium = sub.isActive;
   const reservationLimit = isPremium ? ((sub.featureFlags.reservation_limit as number) || 2) : 0;
   const planLabel = sub.plan?.name || null;
-  const [profile, setProfile] = useState<{ name?: string; city?: string; lat?: number; lng?: number } | null>(null);
+  const [profile, setProfile] = useState<{ name?: string | null; city?: string | null; lat?: number | null; lng?: number | null } | null>(null);
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [myBookings, setMyBookings] = useState<any[]>([]);
   useEffect(() => {
@@ -238,7 +221,7 @@ export default function PlayerDashboard() {
         </div>
 
         {/* Nearby Stores */}
-        <NearbyStoresMap userLat={profile?.lat} userLng={profile?.lng} />
+        <NearbyStoresMap userLat={profile?.lat ?? undefined} userLng={profile?.lng ?? undefined} />
 
         {/* Instagram follow */}
         <div className="rounded-xl border border-border bg-card p-4 flex items-center gap-3">

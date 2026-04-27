@@ -32,7 +32,7 @@ export function AmbassadorSpotlight() {
           {/* Photo */}
           <div className="mx-auto md:mx-0 w-48 h-48 sm:w-64 sm:h-64 rounded-2xl overflow-hidden border-2 border-primary/20 shadow-lg shadow-primary/5 shrink-0">
             <img
-              src={ambassadorPhoto}
+              src={ambassadorPhoto.src}
               alt="Marcelo Marins — Embaixador HIVIUM"
               className="h-full w-full object-cover object-top"
               loading="lazy"

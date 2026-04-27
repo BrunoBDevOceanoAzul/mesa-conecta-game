@@ -1,4 +1,4 @@
-import { Instagram } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import socioLogo from "@/assets/socio-logo.svg";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 

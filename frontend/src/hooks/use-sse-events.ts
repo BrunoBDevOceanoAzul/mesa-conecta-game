@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const API_BASE_URL = import.meta.env.VITE_MESA_API_URL || (import.meta.env.DEV ? "http://localhost:8787" : "/api");
+const API_BASE_URL = process.env.NEXT_PUBLIC_MESA_API_URL || (process.env.NODE_ENV === "development" ? "http://localhost:8787" : "/api");
 
 type SseEventHandler = (data: unknown) => void;
 
