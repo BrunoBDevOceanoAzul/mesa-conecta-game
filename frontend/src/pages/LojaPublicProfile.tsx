@@ -10,11 +10,8 @@ import { ReputationBadge } from "@/components/reviews/ReputationBadge";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  MapPin, Users, Store, Calendar, Sparkles, ArrowRight,
-  Wifi, Wind, Coffee, Accessibility, DoorOpen, Star,
-  Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText, Instagram
-} from "lucide-react";
+import { MapPin, Users, Store, Calendar, Sparkles, ArrowRight, Wifi, Wind, Coffee, Accessibility, DoorOpen, Star, Award, ChevronRight, Clock, Gamepad2, Building2, MessageSquareText } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 
 const featureIcons: Record<string, any> = {
   "ar-condicionado": Wind,
@@ -41,38 +38,20 @@ export default function LojaPublicProfile() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
 
+  // Use a non-null assertion to tell TypeScript that slug is definitely defined
+  // This is safe because the route definition requires the slug parameter
+  const profileSlug = slug!;
+
   useEffect(() => {
-    if (!slug) return;
     loadProfile();
-  }, [slug]);
-
-  useEffect(() => {
-    if (data?.profile) {
-      const storeName = data.storeProfile?.venue_name || data.profile.display_name || data.profile.name || "Loja";
-      document.title = `${storeName} | Loja de RPG na HIVIUM`;
-      setMeta("description", `Veja agenda, estrutura, mesas e perfil público de ${storeName} na HIVIUM.`);
-      setMeta("og:title", `${storeName} | Loja de RPG na HIVIUM`);
-      setMeta("og:description", `Conheça ${storeName}, sua estrutura, agenda de mesas e eventos de RPG na HIVIUM.`);
-      setMeta("og:url", window.location.href);
-      setMeta("og:type", "profile");
-      if (data.profile.avatar_url) setMeta("og:image", data.profile.avatar_url);
-    }
-    return () => { document.title = "HIVIUM"; };
-  }, [data]);
-
-  function setMeta(name: string, content: string) {
-    const attr = name.startsWith("og:") ? "property" : "name";
-    let el = document.querySelector(`meta[${attr}="${name}"]`);
-    if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
-    el.setAttribute("content", content);
-  }
+  }, [profileSlug]);
 
   async function loadProfile() {
     setLoading(true);
     const { data: profile } = await supabase
       .from("profiles")
       .select("*")
-      .eq("slug", slug)
+      .eq("slug", profileSlug)
       .eq("role", "store")
       .maybeSingle();
 
@@ -99,8 +78,31 @@ export default function LojaPublicProfile() {
 
     // Track page view
     if (storeDataRes.data?.id) {
-      trackStoreEvent(storeDataRes.data.id, "page_view", { slug, referrer: document.referrer || null });
+      trackStoreEvent(storeDataRes.data.id, "page_view", { slug: profileSlug, referrer: document.referrer || null });
     }
+  }
+
+  // Rest of the component...
+
+  useEffect(() => {
+    if (data?.profile) {
+      const storeName = data.storeProfile?.venue_name || data.profile.display_name || data.profile.name || "Loja";
+      document.title = `${storeName} | Loja de RPG na HIVIUM`;
+      setMeta("description", `Veja agenda, estrutura, mesas e perfil público de ${storeName} na HIVIUM.`);
+      setMeta("og:title", `${storeName} | Loja de RPG na HIVIUM`);
+      setMeta("og:description", `Conheça ${storeName}, sua estrutura, agenda de mesas e eventos de RPG na HIVIUM.`);
+      setMeta("og:url", window.location.href);
+      setMeta("og:type", "profile");
+      if (data.profile.avatar_url) setMeta("og:image", data.profile.avatar_url);
+    }
+    return () => { document.title = "HIVIUM"; };
+  }, [data]);
+
+  function setMeta(name: string, content: string) {
+    const attr = name.startsWith("og:") ? "property" : "name";
+    let el = document.querySelector(`meta[${attr}="${name}"]`);
+    if (!el) { el = document.createElement("meta"); el.setAttribute(attr, name); document.head.appendChild(el); }
+    el.setAttribute("content", content);
   }
 
   if (loading) return <LoadingSkeleton />;

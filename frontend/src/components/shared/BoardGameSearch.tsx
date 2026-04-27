@@ -58,11 +58,11 @@ export function BoardGameSearch({
     }
     setLoading(true);
     try {
-      const { data, error } = await supabase.rpc("search_board_games", {
-        search_query: q.trim(),
-        game_type_filter: showExpansions ? null : "game",
-        result_limit: 10,
-      });
+       const { data, error } = await supabase.rpc("search_board_games", {
+         search_query: q.trim(),
+         game_type_filter: showExpansions ? undefined : "game",
+         result_limit: 10,
+       });
       if (!error && data) {
         setResults(data as BoardGame[]);
       }

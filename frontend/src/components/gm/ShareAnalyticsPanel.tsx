@@ -2,10 +2,9 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import {
-  BarChart3, MousePointerClick, Eye, TrendingUp, Users,
-  MessageCircle, Send, Facebook, Twitter, Link2
-} from "lucide-react";
+import { BarChart3, MousePointerClick, Eye, TrendingUp, Users, MessageCircle, Send, Link2 } from "lucide-react";
+import Facebook from "lucide-react/dist/esm/icons/facebook";
+import Twitter from "lucide-react/dist/esm/icons/twitter";
 
 interface ChannelStat {
   channel: string;

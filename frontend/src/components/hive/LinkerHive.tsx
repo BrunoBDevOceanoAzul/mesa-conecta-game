@@ -17,6 +17,7 @@
 
 import React, { memo, useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { LucideIcon } from 'lucide-react';
 import { HexagonAgent } from './HexagonAgent';
 import { useHive } from '@/context/HiveContext';
 import type { HiveFrequency } from '@/context/HiveContext';
@@ -24,7 +25,7 @@ import type { HiveFrequency } from '@/context/HiveContext';
 interface HexConfig {
   id: HiveFrequency | 'user';
   label: string;
-  icon: React.ComponentType<any>;
+  icon: LucideIcon;
   color?: string;
   isCentral?: boolean;
 }

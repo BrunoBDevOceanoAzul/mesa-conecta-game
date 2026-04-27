@@ -116,7 +116,7 @@ export default function PostDetail() {
       .maybeSingle();
 
     // Enrich with related table
-    let table = null;
+    let table: any = null;
     if (data.related_table_id) {
       const { data: t } = await supabase
         .from("game_tables")
@@ -140,11 +140,12 @@ export default function PostDetail() {
 
     const enriched: FeedPost = {
       ...data,
+      published_at: data.published_at || new Date().toISOString(),
       tags: data.tags || [],
       author_name: profile?.name || "Usuário",
-      author_avatar_url: profile?.avatar_url,
-      author_slug: profile?.slug,
-      author_city: profile?.city,
+      author_avatar_url: profile?.avatar_url ?? undefined,
+      author_slug: profile?.slug ?? undefined,
+      author_city: profile?.city ?? undefined,
       table_title: table?.title,
       table_system: table?.system_name,
       table_seats: table?.seats_available,
@@ -181,7 +182,7 @@ export default function PostDetail() {
       canonical.setAttribute("rel", "canonical");
       document.head.appendChild(canonical);
     }
-    canonical.setAttribute("href", `https://mesa-conecta-game.lovable.app/post/${data.slug || data.id}`);
+    canonical.setAttribute("href", `https://sociodotabuleiro.app.br/post/${data.slug || data.id}`);
 
     // JSON-LD structured data
     let ldScript = document.getElementById("post-jsonld") as HTMLScriptElement | null;
@@ -202,16 +203,16 @@ export default function PostDetail() {
       author: {
         "@type": "Person",
         name: profile?.name || "Usuário HIVIUM",
-        url: profile?.slug ? `https://mesa-conecta-game.lovable.app/mestre/${profile.slug}` : undefined,
+        url: profile?.slug ? `https://sociodotabuleiro.app.br/mestre/${profile.slug}` : undefined,
       },
       publisher: {
         "@type": "Organization",
         name: "HIVIUM",
-        url: "https://mesa-conecta-game.lovable.app",
+        url: "https://sociodotabuleiro.app.br",
       },
       mainEntityOfPage: {
         "@type": "WebPage",
-        "@id": `https://mesa-conecta-game.lovable.app/post/${data.slug || data.id}`,
+        "@id": `https://sociodotabuleiro.app.br/post/${data.slug || data.id}`,
       },
       interactionStatistic: [
         { "@type": "InteractionCounter", interactionType: "https://schema.org/LikeAction", userInteractionCount: data.likes_count || 0 },
@@ -238,7 +239,7 @@ export default function PostDetail() {
 
     const authorIds = [...new Set(data.map((p: any) => p.author_id))];
     const { data: profiles } = await supabase.from("profiles").select("user_id, name, slug, city, role").in("user_id", authorIds);
-    const profileMap = new Map((profiles || []).map((p: any) => [p.user_id, p]));
+    const profileMap = new Map<string, any>((profiles || []).map((p: any) => [p.user_id, p]));
 
     setRelatedPosts(
       data.map((p: any) => {

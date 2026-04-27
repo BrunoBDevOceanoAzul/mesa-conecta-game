@@ -147,7 +147,7 @@ export default function TableDetail() {
             eventsApi.pageView(id).catch(() => {});
           }
           // Dynamic OG meta tags for social sharing crawlers
-          const ogUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
+          const ogUrl = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/og-image?type=mesa&id=${id}`;
           document.querySelector('meta[property="og:title"]')?.setAttribute("content", data.title || "Mesa HIVIUM");
           document.querySelector('meta[property="og:description"]')?.setAttribute("content", data.description?.substring(0, 160) || "Encontre sua próxima aventura na HIVIUM");
           document.querySelector('meta[property="og:image"]')?.setAttribute("content", ogUrl);

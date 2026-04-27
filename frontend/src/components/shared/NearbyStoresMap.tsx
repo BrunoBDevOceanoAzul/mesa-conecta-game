@@ -52,7 +52,7 @@ export function NearbyStoresMap({ userLat, userLng, radiusKm = 50 }: NearbyStore
   // Load Google Maps script
   useEffect(() => {
     if (!userLat || !userLng) return;
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+    const projectId = process.env.NEXT_PUBLIC_SUPABASE_PROJECT_ID;
 
     if ((window as any).google?.maps) {
       initMap();

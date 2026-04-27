@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Instagram, Share2 } from "lucide-react";
+import { CheckCircle2, Share2 } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { Button } from "@/components/ui/button";
 import logo from "@/assets/hivium-logo.png";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
@@ -25,7 +26,7 @@ export function ThankYouScreen() {
             <CheckCircle2 className="h-16 w-16 text-success mx-auto mb-6" />
           </motion.div>
 
-          <img src={logo} alt="HIVIUM" className="h-8 mx-auto mb-6 opacity-80" />
+          <img src={typeof logo === 'string' ? logo : logo.src} alt="HIVIUM" className="h-8 mx-auto mb-6 opacity-80" />
 
           <h1 className="text-h1 mb-4">
             Você entrou no <span className="gradient-text-gold">primeiro círculo</span>

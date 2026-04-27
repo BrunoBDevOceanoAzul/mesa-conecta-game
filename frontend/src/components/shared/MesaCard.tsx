@@ -1,4 +1,5 @@
-import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Instagram, Gamepad2, Brain } from "lucide-react";
+import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Gamepad2, Brain } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { useNavigate } from "react-router-dom";
 import { getMatchColor, getMatchLabel } from "@/lib/match-scoring";
 

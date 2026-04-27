@@ -36,9 +36,9 @@ export function BlocklistManager() {
   const { data: entries = [], isLoading } = useQuery({
     queryKey: ["blocklist", tab],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase
         .from("blocklist")
-        .select("*")
+        .select("*") as any)
         .eq("block_type", tab)
         .eq("is_active", true)
         .order("created_at", { ascending: false });
@@ -76,9 +76,9 @@ export function BlocklistManager() {
 
   const removeBlock = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase
+      const { error } = await (supabase
         .from("blocklist")
-        .update({ is_active: false } as any)
+        .update({ is_active: false } as any) as any)
         .eq("id", id);
       if (error) throw error;
     },

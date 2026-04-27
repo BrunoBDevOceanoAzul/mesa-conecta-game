@@ -41,7 +41,7 @@ export function CreatePostDialog({ onCreated }: CreatePostDialogProps) {
   const [tagInput, setTagInput] = useState("");
   const [tables, setTables] = useState<{ id: string; title: string }[]>([]);
   const [relatedTableId, setRelatedTableId] = useState<string>("");
-  const [profile, setProfile] = useState<{ role: string; name: string } | null>(null);
+  const [profile, setProfile] = useState<{ role: string | null; name: string | null } | null>(null);
 
   useEffect(() => {
     if (!user || !open) return;

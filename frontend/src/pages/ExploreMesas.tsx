@@ -24,8 +24,8 @@ type Mesa = {
   system: string;
   session_type: string;
   format: string;
-  city: string | null;
-  venue: string | null;
+  city?: string | null;
+  venue?: string | null;
   min_price: number;
   max_price: number;
   seats_total: number;
@@ -33,12 +33,12 @@ type Mesa = {
   gm_id: string;
   gm_name: string;
   start_at: string;
-  end_at: string | null;
+  end_at?: string | null;
   status: string;
-  tags: string[] | null;
-  play_styles: string[] | null;
-  image_url: string | null;
-  cover_image_url: string | null;
+  tags?: string[];
+  play_styles?: string[] | null;
+  image_url?: string | null;
+  cover_image_url?: string | null;
 };
 
 const FORMATS = ["presencial", "online", "híbrido"];

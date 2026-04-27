@@ -5,21 +5,32 @@
   "description": "Sócio do Tabuleiro - Plataforma de conexão para o universo tabletop",
   "type": "module",
   "workspaces": [
-    "frontend",
     "backend"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=frontend",
+    "dev": "npm run dev --prefix=frontend",
     "dev:api": "npm run dev --workspace=backend",
-    "build": "npm run build --workspace=frontend",
+    "build": "npm run build --prefix=frontend",
     "build:api": "npm run build --workspace=backend",
-    "test": "npm run test --workspace=frontend",
+    "test": "npm run test --prefix=frontend",
     "test:api": "npm run test --workspace=backend",
-    "lint": "npm run lint --workspace=frontend",
-    "verify": "npm run typecheck --workspace=backend && npm run test --workspace=backend && npm run test --workspace=frontend"
+    "lint": "npm run lint --prefix=frontend",
+    "verify": "npm run typecheck --workspace=backend && npm run test --workspace=backend && npm run test --prefix=frontend"
   },
   "engines": {
     "node": ">=20.0.0",
     "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "date-fns": "^2.30.0",
+    "nanoid": "^5.1.9",
+    "next": "^14.2.35",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/google.maps": "^3.64.0",
+    "@types/react": "^18.3.28",
+    "@types/react-dom": "^18.3.7"
   }
 }

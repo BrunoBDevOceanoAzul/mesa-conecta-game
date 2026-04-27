@@ -226,7 +226,7 @@ export default function Messages() {
                             {name}
                           </span>
                           <span className="text-[10px] text-muted-foreground shrink-0">
-                            {formatMsgTime(conv.last_message_at)}
+                            {conv.last_message_at ? formatMsgTime(conv.last_message_at) : ""}
                           </span>
                         </div>
                         <div className="flex items-center gap-1.5 mt-0.5">

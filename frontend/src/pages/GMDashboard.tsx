@@ -3,12 +3,8 @@ import { ProfileCouponBanner } from "@/components/shared/ProfileCouponBanner";
 import { FinancialCompletionBanner } from "@/components/shared/FinancialCompletionBanner";
 import { TrialBanner } from "@/components/shared/TrialBanner";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp,
-  Megaphone, Plus, Eye, MousePointerClick, DollarSign,
-  PieChart, Edit2, Trash2, ChevronDown, Calculator,
-  UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2, Star, Instagram
-} from "lucide-react";
+import { Crown, Calendar, Users, BarChart3, CreditCard, TrendingUp, Megaphone, Plus, Eye, MousePointerClick, DollarSign, PieChart, Edit2, Trash2, ChevronDown, Calculator, UserCheck, MessageSquare, Tag, Clock, Zap, Trophy, Target, Share2, Star } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";

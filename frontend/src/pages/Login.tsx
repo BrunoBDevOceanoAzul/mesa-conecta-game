@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+
 import { useToast } from "@/hooks/use-toast";
 import { resolveRedirect } from "@/lib/auth-redirect";
 import logoImg from "@/assets/hivium-logo.png";
@@ -65,31 +65,18 @@ export default function Login() {
   const handleGoogleLogin = async () => {
     setGoogleLoading(true);
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/~oauth",
-        extraParams: {
-          prompt: "select_account",
-        },
+      const result = await supabase.auth.signInWithOAuth({ 
+        provider: "google", 
+        options: {
+          redirectTo: window.location.origin + "/~oauth"
+        }
       });
 
-      if (result?.error) {
-        const message = result.error instanceof Error ? result.error.message : String(result.error);
-        toast({
-          title: "Erro com Google",
-          description: message || "Falha na autenticação. Tente novamente.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (!result?.redirected) {
-        // Popup flow — session already set
-        await new Promise((r) => setTimeout(r, 600));
-        const { data: { user } } = await supabase.auth.getUser();
-        if (user) {
-          const dest = await resolveRedirect(user.id, user.user_metadata?.role);
-          navigate(dest);
-        }
+      // Check if user is signed in after OAuth flow
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const dest = await resolveRedirect(user.id, user.user_metadata?.role);
+        navigate(dest);
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Servidor indisponível. Tente novamente em alguns segundos.";
@@ -123,10 +110,10 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-10">
-            <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-              <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
-              <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
-            </button>
+           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
+             <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
+             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+           </button>
             <h1 className="text-2xl font-display font-bold text-foreground">Esqueci minha senha</h1>
             <p className="mt-2 text-sm text-muted-foreground">Digite seu email para receber um link de redefinição.</p>
           </div>
@@ -152,10 +139,10 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-            <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
-            <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
-          </button>
+           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
+             <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
+             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+           </button>
           <h1 className="text-2xl font-display font-bold text-foreground">Bem-vindo de volta</h1>
           <p className="mt-2 text-sm text-muted-foreground">Entre na sua conta para continuar</p>
         </div>

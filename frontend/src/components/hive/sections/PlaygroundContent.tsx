@@ -7,9 +7,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface CharacterSheet {
   id: string;
-  name: string;
-  system: string;
-  level?: number;
+  character_name: string;
+  system_name: string;
   created_at: string;
 }
 
@@ -29,8 +28,8 @@ export default function PlaygroundContent() {
       try {
         const { data, error } = await supabase
           .from('character_sheets')
-          .select('id, name, system, level, created_at')
-          .eq('player_id', user.id)
+          .select('id, character_name, system_name, created_at')
+          .eq('user_id', user!.id)
           .order('created_at', { ascending: false });
 
         if (error) throw error;
@@ -103,10 +102,10 @@ export default function PlaygroundContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-semibold text-white group-hover:text-[#F7A731] transition-colors truncate">
-                      {sheet.name}
+                      {sheet.character_name}
                     </h3>
                     <p className="text-white/50 text-xs">
-                      {sheet.system} {sheet.level && `• Nível ${sheet.level}`}
+                      {sheet.system_name}
                     </p>
                   </div>
                 </div>

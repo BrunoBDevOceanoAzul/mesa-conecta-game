@@ -1,33 +1,16 @@
-import { Navbar } from "@/components/landing/Navbar";
-import { HeroSection } from "@/components/landing/HeroSection";
-import { CommunityShowcase } from "@/components/landing/CommunityShowcase";
-import { AmbassadorsSection } from "@/components/landing/AmbassadorsSection";
-import { AmbassadorSpotlight } from "@/components/landing/AmbassadorSpotlight";
-import { ProfilesSection } from "@/components/landing/ProfilesSection";
-import { HowItWorksSection } from "@/components/landing/HowItWorksSection";
-import { DifferentialsSection } from "@/components/landing/DifferentialsSection";
-import { PricingSection } from "@/components/landing/PricingSection";
-import { FAQSection } from "@/components/landing/FAQSection";
-import { CTASection } from "@/components/landing/CTASection";
-import { Footer } from "@/components/landing/Footer";
+"use client";
 
-const Index = () => {
-  return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <HeroSection />
-      <CommunityShowcase />
-      <AmbassadorSpotlight />
-      <AmbassadorsSection />
-      <ProfilesSection />
-      <HowItWorksSection />
-      <DifferentialsSection />
-      <PricingSection />
-      <FAQSection />
-      <CTASection />
-      <Footer />
+import dynamic from "next/dynamic";
+
+const HivePage = dynamic(() => import("@/pages/Hive"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center h-screen bg-[#050505]">
+      <div className="w-8 h-8 border-2 border-[#662583] border-t-transparent rounded-full animate-spin" />
     </div>
-  );
-};
+  ),
+});
 
-export default Index;
+export default function Home() {
+  return <HivePage />;
+}

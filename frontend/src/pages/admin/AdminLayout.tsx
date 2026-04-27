@@ -48,10 +48,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          <button onClick={() => navigate("/")} className="flex items-center gap-2">
-            <img src={logoImg} alt="HIVIUM" className="h-6 w-6 object-contain" />
-            <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
-          </button>
+           <button onClick={() => navigate("/")} className="flex items-center gap-2">
+             <img src={logoImg.src} alt="HIVIUM" className="h-6 w-6 object-contain" />
+             <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
+           </button>
           <div className="ml-auto flex items-center gap-1">
             <div className="h-7 w-7 rounded-full bg-primary/12 flex items-center justify-center">
               <Shield className="h-3.5 w-3.5 text-primary" />
@@ -100,15 +100,15 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
-        <div className="flex h-14 items-center justify-between px-4 border-b border-border">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
-            <img src={logoImg} alt="HIVIUM" className="h-7 w-7 object-contain" />
-            <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
-          </button>
-          <button className="lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(false)}>
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+         <div className="flex h-14 items-center justify-between px-4 border-b border-border">
+           <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+             <img src={logoImg.src} alt="HIVIUM" className="h-7 w-7 object-contain" />
+             <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
+           </button>
+           <button className="lg:hidden text-muted-foreground hover:text-foreground" onClick={() => setSidebarOpen(false)}>
+             <X className="h-5 w-5" />
+           </button>
+         </div>
 
         <div className="p-3">
           <div className="flex items-center gap-3 rounded-lg bg-surface p-3 mb-5">

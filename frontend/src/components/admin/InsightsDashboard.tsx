@@ -154,7 +154,7 @@ export function InsightsDashboard() {
       }
     });
 
-    const profileNameMap = new Map(profiles.map((p: any) => [p.user_id, p.name || "Sem nome"]));
+    const profileNameMap = new Map<string, string>(profiles.map((p: any) => [p.user_id, p.name || "Sem nome"]));
 
     const topRevenueGMs: RevenueByUser[] = Object.entries(gmRevenueMap)
       .sort((a, b) => b[1].total - a[1].total)

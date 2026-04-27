@@ -14,21 +14,21 @@ type Mesa = {
   system: string;
   session_type: string;
   format: string;
-  city: string | null;
-  venue: string | null;
+  city?: string | null;
+  venue?: string | null;
   min_price: number;
   max_price: number;
   seats_total: number;
   seats_available: number;
   gm_name: string;
   start_at: string;
-  end_at: string | null;
+  end_at?: string | null;
   status: string;
-  tags: string[] | null;
-  image_url: string | null;
-  cover_image_url: string | null;
-  mesa_type: string;
-  organizer_name: string | null;
+  tags?: string[];
+  image_url?: string | null;
+  cover_image_url?: string | null;
+  mesa_type?: string;
+  organizer_name?: string | null;
 };
 
 export function CommunityShowcase() {

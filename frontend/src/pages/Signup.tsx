@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { Gamepad2, Crown, Store, Loader2, Eye, EyeOff, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
+
 import { useToast } from "@/hooks/use-toast";
 import { Checkbox } from "@/components/ui/checkbox";
 import logoImg from "@/assets/hivium-logo.png";
@@ -156,10 +156,12 @@ export default function Signup() {
         whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
       }));
 
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin + "/~oauth",
-        extraParams: { prompt: "select_account" },
-      });
+       const result = await supabase.auth.signInWithOAuth({ 
+         provider: "google", 
+         options: {
+           redirectTo: window.location.origin + "/~oauth"
+         }
+       });
 
       if (result?.error) {
         const message = result.error instanceof Error ? result.error.message : String(result.error);
@@ -184,7 +186,7 @@ export default function Signup() {
         {/* Header */}
         <div className="text-center mb-8">
           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-6">
-            <img src={logoImg} alt="HIVIUM" className="h-10 w-10 object-contain" />
+            <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
 

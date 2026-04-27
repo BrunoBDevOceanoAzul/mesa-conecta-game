@@ -9,10 +9,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import {
-  Camera, Save, Loader2, Instagram, User, MapPin, Settings,
-  Phone, CreditCard, Gamepad2, Crown, Store, Megaphone, Sparkles, X
-} from "lucide-react";
+import { Camera, Save, Loader2, User, MapPin, Settings, Phone, CreditCard, Gamepad2, Crown, Store, Megaphone, Sparkles, X } from "lucide-react";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { RPG_SYSTEMS } from "@/data/rpg-systems";

@@ -9,11 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Share2, Sparkles, Loader2, Copy, Check, ExternalLink,
-  MessageCircle, Send, Facebook, Twitter, Instagram, Linkedin,
-  Link2, Trash2, BarChart3, Globe
-} from "lucide-react";
+import { Share2, Sparkles, Loader2, Copy, Check, ExternalLink, MessageCircle, Send, Link2, Trash2, BarChart3, Globe } from "lucide-react";
+import Facebook from "lucide-react/dist/esm/icons/facebook";
+import Twitter from "lucide-react/dist/esm/icons/twitter";
+import Instagram from "lucide-react/dist/esm/icons/instagram";
+import Linkedin from "lucide-react/dist/esm/icons/linkedin";
 
 const ALL_CHANNELS = [
   { key: "whatsapp", label: "WhatsApp", icon: MessageCircle, color: "text-green-500" },

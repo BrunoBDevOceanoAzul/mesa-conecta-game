@@ -10,7 +10,7 @@ export default function PrivacyPolicy() {
       <header className="border-b border-border/50 py-4">
         <div className="container mx-auto px-4 flex items-center gap-4">
           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2">
-            <img src={logoImg} alt="HIVIUM" className="h-8 w-8 object-contain" />
+            <img src={logoImg.src} alt="HIVIUM" className="h-8 w-8 object-contain" />
             <span className="font-display font-bold text-sm gradient-text">HIVIUM</span>
           </button>
           <button onClick={() => navigate(-1)} className="ml-auto text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">

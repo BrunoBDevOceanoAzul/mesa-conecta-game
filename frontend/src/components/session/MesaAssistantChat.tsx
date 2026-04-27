@@ -18,7 +18,7 @@ interface MesaAssistantChatProps {
   onClose?: () => void;
 }
 
-const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/knowledge-query`;
+const CHAT_URL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/functions/v1/knowledge-query`;
 
 export function MesaAssistantChat({ mesaId, mesaTitle, mesaSystem, onClose }: MesaAssistantChatProps) {
   const [messages, setMessages] = useState<Message[]>([]);
@@ -60,7 +60,7 @@ export function MesaAssistantChat({ mesaId, mesaTitle, mesaSystem, onClose }: Me
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}`,
         },
         body: JSON.stringify({
           question: text,
