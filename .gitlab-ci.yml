@@ -76,7 +76,7 @@ validate:
       NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
       npm run build --prefix=frontend
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
     - if: $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "homolog" || $CI_MERGE_REQUEST_TARGET_BRANCH_NAME == "main"
 
 # ============================================================
@@ -117,7 +117,7 @@ build:frontend:
     - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
     - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
 
 build:backend:
   stage: build
@@ -140,7 +140,7 @@ build:backend:
     - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
     - docker push $IMAGE_API:$CI_COMMIT_REF_SLUG
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
 
 # ============================================================
 # SCAN — Trivy Security Scan
@@ -166,7 +166,7 @@ scan:frontend:
     reports:
       dependency_scanning: trivy-frontend-report.json
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
 
 scan:backend:
   stage: scan
@@ -189,7 +189,7 @@ scan:backend:
     reports:
       dependency_scanning: trivy-backend-report.json
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
 
 # ============================================================
 # DEPLOY — Kubernetes (DOKS)
@@ -341,7 +341,7 @@ notify:success:
     - job: deploy:prod
       optional: true
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
       when: on_success
 
 notify:failure:
@@ -363,7 +363,7 @@ notify:failure:
     - job: deploy:prod
       optional: true
   rules:
-    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
+    - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "develop-nextjs" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
       when: on_failure
 
 # ============================================================
