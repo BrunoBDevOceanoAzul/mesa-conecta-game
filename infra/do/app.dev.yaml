@@ -1,5 +1,5 @@
-name: __APP_NAME__
-region: __APP_REGION__
+name: socio-app-dev
+region: nyc
 
 alerts:
   - rule: DEPLOYMENT_FAILED
@@ -22,40 +22,40 @@ static_sites:
   - name: mesa-web
     github:
       repo: BrunoBDevOceanoAzul/mesa-conecta-game
-      branch: __APP_BRANCH__
-      deploy_on_push: false
+      branch: develop
+      deploy_on_push: true
     source_dir: /
-    build_command: npm ci && npm run build
+    dockerfile_path: infra/docker/Dockerfile
     output_dir: dist
-    catchall_document: index.html
-    environment_slug: node-js
+    http_port: 8080
     envs:
-      - key: VITE_SUPABASE_URL
+      - key: NEXT_PUBLIC_SUPABASE_URL
         scope: BUILD_TIME
-        value: "__VITE_SUPABASE_URL__"
-      - key: VITE_SUPABASE_PUBLISHABLE_KEY
+        type: SECRET
+        value: "__NEXT_PUBLIC_SUPABASE_URL__"
+      - key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
         scope: BUILD_TIME
-        value: "__VITE_SUPABASE_PUBLISHABLE_KEY__"
-      - key: VITE_APP_URL
+        type: SECRET
+        value: "__NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY__"
+      - key: NEXT_PUBLIC_APP_URL
         scope: BUILD_TIME
-        value: "__VITE_APP_URL__"
-      - key: VITE_MESA_API_URL
+        type: SECRET
+        value: "https://dev.sociodotabuleiro.app.br"
+      - key: NEXT_PUBLIC_MESA_API_URL
         scope: BUILD_TIME
         value: "/api"
-      - key: VITE_ENV
+      - key: NEXT_PUBLIC_ENV
         scope: BUILD_TIME
-        value: "__APP_ENV__"
+        value: "development"
 
 services:
   - name: mesa-api
     github:
       repo: BrunoBDevOceanoAzul/mesa-conecta-game
-      branch: __APP_BRANCH__
-      deploy_on_push: false
+      branch: develop
+      deploy_on_push: true
     source_dir: backend
-    environment_slug: node-js
-    build_command: npm install && npm run build
-    run_command: npm start
+    dockerfile_path: Dockerfile
     http_port: 8787
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-0.5gb
@@ -64,7 +64,7 @@ services:
     envs:
       - key: NODE_ENV
         scope: RUN_TIME
-        value: "__NODE_ENV_VALUE__"
+        value: "development"
       - key: PORT
         scope: RUN_TIME
         value: "8787"
@@ -94,4 +94,4 @@ services:
         value: "__CUSTOMERIO_CDP_WRITE_KEY__"
       - key: CUSTOMERIO_CDP_API_BASE_URL
         scope: RUN_TIME
-        value: "__CUSTOMERIO_CDP_API_BASE_URL__"
+        value: "https://cdp.customer.io/v1"
