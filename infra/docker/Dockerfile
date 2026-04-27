@@ -27,6 +27,7 @@ ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 ENV NEXT_PUBLIC_MESA_API_URL=${NEXT_PUBLIC_MESA_API_URL}
 ENV NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
 RUN npm run build --prefix=frontend
+RUN ls -la /app/frontend/dist/index.html || (echo "ERROR: index.html not found" && exit 1)
 
 FROM nginx:${NGINX_VERSION}-alpine AS runtime
 RUN rm -rf /usr/share/nginx/html/*
