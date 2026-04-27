@@ -29,6 +29,7 @@ ENV NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
 RUN npm run build --prefix=frontend
 
 FROM nginx:${NGINX_VERSION}-alpine AS runtime
+RUN rm -rf /usr/share/nginx/html/*
 COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
 EXPOSE 8080
