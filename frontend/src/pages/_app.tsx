@@ -1,13 +1,24 @@
 import type { AppProps } from 'next/app';
-import dynamic from 'next/dynamic';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "@/components/ui/toaster";
+import { Toaster as Sonner } from "@/components/ui/sonner";
+import { AuthProvider } from "@/contexts/AuthContext";
 
-// Disable SSR for all pages since this is a SPA migrated from Vite
-const SafeComponent = dynamic(() => Promise.resolve(({ Component, pageProps }: AppProps) => <Component {...pageProps} />), {
-  ssr: false,
-});
+const queryClient = new QueryClient();
 
-function MyApp(props: AppProps) {
-  return <SafeComponent {...props} />;
+function MyApp({ Component, pageProps }: AppProps) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <Component {...pageProps} />
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  );
 }
 
 export default MyApp;
