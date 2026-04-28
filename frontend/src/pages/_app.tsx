@@ -1,24 +1,14 @@
 import type { AppProps } from 'next/app';
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { AuthProvider } from "@/contexts/AuthContext";
+import dynamic from 'next/dynamic';
 
-const queryClient = new QueryClient();
+// Disable SSR for entire app since this is a SPA with browser-only APIs
+const AppWithProviders = dynamic(
+  () => import('@/components/AppWithProviders'),
+  { ssr: false }
+);
 
-function MyApp({ Component, pageProps }: AppProps) {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <Component {...pageProps} />
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
+function MyApp(props: AppProps) {
+  return <AppWithProviders {...props} />;
 }
 
 export default MyApp;
