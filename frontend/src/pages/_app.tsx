@@ -1,5 +1,6 @@
 import type { AppProps } from 'next/app';
 import dynamic from 'next/dynamic';
+import '@/index.css';
 
 // Disable SSR for entire app since this is a SPA with browser-only APIs
 const AppWithProviders = dynamic(
