@@ -36,6 +36,8 @@ variables:
   NEXT_PUBLIC_ENV: "development"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
   NEXT_PUBLIC_APP_URL: $VITE_APP_URL
+  # Cache version — incremente para limpar cache antigo
+  CACHE_VERSION: "v2"
   # GitLab API para MR automático
   GITLAB_API_URL: "https://gitlab.com/api/v4"
   CI_PROJECT_PATH_ENCODED: "socio-do-tabuleiro%2Fsocio-do-tabuleiro"
@@ -45,7 +47,7 @@ variables:
 # ============================================================
 .node-cache: &node-cache
   cache:
-    key: ${CI_COMMIT_REF_SLUG}
+    key: ${CI_COMMIT_REF_SLUG}-${CACHE_VERSION:-v1}
     paths:
       - node_modules/
       - frontend/node_modules/
