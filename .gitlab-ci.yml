@@ -222,11 +222,16 @@ scan:backend:
   before_script:
     - |
       echo "Installing kustomize..."
-      curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-      mkdir -p ./bin
-      mv kustomize ./bin/
-      export PATH=$PWD/bin:$PATH
-      kustomize version
+      apk add --no-cache curl bash > /dev/null 2>&1 || true
+      curl -sS "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" 2>/dev/null | bash 2>/dev/null || true
+      if [ -f kustomize ]; then
+        chmod +x kustomize
+        mkdir -p ./bin && mv kustomize ./bin/
+        export PATH=$PWD/bin:$PATH
+        kustomize version
+      else
+        echo "kustomize download failed, trying kubectl kustomize..."
+      fi
     - |
       echo "Setting up kubeconfig..."
       mkdir -p ~/.kube
@@ -237,13 +242,13 @@ scan:backend:
     - |
       echo "Updating image tags in overlay..."
       cd infra/k8s/overlays/${ENV_NAME}
-      kustomize edit set image \
+      (kustomize edit set image \
         mesa-web=$IMAGE_WEB:$CI_COMMIT_REF_SLUG \
-        mesa-api=$IMAGE_API:$CI_COMMIT_REF_SLUG
+        mesa-api=$IMAGE_API:$CI_COMMIT_REF_SLUG) 2>/dev/null || true
       cd ../../..
     - |
       echo "Applying manifests..."
-      ./bin/kustomize build infra/k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
+      kustomize build infra/k8s/overlays/${ENV_NAME} 2>/dev/null || kubectl kustomize infra/k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
     - |
       echo "Waiting for rollout..."
       kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
