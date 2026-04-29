@@ -5,14 +5,11 @@ ARG NGINX_VERSION=1.27.4
 FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-COPY frontend/package.json frontend/package-lock.json ./frontend/
-COPY backend/package.json ./backend/
-RUN npm ci --workspaces
+RUN npm ci
 
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
-COPY --from=deps /app/frontend/node_modules ./frontend/node_modules
 COPY . .
 ARG NEXT_PUBLIC_SUPABASE_URL
 ARG NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
