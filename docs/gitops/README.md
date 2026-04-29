@@ -23,17 +23,17 @@ This project uses a GitOps deployment model for the frontend.
 
 ## Secret management
 
-Frontend `VITE_*` values are public client configuration and are injected at build time through GitHub Actions secrets/variables:
+Frontend `NEXT_PUBLIC_*` values are public client configuration and are injected at build time through GitHub Actions secrets/variables:
 
-- `secrets.VITE_SUPABASE_URL`
-- `secrets.VITE_SUPABASE_PUBLISHABLE_KEY`
-- `vars.VITE_APP_URL`
+- `secrets.NEXT_PUBLIC_SUPABASE_URL`
+- `secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `vars.NEXT_PUBLIC_APP_URL`
 
 Kubernetes runtime secrets are represented with Bitnami Sealed Secrets for future server-side or runtime configuration. Generate encrypted secret manifests with:
 
 ```bash
-VITE_SUPABASE_URL="https://xqjiizwtfavpvxytqzvv.supabase.co" \
-VITE_SUPABASE_PUBLISHABLE_KEY="..." \
+NEXT_PUBLIC_SUPABASE_URL="https://xqjiizwtfavpvxytqzvv.supabase.co" \
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="..." \
 ./scripts/seal-mesa-web-secrets.sh
 ```
 

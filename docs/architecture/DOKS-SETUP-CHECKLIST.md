@@ -42,8 +42,8 @@ Vá em: Settings → Secrets and variables → Actions → **New repository secr
 | Secret | Valor |
 |--------|-------|
 | `SENDGRID_API_KEY` | Criar em https://signup.sendgrid.com/ → Settings → API Keys → Create API Key (Full Access) |
-| `VITE_SUPABASE_URL` | URL do projeto Supabase (ex: `https://xqjiizwtfavpvxytqzvv.supabase.co`) |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API → `anon` `public` key |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL do projeto Supabase (ex: `https://xqjiizwtfavpvxytqzvv.supabase.co`) |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Project Settings → API → `anon` `public` key |
 | `GITHUB_TOKEN` | Automático, não precisa criar |
 
 ---
@@ -54,7 +54,7 @@ Vá em: Settings → Secrets and variables → Actions → **Variables** tab →
 
 | Variable | Valor |
 |----------|-------|
-| `VITE_APP_URL` | `https://mesaconecta.com` |
+| `NEXT_PUBLIC_APP_URL` | `https://mesaconecta.com` |
 
 ---
 
@@ -72,8 +72,8 @@ Para **CADA** environment, adicione estes secrets:
 |--------|-----------|
 | `KUBECONFIG_DEV` | Rode no terminal: `cat ~/.kube/config \| base64 \| pbcopy` e cole |
 | `DATABASE_URL` | Connection string do Supabase (postgres://...) |
-| `SUPABASE_URL` | Mesmo que VITE_SUPABASE_URL |
-| `SUPABASE_ANON_KEY` | Mesmo que VITE_SUPABASE_PUBLISHABLE_KEY |
+| `SUPABASE_URL` | Mesmo que NEXT_PUBLIC_SUPABASE_URL |
+| `SUPABASE_ANON_KEY` | Mesmo que NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY |
 | `SUPABASE_SERVICE_ROLE_KEY` | Project Settings → API → `service_role` `secret` key |
 | `JWT_SECRET` | Rode: `openssl rand -base64 64` |
 | `CLOUDFLARE_API_TOKEN` | Cloudflare → My Profile → API Tokens → Create Token (Zone:Read, DNS:Edit) |

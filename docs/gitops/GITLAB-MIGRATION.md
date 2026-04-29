@@ -35,14 +35,14 @@ Em **Settings > CI/CD > Variables**, adicione:
 | `KUBECONFIG_DEV` | kubeconfig base64 do dev | `cat ~/.kube/config \| base64` |
 | `KUBECONFIG_HOMOLOG` | kubeconfig base64 homolog | `cat ~/.kube/config \| base64` |
 | `KUBECONFIG_PROD` | kubeconfig base64 prod | `cat ~/.kube/config \| base64` |
-| `VITE_SUPABASE_URL` | URL Supabase para build | `https://...` |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Anon key para build | `eyJhbG...` |
+| `NEXT_PUBLIC_SUPABASE_URL` | URL Supabase para build | `https://...` |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Anon key para build | `eyJhbG...` |
 
 ### Variables (Não-secretas)
 
 | Variável | Valor |
 |----------|-------|
-| `VITE_APP_URL` | `https://dev.sociodotabuleiro.app.br` |
+| `NEXT_PUBLIC_APP_URL` | `https://dev.sociodotabuleiro.app.br` |
 | `DOCKER_DRIVER` | `overlay2` |
 | `DOCKER_TLS_CERTDIR` | `""` |
 

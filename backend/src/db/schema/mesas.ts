@@ -10,6 +10,7 @@ import {
   text,
   timestamp,
   uniqueIndex,
+  unique,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -132,6 +133,27 @@ export const mesaBoosts = pgTable("mesa_boosts", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// ============================================================
+// FAVORITES
+// ============================================================
+
+export const favorites = pgTable(
+  "favorites",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    mesaId: uuid("mesa_id")
+      .notNull()
+      .references(() => mesas.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userMesaUnique: unique("idx_favorites_user_mesa").on(table.userId, table.mesaId),
+  }),
+);
+
 export const mesasRelations = relations(mesas, ({ one, many }) => ({
   gm: one(authUsers, {
     fields: [mesas.gmId],
@@ -140,6 +162,7 @@ export const mesasRelations = relations(mesas, ({ one, many }) => ({
   views: many(mesaViews),
   popularityScores: many(mesaPopularityScores),
   boosts: many(mesaBoosts),
+  favorites: many(favorites),
 }));
 
 export const mesaViewsRelations = relations(mesaViews, ({ one }) => ({
@@ -163,8 +186,21 @@ export const mesaBoostsRelations = relations(mesaBoosts, ({ one }) => ({
   }),
 }));
 
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  mesa: one(mesas, {
+    fields: [favorites.mesaId],
+    references: [mesas.id],
+  }),
+  user: one(authUsers, {
+    fields: [favorites.userId],
+    references: [authUsers.id],
+  }),
+}));
+
 export type Mesa = typeof mesas.$inferSelect;
 export type NewMesa = typeof mesas.$inferInsert;
 export type MesaView = typeof mesaViews.$inferSelect;
 export type MesaPopularityScore = typeof mesaPopularityScores.$inferSelect;
 export type MesaBoost = typeof mesaBoosts.$inferSelect;
+export type Favorite = typeof favorites.$inferSelect;
+export type NewFavorite = typeof favorites.$inferInsert;

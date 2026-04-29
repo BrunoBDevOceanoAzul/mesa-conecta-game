@@ -15,7 +15,7 @@
 
 'use client';
 
-import React, { memo, useState, useEffect, useRef } from 'react';
+import React, { memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { LucideIcon } from 'lucide-react';
 import { HexagonAgent } from './HexagonAgent';
@@ -35,189 +35,119 @@ interface LinkerHiveProps {
 }
 
 export const LinkerHive = memo(function LinkerHive({ hexagons }: LinkerHiveProps) {
-  const { activeFrequency, isExpanded, isMobile, handleHexClick } = useHive();
-  const [showDock, setShowDock] = useState(true);
-  const lastScrollY = useRef(0);
+  const { activeFrequency, isMenuOpen, isMobile, handleHexClick, closeMenu } = useHive();
   
   const centralHex = hexagons.find(h => h.isCentral);
   const satellites = hexagons.filter(h => !h.isCentral);
 
-  // Mobile: Dock flutuante com scroll detection
-  useEffect(() => {
-    if (!isMobile) return;
-    
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      // Mostrar dock quando scrolla pra cima ou está no topo
-      // Esconder quando scrolla pra baixo e já passou de 100px
-      if (currentScrollY < 100) {
-        setShowDock(true);
-      } else if (currentScrollY > lastScrollY.current) {
-        setShowDock(false);
-      } else {
-        setShowDock(true);
-      }
-      lastScrollY.current = currentScrollY;
-    };
+  const orbitRadius = isMobile ? 122 : 188;
+  const orbitHexSize = isMobile ? 82 : 110;
+  const centralSize = isMobile ? 92 : 126;
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isMobile]);
-  
-  // Mobile: Renderizar como dock inferior flutuante
-  if (isMobile) {
-    return (
-      <>
-        {/* Área sensível na borda inferior para reexibir dock */}
-        {!showDock && (
-          <div 
-            className="fixed bottom-0 left-0 right-0 h-8 z-40"
-            onClick={() => setShowDock(true)}
-          />
+  return (
+    <>
+      <AnimatePresence>
+        {isMenuOpen && (
+          <motion.div
+            className="absolute inset-0 z-40 overflow-hidden bg-[#050505]/72 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={closeMenu}
+          >
+            {centralHex && (
+              <motion.div
+                className="absolute left-1/2 top-1/2 pointer-events-auto"
+                style={{ transform: 'translate(-50%, -50%)' }}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.8, opacity: 0 }}
+                transition={{ type: 'spring', stiffness: 220, damping: 22 }}
+                onClick={(event) => event.stopPropagation()}
+              >
+                <HexagonAgent
+                  id={centralHex.id as HiveFrequency | 'user'}
+                  label={centralHex.label}
+                  icon={centralHex.icon}
+                  isCentral
+                  size={centralSize}
+                  onClick={() => handleHexClick(centralHex.id as HiveFrequency | 'user')}
+                />
+              </motion.div>
+            )}
+
+            {satellites.map((hex, index) => {
+              const angle = (index * (360 / satellites.length) - 90) * (Math.PI / 180);
+              const x = Math.cos(angle) * orbitRadius;
+              const y = Math.sin(angle) * orbitRadius;
+
+              return (
+                <motion.div
+                  key={hex.id}
+                  className="absolute left-1/2 top-1/2 pointer-events-auto"
+                  initial={{ x: -orbitHexSize / 2, y: -orbitHexSize / 2, opacity: 0, scale: 0.5 }}
+                  animate={{
+                    x: x - orbitHexSize / 2,
+                    y: y - (orbitHexSize * 1.1547) / 2,
+                    opacity: 1,
+                    scale: 1,
+                  }}
+                  exit={{ x: -orbitHexSize / 2, y: -orbitHexSize / 2, opacity: 0, scale: 0.5 }}
+                  transition={{
+                    type: 'spring',
+                    stiffness: 210,
+                    damping: 22,
+                    delay: index * 0.035,
+                  }}
+                  onClick={(event) => event.stopPropagation()}
+                >
+                  <HexagonAgent
+                    id={hex.id as HiveFrequency}
+                    label={hex.label}
+                    icon={hex.icon}
+                    size={orbitHexSize}
+                    onClick={() => handleHexClick(hex.id as HiveFrequency)}
+                  />
+                </motion.div>
+              );
+            })}
+          </motion.div>
         )}
-        <motion.nav 
-          className="fixed bottom-0 left-0 right-0 z-50 bg-[#050505]/95 backdrop-blur-xl border-t border-white/10 safe-area-bottom"
-          initial={{ y: 100 }}
-          animate={{ y: showDock ? 0 : 100 }}
-          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        >
-          <div className="flex items-center justify-around px-2 py-2">
-            {hexagons.map((hex) => (
+      </AnimatePresence>
+
+      <motion.nav
+        className="fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#050505]/95 backdrop-blur-xl safe-area-bottom"
+        initial={{ y: 80 }}
+        animate={{ y: 0 }}
+        transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+      >
+        <div className="mx-auto flex max-w-[560px] items-center justify-around px-2 py-2 md:max-w-3xl">
+          {hexagons.map((hex) => {
+            const isActive = activeFrequency === hex.id || (hex.id === 'user' && activeFrequency === 'home');
+            return (
               <button
                 key={hex.id}
                 onClick={() => handleHexClick(hex.id as HiveFrequency | 'user')}
                 className={`
-                  flex flex-col items-center gap-1 p-2 rounded-xl transition-all min-w-[64px]
-                  ${activeFrequency === hex.id 
-                    ? 'text-[#F7A731] scale-110' 
-                    : 'text-white/60 hover:text-white/80'
-                  }
+                  relative flex min-w-[54px] flex-col items-center gap-1 px-1.5 py-1.5 transition-all md:min-w-[76px]
+                  ${isActive ? 'text-white' : 'text-white/55 hover:text-white/80'}
                 `}
               >
-                <hex.icon className="w-5 h-5" strokeWidth={1.5} />
-                <span className="text-[9px] font-medium uppercase tracking-wider">
+                <hex.icon className="h-5 w-5" strokeWidth={1.45} />
+                <span className="text-[9px] font-medium uppercase leading-none tracking-wider md:text-[10px]">
                   {hex.label}
                 </span>
-                {activeFrequency === hex.id && (
+                {isActive && (
                   <motion.div
-                    className="absolute -top-1 w-1 h-1 rounded-full bg-[#F7A731]"
-                    layoutId="mobileIndicator"
+                    className="absolute top-0 h-1 w-1 rounded-full bg-[#F7A731]"
+                    layoutId="hiveDockIndicator"
                   />
                 )}
               </button>
-            ))}
-          </div>
-        </motion.nav>
-      </>
-    );
-  }
-  
-  // Desktop: Layout orbital
-  return (
-    <div className="absolute inset-0 pointer-events-none overflow-hidden z-50">
-      <AnimatePresence>
-        {/* Hexágono Central */}
-        {centralHex && (
-          <motion.div
-            className="absolute pointer-events-auto"
-            style={{
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-            }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 20 }}
-          >
-            <HexagonAgent
-              id={centralHex.id as HiveFrequency | 'user'}
-              label={centralHex.label}
-              icon={centralHex.icon}
-              isCentral
-              size={isExpanded ? 100 : 140}
-              onClick={() => handleHexClick(centralHex.id as HiveFrequency | 'user')}
-            />
-          </motion.div>
-        )}
-        
-        {/* Satélites Orbitais */}
-        {!isExpanded && satellites.map((hex, index) => {
-          const angle = (index * (360 / satellites.length) - 90) * (Math.PI / 180);
-          const radius = 180;
-          const x = Math.cos(angle) * radius;
-          const y = Math.sin(angle) * radius;
-          
-          return (
-            <motion.div
-              key={hex.id}
-              className="absolute pointer-events-auto"
-              style={{
-                left: '50%',
-                top: '50%',
-              }}
-              initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-              animate={{ 
-                x: x - 65, // Center the hex (130px / 2)
-                y: y - 75, // Center the hex (~150px / 2)
-                opacity: 1, 
-                scale: 1 
-              }}
-              exit={{ x: 0, y: 0, opacity: 0, scale: 0 }}
-              transition={{ 
-                type: 'spring',
-                stiffness: 200,
-                damping: 20,
-                delay: index * 0.05,
-              }}
-            >
-              <HexagonAgent
-                id={hex.id as HiveFrequency}
-                label={hex.label}
-                icon={hex.icon}
-                size={110}
-                onClick={() => handleHexClick(hex.id as HiveFrequency)}
-              />
-            </motion.div>
-          );
-        })}
-        
-        {/* Modo Expandido - Dock lateral */}
-        {isExpanded && satellites.map((hex, index) => {
-          const isLeft = index < 3;
-          const normalizedIndex = index % 3;
-          const yPositions = [15, 50, 85]; // Percentages
-          
-          return (
-            <motion.div
-              key={hex.id}
-              className="absolute pointer-events-auto"
-              initial={{ 
-                x: isLeft ? -150 : window.innerWidth + 150,
-                opacity: 0,
-              }}
-              animate={{ 
-                x: isLeft ? 20 : window.innerWidth - 150,
-                y: `${yPositions[normalizedIndex]}vh`,
-                opacity: 1,
-              }}
-              exit={{ 
-                x: isLeft ? -150 : window.innerWidth + 150,
-                opacity: 0,
-              }}
-              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            >
-              <HexagonAgent
-                id={hex.id as HiveFrequency}
-                label={hex.label}
-                icon={hex.icon}
-                size={activeFrequency === hex.id ? 120 : 100}
-                onClick={() => handleHexClick(hex.id as HiveFrequency)}
-              />
-            </motion.div>
-          );
-        })}
-      </AnimatePresence>
-    </div>
+            );
+          })}
+        </div>
+      </motion.nav>
+    </>
   );
 });

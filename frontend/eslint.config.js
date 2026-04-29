@@ -5,7 +5,23 @@ import reactRefresh from "eslint-plugin-react-refresh";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
-  { ignores: ["dist", "apps/mesa-api/dist", "supabase/functions", "node_modules", ".git", "k8s", "scripts"] },
+  {
+    ignores: [
+      "dist",
+      "dist*/**",
+      ".next/**",
+      ".next*/**",
+      "coverage/**",
+      "apps/mesa-api/dist",
+      "supabase/functions",
+      "node_modules",
+      "node_modules*/**",
+      "**/* 2/**",
+      ".git",
+      "k8s",
+      "scripts",
+    ],
+  },
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],

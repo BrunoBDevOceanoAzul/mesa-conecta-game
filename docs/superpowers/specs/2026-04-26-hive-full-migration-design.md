@@ -368,7 +368,7 @@ Responsabilidade: Estado global do Hive. Lê query params na inicialização.
 
 ## Decisões
 
-1. **Não usar Next.js App Router:** O projeto usa Vite + React Router. Migrar para Next.js seria uma reescrita completa. Hive funciona perfeitamente com React Router.
+1. **Não usar Next.js App Router:** O projeto usa Next.js + React Router temporariamente.  Hive funciona perfeitamente com React Router.
 
 2. **Query params ao invés de nested routes:** `/hive?f=market` ao invés de `/hive/market`. Motivo: simplifica o router e evita conflitos com rotas legadas.
 

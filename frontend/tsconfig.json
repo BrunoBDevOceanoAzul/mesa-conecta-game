@@ -15,7 +15,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
-    "incremental": true,
+    "incremental": false,
     "downlevelIteration": true,
     "plugins": [
       {
@@ -31,11 +31,23 @@
   },
   "include": [
     "next-env.d.ts",
-    "**/*.ts",
-    "**/*.tsx",
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "*.config.ts",
+    "playwright*.ts",
     ".next/types/**/*.ts"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "node_modules*",
+    ".next/cache",
+    ".next/cache*",
+    ".next/server",
+    ".next/static",
+    "dist",
+    "dist*",
+    "build",
+    "coverage",
+    "**/* 2/**"
   ]
 }

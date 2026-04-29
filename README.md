@@ -5,10 +5,9 @@
 ## Estrutura do Projeto
 
 ```
-├── frontend/          # Aplicação React (Vite + TypeScript)
+├── frontend/          # Aplicação Next.js + React + TypeScript
 │   ├── src/           # Código fonte
 │   ├── public/        # Assets públicos
-│   ├── index.html     # Entry point
 │   └── package.json   # Dependências frontend
 │
 ├── backend/           # API Node.js (Fastify + Drizzle)
@@ -40,8 +39,7 @@
 ## Tecnologias
 
 ### Frontend
-- React 18 + TypeScript
-- Vite (build tool)
+- Next.js 14 + React 18 + TypeScript
 - TailwindCSS + shadcn/ui
 - React Router v6
 - Framer Motion

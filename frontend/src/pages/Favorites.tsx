@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
-import { supabase } from "@/integrations/supabase/client";
+import { favoritesApi } from "@/lib/api";
 import { Heart, Gamepad2, Compass, Calendar, CreditCard, BarChart3, Loader2, Trash2 } from "lucide-react";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
@@ -26,21 +26,27 @@ export default function Favorites() {
   const fetchFavorites = async () => {
     if (!user) return;
     setLoading(true);
-    const { data } = await supabase
-      .from("favorites")
-      .select("id, mesa_id, created_at, mesas:mesa_id(id, title, system, city, min_price, max_price, seats_total, seats_available, gm_name, start_at, image_url, format, session_type, tags, play_styles, status)")
-      .eq("user_id", user.id)
-      .order("created_at", { ascending: false });
-    setFavorites(data || []);
+    try {
+      const result = await favoritesApi.list();
+      const items = result.data || [];
+      setFavorites(items);
+    } catch (err) {
+      console.error("Failed to fetch favorites:", err);
+      toast.error("Erro ao carregar favoritos");
+    }
     setLoading(false);
   };
 
   useEffect(() => { fetchFavorites(); }, [user]);
 
   const removeFavorite = async (favId: string) => {
-    await supabase.from("favorites").delete().eq("id", favId);
-    setFavorites((prev) => prev.filter((f) => f.id !== favId));
-    toast.success("Removido dos favoritos");
+    try {
+      await favoritesApi.remove(favId);
+      setFavorites((prev) => prev.filter((f) => f.id !== favId));
+      toast.success("Removido dos favoritos");
+    } catch (err) {
+      toast.error("Erro ao remover favorito");
+    }
   };
 
   return (
@@ -64,8 +70,8 @@ export default function Favorites() {
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {favorites.map((fav) => {
-              const m = fav.mesas;
+            {favorites.map((fav: any) => {
+              const m = fav.mesa || fav.mesas || null;
               if (!m) return null;
               return (
                 <div key={fav.id} className="relative group">

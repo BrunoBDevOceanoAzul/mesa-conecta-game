@@ -6,7 +6,7 @@
 
 **Architecture:** React Router com query params (`?f=market&overlay=checkout`). Hive como layout raiz com FrequencyRouter, OverlayManager, e HiveContext. Páginas legadas viram overlays, tabs ou frequências. Fluxos isolados (login, onboarding, legais) mantêm rotas diretas.
 
-**Tech Stack:** React 18 + Vite + TypeScript + React Router v6 + Framer Motion + TailwindCSS + shadcn/ui
+**Tech Stack:** Next.js 14 + React 18 + TypeScript + React Router v6 + Framer Motion + TailwindCSS + shadcn/ui
 
 ---
 

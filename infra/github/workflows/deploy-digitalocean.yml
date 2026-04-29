@@ -13,8 +13,6 @@ on:
       - "scripts/render-do-app-spec.sh"
       - "package.json"
       - "package-lock.json"
-      - "vite.config.ts"
-      - "index.html"
       - ".github/workflows/deploy-digitalocean.yml"
   workflow_dispatch:
     inputs:
@@ -75,11 +73,11 @@ jobs:
 
       - name: Build frontend
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
-          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
-          VITE_MESA_API_URL: /api
-          VITE_ENV: ${{ needs.resolve-target.outputs.target }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_MESA_API_URL: /api
+          NEXT_PUBLIC_ENV: ${{ needs.resolve-target.outputs.target }}
         run: npm run build
 
       - name: Install API dependencies
@@ -117,9 +115,9 @@ jobs:
           APP_ENV: ${{ needs.resolve-target.outputs.target }}
           APP_REGION: ${{ vars.DO_APP_REGION }}
           NODE_ENV_VALUE: ${{ vars.DO_NODE_ENV }}
-          VITE_APP_URL: ${{ vars.VITE_APP_URL }}
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          NEXT_PUBLIC_APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
@@ -146,8 +144,8 @@ jobs:
 
           - Ambiente: ${{ needs.resolve-target.outputs.target }}
           - App: ${{ vars.DO_APP_NAME }}
-          - Frontend: ${{ vars.VITE_APP_URL }}
-          - API: ${{ vars.VITE_APP_URL }}/api
-          - Health: ${{ vars.VITE_APP_URL }}/api/health
+          - Frontend: ${{ vars.NEXT_PUBLIC_APP_URL }}
+          - API: ${{ vars.NEXT_PUBLIC_APP_URL }}/api
+          - Health: ${{ vars.NEXT_PUBLIC_APP_URL }}/api/health
           - Commit: ${{ github.sha }}
           EOF

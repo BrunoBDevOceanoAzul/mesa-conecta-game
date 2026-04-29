@@ -36,9 +36,9 @@ fi
 echo "=== Buildando frontend ==="
 docker build \
   -t "$WEB_IMAGE:$TAG" \
-  --build-arg VITE_SUPABASE_URL="https://xqjiizwtfavpvxytqzvv.supabase.co" \
-  --build-arg VITE_SUPABASE_PUBLISHABLE_KEY="sb_publishable_Su1aBS5317eyJB5xnpjuPg_TwxkswXr" \
-  --build-arg VITE_APP_URL="https://sociodotabuleiro.app.br" \
+  --build-arg NEXT_PUBLIC_SUPABASE_URL="https://xqjiizwtfavpvxytqzvv.supabase.co" \
+  --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_Su1aBS5317eyJB5xnpjuPg_TwxkswXr" \
+  --build-arg NEXT_PUBLIC_APP_URL="https://sociodotabuleiro.app.br" \
   .
 
 echo "=== Push frontend ==="

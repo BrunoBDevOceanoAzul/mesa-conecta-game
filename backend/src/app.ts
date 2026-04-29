@@ -25,6 +25,7 @@ import { analyticsController } from "./modules/analytics/infrastructure/analytic
 import { hiveAdminController } from "./modules/hive-admin/infrastructure/hive-admin.controller.js";
 import { hivesController } from "./modules/hives/infrastructure/hives.controller.js";
 import { customerIoController } from "./modules/customerio/infrastructure/customerio.controller.js";
+import { favoriteController } from "./modules/favorites/infrastructure/favorite.controller.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -60,6 +61,7 @@ async function registerApiRoutes(app: FastifyInstance, prefix = "") {
   await app.register(hiveAdminController, { prefix: routePrefix });
   await app.register(hivesController, { prefix: routePrefix });
   await app.register(customerIoController, { prefix: `${routePrefix}/integrations` });
+  await app.register(favoriteController, { prefix: routePrefix });
 }
 
 export async function buildApp() {

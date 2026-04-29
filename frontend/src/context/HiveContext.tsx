@@ -48,6 +48,7 @@ interface HiveContextType {
   isGhostMode: boolean;
   activeFrequency: HiveFrequency;
   isExpanded: boolean;
+  isMenuOpen: boolean;
   isMobile: boolean;
   privacySettings: PrivacySettings;
   overlays: OverlayConfig[];
@@ -56,6 +57,8 @@ interface HiveContextType {
   toggleGhostMode: () => void;
   setGhostMode: (value: boolean) => void;
   handleHexClick: (id: HiveFrequency | 'user') => void;
+  toggleMenu: () => void;
+  closeMenu: () => void;
   setPrivacySettings: (settings: Partial<PrivacySettings>) => void;
   goHome: () => void;
   openOverlay: (id: string, params?: Record<string, string>) => void;
@@ -77,6 +80,7 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
   const [isGhostMode, setIsGhostMode] = useState(false);
   const [activeFrequency, setActiveFrequency] = useState<HiveFrequency>('home');
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [privacySettings, setPrivacyState] = useState<PrivacySettings>(DEFAULT_PRIVACY);
   const [overlays, setOverlays] = useState<OverlayConfig[]>([]);
@@ -123,22 +127,29 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
   // Gerenciar cliques nos hexágonos
   const handleHexClick = useCallback((id: HiveFrequency | 'user') => {
     if (id === 'user') {
-      if (isExpanded) {
-        setIsExpanded(false);
-        setActiveFrequency('home');
-      } else {
-        setIsExpanded(true);
-      }
+      setActiveFrequency('home');
+      setIsExpanded(false);
+      setIsMenuOpen((prev) => !prev);
     } else {
-      setIsExpanded(true);
       setActiveFrequency(id);
+      setIsExpanded(false);
+      setIsMenuOpen(false);
     }
-  }, [isExpanded]);
+  }, []);
+
+  const toggleMenu = useCallback(() => {
+    setIsMenuOpen((prev) => !prev);
+  }, []);
+
+  const closeMenu = useCallback(() => {
+    setIsMenuOpen(false);
+  }, []);
 
   // Voltar para home
   const goHome = useCallback(() => {
     setIsExpanded(false);
     setActiveFrequency('home');
+    setIsMenuOpen(false);
   }, []);
 
   // Atualizar privacidade
@@ -166,8 +177,11 @@ export function HiveProvider({ children }: { children: React.ReactNode }) {
       setGhostMode,
       activeFrequency,
       isExpanded,
+      isMenuOpen,
       isMobile,
       handleHexClick,
+      toggleMenu,
+      closeMenu,
       privacySettings,
       setPrivacySettings,
       goHome,

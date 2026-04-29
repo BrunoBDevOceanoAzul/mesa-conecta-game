@@ -180,26 +180,26 @@ JWT_SECRET="${JWT_SECRET_INPUT:-zhlFzLDEoDjh1/P3/lnQ4pwgjoqn1vlteuefpaWcCWoKzdGc
 read -rp "SENDGRID_API_KEY (deixe em branco se não tiver ainda): " SENDGRID_API_KEY_INPUT
 SENDGRID_API_KEY="${SENDGRID_API_KEY_INPUT:-}"
 
-read -rp "VITE_SUPABASE_URL [pressione Enter para usar o default]: " VITE_SUPABASE_URL_INPUT
-VITE_SUPABASE_URL="${VITE_SUPABASE_URL_INPUT:-https://xqjiizwtfavpvxytqzvv.supabase.co}"
+read -rp "NEXT_PUBLIC_SUPABASE_URL [pressione Enter para usar o default]: " NEXT_PUBLIC_SUPABASE_URL_INPUT
+NEXT_PUBLIC_SUPABASE_URL="${NEXT_PUBLIC_SUPABASE_URL_INPUT:-https://xqjiizwtfavpvxytqzvv.supabase.co}"
 
-read -rp "VITE_SUPABASE_PUBLISHABLE_KEY [pressione Enter para usar o default]: " VITE_SUPABASE_PUBLISHABLE_KEY_INPUT
-VITE_SUPABASE_PUBLISHABLE_KEY="${VITE_SUPABASE_PUBLISHABLE_KEY_INPUT:-sb_publishable_Su1aBS5317eyJB5xnpjuPg_TwxkswXr}"
+read -rp "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY [pressione Enter para usar o default]: " NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY_INPUT
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY_INPUT:-sb_publishable_Su1aBS5317eyJB5xnpjuPg_TwxkswXr}"
 
 # URLs por ambiente (DOKS + Cloudflare)
-VITE_APP_URL_DEV="https://dev.sociodotabuleiro.app.br"
-VITE_APP_URL_HOMOLOG="https://homolog.sociodotabuleiro.app.br"
-VITE_APP_URL_PROD="https://sociodotabuleiro.app.br"
+NEXT_PUBLIC_APP_URL_DEV="https://dev.sociodotabuleiro.app.br"
+NEXT_PUBLIC_APP_URL_HOMOLOG="https://homolog.sociodotabuleiro.app.br"
+NEXT_PUBLIC_APP_URL_PROD="https://sociodotabuleiro.app.br"
 
 echo ""
 echo "URLs configuradas:"
-echo "  Dev:     $VITE_APP_URL_DEV"
-echo "  Homolog: $VITE_APP_URL_HOMOLOG"
-echo "  Prod:    $VITE_APP_URL_PROD"
+echo "  Dev:     $NEXT_PUBLIC_APP_URL_DEV"
+echo "  Homolog: $NEXT_PUBLIC_APP_URL_HOMOLOG"
+echo "  Prod:    $NEXT_PUBLIC_APP_URL_PROD"
 echo ""
 
-read -rp "VITE_APP_URL (default dev) [pressione Enter]: " VITE_APP_URL_INPUT
-VITE_APP_URL="${VITE_APP_URL_INPUT:-$VITE_APP_URL_DEV}"
+read -rp "NEXT_PUBLIC_APP_URL (default dev) [pressione Enter]: " NEXT_PUBLIC_APP_URL_INPUT
+NEXT_PUBLIC_APP_URL="${NEXT_PUBLIC_APP_URL_INPUT:-$NEXT_PUBLIC_APP_URL_DEV}"
 
 # KUBECONFIGs
 log_info "Gerando KUBECONFIGs em base64..."
@@ -255,11 +255,11 @@ else
     log_warn "KUBECONFIG_PROD vazio — deploy para prod não funcionará"
 fi
 
-create_variable "VITE_SUPABASE_URL" "$VITE_SUPABASE_URL" true true
-create_variable "VITE_SUPABASE_PUBLISHABLE_KEY" "$VITE_SUPABASE_PUBLISHABLE_KEY" true true
+create_variable "NEXT_PUBLIC_SUPABASE_URL" "$NEXT_PUBLIC_SUPABASE_URL" true true
+create_variable "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" true true
 
 # Variables (não-secretas, não masked)
-create_variable "VITE_APP_URL" "$VITE_APP_URL" false true
+create_variable "NEXT_PUBLIC_APP_URL" "$NEXT_PUBLIC_APP_URL" false true
 
 # Docker-in-Docker config (obrigatório para GitLab shared runners)
 create_variable "DOCKER_DRIVER" "overlay2" false false

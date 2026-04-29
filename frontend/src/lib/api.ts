@@ -527,3 +527,48 @@ export const healthApi = {
     return response.json();
   },
 };
+
+/**
+ * Favorites — Mesas favoritas
+ */
+export const favoritesApi = {
+  list: async () => {
+    return fetchWithAuth("/favorites");
+  },
+
+  add: async (mesaId: string) => {
+    return fetchWithAuth("/favorites", {
+      method: "POST",
+      body: JSON.stringify({ mesaId }),
+    });
+  },
+
+  remove: async (id: string) => {
+    return fetchWithAuth(`/favorites/${id}`, {
+      method: "DELETE",
+    });
+  },
+};
+
+/**
+ * Profile extras — Ghost mode, privacidade, público por slug
+ */
+export const profilesApiExtended = {
+  getById: async (id: string) => {
+    return fetchWithAuth(`/profiles/${id}`);
+  },
+
+  updateGhostMode: async (ghostMode: boolean) => {
+    return fetchWithAuth("/profiles/me/ghost", {
+      method: "PATCH",
+      body: JSON.stringify({ ghostMode }),
+    });
+  },
+
+  updatePrivacy: async (settings: Record<string, boolean>) => {
+    return fetchWithAuth("/profiles/me/privacy", {
+      method: "PATCH",
+      body: JSON.stringify(settings),
+    });
+  },
+};

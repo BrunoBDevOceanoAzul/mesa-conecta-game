@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, type Location as RouterLocation } from "react-router-dom";
 import { Gamepad2, Crown, Store, Loader2, Eye, EyeOff, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -44,6 +44,7 @@ function normalizePhone(raw: string): string {
 
 export default function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -66,6 +67,12 @@ export default function Signup() {
     gm: "/dashboard/mestre",
     store: "/dashboard/loja",
     curious: "/explorar",
+  };
+
+  const getPostAuthPath = (fallback: string) => {
+    const from = (location.state as { from?: RouterLocation } | null)?.from;
+    const fromPath = from ? `${from.pathname}${from.search}${from.hash}` : "";
+    return fromPath && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -113,6 +120,7 @@ export default function Signup() {
 
       if (data.user && !data.session) {
         toast({ title: "Verifique seu email ✉️", description: "Enviamos um link de confirmação para " + email });
+        navigate("/login", { state: location.state, replace: true });
         setLoading(false);
         return;
       }
@@ -127,7 +135,7 @@ export default function Signup() {
           terms_version: "1.0",
         } as any).eq("user_id", data.user!.id);
 
-        navigate(roleToDashboard[selectedRole] || "/explorar");
+        navigate(getPostAuthPath(roleToDashboard[selectedRole] || "/explorar"), { replace: true });
       }
     } catch {
       toast({ title: "Erro de conexão", description: "Servidor indisponível. Tente novamente.", variant: "destructive" });
@@ -152,7 +160,7 @@ export default function Signup() {
         canPlay,
         canGm,
         canManageStore,
-        dashboard: roleToDashboard[selectedRole] || "/explorar",
+        dashboard: getPostAuthPath(roleToDashboard[selectedRole] || "/explorar"),
         whatsapp: whatsapp.replace(/\D/g, "").length >= 10 ? normalizePhone(whatsapp) : undefined,
       }));
 

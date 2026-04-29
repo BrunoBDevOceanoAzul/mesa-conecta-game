@@ -44,8 +44,8 @@ Configurar em `Settings > Environments > <env> > Secrets`.
 | `SUPABASE_ANON_KEY` | Sim | Chave pública do Supabase |
 | `SUPABASE_SERVICE_ROLE_KEY` | Sim | Chave de serviço do Supabase |
 | `JWT_SECRET` | Sim | Segredo interno da API |
-| `VITE_SUPABASE_URL` | Sim | URL pública usada no build do frontend |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | Sim | Chave pública usada no build do frontend |
+| `NEXT_PUBLIC_SUPABASE_URL` | Sim | URL pública usada no build do frontend |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Sim | Chave pública usada no build do frontend |
 
 ## Supabase Edge Functions
 
@@ -93,7 +93,7 @@ Configurar em `Settings > Environments > <env> > Variables`.
 | `DO_GITHUB_BRANCH` | `develop` | `main` | Branch que o app deve seguir |
 | `DO_APP_REGION` | `nyc` | `nyc` | Região do app |
 | `DO_NODE_ENV` | `development` | `production` | `NODE_ENV` da API |
-| `VITE_APP_URL` | `https://mesa-conecta-dev-xxxxx.ondigitalocean.app` | `https://mesa-conecta-prod-xxxxx.ondigitalocean.app` | URL pública do app |
+| `NEXT_PUBLIC_APP_URL` | `https://mesa-conecta-dev-xxxxx.ondigitalocean.app` | `https://mesa-conecta-prod-xxxxx.ondigitalocean.app` | URL pública do app |
 
 ## Variáveis injetadas no App Platform
 
@@ -103,11 +103,11 @@ O workflow monta o spec final e envia estas variáveis para a DigitalOcean:
 
 | Variável | Valor |
 |----------|-------|
-| `VITE_SUPABASE_URL` | secret do environment |
-| `VITE_SUPABASE_PUBLISHABLE_KEY` | secret do environment |
-| `VITE_APP_URL` | variable do environment |
-| `VITE_MESA_API_URL` | `/api` |
-| `VITE_ENV` | `dev` ou `prod` |
+| `NEXT_PUBLIC_SUPABASE_URL` | secret do environment |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | secret do environment |
+| `NEXT_PUBLIC_APP_URL` | variable do environment |
+| `NEXT_PUBLIC_MESA_API_URL` | `/api` |
+| `NEXT_PUBLIC_ENV` | `dev` ou `prod` |
 
 ### Backend (`mesa-api`)
 
@@ -141,9 +141,9 @@ APP_BRANCH=develop \
 APP_ENV=dev \
 APP_REGION=nyc \
 NODE_ENV_VALUE=development \
-VITE_APP_URL=https://mesa-conecta-dev.example.com \
-VITE_SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
-VITE_SUPABASE_PUBLISHABLE_KEY=replace_with_publishable_key \
+NEXT_PUBLIC_APP_URL=https://mesa-conecta-dev.example.com \
+NEXT_PUBLIC_SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=replace_with_publishable_key \
 DATABASE_URL=replace_with_database_url \
 SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
 SUPABASE_ANON_KEY=replace_with_anon_key \
@@ -158,9 +158,9 @@ APP_BRANCH=main \
 APP_ENV=prod \
 APP_REGION=nyc \
 NODE_ENV_VALUE=production \
-VITE_APP_URL=https://mesa-conecta-prod.example.com \
-VITE_SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
-VITE_SUPABASE_PUBLISHABLE_KEY=replace_with_publishable_key \
+NEXT_PUBLIC_APP_URL=https://mesa-conecta-prod.example.com \
+NEXT_PUBLIC_SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=replace_with_publishable_key \
 DATABASE_URL=replace_with_database_url \
 SUPABASE_URL=https://xqjiizwtfavpvxytqzvv.supabase.co \
 SUPABASE_ANON_KEY=replace_with_anon_key \

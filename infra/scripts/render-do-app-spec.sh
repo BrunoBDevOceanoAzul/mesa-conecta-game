@@ -15,9 +15,9 @@ required_vars=(
   APP_ENV
   APP_REGION
   NODE_ENV_VALUE
-  VITE_APP_URL
-  VITE_SUPABASE_URL
-  VITE_SUPABASE_PUBLISHABLE_KEY
+  NEXT_PUBLIC_APP_URL
+  NEXT_PUBLIC_SUPABASE_URL
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
   DATABASE_URL
   SUPABASE_URL
   SUPABASE_ANON_KEY
@@ -45,9 +45,9 @@ sed -i.bak \
   -e "s/__APP_ENV__/$(escape_sed "$APP_ENV")/g" \
   -e "s/__APP_REGION__/$(escape_sed "$APP_REGION")/g" \
   -e "s/__NODE_ENV_VALUE__/$(escape_sed "$NODE_ENV_VALUE")/g" \
-  -e "s/__VITE_APP_URL__/$(escape_sed "$VITE_APP_URL")/g" \
-  -e "s/__VITE_SUPABASE_URL__/$(escape_sed "$VITE_SUPABASE_URL")/g" \
-  -e "s/__VITE_SUPABASE_PUBLISHABLE_KEY__/$(escape_sed "$VITE_SUPABASE_PUBLISHABLE_KEY")/g" \
+  -e "s/__NEXT_PUBLIC_APP_URL__/$(escape_sed "$NEXT_PUBLIC_APP_URL")/g" \
+  -e "s/__NEXT_PUBLIC_SUPABASE_URL__/$(escape_sed "$NEXT_PUBLIC_SUPABASE_URL")/g" \
+  -e "s/__NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY__/$(escape_sed "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")/g" \
   -e "s/__DATABASE_URL__/$(escape_sed "$DATABASE_URL")/g" \
   -e "s/__SUPABASE_URL__/$(escape_sed "$SUPABASE_URL")/g" \
   -e "s/__SUPABASE_ANON_KEY__/$(escape_sed "$SUPABASE_ANON_KEY")/g" \

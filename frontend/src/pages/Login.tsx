@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, type Location as RouterLocation } from "react-router-dom";
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,6 +21,7 @@ function GoogleIcon({ className }: { className?: string }) {
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +30,12 @@ export default function Login() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [forgotMode, setForgotMode] = useState(false);
   const [forgotLoading, setForgotLoading] = useState(false);
+
+  const getPostAuthPath = (fallback: string) => {
+    const from = (location.state as { from?: RouterLocation } | null)?.from;
+    const fromPath = from ? `${from.pathname}${from.search}${from.hash}` : "";
+    return fromPath && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,7 +60,7 @@ export default function Login() {
       }
       if (data.user) {
         const dest = await resolveRedirect(data.user.id, data.user.user_metadata?.role);
-        navigate(dest);
+        navigate(getPostAuthPath(dest), { replace: true });
       }
     } catch (err) {
       toast({ title: "Erro de conexão", description: "Servidor temporariamente indisponível. Tente novamente em alguns segundos.", variant: "destructive" });
@@ -76,7 +83,7 @@ export default function Login() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const dest = await resolveRedirect(user.id, user.user_metadata?.role);
-        navigate(dest);
+        navigate(getPostAuthPath(dest), { replace: true });
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Servidor indisponível. Tente novamente em alguns segundos.";
@@ -190,7 +197,7 @@ export default function Login() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
-          <button onClick={() => navigate("/cadastro")} className="text-primary hover:underline font-medium">Criar conta</button>
+          <button onClick={() => navigate("/cadastro", { state: location.state })} className="text-primary hover:underline font-medium">Criar conta</button>
         </p>
       </div>
     </div>
