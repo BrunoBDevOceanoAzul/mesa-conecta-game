@@ -5,11 +5,9 @@ ARG NGINX_VERSION=1.27.4
 FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci
-
-WORKDIR /app/frontend
-COPY frontend/package.json frontend/package-lock.json ./
-RUN npm ci
+COPY frontend/package.json frontend/package-lock.json ./frontend/
+COPY backend/package.json ./backend/
+RUN npm ci --workspaces
 
 FROM node:${NODE_VERSION}-alpine AS build
 WORKDIR /app

@@ -2,10 +2,11 @@
   "name": "socio-do-tabuleiro",
   "private": true,
   "version": "1.0.0",
-  "description": "Sócio do Tabuleiro - Plataforma de conexão para o universo tabletop",
+  "description": "S\u00f3cio do Tabuleiro - Plataforma de conex\u00e3o para o universo tabletop",
   "type": "module",
   "workspaces": [
-    "backend"
+    "backend",
+    "frontend"
   ],
   "scripts": {
     "dev": "npm run dev --prefix=frontend",

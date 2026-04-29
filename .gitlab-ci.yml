@@ -37,7 +37,7 @@ variables:
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
   NEXT_PUBLIC_APP_URL: $VITE_APP_URL
   # Cache version — incremente para limpar cache antigo
-  CACHE_VERSION: "v2"
+  CACHE_VERSION: "v3"
   # GitLab API para MR automático
   GITLAB_API_URL: "https://gitlab.com/api/v4"
   CI_PROJECT_PATH_ENCODED: "socio-do-tabuleiro%2Fsocio-do-tabuleiro"
@@ -73,7 +73,6 @@ validate:
     - rm -rf frontend/.next frontend/dist
     - find frontend -maxdepth 3 -type d -name '* 2' -prune -exec rm -rf {} +
     - npm ci
-    - cd frontend && npm ci --legacy-peer-deps && cd ..
   script:
     # Lint: non-blocking during migration
     - timeout 480 npm run lint --prefix=frontend || true
