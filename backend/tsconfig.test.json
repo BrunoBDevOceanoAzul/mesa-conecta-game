@@ -3,10 +3,10 @@
   "compilerOptions": {
     "noEmit": false,
     "outDir": "dist-test",
-    "rootDir": "src",
+    "rootDir": ".",
     "declaration": false,
     "sourceMap": true
   },
-  "include": ["src/**/*.test.ts"],
+  "include": ["src/**/*.test.ts", "src/test/**/*.ts"],
   "exclude": []
 }
