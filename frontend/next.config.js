@@ -16,13 +16,11 @@ const nextConfig = {
     },
   },
   webpack: (config) => {
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'react': path.dirname(require.resolve('react')),
-      'react-dom': path.dirname(require.resolve('react-dom')),
-      'tiny-invariant': path.dirname(require.resolve('tiny-invariant')),
-      'recharts-scale': path.dirname(require.resolve('recharts-scale')),
-    };
+    config.resolve.modules = [
+      path.resolve(__dirname, 'node_modules'),
+      path.resolve(__dirname, '../node_modules'),
+      'node_modules',
+    ];
     return config;
   },
 };
