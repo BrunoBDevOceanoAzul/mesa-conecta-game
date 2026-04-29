@@ -30,6 +30,7 @@ variables:
   KUBECTL_VERSION: "latest"
   # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
   NEXT_PUBLIC_MESA_API_URL: "/api"
+  NEXT_PUBLIC_ENV: "development"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
   NEXT_PUBLIC_APP_URL: "https://dev.sociodotabuleiro.app.br"
   # GitLab API para MR automático
@@ -54,26 +55,40 @@ variables:
 validate:
   stage: validate
   image: node:${NODE_VERSION}-alpine
+  services:
+    - postgres:16-alpine
+  variables:
+    POSTGRES_DB: mesa_test
+    POSTGRES_USER: mesa
+    POSTGRES_PASSWORD: mesa
+    DATABASE_URL: postgresql://mesa:mesa@postgres:5432/mesa_test
+  timeout: 25 minutes
   <<: *node-cache
   before_script:
+    - rm -rf frontend/.next frontend/dist
+    - find frontend -maxdepth 3 -type d -name '* 2' -prune -exec rm -rf {} +
     - npm ci
     - cd frontend && npm ci --workspaces=false --legacy-peer-deps && cd ..
     - cd backend && npm ci && cd ..
   script:
     # Lint: non-blocking during migration
-    - npm run lint --prefix=frontend || true
+    - timeout 480 npm run lint --prefix=frontend || true
+    # Frontend typecheck: diagnostic during migration, bounded to avoid stuck pipelines
+    - timeout 480 npm run typecheck --prefix=frontend || true
     # Frontend tests
-    - npm run test --prefix=frontend
+    - timeout 600 npm run test --prefix=frontend
     # Backend typecheck
-    - npm run typecheck --prefix=backend
+    - timeout 300 npm run typecheck --prefix=backend
     # Backend tests
-    - npm run test --prefix=backend
+    - timeout 600 npm run test --prefix=backend
     # Frontend build (static export with Next.js 14)
     - >
+      env
       NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
       NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
       NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
+      timeout 900
       npm run build --prefix=frontend
   rules:
     - if: $CI_COMMIT_BRANCH == "develop" || $CI_COMMIT_BRANCH == "homolog" || $CI_COMMIT_BRANCH == "main"
@@ -110,9 +125,10 @@ build:frontend:
       --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
       --build-arg NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
       --build-arg NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
+      --build-arg NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
       -t $IMAGE_WEB:$CI_COMMIT_REF_SLUG
-      -f Dockerfile
+      -f infra/docker/Dockerfile
       .
     - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG-$CI_COMMIT_SHORT_SHA
     - docker push $IMAGE_WEB:$CI_COMMIT_REF_SLUG
@@ -216,14 +232,14 @@ scan:backend:
   script:
     - |
       echo "Updating image tags in overlay..."
-      cd k8s/overlays/${ENV_NAME}
+      cd infra/k8s/overlays/${ENV_NAME}
       kustomize edit set image \
         mesa-web=$IMAGE_WEB:$CI_COMMIT_REF_SLUG \
         mesa-api=$IMAGE_API:$CI_COMMIT_REF_SLUG
       cd ../../..
     - |
       echo "Applying manifests..."
-      ./bin/kustomize build k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
+      ./bin/kustomize build infra/k8s/overlays/${ENV_NAME} | kubectl apply --validate=false -f -
     - |
       echo "Waiting for rollout..."
       kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
