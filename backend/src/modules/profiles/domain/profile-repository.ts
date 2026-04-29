@@ -8,6 +8,10 @@ export interface FindProfileByIdInput {
   id: string;
 }
 
+export interface FindProfileBySlugInput {
+  slug: string;
+}
+
 export interface UpdateProfileInput {
   userId: string;
   displayName?: string;
@@ -33,5 +37,6 @@ export interface UpdateProfileInput {
 export interface ProfileRepository {
   findByUserId(input: FindProfileByUserIdInput): Promise<Profile | null>;
   findById(input: FindProfileByIdInput): Promise<Profile | null>;
+  findBySlug(input: FindProfileBySlugInput): Promise<Profile | null>;
   update(input: UpdateProfileInput): Promise<Profile | null>;
 }

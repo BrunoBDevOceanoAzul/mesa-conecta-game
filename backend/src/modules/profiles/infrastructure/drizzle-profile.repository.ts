@@ -3,7 +3,7 @@ import { db } from "../../../db/client.js";
 import { profiles, userRoles, playerProfiles, gmProfiles } from "../../../db/schema/profiles.js";
 import { mesas } from "../../../db/schema/mesas.js";
 import { Profile } from "../domain/profile.js";
-import { ProfileRepository, FindProfileByUserIdInput, FindProfileByIdInput, UpdateProfileInput } from "../domain/profile-repository.js";
+import { ProfileRepository, FindProfileByUserIdInput, FindProfileByIdInput, FindProfileBySlugInput, UpdateProfileInput } from "../domain/profile-repository.js";
 
 export class DrizzleProfileRepository implements ProfileRepository {
   async findByUserId(input: FindProfileByUserIdInput): Promise<Profile | null> {
@@ -102,6 +102,78 @@ export class DrizzleProfileRepository implements ProfileRepository {
       .select()
       .from(profiles)
       .where(eq(profiles.id, input.id))
+      .limit(1);
+
+    if (!profile) return null;
+
+    const [gmProfile] = await db
+      .select()
+      .from(gmProfiles)
+      .where(eq(gmProfiles.userId, profile.userId))
+      .limit(1);
+
+    return new Profile({
+      id: profile.id,
+      userId: profile.userId,
+      name: profile.name,
+      displayName: profile.displayName,
+      email: profile.email,
+      slug: profile.slug,
+      bio: profile.bio,
+      avatarUrl: profile.avatarUrl,
+      coverImageUrl: profile.coverImageUrl,
+      city: profile.city,
+      state: profile.state,
+      country: profile.country,
+      phone: profile.phone,
+      whatsapp: profile.whatsapp,
+      instagramHandle: profile.instagramHandle,
+      websiteUrl: profile.websiteUrl,
+      role: profile.role,
+      roles: [],
+      isPublic: profile.isPublic ?? true,
+      capabilities: {
+        canPlay: profile.canPlay,
+        canGm: profile.canGm,
+        canManageStore: profile.canManageStore,
+        canManageBrand: profile.canManageBrand,
+      },
+      preferences: {
+        preferredSystems: profile.preferredSystems ?? [],
+        playStyles: profile.playStyles ?? [],
+        experienceLevel: profile.experienceLevel,
+        preferredFormat: profile.preferredFormat,
+        budgetRange: profile.budgetRange,
+      },
+      onboarding: {
+        completed: profile.onboardingCompleted ?? false,
+        step: profile.onboardingStep ?? 0,
+      },
+      stats: {
+        gm: {
+          totalMesas: 0,
+          totalBookings: 0,
+          averageRating: gmProfile?.averageRating || "0",
+          totalReviews: gmProfile?.totalReviews || 0,
+          reputationScore: gmProfile?.reputationScore || "0",
+        },
+        player: {
+          totalBookings: 0,
+          totalReviews: 0,
+        },
+        memberSince: profile.createdAt,
+        lastLoginAt: profile.lastLoginAt,
+      },
+      playerProfile: null,
+      gmProfile: gmProfile || null,
+    });
+  }
+
+  async findBySlug(input: FindProfileBySlugInput): Promise<Profile | null> {
+    const [profile] = await db
+      .select()
+      .from(profiles)
+      .where(eq(profiles.slug, input.slug))
       .limit(1);
 
     if (!profile) return null;

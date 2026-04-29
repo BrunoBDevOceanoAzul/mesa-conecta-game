@@ -3,6 +3,7 @@ import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { GetMyProfileUseCase } from "../application/get-my-profile.use-case.js";
 import { GetPublicProfileUseCase, ProfilePrivateError } from "../application/get-public-profile.use-case.js";
+import { GetProfileBySlugUseCase } from "../application/get-profile-by-slug.use-case.js";
 import { UpdateProfileUseCase } from "../application/update-profile.use-case.js";
 import { DrizzleProfileRepository } from "../infrastructure/drizzle-profile.repository.js";
 import { profileUpdateSchema } from "../schemas.js";
@@ -17,6 +18,7 @@ export async function profileController(fastify: FastifyInstance) {
   const repository = new DrizzleProfileRepository();
   const getMyProfileUseCase = new GetMyProfileUseCase(repository);
   const getPublicProfileUseCase = new GetPublicProfileUseCase(repository);
+  const getProfileBySlugUseCase = new GetProfileBySlugUseCase(repository);
   const updateProfileUseCase = new UpdateProfileUseCase(repository);
 
   // GET /auth/me — Perfil completo do usuário autenticado
@@ -63,6 +65,34 @@ export async function profileController(fastify: FastifyInstance) {
         return reply.status(403).send({ error: "Profile is private" });
       }
       fastify.log.error({ err }, "Failed to get public profile");
+      return reply.status(500).send({ error: "Internal server error" });
+    }
+  });
+
+  // GET /profiles/slug/:slug — Perfil público por slug
+  fastify.get("/profiles/slug/:slug", async (request, reply) => {
+    const slugSchema = z.object({ slug: z.string().min(1) });
+    const params = slugSchema.safeParse(request.params);
+    if (!params.success) {
+      return reply.status(400).send({ error: "Invalid slug", details: params.error.flatten() });
+    }
+
+    try {
+      const profile = await getProfileBySlugUseCase.execute({
+        slug: params.data.slug,
+        viewerUserId: request.user?.id,
+      });
+
+      if (!profile) {
+        return reply.status(404).send({ error: "Profile not found" });
+      }
+
+      return reply.send({ data: profile.toPublicJSON() });
+    } catch (err) {
+      if (err instanceof ProfilePrivateError) {
+        return reply.status(403).send({ error: "Profile is private" });
+      }
+      fastify.log.error({ err }, "Failed to get profile by slug");
       return reply.status(500).send({ error: "Internal server error" });
     }
   });
