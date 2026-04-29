@@ -28,14 +28,11 @@ variables:
   IMAGE_API: $CI_REGISTRY_IMAGE/mesa-api
   # Kubernetes
   KUBECTL_VERSION: "latest"
-  # Supabase — mapeadas das GitLab variables VITE_*
-  NEXT_PUBLIC_SUPABASE_URL: $VITE_SUPABASE_URL
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: $VITE_SUPABASE_PUBLISHABLE_KEY
   # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
   NEXT_PUBLIC_MESA_API_URL: "/api"
   NEXT_PUBLIC_ENV: "development"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
-  NEXT_PUBLIC_APP_URL: $VITE_APP_URL
+  NEXT_PUBLIC_APP_URL: "https://dev.sociodotabuleiro.app.br"
   # Cache version — incremente para limpar cache antigo
   CACHE_VERSION: "v3"
   # GitLab API para MR automático
@@ -87,9 +84,9 @@ validate:
     # Frontend build (static export with Next.js 14)
     - >
       env
-      NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-      NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
+      NEXT_PUBLIC_SUPABASE_URL=$VITE_SUPABASE_URL
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
+      NEXT_PUBLIC_APP_URL="https://dev.sociodotabuleiro.app.br"
       NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
       NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV
       timeout 900
@@ -125,8 +122,8 @@ build:frontend:
     - >
       docker build
       --platform linux/amd64
-      --build-arg NEXT_PUBLIC_SUPABASE_URL=$NEXT_PUBLIC_SUPABASE_URL
-      --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+      --build-arg NEXT_PUBLIC_SUPABASE_URL=$VITE_SUPABASE_URL
+      --build-arg NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$VITE_SUPABASE_PUBLISHABLE_KEY
       --build-arg NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
       --build-arg NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
       --build-arg NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV
