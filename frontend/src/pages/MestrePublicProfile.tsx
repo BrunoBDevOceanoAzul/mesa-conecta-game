@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
+import { profilesApiExtended } from "@/lib/api";
+import { supabase } from "@/integrations/supabase/client";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
@@ -55,27 +56,44 @@ export default function MestrePublicProfile() {
 
   async function loadProfile() {
     setLoading(true);
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("slug", slug!)
-      .eq("role", "gm")
-      .maybeSingle();
+    let profileUserId: string;
+    let profileData: any;
 
-    if (!profile || profile.is_public === false) {
-      setNotFound(true);
-      setLoading(false);
-      return;
+    try {
+      const result = await profilesApiExtended.getBySlug(slug!);
+      const p = result.data;
+      if (!p || p.role !== "gm") {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      profileUserId = p.userId as string;
+      profileData = p;
+    } catch {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("slug", slug!)
+        .eq("role", "gm")
+        .maybeSingle();
+
+      if (!profile || profile.is_public === false) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      profileUserId = profile.user_id;
+      profileData = profile;
     }
 
     const [gmRes, tablesRes, badgesRes] = await Promise.all([
-      supabase.from("gm_profiles").select("*").eq("user_id", profile.user_id).maybeSingle(),
-      supabase.from("game_tables").select("*").eq("gm_user_id", profile.user_id).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
-      supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profile.user_id).limit(12),
+      supabase.from("gm_profiles").select("*").eq("user_id", profileUserId).maybeSingle(),
+      supabase.from("game_tables").select("*").eq("gm_user_id", profileUserId).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
+      supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profileUserId).limit(12),
     ]);
 
     setData({
-      profile,
+      profile: profileData,
       gmProfile: gmRes.data,
       tables: tablesRes.data || [],
       badges: badgesRes.data || [],

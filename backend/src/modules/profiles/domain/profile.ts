@@ -110,6 +110,7 @@ export class Profile {
   toPublicJSON(): Record<string, unknown> {
     return {
       id: this.props.id,
+      userId: this.props.userId,
       displayName: this.props.displayName,
       name: this.props.name,
       slug: this.props.slug,

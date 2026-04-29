@@ -558,6 +558,10 @@ export const profilesApiExtended = {
     return fetchWithAuth(`/profiles/${id}`);
   },
 
+  getBySlug: async (slug: string) => {
+    return fetchWithAuth(`/profiles/slug/${slug}`);
+  },
+
   updateGhostMode: async (ghostMode: boolean) => {
     return fetchWithAuth("/profiles/me/ghost", {
       method: "PATCH",

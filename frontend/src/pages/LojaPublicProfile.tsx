@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { profilesApiExtended } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
 import { trackStoreEvent } from "@/lib/store-tracking";
-import { useAuth } from "@/contexts/AuthContext";
 import { ShareButton } from "@/components/shared/ShareModal";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { ReviewsList } from "@/components/reviews/ReviewsList";
@@ -48,28 +49,45 @@ export default function LojaPublicProfile() {
 
   async function loadProfile() {
     setLoading(true);
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("slug", profileSlug)
-      .eq("role", "store")
-      .maybeSingle();
+    let profileUserId: string;
+    let profileData: any;
 
-    if (!profile || profile.is_public === false) {
-      setNotFound(true);
-      setLoading(false);
-      return;
+    try {
+      const result = await profilesApiExtended.getBySlug(profileSlug);
+      const p = result.data;
+      if (!p || p.role !== "store") {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      profileUserId = p.userId as string;
+      profileData = p;
+    } catch {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("slug", profileSlug)
+        .eq("role", "store")
+        .maybeSingle();
+
+      if (!profile || profile.is_public === false) {
+        setNotFound(true);
+        setLoading(false);
+        return;
+      }
+      profileUserId = profile.user_id;
+      profileData = profile;
     }
 
     const [storeRes, tablesRes, badgesRes, storeDataRes] = await Promise.all([
-      supabase.from("store_profiles").select("*").eq("user_id", profile.user_id).maybeSingle(),
-      supabase.from("game_tables").select("*").eq("store_user_id", profile.user_id).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
-      supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profile.user_id).limit(12),
-      supabase.from("stores").select("id, slug").eq("owner_id", profile.user_id).maybeSingle(),
+      supabase.from("store_profiles").select("*").eq("user_id", profileUserId).maybeSingle(),
+      supabase.from("game_tables").select("*").eq("store_user_id", profileUserId).in("status", ["published", "full"]).order("start_at", { ascending: true }).limit(6),
+      supabase.from("master_badges").select("*, badge_definitions(*)").eq("user_id", profileUserId).limit(12),
+      supabase.from("stores").select("id, slug").eq("owner_id", profileUserId).maybeSingle(),
     ]);
 
     setData({
-      profile,
+      profile: profileData,
       storeProfile: storeRes.data,
       tables: tablesRes.data || [],
       badges: badgesRes.data || [],
