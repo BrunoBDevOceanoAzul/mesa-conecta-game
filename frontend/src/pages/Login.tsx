@@ -34,7 +34,7 @@ export default function Login() {
   const getPostAuthPath = (fallback: string) => {
     const from = (location.state as { from?: RouterLocation } | null)?.from;
     const fromPath = from ? `${from.pathname}${from.search}${from.hash}` : "";
-    return fromPath && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
+    return fromPath && from && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
