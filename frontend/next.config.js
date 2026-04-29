@@ -18,10 +18,10 @@ const nextConfig = {
   webpack: (config) => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      'react': path.resolve(__dirname, './node_modules/react'),
-      'react-dom': path.resolve(__dirname, './node_modules/react-dom'),
-      'tiny-invariant': path.resolve(__dirname, './node_modules/tiny-invariant'),
-      'recharts-scale': path.resolve(__dirname, './node_modules/recharts-scale'),
+      'react': path.dirname(require.resolve('react')),
+      'react-dom': path.dirname(require.resolve('react-dom')),
+      'tiny-invariant': path.dirname(require.resolve('tiny-invariant')),
+      'recharts-scale': path.dirname(require.resolve('recharts-scale')),
     };
     return config;
   },
