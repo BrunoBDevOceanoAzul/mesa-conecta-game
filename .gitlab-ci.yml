@@ -68,8 +68,7 @@ validate:
     - rm -rf frontend/.next frontend/dist
     - find frontend -maxdepth 3 -type d -name '* 2' -prune -exec rm -rf {} +
     - npm ci
-    - cd frontend && npm ci --workspaces=false --legacy-peer-deps && cd ..
-    - cd backend && npm ci && cd ..
+    - cd frontend && npm ci --legacy-peer-deps && cd ..
   script:
     # Lint: non-blocking during migration
     - timeout 480 npm run lint --prefix=frontend || true
