@@ -10,8 +10,9 @@
     "start": "node dist/server.js",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm test",
-    "test": "DATABASE_URL=${DATABASE_URL:-postgresql://mesa:mesa@localhost:5432/mesa_test} tsx --test $(find src -name '*.test.ts' -print)",
-    "test:watch": "DATABASE_URL=${DATABASE_URL:-postgresql://mesa:mesa@localhost:5432/mesa_test} tsx --test --watch $(find src -name '*.test.ts' -print)",
+                    "test": "DATABASE_URL=${DATABASE_URL:-postgresql://mesa:mesa@localhost:5432/mesa_test} npm run build:tests && node --test $(find dist-test -name '*.test.js' -print)",
+    "test:watch": "DATABASE_URL=${DATABASE_URL:-postgresql://mesa:mesa@localhost:5432/mesa_test} node --import tsx/esm --test --watch $(find src -name '*.test.ts' -print)",
+    "build:tests": "tsc -p tsconfig.test.json",
     "db:introspect": "drizzle-kit introspect",
     "db:studio": "drizzle-kit studio"
   },
