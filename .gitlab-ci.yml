@@ -28,11 +28,14 @@ variables:
   IMAGE_API: $CI_REGISTRY_IMAGE/mesa-api
   # Kubernetes
   KUBECTL_VERSION: "latest"
+  # Supabase — mapeadas das GitLab variables VITE_*
+  NEXT_PUBLIC_SUPABASE_URL: $VITE_SUPABASE_URL
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: $VITE_SUPABASE_PUBLISHABLE_KEY
   # Build args — API path relativo (mesmo domínio, proxy pelo ingress)
   NEXT_PUBLIC_MESA_API_URL: "/api"
   NEXT_PUBLIC_ENV: "development"
   # URLs por ambiente (sobrescritas nos jobs de build por branch)
-  NEXT_PUBLIC_APP_URL: "https://dev.sociodotabuleiro.app.br"
+  NEXT_PUBLIC_APP_URL: $VITE_APP_URL
   # GitLab API para MR automático
   GITLAB_API_URL: "https://gitlab.com/api/v4"
   CI_PROJECT_PATH_ENCODED: "socio-do-tabuleiro%2Fsocio-do-tabuleiro"
@@ -87,6 +90,7 @@ validate:
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
       NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
       NEXT_PUBLIC_MESA_API_URL=$NEXT_PUBLIC_MESA_API_URL
+      NEXT_PUBLIC_ENV=$NEXT_PUBLIC_ENV
       timeout 900
       npm run build --prefix=frontend
   rules:
