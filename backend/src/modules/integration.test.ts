@@ -1,8 +1,9 @@
-import { describe, it, expect, beforeAll, afterAll } from "vitest";
+import { describe, it, expect, beforeAll, afterAll } from "../test/node-test-compat.js";
 import { buildApp } from "../app.js";
 import type { FastifyInstance } from "fastify";
 
 let app: FastifyInstance;
+const dbIntegrationIt = process.env.RUN_DB_INTEGRATION_TESTS === "true" ? it : it.skip;
 
 beforeAll(async () => {
   app = await buildApp();
@@ -32,7 +33,7 @@ describe("GET /api/health", () => {
 });
 
 describe("GET /mesas", () => {
-  it("returns list of mesas", async () => {
+  dbIntegrationIt("returns list of mesas", async () => {
     const res = await app.inject({ method: "GET", url: "/mesas" });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);
@@ -43,7 +44,7 @@ describe("GET /mesas", () => {
 });
 
 describe("GET /posts", () => {
-  it("returns feed of posts", async () => {
+  dbIntegrationIt("returns feed of posts", async () => {
     const res = await app.inject({ method: "GET", url: "/posts" });
     expect(res.statusCode).toBe(200);
     const body = JSON.parse(res.body);

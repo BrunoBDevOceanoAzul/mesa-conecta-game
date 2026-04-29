@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "../../../test/node-test-compat.js";
 import { VerifyTokenUseCase } from "./verify-token.use-case.js";
 import { AuthUser } from "../domain/auth-user.js";
 

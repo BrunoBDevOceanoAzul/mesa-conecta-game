@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "./test/node-test-compat.js";
 
 process.env.DATABASE_URL ??= "postgresql://mesa:mesa@localhost:5432/mesa_test";
 

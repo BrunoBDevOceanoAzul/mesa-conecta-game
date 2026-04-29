@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "../../../test/node-test-compat.js";
 import { GetPublicProfileUseCase, ProfilePrivateError } from "./get-public-profile.use-case.js";
 import { Profile, ProfileProps } from "../domain/profile.js";
 

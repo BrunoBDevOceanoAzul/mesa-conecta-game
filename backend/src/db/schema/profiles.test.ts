@@ -1,4 +1,4 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "../../test/node-test-compat.js";
 import { getTableColumns, getTableName } from "drizzle-orm";
 
 import {

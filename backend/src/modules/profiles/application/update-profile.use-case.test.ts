@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "../../../test/node-test-compat.js";
 import { UpdateProfileUseCase } from "./update-profile.use-case.js";
 import { Profile } from "../domain/profile.js";
 

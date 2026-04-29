@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "../../../test/node-test-compat.js";
 import { GetRecommendationsUseCase } from "./get-recommendations.use-case.js";
 import { Recommendation } from "../domain/recommendation.js";
 import { RawMesaData, UserPreferences } from "../domain/recommendation-repository.js";

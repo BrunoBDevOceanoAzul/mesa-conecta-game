@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi } from "../../../test/node-test-compat.js";
 import { CreateEventUseCase } from "./create-event.use-case.js";
 import { Event } from "../domain/event.js";
 

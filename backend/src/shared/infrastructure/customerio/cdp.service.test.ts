@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "../../../test/node-test-compat.js";
 import { CustomerIoCdpService } from "./cdp.service.js";
 
 describe("CustomerIoCdpService", () => {
