@@ -21,11 +21,13 @@ ENV NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY}
 ENV NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
 ENV NEXT_PUBLIC_MESA_API_URL=${NEXT_PUBLIC_MESA_API_URL}
 ENV NEXT_PUBLIC_ENV=${NEXT_PUBLIC_ENV}
-RUN npm run build --prefix=frontend
+RUN find frontend -maxdepth 3 -type d -name '* 2' -prune -exec rm -rf {} + 2>/dev/null; \
+    npm run build --prefix=frontend
 
 FROM nginx:${NGINX_VERSION}-alpine AS runtime
 COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
+COPY --from=build /app/frontend/dist/Index/index.html /usr/share/nginx/html/index.html
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1
