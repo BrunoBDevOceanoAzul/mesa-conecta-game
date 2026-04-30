@@ -1,0 +1,156 @@
+name: ci-cd-doks
+
+on:
+  push:
+    branches: [develop, homolog, main]
+  pull_request:
+    branches: [homolog, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_WEB: ${{ github.repository }}/mesa-web
+  IMAGE_API: ${{ github.repository }}/mesa-api
+  NODE_VERSION: "22.16.0"
+
+jobs:
+  validate:
+    name: Validate
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: mesa_test
+          POSTGRES_USER: mesa
+          POSTGRES_PASSWORD: mesa
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Backend typecheck
+        run: npm run typecheck --prefix=backend
+
+      - name: Backend tests
+        run: npm run test --prefix=backend
+        env:
+          DATABASE_URL: postgresql://mesa:mesa@postgres:5432/mesa_test
+
+      - name: Frontend tests
+        run: npm run test --prefix=frontend
+
+      - name: Frontend build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          NEXT_PUBLIC_APP_URL: "https://dev.sociodotabuleiro.app.br"
+          NEXT_PUBLIC_MESA_API_URL: /api
+        run: npm run build --prefix=frontend
+
+  build-push:
+    name: Build & Push Images
+    runs-on: ubuntu-24.04
+    needs: validate
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Docker metadata (web)
+        id: meta-web
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+
+      - name: Docker metadata (api)
+        id: meta-api
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_API }}
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+
+      - name: Build and push web
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/docker/Dockerfile
+          push: true
+          tags: ${{ steps.meta-web.outputs.tags }}
+          labels: ${{ steps.meta-web.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NEXT_PUBLIC_SUPABASE_URL=${{ secrets.SUPABASE_URL }}
+            NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=${{ secrets.SUPABASE_ANON_KEY }}
+            NEXT_PUBLIC_APP_URL=${{ vars.APP_URL }}
+            NEXT_PUBLIC_MESA_API_URL=/api
+            NEXT_PUBLIC_ENV=${{ vars.APP_ENV }}
+
+      - name: Build and push api
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: true
+          tags: ${{ steps.meta-api.outputs.tags }}
+          labels: ${{ steps.meta-api.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to ${{ inputs.target || 'dev' }}
+    runs-on: ubuntu-24.04
+    needs: build-push
+    if: github.ref_name == 'develop' || github.ref_name == 'homolog' || github.ref_name == 'main'
+    environment:
+      name: ${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install doctl
+        uses: digitalocean/action-doctl@v2
+        with:
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
+
+      - name: Setup kubeconfig
+        run: |
+          doctl kubernetes cluster kubeconfig save mesa-cluster
+          kubectl version --client
+
+      - name: Deploy
+        run: |
+          kubectl kustomize infra/k8s/overlays/${{ github.ref_name == 'main' && 'production' || github.ref_name == 'homolog' && 'homolog' || 'dev' }} | kubectl apply -f -
+
+      - name: Verify rollout
+        run: |
+          ENV_NAME=${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
+          kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
+          kubectl rollout status deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} --timeout=300s
