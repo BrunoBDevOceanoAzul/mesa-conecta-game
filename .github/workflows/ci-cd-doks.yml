@@ -67,7 +67,7 @@ jobs:
     name: Build & Push Images
     runs-on: ubuntu-24.04
     needs: validate
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     steps:
       - uses: actions/checkout@v4
 
@@ -126,7 +126,7 @@ jobs:
           cache-to: type=gha,mode=max
 
   deploy:
-    name: Deploy to ${{ inputs.target || 'dev' }}
+    name: Deploy to ${{ github.ref_name == 'main' && 'production' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
     runs-on: ubuntu-24.04
     needs: build-push
     if: github.ref_name == 'develop' || github.ref_name == 'homolog' || github.ref_name == 'main'
