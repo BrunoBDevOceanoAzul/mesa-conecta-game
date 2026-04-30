@@ -145,6 +145,16 @@ jobs:
           doctl kubernetes cluster kubeconfig save mesa-cluster
           kubectl version --client
 
+      - name: Create GHCR pull secret
+        run: |
+          ENV_NAME=${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
+          kubectl create secret docker-registry ghcr-secret \
+            --docker-server=ghcr.io \
+            --docker-username=${{ github.actor }} \
+            --docker-password=${{ secrets.GHCR_PAT || secrets.GITHUB_TOKEN }} \
+            --namespace=mesa-${ENV_NAME} \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: Apply manifests
         run: |
           ENV_NAME=${{ github.ref_name == 'main' && 'production' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
