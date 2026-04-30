@@ -145,12 +145,25 @@ jobs:
           doctl kubernetes cluster kubeconfig save mesa-cluster
           kubectl version --client
 
-      - name: Deploy
+      - name: Apply manifests
         run: |
-          kubectl kustomize infra/k8s/overlays/${{ github.ref_name == 'main' && 'production' || github.ref_name == 'homolog' && 'homolog' || 'dev' }} | kubectl apply -f -
+          ENV_NAME=${{ github.ref_name == 'main' && 'production' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
+          kubectl kustomize infra/k8s/overlays/${ENV_NAME} | kubectl apply -f -
+
+      - name: Update image tags
+        run: |
+          ENV_NAME=${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
+          WEB_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ github.ref_name }}"
+          API_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ github.ref_name }}"
+          kubectl set image deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} "mesa-web=${WEB_IMAGE}"
+          kubectl set image deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} "mesa-api=${API_IMAGE}"
 
       - name: Verify rollout
         run: |
           ENV_NAME=${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
           kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s
           kubectl rollout status deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} --timeout=300s
+
+      - name: Verify ingress
+        run: |
+          kubectl get ingress -n mesa-${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
