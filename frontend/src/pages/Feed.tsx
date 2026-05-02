@@ -3,7 +3,7 @@ import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { MessageCircle, Sparkles, Filter, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { usePosts } from "@/hooks/use-posts";
 import { FeedPostCard } from "@/components/feed/FeedPostCard";
 import { CreatePostDialog } from "@/components/feed/CreatePostDialog";
@@ -20,7 +20,7 @@ const FILTER_TABS = [
 ] as const;
 
 export default function Feed() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const [activeFilter, setActiveFilter] = useState("all");
 
@@ -110,7 +110,7 @@ export default function Feed() {
                   <Filter className="h-4 w-4" /> Ver todos
                 </Button>
               )}
-              <Button variant="outline" onClick={() => navigate("/explorar")} className="gap-2">
+              <Button variant="outline" onClick={() => router.push("/explorar")} className="gap-2">
                 <Sparkles className="h-4 w-4" /> Explorar mesas
               </Button>
             </div>

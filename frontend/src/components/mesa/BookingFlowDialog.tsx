@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import { bookingsApi } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
@@ -70,7 +70,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
   const { isSuperUser } = usePrivileges();
   const { isReady: isFinancialReady, missingFields, refetch: refetchFinancial } = useFinancialReadiness("player");
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const [step, setStep] = useState<FlowStep>("loading");
   const [bookingCount, setBookingCount] = useState(0);
@@ -296,7 +296,7 @@ export function BookingFlowDialog({ open, onOpenChange, mesa }: BookingFlowDialo
 
   const handleUpgrade = (planCode: string) => {
     onOpenChange(false);
-    navigate(`/checkout?plan=${planCode}&role=player`);
+    router.push(`/checkout?plan=${planCode}&role=player`);
   };
 
   const remainingSlots = reservationLimit && reservationLimit > 0 ? Math.max(0, reservationLimit - bookingCount) : null;

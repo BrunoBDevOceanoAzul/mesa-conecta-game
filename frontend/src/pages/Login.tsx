@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate, type Location as RouterLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -20,8 +20,7 @@ function GoogleIcon({ className }: { className?: string }) {
 }
 
 export default function Login() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,9 +31,8 @@ export default function Login() {
   const [forgotLoading, setForgotLoading] = useState(false);
 
   const getPostAuthPath = (fallback: string) => {
-    const from = (location.state as { from?: RouterLocation } | null)?.from;
-    const fromPath = from ? `${from.pathname}${from.search}${from.hash}` : "";
-    return fromPath && from && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
+    const from = router.query.from as string | undefined;
+    return from && !["/login", "/cadastro"].includes(from) ? from : fallback;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -60,7 +58,7 @@ export default function Login() {
       }
       if (data.user) {
         const dest = await resolveRedirect(data.user.id, data.user.user_metadata?.role);
-        navigate(getPostAuthPath(dest), { replace: true });
+        router.replace(getPostAuthPath(dest));
       }
     } catch (err) {
       toast({ title: "Erro de conexão", description: "Servidor temporariamente indisponível. Tente novamente em alguns segundos.", variant: "destructive" });
@@ -83,7 +81,7 @@ export default function Login() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         const dest = await resolveRedirect(user.id, user.user_metadata?.role);
-        navigate(getPostAuthPath(dest), { replace: true });
+        router.replace(getPostAuthPath(dest));
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : "Servidor indisponível. Tente novamente em alguns segundos.";
@@ -117,10 +115,10 @@ export default function Login() {
       <div className="min-h-screen flex items-center justify-center bg-background px-4">
         <div className="w-full max-w-sm">
           <div className="text-center mb-10">
-           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-             <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
-             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
-           </button>
+           <button onClick={() => router.push("/")} className="inline-flex items-center gap-2.5 mb-8">
+              <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
+              <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+            </button>
             <h1 className="text-2xl font-display font-bold text-foreground">Esqueci minha senha</h1>
             <p className="mt-2 text-sm text-muted-foreground">Digite seu email para receber um link de redefinição.</p>
           </div>
@@ -146,10 +144,10 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-10">
-           <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-8">
-             <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
-             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
-           </button>
+           <button onClick={() => router.push("/")} className="inline-flex items-center gap-2.5 mb-8">
+              <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
+              <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
+            </button>
           <h1 className="text-2xl font-display font-bold text-foreground">Bem-vindo de volta</h1>
           <p className="mt-2 text-sm text-muted-foreground">Entre na sua conta para continuar</p>
         </div>
@@ -197,7 +195,7 @@ export default function Login() {
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           Não tem conta?{" "}
-          <button onClick={() => navigate("/cadastro", { state: location.state })} className="text-primary hover:underline font-medium">Criar conta</button>
+          <button onClick={() => router.push("/cadastro")} className="text-primary hover:underline font-medium">Criar conta</button>
         </p>
       </div>
     </div>

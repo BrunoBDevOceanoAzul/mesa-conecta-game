@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Check, ArrowRight, Sparkles, CreditCard, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 type RoleTab = "player" | "gm" | "store";
 
@@ -105,7 +105,7 @@ const planMeta: Record<string, { highlight?: boolean; badge?: string; boostNote?
 export function PricingSection() {
   const [activeRole, setActiveRole] = useState<RoleTab>("gm");
   const [plans, setPlans] = useState<DBPlan[]>([]);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     supabase
@@ -239,10 +239,10 @@ export function PricingSection() {
                   size="lg"
                   onClick={() => {
                     if (plan.price_monthly === 0) {
-                      navigate("/cadastro");
+                      router.push("/cadastro");
                     } else {
                       const baseCode = plan.code;
-                      navigate(`/checkout?plan=${baseCode}&role=${plan.role}`);
+                      router.push(`/checkout?plan=${baseCode}&role=${plan.role}`);
                     }
                   }}
                 >

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import Instagram from "lucide-react/dist/esm/icons/instagram";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
@@ -35,10 +35,9 @@ const roleToDash: Record<string, string> = {
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { user, signOut } = useAuth();
-  const isHome = location.pathname === "/";
+  const isHome = router.pathname === "/";
 
   useEffect(() => {
     let mounted = true;
@@ -62,10 +61,10 @@ export function Navbar() {
   const handleNavClick = (href: string) => {
     if (href.startsWith("#")) {
       if (!isHome) {
-        navigate("/" + href);
+        router.push("/" + href);
       }
     } else {
-      navigate(href);
+      router.push(href);
     }
     setOpen(false);
   };
@@ -78,13 +77,13 @@ export function Navbar() {
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    router.push("/");
   };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 glass">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+        <button onClick={() => router.push("/")} className="flex items-center gap-2.5">
           <img src={socioLogo} alt="Sócio do Tabuleiro" className="h-10 w-10 object-contain" />
           <div className="flex flex-col leading-none">
             <span className="font-display font-bold text-sm tracking-tight text-foreground">
@@ -132,20 +131,20 @@ export function Navbar() {
               </PopoverTrigger>
               <PopoverContent align="end" className="w-52 p-2">
                 <button
-                  onClick={() => navigate(dashPath)}
+                  onClick={() => router.push(dashPath)}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   <LayoutDashboard className="h-4 w-4" />
                   Meu Painel
                 </button>
                 <button
-                  onClick={() => navigate("/perfil")}
+                  onClick={() => router.push("/perfil")}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   Meu Perfil
                 </button>
                 <button
-                  onClick={() => navigate("/configuracoes")}
+                  onClick={() => router.push("/configuracoes")}
                   className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
                 >
                   Configurações
@@ -161,10 +160,10 @@ export function Navbar() {
             </Popover>
           ) : (
             <>
-              <Button variant="ghost" size="sm" onClick={() => navigate("/login")} className="text-muted-foreground hover:text-foreground">
+              <Button variant="ghost" size="sm" onClick={() => router.push("/login")} className="text-muted-foreground hover:text-foreground">
                 Entrar
               </Button>
-              <Button variant="gradient" size="sm" onClick={() => navigate("/cadastro")}>
+              <Button variant="gradient" size="sm" onClick={() => router.push("/cadastro")}>
                 Entrar grátis
               </Button>
             </>
@@ -217,7 +216,7 @@ export function Navbar() {
                     {userName}
                   </span>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => { navigate(dashPath); setOpen(false); }}>
+                <Button variant="ghost" size="sm" onClick={() => { router.push(dashPath); setOpen(false); }}>
                   <LayoutDashboard className="h-4 w-4 mr-2" />
                   Meu Painel
                 </Button>
@@ -228,10 +227,10 @@ export function Navbar() {
               </>
             ) : (
               <>
-                <Button variant="ghost" size="sm" onClick={() => { navigate("/login"); setOpen(false); }}>
+                <Button variant="ghost" size="sm" onClick={() => { router.push("/login"); setOpen(false); }}>
                   Entrar
                 </Button>
-                <Button variant="gradient" size="sm" onClick={() => { navigate("/cadastro"); setOpen(false); }}>
+                <Button variant="gradient" size="sm" onClick={() => { router.push("/cadastro"); setOpen(false); }}>
                   Entrar grátis
                 </Button>
               </>

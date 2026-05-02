@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { X, Gift, PartyPopper, Check } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 
@@ -11,7 +11,7 @@ const COUPON_CODE = "PERFIL25";
 
 export function ProfileCouponBanner() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [profileComplete, setProfileComplete] = useState(false);
   const [couponClaimed, setCouponClaimed] = useState(false);
@@ -113,7 +113,7 @@ export function ProfileCouponBanner() {
                     variant="ghost"
                     size="sm"
                     className="text-xs h-8 px-3 text-primary"
-                    onClick={() => navigate("/billing")}
+                    onClick={() => router.push("/billing")}
                   >
                     Ver planos
                   </Button>
@@ -138,7 +138,7 @@ export function ProfileCouponBanner() {
                     variant="ghost"
                     size="sm"
                     className="text-primary text-xs h-8 px-4"
-                    onClick={() => navigate("/onboarding")}
+                    onClick={() => router.push("/onboarding")}
                   >
                     Completar perfil →
                   </Button>

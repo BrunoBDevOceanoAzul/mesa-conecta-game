@@ -1,6 +1,6 @@
 import { MapPin, Calendar, Users, Clock, Sparkles, Timer, Gamepad2, Brain } from "lucide-react";
 import Instagram from "lucide-react/dist/esm/icons/instagram";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { getMatchColor, getMatchLabel } from "@/lib/match-scoring";
 
 interface Mesa {
@@ -69,7 +69,7 @@ function isBoardGame(mesa: Mesa): boolean {
 }
 
 export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCardProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const date = new Date(mesa.start_at);
   const formattedDate = date.toLocaleDateString("pt-BR", { weekday: "short", day: "2-digit", month: "short" });
   const timeRange = formatTimeRange(mesa.start_at, mesa.end_at);
@@ -82,7 +82,7 @@ export function MesaCard({ mesa, matchScore, sponsored, founderBenefit }: MesaCa
 
   return (
     <div
-      onClick={() => navigate(`/mesa/${mesa.id}`)}
+      onClick={() => router.push(`/mesa/${mesa.id}`)}
       className={`group relative rounded-xl border bg-card overflow-hidden cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-md ${
         sponsored ? "border-gold-200 shadow-glow-gold" : "border-border hover:border-plum-200"
       }`}

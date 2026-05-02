@@ -2,11 +2,11 @@ import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import Instagram from "lucide-react/dist/esm/icons/instagram";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 export function CTASection() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <section
@@ -36,11 +36,11 @@ export function CTASection() {
             </p>
 
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button variant="gradient" size="xl" onClick={() => navigate("/cadastro")}>
+              <Button variant="gradient" size="xl" onClick={() => router.push("/cadastro")}>
                 Criar acesso grátis
                 <ArrowRight className="h-5 w-5" />
               </Button>
-              <Button variant="hero-outline" size="xl" onClick={() => navigate("/explorar")}>
+              <Button variant="hero-outline" size="xl" onClick={() => router.push("/explorar")}>
                 Explorar mesas
               </Button>
             </div>

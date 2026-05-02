@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, Send, Loader2 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 const roleBadge: Record<string, string> = {
   gm: "Mestre",
@@ -17,13 +17,13 @@ const roleBadge: Record<string, string> = {
 
 export function PostComments({ postId }: { postId: string }) {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { comments, loading, createComment } = useComments({ postId, limit: 100 });
   const [content, setContent] = useState("");
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async () => {
-    if (!user) { navigate("/login"); return; }
+    if (!user) { router.push("/login"); return; }
     if (!content.trim()) return;
     setSubmitting(true);
     const result = await createComment(content.trim());

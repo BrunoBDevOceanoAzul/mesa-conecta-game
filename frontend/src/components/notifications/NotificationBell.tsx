@@ -1,5 +1,5 @@
 import { Bell, Check, CheckCheck, CreditCard, Calendar, MessageCircle, Star, Zap, Megaphone, Gift, AlertTriangle, Info } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { useNotifications, type AppNotification } from "@/hooks/use-notifications";
@@ -57,7 +57,7 @@ function NotificationItem({ n, onRead }: { n: AppNotification; onRead: (id: stri
 }
 
 export function NotificationBell() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
   const [open, setOpen] = useState(false);
 
@@ -66,7 +66,7 @@ export function NotificationBell() {
   const handleRead = async (id: string, url?: string | null) => {
     await markAsRead(id);
     setOpen(false);
-    if (url) navigate(url);
+    if (url) router.push(url);
   };
 
   return (
@@ -124,7 +124,7 @@ export function NotificationBell() {
               variant="ghost"
               size="sm"
               className="w-full text-xs text-muted-foreground hover:text-foreground"
-              onClick={() => { setOpen(false); navigate("/notificacoes"); }}
+              onClick={() => { setOpen(false); router.push("/notificacoes"); }}
             >
               Ver todas as notificações
             </Button>

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Lock, Loader2, CheckCircle2 } from "lucide-react";
 
 export default function ResetPassword() {
@@ -14,7 +14,7 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [hasRecoveryToken, setHasRecoveryToken] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     // Check for recovery token in hash
@@ -54,7 +54,7 @@ export default function ResetPassword() {
     } else {
       setSuccess(true);
       toast({ title: "Senha atualizada!", description: "Você será redirecionado em instantes." });
-      setTimeout(() => navigate("/login"), 3000);
+      setTimeout(() => router.push("/login"), 3000);
     }
   };
 
@@ -69,7 +69,7 @@ export default function ResetPassword() {
           <p className="text-sm text-muted-foreground mb-6">
             Este link de redefinição de senha é inválido ou expirou. Solicite um novo link.
           </p>
-          <Button onClick={() => navigate("/login")} variant="outline">
+          <Button onClick={() => router.push("/login")} variant="outline">
             Voltar ao login
           </Button>
         </div>

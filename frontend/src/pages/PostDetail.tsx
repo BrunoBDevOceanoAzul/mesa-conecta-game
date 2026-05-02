@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/router";
+import NextLink from "next/link";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { postsApi, likesApi } from "@/lib/api";
@@ -21,8 +22,9 @@ const roleBadgeConfig: Record<string, { label: string; className: string }> = {
 };
 
 export default function PostDetail() {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const { query } = useRouter();
+  const slug = query.slug as string | undefined;
+  const router = useRouter();
   const { user } = useAuth();
   const [post, setPost] = useState<FeedPost | null>(null);
   const [loading, setLoading] = useState(true);
@@ -261,7 +263,7 @@ export default function PostDetail() {
   };
 
   const handleLike = async () => {
-    if (!user) { navigate("/login"); return; }
+    if (!user) { router.push("/login"); return; }
     if (!post) return;
 
     // Optimistic update
@@ -287,8 +289,8 @@ export default function PostDetail() {
 
   const handleAuthorClick = () => {
     if (!post) return;
-    if (post.author_role === "gm" && post.author_slug) navigate(`/mestre/${post.author_slug}`);
-    else if (post.author_role === "store" && post.author_slug) navigate(`/loja/${post.author_slug}`);
+    if (post.author_role === "gm" && post.author_slug) router.push(`/mestre/${post.author_slug}`);
+    else if (post.author_role === "store" && post.author_slug) router.push(`/loja/${post.author_slug}`);
   };
 
   if (loading) {
@@ -308,7 +310,7 @@ export default function PostDetail() {
         <div className="container mx-auto max-w-2xl px-4 pt-24 pb-12 text-center">
           <h1 className="text-2xl font-display font-bold text-foreground mb-4">Post não encontrado</h1>
           <p className="text-muted-foreground mb-6">Este post pode ter sido removido ou ainda não está publicado.</p>
-          <Button variant="outline" onClick={() => navigate("/feed")} className="gap-2">
+          <Button variant="outline" onClick={() => router.push("/feed")} className="gap-2">
             <ArrowLeft className="h-4 w-4" /> Voltar ao feed
           </Button>
         </div>
@@ -326,7 +328,7 @@ export default function PostDetail() {
       <article className="container mx-auto max-w-2xl px-4 pt-24 pb-12">
         {/* Breadcrumbs */}
         <nav className="flex items-center gap-1.5 text-xs text-muted-foreground mb-6">
-          <Link to="/feed" className="hover:text-foreground transition-colors">Feed</Link>
+          <NextLink href="/feed" className="hover:text-foreground transition-colors">Feed</NextLink>
           <ChevronRight className="h-3 w-3" />
           <span className="text-foreground truncate max-w-[200px]">{post.title || "Post"}</span>
         </nav>
@@ -391,7 +393,7 @@ export default function PostDetail() {
           {/* Related table */}
           {post.related_table_id && post.table_title && (
             <button
-              onClick={() => navigate(`/mesa/${post.related_table_id}`)}
+              onClick={() => router.push(`/mesa/${post.related_table_id}`)}
               className="w-full mb-5 rounded-lg border border-border bg-surface/50 p-4 text-left hover:border-primary/30 hover:bg-surface-hover transition-all"
             >
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1">Mesa relacionada</p>
@@ -415,7 +417,7 @@ export default function PostDetail() {
 
           {/* CTA */}
           {post.cta_text && post.cta_url && (
-            <Button variant="default" className="mb-5 gap-2" onClick={() => post.cta_url?.startsWith("/") ? navigate(post.cta_url!) : window.open(post.cta_url!, "_blank")}>
+            <Button variant="default" className="mb-5 gap-2" onClick={() => post.cta_url?.startsWith("/") ? router.push(post.cta_url!) : window.open(post.cta_url!, "_blank")}>
               <ExternalLink className="h-4 w-4" /> {post.cta_text}
             </Button>
           )}
@@ -460,9 +462,9 @@ export default function PostDetail() {
             <h3 className="text-lg font-display font-semibold text-foreground mb-4">Mais do ecossistema</h3>
             <div className="space-y-4">
               {relatedPosts.slice(0, 3).map((rp) => (
-                <Link key={rp.id} to={`/post/${rp.slug || rp.id}`} className="block">
+                <NextLink key={rp.id} href={`/post/${rp.slug || rp.id}`} className="block">
                   <FeedPostCard post={rp} />
-                </Link>
+                </NextLink>
               ))}
             </div>
           </div>
@@ -473,11 +475,11 @@ export default function PostDetail() {
           <h3 className="text-lg font-display font-semibold text-foreground mb-2">Faça parte do ecossistema HIVIUM</h3>
           <p className="text-sm text-muted-foreground mb-5">Descubra mesas, mestres e luderias perto de você.</p>
           <div className="flex items-center justify-center gap-3">
-            <Button variant="outline" onClick={() => navigate("/explorar")} className="gap-2">
+            <Button variant="outline" onClick={() => router.push("/explorar")} className="gap-2">
               <Sparkles className="h-4 w-4" /> Explorar mesas
             </Button>
             {!user && (
-              <Button onClick={() => navigate("/cadastro")}>Criar conta</Button>
+              <Button onClick={() => router.push("/cadastro")}>Criar conta</Button>
             )}
           </div>
         </div>

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { Navbar } from "@/components/landing/Navbar";
@@ -13,8 +13,9 @@ import type { FormSection } from "@/hooks/use-preparation-flow";
 import { Loader2, ScrollText, ArrowLeft } from "lucide-react";
 
 export default function MesaCharacterSheet() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { query } = useRouter();
+  const id = query.id as string | undefined;
+  const router = useRouter();
   const { user } = useAuth();
   const [loading, setLoading] = useState(true);
   const [sections, setSections] = useState<FormSection[]>([]);
@@ -147,7 +148,7 @@ export default function MesaCharacterSheet() {
       <Navbar />
       <div className="container mx-auto max-w-3xl px-4 pt-24 pb-16">
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" /> Voltar
@@ -198,7 +199,7 @@ export default function MesaCharacterSheet() {
               Nenhuma ficha disponível para esta mesa.
             </p>
             {!user && (
-              <Button variant="hero" size="sm" className="mt-4" onClick={() => navigate("/login")}>
+              <Button variant="hero" size="sm" className="mt-4" onClick={() => router.push("/login")}>
                 Fazer login
               </Button>
             )}

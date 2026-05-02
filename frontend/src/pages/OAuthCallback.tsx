@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import { resolveRedirect } from "@/lib/auth-redirect";
 import { Loader2 } from "lucide-react";
@@ -29,7 +29,7 @@ async function applySignupRoleAndRedirect(userId: string): Promise<string> {
 }
 
 export default function OAuthCallback() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const handled = useRef(false);
   const [status, setStatus] = useState("Autenticando...");
 
@@ -52,9 +52,9 @@ export default function OAuthCallback() {
 
       try {
         const dest = await applySignupRoleAndRedirect(userId);
-        navigate(dest, { replace: true });
+        router.replace(dest);
       } catch {
-        navigate("/explorar", { replace: true });
+        router.replace("/explorar");
       }
     };
 
@@ -105,11 +105,11 @@ export default function OAuthCallback() {
             await finish(data.session.user.id);
             return;
           }
-          navigate("/login", { replace: true });
+          router.replace("/login");
         }, 30_000);
       } catch (err) {
         console.warn("[OAuthCallback] Unexpected error:", err);
-        navigate("/login", { replace: true });
+        router.replace("/login");
       }
     };
 
@@ -119,7 +119,7 @@ export default function OAuthCallback() {
       if (timeoutId) clearTimeout(timeoutId);
       if (subscriptionRef) subscriptionRef.unsubscribe();
     };
-  }, [navigate]);
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">

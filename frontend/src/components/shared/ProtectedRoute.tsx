@@ -1,5 +1,6 @@
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, useLocation } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import { usePrivileges } from "@/hooks/use-privileges";
 
@@ -11,8 +12,27 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, loading: authLoading } = useAuth();
-  const location = useLocation();
+  const router = useRouter();
   const { loading: privLoading, hasAccess, profileRole, isSuperUser } = usePrivileges();
+
+  useEffect(() => {
+    if (authLoading || privLoading) return;
+
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
+
+    if (allowedRoles && !hasAccess(allowedRoles)) {
+      const roleRoutes: Record<string, string> = {
+        player: "/dashboard/jogador",
+        gm: "/dashboard/mestre",
+        store: "/dashboard/loja",
+        brand: "/feed",
+      };
+      router.replace(roleRoutes[profileRole || ""] || "/");
+    }
+  }, [user, authLoading, privLoading, allowedRoles, hasAccess, profileRole, router]);
 
   if (authLoading || privLoading) {
     return (
@@ -22,20 +42,9 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" state={{ from: location }} replace />;
-  }
+  if (!user) return null;
 
-  // Role-based guard
-  if (allowedRoles && !hasAccess(allowedRoles)) {
-    const roleRoutes: Record<string, string> = {
-      player: "/dashboard/jogador",
-      gm: "/dashboard/mestre",
-      store: "/dashboard/loja",
-      brand: "/feed",
-    };
-    return <Navigate to={roleRoutes[profileRole || ""] || "/"} replace />;
-  }
+  if (allowedRoles && !hasAccess(allowedRoles)) return null;
 
   return <>{children}</>;
 }

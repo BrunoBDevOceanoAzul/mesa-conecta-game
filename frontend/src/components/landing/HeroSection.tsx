@@ -1,11 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { ArrowRight } from "lucide-react";
 import heroImg from "@/assets/hero-rpg-table.jpg";
 
 export function HeroSection() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <section className="relative min-h-[100svh] flex items-center overflow-hidden pt-20 pb-12 sm:pt-16 sm:pb-0">
@@ -62,11 +62,11 @@ export function HeroSection() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <Button variant="gradient" size="xl" onClick={() => navigate("/cadastro")}>
+            <Button variant="gradient" size="xl" onClick={() => router.push("/cadastro")}>
               Criar acesso grátis
               <ArrowRight className="h-5 w-5" />
             </Button>
-            <Button variant="hero-outline" size="xl" onClick={() => navigate("/explorar")}>
+            <Button variant="hero-outline" size="xl" onClick={() => router.push("/explorar")}>
               Explorar mesas
             </Button>
           </motion.div>

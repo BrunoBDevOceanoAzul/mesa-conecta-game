@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useRouter } from "next/router";
+import NextLink from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { profilesApiExtended } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,8 +23,9 @@ interface GMData {
 }
 
 export default function MestrePublicProfile() {
-  const { slug } = useParams<{ slug: string }>();
-  const navigate = useNavigate();
+  const { query } = useRouter();
+  const slug = query.slug as string | undefined;
+  const router = useRouter();
   const { user } = useAuth();
   const [data, setData] = useState<GMData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -192,7 +194,7 @@ export default function MestrePublicProfile() {
                   </Button>
                 ) : (
                   <Button variant="gradient" size="lg" asChild>
-                    <Link to="/explorar">Explorar mesas <ArrowRight className="h-4 w-4 ml-1" /></Link>
+                    <NextLink href="/explorar">Explorar mesas <ArrowRight className="h-4 w-4 ml-1" /></NextLink>
                   </Button>
                 )}
                 <StartChatButton
@@ -316,7 +318,7 @@ export default function MestrePublicProfile() {
               <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
               <p className="text-muted-foreground">Nenhuma mesa publicada no momento.</p>
               <Button variant="outline" size="sm" className="mt-4" asChild>
-                <Link to="/explorar">Explorar outras mesas</Link>
+                <NextLink href="/explorar">Explorar outras mesas</NextLink>
               </Button>
             </div>
           )}
@@ -350,11 +352,11 @@ export default function MestrePublicProfile() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button variant="hero" size="lg" className="bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/25" asChild>
-              <Link to="/explorar">Explorar mesas <ChevronRight className="h-4 w-4 ml-1" /></Link>
+              <NextLink href="/explorar">Explorar mesas <ChevronRight className="h-4 w-4 ml-1" /></NextLink>
             </Button>
             {!user && (
               <Button variant="hero-outline" size="lg" className="border-white/30 text-primary-foreground hover:bg-white/10" asChild>
-                <Link to="/cadastro">Criar conta grátis</Link>
+                <NextLink href="/cadastro">Criar conta grátis</NextLink>
               </Button>
             )}
           </div>
@@ -427,7 +429,7 @@ function NotFoundState() {
         <h1 className="text-2xl font-display font-bold text-foreground mb-2">Perfil não encontrado</h1>
         <p className="text-muted-foreground mb-6">Esse perfil de mestre não existe ou não está público.</p>
         <Button variant="gradient" asChild>
-          <Link to="/explorar">Explorar mesas</Link>
+          <NextLink href="/explorar">Explorar mesas</NextLink>
         </Button>
       </div>
     </div>

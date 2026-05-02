@@ -17,7 +17,7 @@ import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { CreateCommunityMesaDialog } from "@/components/mesa/CreateCommunityMesaDialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { getInstagramUrl, getInstagramHandle } from "@/lib/instagram";
 
 const navItems = [
@@ -33,7 +33,7 @@ type Mesa = any;
 
 export default function PlayerDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { preferences } = useUserPreferences();
   const sub = useSubscription();
   const isPremium = sub.isActive;
@@ -135,7 +135,7 @@ export default function PlayerDashboard() {
             <p className="text-sm text-muted-foreground flex-1">
               Desbloqueie mais reservas, favoritos expandidos e vantagens premium.
             </p>
-            <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
+            <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => router.push("/billing")}>
               Ver planos
             </Button>
           </div>
@@ -192,7 +192,7 @@ export default function PlayerDashboard() {
               <Sparkles className="h-5 w-5 text-primary" />
               Curadas para você
             </h2>
-            <Button variant="ghost" size="sm" onClick={() => navigate("/explorar")} className="text-primary">
+            <Button variant="ghost" size="sm" onClick={() => router.push("/explorar")} className="text-primary">
               Ver todas →
             </Button>
           </div>
@@ -213,7 +213,7 @@ export default function PlayerDashboard() {
             <div className="rounded-xl border border-dashed border-border bg-card/50 p-8 text-center">
               <Gamepad2 className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
               <p className="text-muted-foreground text-sm">Nenhuma mesa disponível ainda. Em breve!</p>
-              <Button variant="outline" size="sm" className="mt-3" onClick={() => navigate("/explorar")}>
+              <Button variant="outline" size="sm" className="mt-3" onClick={() => router.push("/explorar")}>
                 Explorar Mesas
               </Button>
             </div>

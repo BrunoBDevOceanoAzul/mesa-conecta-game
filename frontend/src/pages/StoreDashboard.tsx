@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useSubscription } from "@/hooks/use-subscription";
 import type { Tables } from "@/integrations/supabase/types";
 import { Store, Calendar, BarChart3, TrendingUp, Settings, Plus, Users, MapPin, Clock, DollarSign, Eye, Megaphone, Crown, Edit2, Trash2, Building2, Armchair, LayoutGrid, CalendarDays, PieChart, Zap, CheckCircle2, AlertCircle, ArrowRight, Globe, Phone, FileText, UserCheck, BookOpen, Star, Sparkles } from "lucide-react";
@@ -50,7 +50,7 @@ function EmptyBlock({ icon, text, sub, action, onAction }: { icon: React.ReactNo
 export default function StoreDashboard() {
   const { user } = useAuth();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const router = useRouter();
   const sub = useSubscription();
   const displayName = user?.user_metadata?.name || "Luderia";
   const [tab, setTab] = useState<Tab>("overview");
@@ -224,7 +224,7 @@ export default function StoreDashboard() {
                 <p className="text-sm text-muted-foreground flex-1">
                   Ative seu plano para desbloquear agenda completa, analytics e destaque.
                 </p>
-                <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
+                <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => router.push("/billing")}>
                   Ver planos <ArrowRight className="h-3 w-3" />
                 </Button>
               </div>
@@ -257,7 +257,7 @@ export default function StoreDashboard() {
                 <div className="mt-4 flex items-center gap-3 rounded-lg bg-secondary/5 border border-secondary/20 p-3">
                   <Zap className="h-4 w-4 text-secondary shrink-0" />
                   <p className="text-xs text-muted-foreground flex-1">Faça upgrade para <span className="font-semibold text-secondary">Luderia Growth</span> e tenha até 12 mesas/mês + destaque no feed.</p>
-                  <Button variant="outline" size="sm" className="shrink-0 text-xs border-secondary/30 text-secondary hover:bg-secondary/10" onClick={() => navigate("/billing")}>
+                  <Button variant="outline" size="sm" className="shrink-0 text-xs border-secondary/30 text-secondary hover:bg-secondary/10" onClick={() => router.push("/billing")}>
                     Upgrade
                   </Button>
                 </div>
@@ -363,7 +363,7 @@ export default function StoreDashboard() {
                 <p className="text-sm text-muted-foreground max-w-md mx-auto mb-5">
                   A gestão completa de agenda está disponível para luderias com plano ativo. Ative seu plano para organizar mesas e eventos.
                 </p>
-                <Button variant="gradient" size="sm" className="gap-2" onClick={() => navigate("/billing")}>
+                <Button variant="gradient" size="sm" className="gap-2" onClick={() => router.push("/billing")}>
                   <Sparkles className="h-4 w-4" /> Ver planos
                 </Button>
               </div>
@@ -422,7 +422,7 @@ export default function StoreDashboard() {
                       {mesas.map((m) => {
                         const filled = m.seats_total - m.seats_available;
                         return (
-                          <tr key={m.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => navigate(`/mesa/${m.id}`)}>
+                          <tr key={m.id} className="hover:bg-muted/30 transition-colors cursor-pointer" onClick={() => router.push(`/mesa/${m.id}`)}>
                             <td className="px-4 py-3 font-medium text-foreground">{m.title}</td>
                             <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{m.gm_name}</td>
                             <td className="px-4 py-3 hidden md:table-cell">
@@ -651,11 +651,11 @@ function AgendaMesaCard({ mesa, upcoming }: { mesa: Mesa; upcoming?: boolean }) 
   const date = new Date(mesa.start_at);
   const dateStr = date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
   const timeStr = date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div
-      onClick={() => navigate(`/mesa/${mesa.id}`)}
+      onClick={() => router.push(`/mesa/${mesa.id}`)}
       className={`rounded-xl border bg-card p-4 space-y-3 cursor-pointer transition-all hover:shadow-md ${
         upcoming ? "border-primary/20 hover:shadow-primary/10" : "border-border hover:shadow-primary/5"
       }`}

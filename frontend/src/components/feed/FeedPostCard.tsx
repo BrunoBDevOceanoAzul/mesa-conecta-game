@@ -1,7 +1,7 @@
 import { Heart, MessageCircle, Share2, Sparkles, ExternalLink, MapPin, Calendar, Users, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { likesApi } from "@/lib/api";
@@ -62,7 +62,7 @@ interface FeedPostCardProps {
 }
 
 export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const [liked, setLiked] = useState(post.user_liked || false);
   const [likesCount, setLikesCount] = useState(post.likes_count);
@@ -78,7 +78,7 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
 
   const handleLike = async () => {
     if (!user) {
-      navigate("/login");
+      router.push("/login");
       return;
     }
     const newLiked = !liked;
@@ -104,27 +104,27 @@ export function FeedPostCard({ post, onLikeToggle }: FeedPostCardProps) {
 
   const handlePostClick = () => {
     const target = post.slug || post.id;
-    navigate(`/post/${target}`);
+    router.push(`/post/${target}`);
   };
 
   const handleAuthorClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (post.author_role === "gm" && post.author_slug) {
-      navigate(`/mestre/${post.author_slug}`);
+      router.push(`/mestre/${post.author_slug}`);
     } else if (post.author_role === "store" && post.author_slug) {
-      navigate(`/loja/${post.author_slug}`);
+      router.push(`/loja/${post.author_slug}`);
     }
   };
 
   const handleTableClick = () => {
     if (post.related_table_id) {
-      navigate(`/mesa/${post.related_table_id}`);
+      router.push(`/mesa/${post.related_table_id}`);
     }
   };
 
   const handleCtaClick = () => {
     if (post.cta_url) {
-      if (post.cta_url.startsWith("/")) navigate(post.cta_url);
+      if (post.cta_url.startsWith("/")) router.push(post.cta_url);
       else window.open(post.cta_url, "_blank");
     }
   };

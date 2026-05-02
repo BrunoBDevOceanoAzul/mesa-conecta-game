@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useCharacterSheet } from "@/hooks/use-character-sheets";
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
@@ -7,8 +7,9 @@ import { EpicoSheetEditor } from "@/components/sheet/EpicoSheetEditor";
 import { ArrowLeft, Loader2, ScrollText } from "lucide-react";
 
 export default function CharacterSheetEdit() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+  const { query } = useRouter();
+  const id = query.id as string | undefined;
+  const router = useRouter();
   const { sheet, setSheet, loading, autosave, uploadPortrait } = useCharacterSheet(id);
   const [saving, setSaving] = useState(false);
 
@@ -35,7 +36,7 @@ export default function CharacterSheetEdit() {
         <div className="container mx-auto max-w-3xl px-4 pt-24 pb-16 text-center">
           <ScrollText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
           <h1 className="text-xl font-display font-bold mb-2">Ficha não encontrada</h1>
-          <button onClick={() => navigate("/fichas")} className="text-primary text-sm hover:underline">
+          <button onClick={() => router.push("/fichas")} className="text-primary text-sm hover:underline">
             Voltar para minhas fichas
           </button>
         </div>
@@ -49,7 +50,7 @@ export default function CharacterSheetEdit() {
       <Navbar />
       <div className="container mx-auto max-w-3xl px-4 pt-24 pb-16">
         <button
-          onClick={() => navigate("/fichas")}
+          onClick={() => router.push("/fichas")}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-6"
         >
           <ArrowLeft className="h-4 w-4" /> Minhas Fichas

@@ -11,7 +11,7 @@ import { AddExceptionDialog } from "@/components/schedule/AddExceptionDialog";
 import { CopyRuleDialog } from "@/components/schedule/CopyRuleDialog";
 import { Button } from "@/components/ui/button";
 import { Loader2, CalendarDays, CalendarOff, Plus, List, LayoutGrid, Clock } from "lucide-react";
-import { Navigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 type ViewMode = "weekly" | "list";
 
@@ -27,6 +27,7 @@ const STORE_NAV = [
 
 export default function Agenda() {
   const { user, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [userRole, setUserRole] = useState<"gm" | "store" | null>(null);
   const [roleLoading, setRoleLoading] = useState(true);
 
@@ -52,8 +53,14 @@ export default function Agenda() {
     );
   }
 
-  if (!user) return <Navigate to="/login" replace />;
-  if (!userRole) return <Navigate to="/" replace />;
+  useEffect(() => {
+    if (!authLoading && !roleLoading) {
+      if (!user) router.replace("/login");
+      else if (!userRole) router.replace("/");
+    }
+  }, [user, userRole, authLoading, roleLoading]);
+
+  if (!user || !userRole) return null;
 
   return <AgendaContent role={userRole} />;
 }

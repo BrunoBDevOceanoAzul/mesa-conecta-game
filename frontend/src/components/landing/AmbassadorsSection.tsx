@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, ExternalLink } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 interface Ambassador {
   id: string;
@@ -16,7 +16,7 @@ interface Ambassador {
 
 export function AmbassadorsSection() {
   const [ambassadors, setAmbassadors] = useState<Ambassador[]>([]);
-  const navigate = useNavigate();
+  const router = useRouter();
 
   useEffect(() => {
     supabase
@@ -78,7 +78,7 @@ export function AmbassadorsSection() {
               }}
               onClick={() => {
                 if (amb.profile_slug && amb.profile_type) {
-                  navigate(`/${amb.profile_type === "store" ? "loja" : "mestre"}/${amb.profile_slug}`);
+                  router.push(`/${amb.profile_type === "store" ? "loja" : "mestre"}/${amb.profile_slug}`);
                 }
               }}
               className={`group relative rounded-2xl border border-border/60 bg-card p-5 text-center transition-all hover:border-primary/30 hover:shadow-lg hover:shadow-primary/5 active:scale-[0.97] ${

@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import AdminLayout from "./AdminLayout";
 import { Badge } from "@/components/ui/badge";
@@ -80,7 +80,7 @@ function pct(part: number, total: number) {
 /* ──────────────────────── main page ──────────────────────── */
 
 export default function AdminInsights() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [raw, setRaw] = useState<RawData | null>(null);
   const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState<Filters>({
@@ -565,13 +565,13 @@ export default function AdminInsights() {
           <SectionTitle icon={<Layers className="h-5 w-5 text-primary" />} title="Segmentação de Mercado" />
           <div className="space-y-6">
             {d.playerClusters.length > 0 && (
-              <ClusterGroup title="Clusters de Jogadores" icon={<Gamepad2 className="h-4 w-4" />} clusters={d.playerClusters} onAction={(name) => navigate(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
+              <ClusterGroup title="Clusters de Jogadores" icon={<Gamepad2 className="h-4 w-4" />} clusters={d.playerClusters} onAction={(name) => router.push(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
             )}
             {d.gmClusters.length > 0 && (
-              <ClusterGroup title="Clusters de Mestres" icon={<Crown className="h-4 w-4" />} clusters={d.gmClusters} onAction={(name) => navigate(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
+              <ClusterGroup title="Clusters de Mestres" icon={<Crown className="h-4 w-4" />} clusters={d.gmClusters} onAction={(name) => router.push(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
             )}
             {d.storeClusters.length > 0 && (
-              <ClusterGroup title="Clusters de Lojas" icon={<Store className="h-4 w-4" />} clusters={d.storeClusters} onAction={(name) => navigate(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
+              <ClusterGroup title="Clusters de Lojas" icon={<Store className="h-4 w-4" />} clusters={d.storeClusters} onAction={(name) => router.push(`/admin/usuarios?cluster=${encodeURIComponent(name)}`)} />
             )}
             {d.playerClusters.length === 0 && d.gmClusters.length === 0 && d.storeClusters.length === 0 && (
               <EmptyBlock message="Dados insuficientes para segmentação. Mais perfis de anamnese são necessários para identificar clusters." />

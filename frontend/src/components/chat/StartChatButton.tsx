@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStartConversation } from "@/hooks/use-chat";
 import { Button } from "@/components/ui/button";
@@ -38,7 +38,7 @@ export function StartChatButton({
   otherRoleLabel,
 }: StartChatButtonProps) {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const { startConversation } = useStartConversation();
   const [loading, setLoading] = useState(false);
 
@@ -59,7 +59,7 @@ export function StartChatButton({
       });
 
       if (convId) {
-        navigate(`/mensagens?conv=${convId}`);
+        router.push(`/mensagens?conv=${convId}`);
       } else {
         toast.error("Não foi possível iniciar a conversa.");
       }

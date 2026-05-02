@@ -1,5 +1,5 @@
 import { ReactNode, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Menu, X, LogOut, ChevronLeft } from "lucide-react";
 import type { UserRole } from "@/data/constants";
 import { useAuth } from "@/contexts/AuthContext";
@@ -45,13 +45,12 @@ export function DashboardLayout({
   userName = "Usuário",
 }: DashboardLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { signOut } = useAuth();
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    router.push("/");
   };
 
   return (
@@ -62,7 +61,7 @@ export function DashboardLayout({
         }`}
       >
         <div className="flex h-14 items-center justify-between px-4 border-b border-sidebar-border">
-          <button onClick={() => navigate("/")} className="flex items-center gap-2">
+          <button onClick={() => router.push("/")} className="flex items-center gap-2">
             <img src={socioLogo} alt="Sócio do Tabuleiro" className="h-7 w-7 object-contain" />
             <div className="flex flex-col leading-none">
               <span className="font-display font-bold text-[11px] text-foreground">
@@ -98,12 +97,12 @@ export function DashboardLayout({
 
           <nav className="space-y-0.5">
             {navItems.map((item) => {
-              const active = location.pathname === item.path;
+              const active = router.pathname === item.path;
               return (
                 <button
                   key={item.path}
                   onClick={() => {
-                    navigate(item.path);
+                    router.push(item.path);
                     setSidebarOpen(false);
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
@@ -144,7 +143,7 @@ export function DashboardLayout({
           <button className="lg:hidden text-foreground" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => router.back()} className="text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="h-5 w-5" />
           </button>
           <div className="ml-auto flex items-center gap-1">

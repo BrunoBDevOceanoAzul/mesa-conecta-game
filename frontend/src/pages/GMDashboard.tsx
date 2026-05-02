@@ -9,7 +9,7 @@ import { useState, useEffect, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { Badge } from "@/components/ui/badge";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import type { Tables } from "@/integrations/supabase/types";
 import { useSubscription } from "@/hooks/use-subscription";
 import { PremiumGate, PremiumBanner } from "@/components/shared/PremiumGate";
@@ -67,7 +67,7 @@ import { StatCard } from "@/components/shared/StatCard";
 
 export default function GMDashboard() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const sub = useSubscription();
   const [tab, setTab] = useState<Tab>("overview");
   const displayName = user?.user_metadata?.name || "Mestre";

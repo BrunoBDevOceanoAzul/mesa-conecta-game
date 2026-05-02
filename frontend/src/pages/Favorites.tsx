@@ -5,7 +5,7 @@ import { favoritesApi } from "@/lib/api";
 import { Heart, Gamepad2, Compass, Calendar, CreditCard, BarChart3, Loader2, Trash2 } from "lucide-react";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { toast } from "sonner";
 
 const navItems = [
@@ -19,7 +19,7 @@ const navItems = [
 
 export default function Favorites() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [favorites, setFavorites] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -64,7 +64,7 @@ export default function Favorites() {
             <Heart className="h-12 w-12 text-muted-foreground/30 mx-auto" />
             <p className="text-muted-foreground">Nenhum favorito ainda</p>
             <p className="text-xs text-muted-foreground/60">Explore mesas e toque no ❤️ para salvar aqui</p>
-            <Button onClick={() => navigate("/explorar")} className="gap-1.5">
+            <Button onClick={() => router.push("/explorar")} className="gap-1.5">
               <Compass className="h-4 w-4" /> Explorar Mesas
             </Button>
           </div>

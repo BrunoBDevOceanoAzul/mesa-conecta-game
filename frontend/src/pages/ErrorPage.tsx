@@ -1,9 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, ArrowLeft, RefreshCw } from "lucide-react";
 
 export default function ErrorPage() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -20,7 +20,7 @@ export default function ErrorPage() {
           <Button onClick={() => window.location.reload()} className="gap-2">
             <RefreshCw className="h-4 w-4" /> Tentar novamente
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-1 text-muted-foreground">
+          <Button variant="ghost" size="sm" onClick={() => router.push("/")} className="gap-1 text-muted-foreground">
             <ArrowLeft className="h-4 w-4" /> Voltar ao início
           </Button>
         </div>

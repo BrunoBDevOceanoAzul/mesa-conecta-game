@@ -1,6 +1,6 @@
 import { Lock, Crown, Sparkles, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { usePrivileges } from "@/hooks/use-privileges";
 
 interface PremiumGateProps {
@@ -21,7 +21,7 @@ interface PremiumGateProps {
  * Admin and Advisor always bypass the gate.
  */
 export function PremiumGate({ feature, description, allowed, loading, children }: PremiumGateProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isSuperUser } = usePrivileges();
 
   if (loading) {
@@ -56,7 +56,7 @@ export function PremiumGate({ feature, description, allowed, loading, children }
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
             {description || "Este recurso faz parte dos planos ativos da HIVIUM. Ative seu plano para liberar recursos de operação e crescimento."}
           </p>
-          <Button variant="gradient" size="sm" className="gap-2" onClick={() => navigate("/billing")}>
+          <Button variant="gradient" size="sm" className="gap-2" onClick={() => router.push("/billing")}>
             <Sparkles className="h-4 w-4" /> Ver planos disponíveis
           </Button>
         </div>
@@ -69,7 +69,7 @@ export function PremiumGate({ feature, description, allowed, loading, children }
  * Inline banner for premium features — lighter than PremiumGate.
  */
 export function PremiumBanner({ message, ctaLabel }: { message?: string; ctaLabel?: string }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isSuperUser } = usePrivileges();
 
   // Don't show upgrade banners to super users
@@ -81,7 +81,7 @@ export function PremiumBanner({ message, ctaLabel }: { message?: string; ctaLabe
       <p className="text-sm text-muted-foreground flex-1">
         {message || "Ative seu plano para desbloquear este recurso."}
       </p>
-      <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => navigate("/billing")}>
+      <Button variant="outline" size="sm" className="shrink-0 text-xs gap-1 border-primary/30 text-primary hover:bg-primary/10" onClick={() => router.push("/billing")}>
         {ctaLabel || "Ativar plano"} <ArrowRight className="h-3 w-3" />
       </Button>
     </div>

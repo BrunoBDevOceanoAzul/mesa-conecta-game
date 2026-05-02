@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useLocation, useNavigate, type Location as RouterLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Gamepad2, Crown, Store, Loader2, Eye, EyeOff, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -43,8 +43,7 @@ function normalizePhone(raw: string): string {
 }
 
 export default function Signup() {
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
   const { toast } = useToast();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -70,9 +69,8 @@ export default function Signup() {
   };
 
   const getPostAuthPath = (fallback: string) => {
-    const from = (location.state as { from?: RouterLocation } | null)?.from;
-    const fromPath = from ? `${from.pathname}${from.search}${from.hash}` : "";
-    return fromPath && from && !["/login", "/cadastro"].includes(from.pathname) ? fromPath : fallback;
+    const from = router.query.from as string | undefined;
+    return from && !["/login", "/cadastro"].includes(from) ? from : fallback;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -120,7 +118,7 @@ export default function Signup() {
 
       if (data.user && !data.session) {
         toast({ title: "Verifique seu email ✉️", description: "Enviamos um link de confirmação para " + email });
-        navigate("/login", { state: location.state, replace: true });
+        router.replace("/login");
         setLoading(false);
         return;
       }
@@ -135,7 +133,7 @@ export default function Signup() {
           terms_version: "1.0",
         } as any).eq("user_id", data.user!.id);
 
-        navigate(getPostAuthPath(roleToDashboard[selectedRole] || "/explorar"), { replace: true });
+        router.replace(getPostAuthPath(roleToDashboard[selectedRole] || "/explorar"));
       }
     } catch {
       toast({ title: "Erro de conexão", description: "Servidor indisponível. Tente novamente.", variant: "destructive" });
@@ -193,7 +191,7 @@ export default function Signup() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2.5 mb-6">
+          <button onClick={() => router.push("/")} className="inline-flex items-center gap-2.5 mb-6">
             <img src={logoImg.src} alt="HIVIUM" className="h-10 w-10 object-contain" />
             <span className="font-display font-bold text-base gradient-text">HIVIUM</span>
           </button>
@@ -310,7 +308,7 @@ export default function Signup() {
 
         <p className="mt-5 text-center text-sm text-muted-foreground">
           Já tem conta?{" "}
-          <button onClick={() => navigate("/login")} className="text-primary hover:underline font-medium">Entrar</button>
+          <button onClick={() => router.push("/login")} className="text-primary hover:underline font-medium">Entrar</button>
         </p>
       </motion.div>
     </div>

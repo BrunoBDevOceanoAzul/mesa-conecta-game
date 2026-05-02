@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { OnboardingProgress } from "@/components/onboarding-mesaquest/OnboardingProgress";
@@ -17,7 +17,7 @@ const steps = [
 ];
 
 export default function CompletarPerfil() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { toast } = useToast();
   const [currentStep, setCurrentStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -50,7 +50,7 @@ export default function CompletarPerfil() {
     async function checkAuthAndLoad() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        navigate("/login", { replace: true });
+        router.replace("/login");
         return;
       }
 
@@ -80,7 +80,7 @@ export default function CompletarPerfil() {
       setLoading(false);
     }
     checkAuthAndLoad();
-  }, [navigate]);
+  }, [router]);
 
   function handleBasicInfoChange(field: string, value: unknown) {
     setBasicInfo((prev) => ({ ...prev, [field]: value }));
@@ -104,7 +104,7 @@ export default function CompletarPerfil() {
         title: "Perfil completo! 🎲",
         description: "Suas preferências foram salvas. Prepare-se para a aventura!",
       });
-      navigate("/hive", { replace: true });
+      router.replace("/hive");
     } else {
       toast({
         title: "Erro ao salvar",
@@ -127,12 +127,12 @@ export default function CompletarPerfil() {
       {/* Header */}
       <header className="border-b border-border/50 bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-3xl mx-auto px-4 py-3 flex items-center justify-between">
-          <button onClick={() => navigate("/hive")} className="inline-flex items-center gap-2">
+          <button onClick={() => router.push("/hive")} className="inline-flex items-center gap-2">
             <img src={logoImg.src} alt="HIVIUM" className="h-8 w-8 object-contain" />
             <span className="font-display font-bold text-sm gradient-text">HIVIUM</span>
           </button>
           <button
-            onClick={() => navigate("/hive")}
+            onClick={() => router.push("/hive")}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             Pular por enquanto

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Bell, Check, CheckCheck, Filter, Calendar, CreditCard, MessageCircle, Star, Zap, Megaphone, Gift, AlertTriangle, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNotifications, type AppNotification } from "@/hooks/use-notifications";
@@ -36,7 +36,7 @@ const FILTER_TABS = [
 ];
 
 export default function Notifications() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { notifications, unreadCount, loading, markAsRead, markAllAsRead } = useNotifications();
   const [filter, setFilter] = useState("all");
 
@@ -48,7 +48,7 @@ export default function Notifications() {
 
   const handleClick = async (n: AppNotification) => {
     if (!n.is_read) await markAsRead(n.id);
-    if (n.action_url) navigate(n.action_url);
+    if (n.action_url) router.push(n.action_url);
   };
 
   return (

@@ -1,14 +1,14 @@
 import type { Table } from "@/data/constants";
 import { MatchBadge } from "./MatchBadge";
 import { MapPin, Calendar, Users, Clock } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 interface TableCardProps {
   table: Table;
 }
 
 export function TableCard({ table }: TableCardProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const date = new Date(table.startAt);
   const formattedDate = date.toLocaleDateString("pt-BR", {
     day: "2-digit",
@@ -34,7 +34,7 @@ export function TableCard({ table }: TableCardProps) {
   return (
     <div
       className="card-hover group relative rounded-xl border border-border bg-card p-5 cursor-pointer hover:border-border-strong"
-      onClick={() => navigate(`/mesa/${table.id}`)}
+      onClick={() => router.push(`/mesa/${table.id}`)}
     >
       <div className="absolute top-4 right-4">
         <MatchBadge score={table.matchScore} />

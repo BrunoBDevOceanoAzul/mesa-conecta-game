@@ -1,6 +1,6 @@
 import { Target, CheckCircle2, Circle, ArrowRight } from "lucide-react";
 import { useXpConfig } from "@/hooks/use-xp-config";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 /** Maps action_type → a user-friendly mission description + route */
 const MISSION_MAP: Record<string, { label: string; description: string; route?: string }> = {
@@ -31,7 +31,7 @@ interface Props {
 
 export function MissionsPanel({ completedActions }: Props) {
   const { actions } = useXpConfig();
-  const navigate = useNavigate();
+  const router = useRouter();
 
   const missions = actions
     .filter((a) => MISSION_MAP[a.type])
@@ -56,7 +56,7 @@ export function MissionsPanel({ completedActions }: Props) {
           {pending.slice(0, 5).map((m) => (
             <button
               key={m.type}
-              onClick={() => m.mission.route && navigate(m.mission.route)}
+              onClick={() => m.mission.route && router.push(m.mission.route)}
               disabled={!m.mission.route}
               className="w-full flex items-center gap-3 rounded-lg px-3 py-2.5 bg-muted/30 border border-border/50 text-left transition-all hover:bg-muted/60 hover:border-primary/20 hover:shadow-sm disabled:cursor-default disabled:hover:bg-muted/30 disabled:hover:border-border/50 disabled:hover:shadow-none"
             >

@@ -1,6 +1,6 @@
 import { Lock, Sparkles, Gift, Crown, Store, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import type { BoostEligibilityStatus } from "@/hooks/use-boost-eligibility";
 
 interface BoostGateCardProps {
@@ -12,7 +12,7 @@ interface BoostGateCardProps {
 }
 
 export function BoostGateCard({ status, userRole, founderFreeRemaining = 0, founderExpiresAt, planName }: BoostGateCardProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   // Not eligible at all (player, brand, not logged in)
   if (status === "not_eligible") {
@@ -37,7 +37,7 @@ export function BoostGateCard({ status, userRole, founderFreeRemaining = 0, foun
           variant="gradient"
           size="lg"
           className="mt-6 gap-2"
-          onClick={() => navigate("/#planos")}
+          onClick={() => router.push("/#planos")}
         >
           <Crown className="h-4 w-4" /> Ver planos disponíveis
         </Button>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useNavigate, useParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { usePrivileges } from "@/hooks/use-privileges";
@@ -106,11 +106,11 @@ function formatBRL(cents: number): string {
 export default function Checkout() {
   const { user } = useAuth();
   const { isSuperUser } = usePrivileges();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [isFirstMesa, setIsFirstMesa] = useState(true);
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
-  const { planId: urlPlanId } = useParams();
+  const searchParams = new URLSearchParams(router.query as Record<string, string>);
+  const urlPlanId = router.query.planId as string | undefined;
 
   const [plans, setPlans] = useState<DBPlan[]>([]);
   const [loading, setLoading] = useState(true);
@@ -294,7 +294,7 @@ export default function Checkout() {
       if (error) throw error;
 
       toast({ title: "Plano ativado!", description: "Seu plano gratuito foi ativado com sucesso." });
-      navigate("/billing?checkout=success");
+      router.push("/billing?checkout=success");
     } catch (err: any) {
       toast({ title: "Erro", description: err?.message || "Erro ao ativar plano", variant: "destructive" });
     } finally {
@@ -367,7 +367,7 @@ export default function Checkout() {
         title: "Assinatura criada! 🎉",
         description: "Sua assinatura foi processada. Confira os detalhes em Faturamento.",
       });
-      navigate("/billing?checkout=success");
+      router.push("/billing?checkout=success");
     } catch (err: any) {
       const msg = err?.message || "Erro ao processar assinatura";
       toast({ title: "Erro no checkout", description: msg, variant: "destructive" });
@@ -398,8 +398,8 @@ export default function Checkout() {
           <h1 className="text-xl font-display font-bold text-foreground">Faça login para assinar</h1>
           <p className="text-sm text-muted-foreground">Você precisa estar logado para contratar um plano.</p>
           <div className="flex flex-col gap-2">
-            <Button onClick={() => navigate("/login")}>Entrar</Button>
-            <Button variant="ghost" onClick={() => navigate("/cadastro")}>Criar conta</Button>
+            <Button onClick={() => router.push("/login")}>Entrar</Button>
+            <Button variant="ghost" onClick={() => router.push("/cadastro")}>Criar conta</Button>
           </div>
         </div>
       </div>
@@ -419,7 +419,7 @@ export default function Checkout() {
       {/* Header */}
       <div className="border-b border-border bg-card/50 backdrop-blur-sm sticky top-0 z-20">
         <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+          <Button variant="ghost" size="icon" onClick={() => router.back()}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div className="flex items-center gap-2">
@@ -734,7 +734,7 @@ export default function Checkout() {
         if (!open) {
           setPixModal((prev) => ({ ...prev, open: false }));
           toast({ title: "Assinatura criada!", description: "Efetue o pagamento via PIX para ativar." });
-          navigate("/billing?checkout=pending");
+          router.push("/billing?checkout=pending");
         }
       }}>
         <DialogContent className="sm:max-w-md">
@@ -797,7 +797,7 @@ export default function Checkout() {
               className="w-full"
               onClick={() => {
                 setPixModal((prev) => ({ ...prev, open: false }));
-                navigate("/billing?checkout=pending");
+                router.push("/billing?checkout=pending");
               }}
             >
               Já paguei — ir para Faturamento

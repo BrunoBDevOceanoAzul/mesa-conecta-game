@@ -1,56 +1,57 @@
-/**
- * @file use-hive-url.ts
- * @description Hook para sincronizar estado do Hive com query params da URL
- * @module hooks/useHiveUrl
- * 
- * ## Arquitetura
- * - Lê frequência ativa e overlays da URL no mount
- * - Sincroniza mudanças de estado de volta para a URL
- * - Permite compartilhar/bookmark estados específicos do Hive
- */
-
-import { useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useEffect, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import { useHive, type HiveFrequency } from '@/context/HiveContext';
 
 export function useHiveUrl() {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
   const { activeFrequency, handleHexClick, overlays, openOverlay, closeOverlay } = useHive();
 
   // Read query params on mount
   useEffect(() => {
-    const f = searchParams.get('f') as HiveFrequency | null;
-    const overlay = searchParams.get('overlay');
-    
+    if (!router.isReady) return;
+    const f = router.query.f as HiveFrequency | undefined;
+    const overlay = router.query.overlay as string | undefined;
+
     if (f && ['home', 'network', 'market', 'hives', 'academy', 'playground', 'radar'].includes(f)) {
       handleHexClick(f);
     }
-    
+
     if (overlay) {
-      openOverlay(overlay, Object.fromEntries(searchParams.entries()));
+      const params = { ...router.query } as Record<string, string>;
+      delete params.f;
+      delete params.overlay;
+      openOverlay(overlay, params);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [router.isReady]);
 
   // Sync state back to URL
   useEffect(() => {
+    if (!router.isReady) return;
+
     const params = new URLSearchParams();
-    
+
     if (activeFrequency !== 'home') {
       params.set('f', activeFrequency);
     }
-    
+
     if (overlays.length > 0) {
       const topOverlay = overlays[overlays.length - 1];
       params.set('overlay', topOverlay.id);
       Object.entries(topOverlay.params).forEach(([key, value]) => {
         if (key !== 'f' && key !== 'overlay') {
-          params.set(key, value);
+          params.set(key, value as string);
         }
       });
     }
-    
-    setSearchParams(params, { replace: true });
+
+    const qs = params.toString();
+    const currentQs = router.asPath.split('?')[1] || '';
+
+    if (qs !== currentQs) {
+      const newPath = qs ? `${router.pathname}?${qs}` : router.pathname;
+      router.replace(newPath, undefined, { shallow: true });
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeFrequency, overlays]);
+  }, [activeFrequency, overlays, router.isReady]);
 }

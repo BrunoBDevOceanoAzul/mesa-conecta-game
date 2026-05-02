@@ -1,6 +1,6 @@
 import { Lock, Sparkles, ArrowRight, Gamepad2, Crown, Store, Zap, BarChart3, Users, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { usePrivileges } from "@/hooks/use-privileges";
 import type { FeatureKey } from "@/hooks/use-feature-access";
 
@@ -140,7 +140,7 @@ interface ContextualPaywallProps {
 }
 
 export function ContextualPaywall({ featureKey, usage, limit, allowed, loading, children }: ContextualPaywallProps) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isSuperUser } = usePrivileges();
 
   if (loading) {
@@ -189,7 +189,7 @@ export function ContextualPaywall({ featureKey, usage, limit, allowed, loading, 
               </li>
             ))}
           </ul>
-          <Button variant="gradient" size="sm" className="gap-2" onClick={() => navigate("/billing")}>
+          <Button variant="gradient" size="sm" className="gap-2" onClick={() => router.push("/billing")}>
             {ctx.cta} <ArrowRight className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -210,7 +210,7 @@ export function ContextualPaywallBanner({
   usage?: number;
   limit?: number;
 }) {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { isSuperUser } = usePrivileges();
   if (isSuperUser) return null;
 
@@ -240,7 +240,7 @@ export function ContextualPaywallBanner({
             variant="ghost"
             size="sm"
             className="text-primary text-xs h-7 px-3 mt-2"
-            onClick={() => navigate("/billing")}
+            onClick={() => router.push("/billing")}
           >
             {ctx.cta} <ArrowRight className="h-3 w-3 ml-1" />
           </Button>

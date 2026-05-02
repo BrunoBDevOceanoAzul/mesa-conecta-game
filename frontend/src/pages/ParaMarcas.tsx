@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/landing/Navbar";
 import { Footer } from "@/components/landing/Footer";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Megaphone, TrendingUp, Users, Target, BarChart3, Star } from "lucide-react";
 
 const features = [
@@ -14,7 +14,7 @@ const features = [
 ];
 
 export default function ParaMarcas() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-background">
@@ -30,10 +30,10 @@ export default function ParaMarcas() {
             A Sócio do Tabuleiro reúne a comunidade mais engajada de RPG e jogos de tabuleiro do Brasil. Anuncie onde seu público já está.
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-4">
-            <Button variant="gradient" size="lg" onClick={() => navigate("/interesse")}>
+            <Button variant="gradient" size="lg" onClick={() => router.push("/interesse")}>
               Quero anunciar
             </Button>
-            <Button variant="outline" size="lg" onClick={() => navigate("/contato")}>
+            <Button variant="outline" size="lg" onClick={() => router.push("/contato")}>
               Falar com a equipe
             </Button>
           </div>
@@ -59,7 +59,7 @@ export default function ParaMarcas() {
           <div className="rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-border p-12">
             <h2 className="text-h2 text-foreground">Pronto para alcançar a comunidade tabletop?</h2>
             <p className="text-muted-foreground mt-2">Entre em contato e descubra como posicionar sua marca no ecossistema Sócio do Tabuleiro.</p>
-            <Button variant="gradient" size="lg" className="mt-6" onClick={() => navigate("/contato")}>
+            <Button variant="gradient" size="lg" className="mt-6" onClick={() => router.push("/contato")}>
               Iniciar Conversa
             </Button>
           </div>

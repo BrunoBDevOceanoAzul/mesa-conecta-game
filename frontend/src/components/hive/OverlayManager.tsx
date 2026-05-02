@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { useHive } from '@/context/HiveContext';
 import { OverlayDrawer } from './OverlayDrawer';
-import { useSearchParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
 
 // Lazy load all overlay components
 const ProfileOverlay = React.lazy(() => import('./sections/overlays/ProfileOverlay'));
@@ -58,21 +58,21 @@ const OVERLAY_TITLES: Record<string, string> = {
 
 export function OverlayManager() {
   const { overlays, openOverlay, closeOverlay } = useHive();
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
   const openedFromUrl = useRef<string | null>(null);
 
   useEffect(() => {
-    const overlayId = searchParams.get('overlay');
+    const overlayId = router.query.overlay as string | undefined;
     if (!overlayId || !OVERLAY_COMPONENTS[overlayId]) return;
-    const queryKey = searchParams.toString();
-    if (openedFromUrl.current === queryKey) return;
+    const queryString = router.asPath.split('?')[1] || '';
+    if (openedFromUrl.current === queryString) return;
     if (overlays[overlays.length - 1]?.id === overlayId) return;
 
-    const params = Object.fromEntries(searchParams.entries());
+    const params = { ...router.query } as Record<string, string>;
     delete params.overlay;
-    openedFromUrl.current = queryKey;
+    openedFromUrl.current = queryString;
     openOverlay(overlayId, params);
-  }, [openOverlay, overlays, searchParams]);
+  }, [openOverlay, overlays, router.query, router.asPath]);
 
   if (overlays.length === 0) return null;
 

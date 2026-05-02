@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useRouter } from "next/router";
+import NextLink from "next/link";
 import { useAuth } from "@/contexts/AuthContext";
 import { profilesApiExtended } from "@/lib/api";
 import { supabase } from "@/integrations/supabase/client";
@@ -33,7 +34,8 @@ interface StoreData {
 }
 
 export default function LojaPublicProfile() {
-  const { slug } = useParams<{ slug: string }>();
+  const { query } = useRouter();
+  const slug = query.slug as string | undefined;
   const { user } = useAuth();
   const [data, setData] = useState<StoreData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -189,7 +191,7 @@ export default function LojaPublicProfile() {
                   </Button>
                 ) : (
                   <Button variant="gradient-premium" size="lg" asChild>
-                    <Link to="/explorar">Explorar mesas <ArrowRight className="h-4 w-4 ml-1" /></Link>
+                    <NextLink href="/explorar">Explorar mesas <ArrowRight className="h-4 w-4 ml-1" /></NextLink>
                   </Button>
                 )}
                 <ShareButton entityType="loja" entityId={profile.user_id} entityTitle={`Perfil de ${storeName}`} entitySlug={slug} />
@@ -321,7 +323,7 @@ export default function LojaPublicProfile() {
               <Calendar className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
               <p className="text-muted-foreground">Nenhuma mesa ou evento agendado no momento.</p>
               <Button variant="outline" size="sm" className="mt-4" asChild>
-                <Link to="/explorar">Explorar mesas</Link>
+                <NextLink href="/explorar">Explorar mesas</NextLink>
               </Button>
             </div>
           )}
@@ -337,11 +339,11 @@ export default function LojaPublicProfile() {
           </p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button variant="hero" size="lg" className="bg-white/15 backdrop-blur-sm border border-white/20 hover:bg-white/25" asChild>
-              <Link to="/explorar">Explorar mesas <ChevronRight className="h-4 w-4 ml-1" /></Link>
+              <NextLink href="/explorar">Explorar mesas <ChevronRight className="h-4 w-4 ml-1" /></NextLink>
             </Button>
             {!user && (
               <Button variant="hero-outline" size="lg" className="border-white/30 text-primary-foreground hover:bg-white/10" asChild>
-                <Link to="/cadastro">Criar conta grátis</Link>
+                <NextLink href="/cadastro">Criar conta grátis</NextLink>
               </Button>
             )}
           </div>
@@ -395,7 +397,7 @@ function NotFoundState() {
         <h1 className="text-2xl font-display font-bold text-foreground mb-2">Loja não encontrada</h1>
         <p className="text-muted-foreground mb-6">Essa loja/luderia não existe ou não está com perfil público.</p>
         <Button variant="gradient" asChild>
-          <Link to="/explorar">Explorar mesas</Link>
+          <NextLink href="/explorar">Explorar mesas</NextLink>
         </Button>
       </div>
     </div>

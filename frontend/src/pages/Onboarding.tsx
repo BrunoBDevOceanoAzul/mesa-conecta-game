@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from "react";
 import { Loader2 } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { AnimatePresence } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -37,8 +37,9 @@ const dbRoleToRoleKey: Record<string, RoleKey> = {
 };
 
 export default function Onboarding() {
-  const { role: paramRole } = useParams<{ role?: string }>();
-  const navigate = useNavigate();
+  const { query } = useRouter();
+  const paramRole = query.role as string | undefined;
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
@@ -303,7 +304,7 @@ export default function Onboarding() {
       loja: "/dashboard/loja",
       marca: "/boost",
     };
-    navigate(dashMap[effectiveRole] || "/dashboard/jogador");
+    router.push(dashMap[effectiveRole] || "/dashboard/jogador");
   };
 
   const step = steps[current];

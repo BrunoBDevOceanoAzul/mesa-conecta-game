@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { usePrivileges } from '@/hooks/use-privileges';
@@ -29,10 +29,11 @@ interface HiveAdminUser {
 }
 
 export default function HiveAdmin() {
-  const { userId } = useParams<{ userId: string }>();
+  const { query } = useRouter();
+  const userId = query.userId as string | undefined;
   const { user: currentUser } = useAuth();
   const { isSuperUser } = usePrivileges();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [targetUser, setTargetUser] = useState<HiveAdminUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -72,7 +73,7 @@ export default function HiveAdmin() {
     return (
       <div className="min-h-screen bg-[#050505] text-white flex flex-col items-center justify-center gap-4">
         <p className="text-red-400">{error || 'Usuário não encontrado'}</p>
-        <Button variant="outline" onClick={() => navigate('/hive')}>
+        <Button variant="outline" onClick={() => router.push('/hive')}>
           <ArrowLeft className="mr-2 h-4 w-4" /> Voltar ao Hive
         </Button>
       </div>
@@ -84,7 +85,7 @@ export default function HiveAdmin() {
       <div className="max-w-4xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <Button variant="ghost" onClick={() => navigate('/hive')} className="text-white/70 hover:text-white hover:bg-white/10">
+          <Button variant="ghost" onClick={() => router.push('/hive')} className="text-white/70 hover:text-white hover:bg-white/10">
             <ArrowLeft className="mr-2 h-4 w-4" /> Voltar
           </Button>
           <div className="flex items-center gap-2">

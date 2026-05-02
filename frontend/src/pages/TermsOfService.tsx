@@ -1,19 +1,19 @@
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { ArrowLeft } from "lucide-react";
 import logoImg from "@/assets/hivium-logo.png";
 
 export default function TermsOfService() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <div className="min-h-screen bg-background">
       <header className="border-b border-border/50 py-4">
         <div className="container mx-auto px-4 flex items-center gap-4">
-          <button onClick={() => navigate("/")} className="inline-flex items-center gap-2">
+          <button onClick={() => router.push("/")} className="inline-flex items-center gap-2">
             <img src={logoImg.src} alt="HIVIUM" className="h-8 w-8 object-contain" />
             <span className="font-display font-bold text-sm gradient-text">HIVIUM</span>
           </button>
-          <button onClick={() => navigate(-1)} className="ml-auto text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
+          <button onClick={() => router.back()} className="ml-auto text-sm text-muted-foreground hover:text-foreground flex items-center gap-1">
             <ArrowLeft className="h-4 w-4" /> Voltar
           </button>
         </div>

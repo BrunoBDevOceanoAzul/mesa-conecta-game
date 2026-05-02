@@ -1,5 +1,4 @@
 import React from 'react';
-import { Outlet } from 'react-router-dom';
 import { HiveProvider } from '@/context/HiveContext';
 import { LinkerHive } from '@/components/hive/LinkerHive';
 import { OverlayManager } from '@/components/hive/OverlayManager';
@@ -19,7 +18,11 @@ const HEXAGONS = [
   { id: 'radar' as HiveFrequency, label: 'Radar', icon: Radio },
 ];
 
-export default function HiveLayout() {
+interface HiveLayoutProps {
+  children: React.ReactNode;
+}
+
+export default function HiveLayout({ children }: HiveLayoutProps) {
   return (
     <HiveProvider>
       <main className="relative w-screen h-screen bg-[#050505] overflow-hidden text-slate-200">
@@ -29,7 +32,7 @@ export default function HiveLayout() {
         <OverlayManager />
         
         <div className="relative z-10 w-full h-full">
-          <Outlet />
+          {children}
         </div>
       </main>
     </HiveProvider>

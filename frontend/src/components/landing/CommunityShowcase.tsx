@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { MesaCard } from "@/components/shared/MesaCard";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { CreateCommunityMesaDialog } from "@/components/mesa/CreateCommunityMesaDialog";
 import { Gamepad2, ArrowRight, Users, MapPin, Calendar } from "lucide-react";
@@ -34,7 +34,7 @@ type Mesa = {
 export function CommunityShowcase() {
   const [mesas, setMesas] = useState<Mesa[]>([]);
   const [stats, setStats] = useState({ total: 0, cities: 0, players: 0 });
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
 
   useEffect(() => {
@@ -157,7 +157,7 @@ export function CommunityShowcase() {
                 </Button>
               </CreateCommunityMesaDialog>
             ) : (
-              <Button variant="hero" size="lg" className="gap-2" onClick={() => navigate("/cadastro")}>
+              <Button variant="hero" size="lg" className="gap-2" onClick={() => router.push("/cadastro")}>
                 <Gamepad2 className="h-4 w-4" /> Criar conta e publicar mesa
               </Button>
             )}
@@ -176,7 +176,7 @@ export function CommunityShowcase() {
             variant="outline"
             size="lg"
             className="gap-2 rounded-xl"
-            onClick={() => navigate("/explorar")}
+            onClick={() => router.push("/explorar")}
           >
             Ver todas as mesas <ArrowRight className="h-4 w-4" />
           </Button>

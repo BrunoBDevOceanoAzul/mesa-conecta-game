@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Settings, Lock, Bell, Trash2, Loader2, User, Shield, CreditCard, Crown, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Switch } from "@/components/ui/switch";
 
 interface SubInfo {
@@ -19,7 +19,7 @@ interface SubInfo {
 
 export default function AccountSettings() {
   const { user, signOut } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [changingPassword, setChangingPassword] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [deleting, setDeleting] = useState(false);
@@ -68,7 +68,7 @@ export default function AccountSettings() {
     }
     await signOut();
     toast.success("Conta excluída. Sentiremos sua falta.");
-    navigate("/");
+    router.push("/");
   };
 
   const statusLabel = (s: string) => {
@@ -130,7 +130,7 @@ export default function AccountSettings() {
                 </p>
               )}
               <div className="flex gap-2">
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => navigate("/billing")}>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => router.push("/billing")}>
                   <CreditCard className="h-3.5 w-3.5" /> Gerenciar Assinatura
                 </Button>
               </div>
@@ -138,7 +138,7 @@ export default function AccountSettings() {
           ) : (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">Você não possui uma assinatura ativa.</p>
-              <Button size="sm" className="gap-1.5" onClick={() => navigate("/precos")}>
+              <Button size="sm" className="gap-1.5" onClick={() => router.push("/precos")}>
                 <Crown className="h-3.5 w-3.5" /> Ver Planos
               </Button>
             </div>

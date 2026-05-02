@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription, type SubscriptionStatus, type Plan } from "@/hooks/use-subscription";
@@ -96,7 +96,8 @@ export default function Billing() {
   const sub = useSubscription();
   const [tab, setTab] = useState<BillingTab>("overview");
   const [actionLoading, setActionLoading] = useState(false);
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const searchParams = new URLSearchParams(router.query as Record<string, string>);
 
   // Auto-refresh after Stripe checkout redirect
   useEffect(() => {
@@ -107,13 +108,13 @@ export default function Billing() {
         description: "Seu pagamento foi processado. Os dados serão atualizados em instantes.",
       });
       // Remove query params and refresh subscription data
-      setSearchParams({}, { replace: true });
+      router.replace({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
       // Poll for webhook sync (may take a few seconds)
       const intervals = [2000, 5000, 10000];
       intervals.forEach((delay) => setTimeout(() => sub.refresh(), delay));
     } else if (checkoutResult === "cancel") {
       toast({ title: "Checkout cancelado", description: "Nenhuma cobrança foi realizada." });
-      setSearchParams({}, { replace: true });
+      router.replace({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
     }
   }, []);
 

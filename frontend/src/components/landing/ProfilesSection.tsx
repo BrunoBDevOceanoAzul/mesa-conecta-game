@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Gamepad2, Crown, Store, Megaphone, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 
 const profiles = [
   {
@@ -85,7 +85,7 @@ const profiles = [
 ];
 
 export function ProfilesSection() {
-  const navigate = useNavigate();
+  const router = useRouter();
 
   return (
     <section id="perfis" className="py-28 md:py-36">
@@ -131,7 +131,7 @@ export function ProfilesSection() {
                   </li>
                 ))}
               </ul>
-              <Button variant="ghost" size="sm" onClick={() => navigate(p.ctaPath)} className={`${p.ctaColor} hover:bg-transparent px-0`}>
+              <Button variant="ghost" size="sm" onClick={() => router.push(p.ctaPath)} className={`${p.ctaColor} hover:bg-transparent px-0`}>
                 {p.cta} <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </motion.div>

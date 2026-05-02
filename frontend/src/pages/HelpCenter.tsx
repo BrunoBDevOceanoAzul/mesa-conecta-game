@@ -4,7 +4,7 @@ import { Footer } from "@/components/landing/Footer";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, LifeBuoy, BookOpen, MessageSquare, ChevronRight, HelpCircle, FileText, CreditCard, Shield, Users } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { CreateTicketDialog } from "@/components/support/CreateTicketDialog";
 
 const categories = [
@@ -17,7 +17,7 @@ const categories = [
 ];
 
 export default function HelpCenter() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const [search, setSearch] = useState("");
   const [ticketOpen, setTicketOpen] = useState(false);
 
@@ -44,7 +44,7 @@ export default function HelpCenter() {
         <section className="container mx-auto px-4 py-8">
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {categories.map((cat, i) => (
-              <button key={i} onClick={() => navigate("/faq")} className="rounded-2xl border border-border bg-card p-5 text-left hover:shadow-md hover:border-primary/20 transition-all group">
+              <button key={i} onClick={() => router.push("/faq")} className="rounded-2xl border border-border bg-card p-5 text-left hover:shadow-md hover:border-primary/20 transition-all group">
                 <div className="flex items-start gap-3">
                   <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     {cat.icon}

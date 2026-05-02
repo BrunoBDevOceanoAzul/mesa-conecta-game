@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useRouter } from "next/router";
 import { Menu, X, LogOut, ChevronLeft, Shield } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
@@ -24,14 +24,14 @@ const navItems = [
 
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const navigate = useNavigate();
-  const location = useLocation();
+  const router = useRouter();
+  const location = { pathname: router.pathname };
   const { user, signOut } = useAuth();
   const isMobile = useIsMobile();
 
   const handleLogout = async () => {
     await signOut();
-    navigate("/");
+    router.push("/");
   };
 
   const isActive = (path: string) => {
@@ -45,10 +45,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <div className="min-h-screen bg-background flex flex-col">
         {/* Mobile header */}
         <header className="sticky top-0 z-30 flex h-12 items-center gap-3 border-b border-border bg-card/90 backdrop-blur-xl px-3 safe-area-top">
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
+          <button onClick={() => router.back()} className="text-muted-foreground hover:text-foreground transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center">
             <ChevronLeft className="h-5 w-5" />
           </button>
-           <button onClick={() => navigate("/")} className="flex items-center gap-2">
+           <button onClick={() => router.push("/")} className="flex items-center gap-2">
              <img src={logoImg.src} alt="HIVIUM" className="h-6 w-6 object-contain" />
              <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
            </button>
@@ -72,7 +72,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               return (
                 <button
                   key={item.path}
-                  onClick={() => navigate(item.path)}
+                  onClick={() => router.push(item.path)}
                   className={`flex flex-col items-center justify-center min-w-[60px] min-h-[48px] rounded-lg px-2 py-1.5 snap-center transition-all ${
                     active
                       ? "bg-primary/10 text-primary"
@@ -101,7 +101,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         }`}
       >
          <div className="flex h-14 items-center justify-between px-4 border-b border-border">
-           <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+           <button onClick={() => router.push("/")} className="flex items-center gap-2.5">
              <img src={logoImg.src} alt="HIVIUM" className="h-7 w-7 object-contain" />
              <span className="font-display font-bold text-xs gradient-text tracking-wide">HIVIUM</span>
            </button>
@@ -130,7 +130,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 <button
                   key={item.path}
                   onClick={() => {
-                    navigate(item.path);
+                    router.push(item.path);
                     setSidebarOpen(false);
                   }}
                   className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-all duration-200 ${
@@ -167,7 +167,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <button className="lg:hidden text-foreground" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </button>
-          <button onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={() => router.back()} className="text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="h-5 w-5" />
           </button>
         </header>

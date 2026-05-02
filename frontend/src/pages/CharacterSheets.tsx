@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCharacterSheets } from "@/hooks/use-character-sheets";
 import { Navbar } from "@/components/landing/Navbar";
@@ -21,7 +21,7 @@ import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 export default function CharacterSheets() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { user } = useAuth();
   const { sheets, loading, createSheet, deleteSheet } = useCharacterSheets("epico");
   const [showCreate, setShowCreate] = useState(false);
@@ -36,7 +36,7 @@ export default function CharacterSheets() {
     setCreating(false);
     setShowCreate(false);
     setNewName("");
-    if (sheet) navigate(`/fichas/${sheet.id}`);
+    if (sheet) router.push(`/fichas/${sheet.id}`);
   };
 
   if (!user) {
@@ -47,7 +47,7 @@ export default function CharacterSheets() {
           <ScrollText className="h-12 w-12 text-primary mx-auto mb-4" />
           <h1 className="text-2xl font-display font-bold mb-2">Fichas de Personagem</h1>
           <p className="text-muted-foreground mb-6">Faça login para criar e gerenciar seus personagens.</p>
-          <Button variant="default" onClick={() => navigate("/login")}>Entrar</Button>
+          <Button variant="default" onClick={() => router.push("/login")}>Entrar</Button>
         </div>
         <Footer />
       </div>
@@ -90,7 +90,7 @@ export default function CharacterSheets() {
               <Card
                 key={s.id}
                 className="p-4 cursor-pointer hover:border-primary/30 transition-all group"
-                onClick={() => navigate(`/fichas/${s.id}`)}
+                onClick={() => router.push(`/fichas/${s.id}`)}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">

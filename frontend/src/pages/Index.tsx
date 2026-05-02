@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Dice1, Dice2, Dice3, Sword, Shield, Crown, Users, Map, BookOpen, Sparkles, ChevronDown, Play } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -120,7 +120,7 @@ function ParticleField() {
 }
 
 function HeroSection() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], [0, 200]);
   const opacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
@@ -128,9 +128,9 @@ function HeroSection() {
   async function handleStart() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      navigate("/hive");
+      router.push("/hive");
     } else {
-      navigate("/cadastro");
+      router.push("/cadastro");
     }
   }
 
@@ -333,16 +333,16 @@ function FeaturesSection() {
 }
 
 function CTASection() {
-  const navigate = useNavigate();
+  const router = useRouter();
   const ref = useRef(null);
   const inView = useInView(ref, { once: true });
 
   async function handleCTA() {
     const { data: { user } } = await supabase.auth.getUser();
     if (user) {
-      navigate("/hive");
+      router.push("/hive");
     } else {
-      navigate("/cadastro");
+      router.push("/cadastro");
     }
   }
 

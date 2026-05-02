@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserPreferences } from "@/hooks/use-user-preferences";
 import { calculateMatchScore, getMatchLabel, getMatchColor } from "@/lib/match-scoring";
@@ -80,9 +80,10 @@ function getDurationLabel(startAt: string, endAt?: string | null): string | null
 }
 
 export default function TableDetail() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { query } = useRouter();
+  const id = query.id as string | undefined;
+  const router = useRouter();
+  const searchParams = new URLSearchParams(query as Record<string, string>);
   const { user } = useAuth();
   const { toast } = useToast();
   const { preferences } = useUserPreferences();
@@ -125,15 +126,11 @@ export default function TableDetail() {
     if (bookingStatus === "success") {
       setBookingSuccess(true);
       setExistingBooking(true);
-      searchParams.delete("booking");
-      searchParams.delete("booking_id");
-      setSearchParams(searchParams, { replace: true });
+      router.replace({ pathname: router.pathname, query: { ...router.query, booking: undefined, booking_id: undefined } }, undefined, { shallow: true });
     } else if (bookingStatus === "canceled") {
-      searchParams.delete("booking");
-      searchParams.delete("booking_id");
-      setSearchParams(searchParams, { replace: true });
+      router.replace({ pathname: router.pathname, query: {} }, undefined, { shallow: true });
     }
-  }, [searchParams, setSearchParams]);
+  }, [router.query]);
 
   useEffect(() => {
     if (!id) return;
@@ -176,7 +173,7 @@ export default function TableDetail() {
         <div className="container mx-auto max-w-2xl px-4 pt-24 pb-12 text-center">
           <h1 className="text-2xl font-display font-bold text-foreground mb-2">Mesa não encontrada</h1>
           <p className="text-muted-foreground mb-6">Esta mesa não existe ou foi removida.</p>
-          <Button variant="hero" onClick={() => navigate("/explorar")}>Explorar Mesas</Button>
+          <Button variant="hero" onClick={() => router.push("/explorar")}>Explorar Mesas</Button>
         </div>
         <Footer />
       </div>
@@ -266,7 +263,7 @@ export default function TableDetail() {
       <div className="container mx-auto max-w-4xl px-4 -mt-16 relative z-10 pb-16">
         {/* Back */}
         <button
-          onClick={() => navigate(-1)}
+          onClick={() => router.back()}
           className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4"
         >
           <ArrowLeft className="h-4 w-4" /> Voltar
@@ -573,7 +570,7 @@ export default function TableDetail() {
                   className="w-full text-base"
                   onClick={() => {
                     if (!user) {
-                      navigate("/login");
+                      router.push("/login");
                       return;
                     }
                     setBookingOpen(true);
@@ -623,7 +620,7 @@ export default function TableDetail() {
                       variant="outline"
                       size="sm"
                       className="w-full"
-                      onClick={() => navigate("/login")}
+                      onClick={() => router.push("/login")}
                     >
                       Faça login para entrar na fila
                     </Button>

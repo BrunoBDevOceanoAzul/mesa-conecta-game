@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { useAuth } from "@/contexts/AuthContext";
 import { useConversations, useMessages, type Conversation } from "@/hooks/use-chat";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
@@ -49,8 +49,8 @@ function getConversationContext(conv: Conversation) {
 
 export default function Messages() {
   const { user } = useAuth();
-  const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const router = useRouter();
+  const searchParams = new URLSearchParams(router.query as Record<string, string>);
   const activeConvId = searchParams.get("conv");
   const { conversations, loading: convsLoading, totalUnread } = useConversations();
   const { messages, loading: msgsLoading, sending, sendMessage } = useMessages(activeConvId);
@@ -85,7 +85,7 @@ export default function Messages() {
   };
 
   const selectConversation = (id: string) => {
-    setSearchParams({ conv: id });
+    router.push({ pathname: router.pathname, query: { conv: id } }, undefined, { shallow: true });
   };
 
   const filteredConversations = conversations.filter((c) => {
@@ -276,7 +276,7 @@ export default function Messages() {
               {/* Chat Header */}
               <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-card">
                 <button
-                  onClick={() => setSearchParams({})}
+                  onClick={() => router.replace({ pathname: router.pathname, query: {} }, undefined, { shallow: true })}
                   className="md:hidden text-muted-foreground hover:text-foreground transition-colors"
                 >
                   <ArrowLeft className="h-5 w-5" />

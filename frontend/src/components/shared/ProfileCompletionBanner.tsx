@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { X, Sparkles } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ProfileData {
@@ -16,7 +16,7 @@ interface ProfileData {
 
 export function ProfileCompletionBanner() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [visible, setVisible] = useState(false);
   const [percent, setPercent] = useState(0);
   const [dismissed, setDismissed] = useState(false);
@@ -89,7 +89,7 @@ export function ProfileCompletionBanner() {
                   variant="ghost"
                   size="sm"
                   className="text-primary text-xs h-7 px-3"
-                  onClick={() => navigate("/onboarding")}
+                  onClick={() => router.push("/onboarding")}
                 >
                   Completar
                 </Button>

@@ -5,7 +5,7 @@ import { bookingsApi } from "@/lib/api";
 import { Calendar, Gamepad2, Compass, Heart, CreditCard, BarChart3, Loader2, MapPin, Clock, CheckCircle2, XCircle, Eye } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
@@ -27,7 +27,7 @@ const statusConfig: Record<string, { label: string; icon: React.ReactNode; class
 
 export default function MyBookings() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export default function MyBookings() {
           <div className="text-center py-16 space-y-3">
             <Calendar className="h-12 w-12 text-muted-foreground/30 mx-auto" />
             <p className="text-muted-foreground">Você ainda não tem reservas</p>
-            <Button onClick={() => navigate("/explorar")} className="gap-1.5">
+            <Button onClick={() => router.push("/explorar")} className="gap-1.5">
               <Compass className="h-4 w-4" /> Explorar Mesas
             </Button>
           </div>
@@ -80,7 +80,7 @@ export default function MyBookings() {
                   <Badge variant="outline" className={`${st.class} gap-1 shrink-0`}>
                     {st.icon} {st.label}
                   </Badge>
-                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => navigate(`/mesa/${b.game_table_id}`)}>
+                  <Button variant="ghost" size="icon" className="shrink-0" onClick={() => router.push(`/mesa/${b.game_table_id}`)}>
                     <Eye className="h-4 w-4" />
                   </Button>
                 </div>

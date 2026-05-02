@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useHive } from '@/context/HiveContext';
 import { AnimatePresence, motion } from 'framer-motion';
-import { useSearchParams } from 'react-router-dom';
+import { useRouter } from 'next/router';
 import type { HiveFrequency } from '@/context/HiveContext';
 
 const CommanderProfile = React.lazy(() => import('./sections/CommanderProfile'));
@@ -34,11 +34,11 @@ const VALID_FREQUENCIES = new Set<HiveFrequency>([
 
 export default function FrequencyRouter() {
   const { activeFrequency, handleHexClick } = useHive();
-  const [searchParams] = useSearchParams();
+  const router = useRouter();
   const Component = FREQUENCY_COMPONENTS[activeFrequency] || CommanderProfile;
 
   useEffect(() => {
-    const requestedFrequency = searchParams.get('f') as HiveFrequency | null;
+    const requestedFrequency = router.query.f as HiveFrequency | null;
     if (
       requestedFrequency &&
       VALID_FREQUENCIES.has(requestedFrequency) &&
@@ -46,7 +46,7 @@ export default function FrequencyRouter() {
     ) {
       handleHexClick(requestedFrequency);
     }
-  }, [activeFrequency, handleHexClick, searchParams]);
+  }, [activeFrequency, handleHexClick, router.query]);
 
   return (
     <AnimatePresence mode="wait">

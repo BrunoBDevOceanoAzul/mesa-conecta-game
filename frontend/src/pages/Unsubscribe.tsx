@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useRouter } from "next/router";
 import { supabase } from "@/integrations/supabase/client";
 
 type Status = "loading" | "valid" | "already_unsubscribed" | "invalid" | "success" | "error";
 
 const Unsubscribe = () => {
-  const [searchParams] = useSearchParams();
-  const token = searchParams.get("token");
+  const { query } = useRouter();
+  const token = query.token as string | undefined;
   const [status, setStatus] = useState<Status>("loading");
 
   useEffect(() => {

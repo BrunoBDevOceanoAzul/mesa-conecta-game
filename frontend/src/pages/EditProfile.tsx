@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Camera, Save, Loader2, User, MapPin, Settings, Phone, CreditCard, Gamepad2, Crown, Store, Megaphone, Sparkles, X } from "lucide-react";
 import Instagram from "lucide-react/dist/esm/icons/instagram";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
+import { useRouter } from "next/router";
 import { RPG_SYSTEMS } from "@/data/rpg-systems";
 
 const PLAY_STYLES = ["Roleplay intenso", "Combate tático", "Exploração", "Investigação", "Narrativa colaborativa", "Sandbox", "Horror", "Humor"];
@@ -25,7 +25,7 @@ const FORMATS = [
 
 export default function EditProfile() {
   const { user } = useAuth();
-  const navigate = useNavigate();
+  const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
