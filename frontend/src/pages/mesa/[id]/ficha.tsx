@@ -3,6 +3,9 @@ import { useRouter } from 'next/router';
 
 export default function Redirect() {
   const router = useRouter();
-  useEffect(() => { router.replace('/hive?f=home&overlay=agenda'); }, []);
+  useEffect(() => {
+    if (!router.isReady) return;
+    router.replace(`/hive?f=playground&overlay=sheet&id=${router.query.id}`);
+  }, [router.isReady]);
   return null;
 }
