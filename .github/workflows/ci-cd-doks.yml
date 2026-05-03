@@ -161,24 +161,21 @@ jobs:
       - name: Deploy new images
         run: |
           ENV_NAME=${{ github.ref_name == 'main' && 'prod' || github.ref_name == 'homolog' && 'homolog' || 'dev' }}
-          WEB_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:${{ github.ref_name }}"
-          API_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_API }}:${{ github.ref_name }}"
+          WEB_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_WEB }}:sha-${{ github.sha }}"
+          API_IMAGE="${{ env.REGISTRY }}/${{ env.IMAGE_API }}:sha-${{ github.sha }}"
           
           # Update deployment images
           kubectl set image deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} "mesa-web=${WEB_IMAGE}"
           kubectl set image deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} "mesa-api=${API_IMAGE}"
           
+          # Force restart to ensure rollout even if image tag unchanged
+          kubectl rollout restart deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME}
+          kubectl rollout restart deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME}
+          
           # Wait for rollout with extended timeout
           kubectl rollout status deployment/${ENV_NAME}-mesa-web -n mesa-${ENV_NAME} --timeout=300s && \
           kubectl rollout status deployment/${ENV_NAME}-mesa-api -n mesa-${ENV_NAME} --timeout=300s || \
           echo "Rollout timed out - checking pod status..."
-          
-          # Debug: check pod status
-          echo "=== Pod Status ==="
-          kubectl get pods -n mesa-${ENV_NAME} -o wide
-          echo ""
-          echo "=== Recent Events ==="
-          kubectl get events -n mesa-${ENV_NAME} --sort-by=.lastTimestamp | tail -10
 
       - name: Verify ingress
         run: |
