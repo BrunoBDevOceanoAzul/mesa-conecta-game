@@ -1,6 +1,5 @@
 import type { AppProps } from 'next/app';
-import { useEffect, useState } from 'react';
-import dynamic from 'next/dynamic';
+import "@/index.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,9 +10,6 @@ import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
 const queryClient = new QueryClient();
 
 function MyApp({ Component, pageProps }: AppProps) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => { setMounted(true); }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
@@ -21,7 +17,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           <Toaster />
           <Sonner />
           <ErrorBoundary>
-            {mounted ? <Component {...pageProps} /> : null}
+            <Component {...pageProps} />
           </ErrorBoundary>
         </TooltipProvider>
       </AuthProvider>

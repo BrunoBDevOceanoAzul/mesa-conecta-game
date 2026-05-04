@@ -12,11 +12,13 @@ export default function Referral() {
   const [copied, setCopied] = useState(false);
   const [referral, setReferral] = useState<{ code: string; uses_count: number } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [origin, setOrigin] = useState("");
 
   useEffect(() => {
     if (!user) return;
+    setOrigin(window.location.origin);
+
     const init = async () => {
-      // Try to fetch existing code
       const { data } = await supabase
         .from("referral_codes")
         .select("code, uses_count")
@@ -26,7 +28,6 @@ export default function Referral() {
       if (data) {
         setReferral(data);
       } else {
-        // Create one
         const code = user.id.slice(0, 8).toUpperCase();
         const { data: newCode } = await supabase
           .from("referral_codes")
@@ -41,7 +42,7 @@ export default function Referral() {
   }, [user]);
 
   const code = referral?.code || "";
-  const link = `${window.location.origin}/cadastro?ref=${code}`;
+  const link = origin ? `${origin}/cadastro?ref=${code}` : "";
 
   const copyLink = () => {
     navigator.clipboard.writeText(link);
