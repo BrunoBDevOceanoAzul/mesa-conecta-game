@@ -2,9 +2,6 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
@@ -21,10 +18,36 @@ const safeStorage = {
   },
 };
 
-export const supabase: any = createClient<any>(SUPABASE_URL!, SUPABASE_PUBLISHABLE_KEY!, {
-  auth: {
-    storage: safeStorage,
-    persistSession: true,
-    autoRefreshToken: true,
+let _supabase: any = null;
+
+function getSupabaseClient() {
+  if (!_supabase) {
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    
+    if (!url || !key) {
+      console.warn('Supabase credentials not configured. Client initialization deferred.');
+      return null;
+    }
+    
+    _supabase = createClient<Database>(url, key, {
+      auth: {
+        storage: safeStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    });
   }
-});
+  return _supabase;
+}
+
+export const supabase = new Proxy({}, {
+  get: (_, prop: string | symbol) => {
+    if (prop === '__skipDynamic') return true;
+    const client = getSupabaseClient();
+    if (!client) {
+      throw new Error('Supabase client is not initialized. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY are set.');
+    }
+    return (client as any)[prop];
+  }
+}) as any;
