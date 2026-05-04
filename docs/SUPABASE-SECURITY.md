@@ -4,9 +4,9 @@
 
 This document outlines the security configuration and sanitization procedures for the Supabase project `xqjiizwtfavpvxytqzvv`.
 
-**Current Status**: ✅ Baseline configured
-- RLS policies: 0/6 core tables (pending implementation)
-- Test data: Cleaned (audit script pending)
+**Current Status**: ⚠️ Policies defined, pending deployment
+- RLS policies: 6/6 core tables (defined in `20260504_sanitize_database.sql`)
+- Test data: Sanitization script ready
 - Credentials: Rotated and secured in GitHub secrets
 - Migrations: Tracked via Drizzle ORM
 

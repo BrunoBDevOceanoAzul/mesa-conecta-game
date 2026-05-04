@@ -48,6 +48,16 @@ ALTER TABLE mesas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hives ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hive_members ENABLE ROW LEVEL SECURITY;
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE payments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wallets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE wallet_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE credit_wallets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE credit_transactions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE coupon_redemptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE asaas_accounts ENABLE ROW LEVEL SECURITY;
 
 -- PHASE 5: REVOKE PUBLIC ACCESS & SET DEFAULTS
 -- By default, nobody can access anything until explicit policies grant it
@@ -92,18 +102,151 @@ CREATE POLICY "Users can update own mesas"
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
+CREATE POLICY "Users can delete own mesas"
+  ON mesas FOR DELETE
+  USING (auth.uid() = user_id);
+
 -- Booking access: user's own bookings + owned mesa bookings
 CREATE POLICY "Users can read own bookings"
   ON bookings FOR SELECT
-  USING (auth.uid() = user_id);
+  USING (auth.uid() = player_user_id);
 
 CREATE POLICY "Mesa owners can read their mesa bookings"
   ON bookings FOR SELECT
   USING (
-    mesa_id IN (
-      SELECT id FROM mesas WHERE user_id = auth.uid()
-    )
+    gm_user_id = auth.uid() OR
+    store_user_id = auth.uid()
   );
+
+CREATE POLICY "Users can insert own bookings"
+  ON bookings FOR INSERT
+  WITH CHECK (auth.uid() = player_user_id);
+
+-- Post access: public + own posts
+CREATE POLICY "Anyone can read public posts"
+  ON posts FOR SELECT
+  USING (is_public = true);
+
+CREATE POLICY "Users can read own posts"
+  ON posts FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own posts"
+  ON posts FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Comment access: public posts + own comments
+CREATE POLICY "Anyone can read comments on public posts"
+  ON comments FOR SELECT
+  USING (EXISTS (SELECT 1 FROM posts WHERE id = post_id AND is_public = true));
+
+CREATE POLICY "Users can read own comments"
+  ON comments FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own comments"
+  ON comments FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Like access
+CREATE POLICY "Anyone can read post likes"
+  ON post_likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can manage own post likes"
+  ON post_likes FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Anyone can read comment likes"
+  ON comment_likes FOR SELECT
+  USING (true);
+
+CREATE POLICY "Users can manage own comment likes"
+  ON comment_likes FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Review access
+CREATE POLICY "Anyone can read published reviews"
+  ON reviews FOR SELECT
+  USING (status = 'published');
+
+CREATE POLICY "Users can read own reviews"
+  ON reviews FOR SELECT
+  USING (auth.uid() = reviewer_user_id OR auth.uid() = reviewed_user_id);
+
+CREATE POLICY "Users can manage own reviews"
+  ON reviews FOR ALL
+  USING (auth.uid() = reviewer_user_id)
+  WITH CHECK (auth.uid() = reviewer_user_id);
+
+-- Notification access
+CREATE POLICY "Users can manage own notifications"
+  ON notifications FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Hive access
+CREATE POLICY "Anyone can read public hives"
+  ON hives FOR SELECT
+  USING (is_public = true);
+
+CREATE POLICY "Members can read their hives"
+  ON hives FOR SELECT
+  USING (EXISTS (SELECT 1 FROM hive_members WHERE hive_id = id AND user_id = auth.uid()));
+
+CREATE POLICY "Owners can manage their hives"
+  ON hives FOR ALL
+  USING (auth.uid() = owner_id)
+  WITH CHECK (auth.uid() = owner_id);
+
+-- Hive members access
+CREATE POLICY "Anyone can see members of public hives"
+  ON hive_members FOR SELECT
+  USING (EXISTS (SELECT 1 FROM hives WHERE id = hive_id AND is_public = true));
+
+CREATE POLICY "Users can manage own membership"
+  ON hive_members FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Billing access (strict owner-only)
+CREATE POLICY "Users can manage own subscriptions"
+  ON subscriptions FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own payments"
+  ON payments FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own wallets"
+  ON wallets FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own wallet transactions"
+  ON wallet_transactions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own credit wallets"
+  ON credit_wallets FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own credit transactions"
+  ON credit_transactions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own coupon redemptions"
+  ON coupon_redemptions FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can manage own asaas account"
+  ON asaas_accounts FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
 
 -- PHASE 7: VERIFY & REPORT
 -- These selects show the final state without changing anything
