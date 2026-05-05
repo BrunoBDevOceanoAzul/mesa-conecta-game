@@ -29,7 +29,6 @@ RUN find frontend -maxdepth 3 -type d -name '* 2' -prune -exec rm -rf {} + 2>/de
 FROM nginx:${NGINX_VERSION}-alpine AS runtime
 COPY infra/docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/frontend/dist /usr/share/nginx/html
-COPY --from=build /app/frontend/dist/Index/index.html /usr/share/nginx/html/index.html
 EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -qO- http://127.0.0.1:8080/healthz || exit 1

@@ -15,10 +15,13 @@ describe("Next entrypoints", () => {
   it("exports the root URL as a real Next page", () => {
     const rootPage = read("pages/index.tsx");
     const landingPage = read("features/landing/LandingPage.tsx");
+    const dockerfile = readRepo("infra/docker/Dockerfile");
 
     assert.match(rootPage, /@\/features\/landing\/LandingPage/);
     assert.match(landingPage, /export default function LandingPage/);
     assert.doesNotMatch(landingPage, /initial=\{\{ opacity: 0/);
+    assert.match(dockerfile, /COPY --from=build \/app\/frontend\/dist \/usr\/share\/nginx\/html/);
+    assert.doesNotMatch(dockerfile, /\/app\/frontend\/dist\/Index\/index\.html/);
   });
 
   it("redirects the legacy uppercase Index route to the static root", () => {
