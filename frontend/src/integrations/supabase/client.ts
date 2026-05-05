@@ -23,7 +23,9 @@ let _supabase: any = null;
 function getSupabaseClient() {
   if (!_supabase) {
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    const key = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+    const key =
+      process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
     
     if (!url || !key) {
       console.warn('Supabase credentials not configured. Client initialization deferred.');
@@ -46,7 +48,7 @@ export const supabase = new Proxy({}, {
     if (prop === '__skipDynamic') return true;
     const client = getSupabaseClient();
     if (!client) {
-      throw new Error('Supabase client is not initialized. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY are set.');
+      throw new Error('Supabase client is not initialized. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
     }
     return (client as any)[prop];
   }

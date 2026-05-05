@@ -27,7 +27,6 @@ spec:
       automountServiceAccountToken: false
       imagePullSecrets:
         - name: ghcr-secret
-        - name: gitlab-registry
       securityContext:
         runAsNonRoot: true
         runAsUser: 1001

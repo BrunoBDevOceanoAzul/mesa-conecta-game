@@ -57,6 +57,10 @@ export default function MarketContent() {
     (mesa.city && mesa.city.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
+  const showAllMesas = () => {
+    setSearchQuery('');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0a0612] via-[#0f0a1a] to-[#050505] text-white p-4 pb-24 md:p-8">
       <motion.div
@@ -94,12 +98,13 @@ export default function MarketContent() {
             <p className="text-white/50 text-sm max-w-md mx-auto">
               {searchQuery ? 'Tente outro termo de busca.' : 'Não há mesas disponíveis no momento.'}
             </p>
-            <a 
-              href="/explorar" 
+            <button
+              type="button"
+              onClick={showAllMesas}
               className="inline-block mt-4 px-6 py-2 bg-[#662583] rounded-xl text-sm font-medium hover:bg-[#662583]/80 transition-colors"
             >
               Explorar Todas
-            </a>
+            </button>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -157,15 +162,16 @@ export default function MarketContent() {
           </div>
         )}
 
-        {/* Link para explorar mais */}
+        {/* Acoes do mercado */}
         <div className="mt-6 text-center">
-          <a 
-            href="/explorar" 
+          <button
+            type="button"
+            onClick={showAllMesas}
             className="inline-flex items-center gap-2 px-6 py-3 bg-[#662583]/20 border border-[#662583]/30 rounded-xl text-sm font-medium hover:bg-[#662583]/30 transition-colors"
           >
             <ShoppingBag className="w-4 h-4" />
             Ver todas as mesas
-          </a>
+          </button>
         </div>
       </motion.div>
     </div>
