@@ -5,6 +5,8 @@ ARG NGINX_VERSION=1.27.4
 FROM node:${NODE_VERSION}-alpine AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
+COPY frontend/package.json ./frontend/package.json
+COPY backend/package.json ./backend/package.json
 RUN npm ci
 
 FROM node:${NODE_VERSION}-alpine AS build
