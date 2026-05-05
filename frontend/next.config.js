@@ -17,10 +17,12 @@ const nextConfig = {
     },
   },
   webpack: (config, { isServer }) => {
+    const reactPath = require.resolve('react', { paths: [__dirname] });
+    const reactDomPath = require.resolve('react-dom', { paths: [__dirname] });
     config.resolve.alias = {
       ...config.resolve.alias,
-      react: path.resolve(__dirname, 'node_modules/react'),
-      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+      react: path.dirname(reactPath),
+      'react-dom': path.dirname(reactDomPath),
     };
 
     config.resolve.modules = [
