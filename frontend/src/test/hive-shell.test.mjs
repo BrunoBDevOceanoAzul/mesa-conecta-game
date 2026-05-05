@@ -1,13 +1,40 @@
 import assert from "node:assert/strict";
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readdirSync, readFileSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, it } from "node:test";
 
 const repoRoot = fileURLToPath(new URL("../../..", import.meta.url));
 const readFrontend = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "utf8");
-const readRepo = (path) => readFileSync(join(repoRoot, path), "utf8");
+const ignoredDirs = new Set([".git", ".git-rewrite", ".next", "dist", "node_modules"]);
+const ignoredFiles = new Set(["package-lock.json"]);
+
+function listTextFiles(dir, root = dir) {
+  const entries = readdirSync(dir, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const absolutePath = join(dir, entry.name);
+    const relativePath = relative(root, absolutePath);
+
+    if (entry.isDirectory()) {
+      if (!ignoredDirs.has(entry.name)) {
+        files.push(...listTextFiles(absolutePath, root));
+      }
+      continue;
+    }
+
+    if (!entry.isFile() || ignoredFiles.has(entry.name)) {
+      continue;
+    }
+
+    if (statSync(absolutePath).size <= 1024 * 1024) {
+      files.push(relativePath);
+    }
+  }
+
+  return files;
+}
 
 describe("Hive shell integration", () => {
   it("uses Hive as the authenticated root while keeping isolated public flows direct", () => {
@@ -38,37 +65,9 @@ describe("Hive shell integration", () => {
 
   it("keeps CI/CD and registry references on GitHub Actions only", () => {
     const needle = "git" + "lab";
-    let output = "";
 
-    try {
-      output = execFileSync(
-        "rg",
-        [
-          "-i",
-          "--files-with-matches",
-          needle,
-          "--glob",
-          "!**/node_modules/**",
-          "--glob",
-          "!**/.next/**",
-          "--glob",
-          "!**/dist/**",
-          "--glob",
-          "!**/.git/**",
-          "--glob",
-          "!**/.git-rewrite/**",
-          "--glob",
-          "!**/package-lock.json",
-        ],
-        { cwd: repoRoot, encoding: "utf8" },
-      );
-    } catch (err) {
-      if (err.status !== 1) throw err;
-    }
-
-    const offenders = output
-      .split("\n")
-      .filter(Boolean)
+    const offenders = listTextFiles(repoRoot)
+      .filter((file) => readFileSync(join(repoRoot, file), "utf8").toLowerCase().includes(needle))
       .filter((file) => file !== "frontend/src/test/hive-shell.test.mjs");
 
     assert.deepEqual(offenders, []);
