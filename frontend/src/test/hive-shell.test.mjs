@@ -19,6 +19,7 @@ describe("Hive shell integration", () => {
     assert.match(app, /router\.replace\(nextHiveRoute\)/);
     assert.match(app, /"\/explorar": "\/hive\?f=market"/);
     assert.match(app, /"\/Billing": "\/hive\?f=market&overlay=billing"/);
+    assert.doesNotMatch(app, /\/Hive/);
   });
 
   it("keeps MarketContent inside Hive overlays instead of linking to legacy explorar routes", () => {

@@ -36,7 +36,6 @@ const PUBLIC_ROUTE_PATTERNS = [
 ];
 
 const HIVE_ROUTE_PATTERNS = [
-  /^\/Hive$/,
   /^\/hive$/,
 ];
 

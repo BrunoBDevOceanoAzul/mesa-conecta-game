@@ -12,8 +12,8 @@ describe("Next entrypoints", () => {
     assert.match(app, /import\s+["']@\/index\.css["'];/);
   });
 
-  it("renders the Hive page inside its context provider layout", () => {
-    const hivePage = read("pages/Hive.tsx");
+  it("renders the Hive page from the lowercase canonical route", () => {
+    const hivePage = read("pages/hive.tsx");
 
     assert.match(hivePage, /from\s+["']@\/layouts\/HiveLayout["']/);
     assert.match(hivePage, /<HiveLayout>/);
@@ -34,7 +34,7 @@ describe("Next entrypoints", () => {
       "/para-marcas": "/ParaMarcas/index.html",
       "/reset-password": "/ResetPassword/index.html",
       "/~oauth": "/OAuthCallback/index.html",
-      "/hive": "/Hive/index.html",
+      "/hive": "/hive/index.html",
       "/feed": "/Feed/index.html",
       "/billing": "/Billing/index.html",
       "/agenda": "/Agenda/index.html",
