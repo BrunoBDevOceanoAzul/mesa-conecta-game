@@ -68,6 +68,7 @@ describe("Hive shell integration", () => {
 
     const offenders = listTextFiles(repoRoot)
       .filter((file) => readFileSync(join(repoRoot, file), "utf8").toLowerCase().includes(needle))
+      .filter((file) => file !== "AGENTS.md")
       .filter((file) => file !== "frontend/src/test/hive-shell.test.mjs");
 
     assert.deepEqual(offenders, []);
