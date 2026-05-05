@@ -24,14 +24,9 @@
   },
   "dependencies": {
     "date-fns": "^2.30.0",
-    "nanoid": "^5.1.9",
-    "next": "^14.2.35",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "nanoid": "^5.1.9"
   },
   "devDependencies": {
-    "@types/google.maps": "^3.64.0",
-    "@types/react": "^18.3.28",
-    "@types/react-dom": "^18.3.7"
+    "@types/google.maps": "^3.64.0"
   }
 }

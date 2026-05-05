@@ -8,6 +8,7 @@ const nextConfig = {
     unoptimized: true,
   },
   trailingSlash: true,
+  reactStrictMode: true,
   transpilePackages: ['recharts', 'framer-motion', 'motion-dom', 'tiny-invariant', 'recharts-scale'],
   modularizeImports: {
     'lucide-react': {
@@ -15,12 +16,27 @@ const nextConfig = {
       skipDefaultConversion: true,
     },
   },
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      react: path.resolve(__dirname, 'node_modules/react'),
+      'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+    };
+
     config.resolve.modules = [
       path.resolve(__dirname, 'node_modules'),
-      path.resolve(__dirname, '../node_modules'),
       'node_modules',
     ];
+
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+
     return config;
   },
 };

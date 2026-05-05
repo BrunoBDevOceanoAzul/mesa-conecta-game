@@ -5,8 +5,36 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1777152000000,
+      "when": 1745625600000,
       "tag": "0000_create_analytics_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1745712000000,
+      "tag": "0001_create_social_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745798400000,
+      "tag": "0002_fix_social_tables",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1745884800000,
+      "tag": "0003_add_ghost_mode_privacy",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1745971200000,
+      "tag": "0004_create_hives",
       "breakpoints": true
     }
   ]

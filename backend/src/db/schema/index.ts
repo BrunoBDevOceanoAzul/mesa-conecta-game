@@ -6,3 +6,4 @@ export * from "./reviews.js";
 export * from "./bookings.js";
 export * from "./billing.js";
 export * from "./social.js";
+export * from "./hives.js";
