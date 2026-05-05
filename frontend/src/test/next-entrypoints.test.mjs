@@ -12,6 +12,23 @@ describe("Next entrypoints", () => {
     assert.match(app, /import\s+["']@\/index\.css["'];/);
   });
 
+  it("exports the root URL as a real Next page", () => {
+    const rootPage = read("pages/index.tsx");
+    const landingPage = read("features/landing/LandingPage.tsx");
+
+    assert.match(rootPage, /@\/features\/landing\/LandingPage/);
+    assert.match(landingPage, /export default function LandingPage/);
+    assert.doesNotMatch(landingPage, /initial=\{\{ opacity: 0/);
+  });
+
+  it("redirects the legacy uppercase Index route to the static root", () => {
+    const nginx = readRepo("infra/docker/nginx.conf");
+
+    assert.match(nginx, /location = \/Index \{/);
+    assert.match(nginx, /return 308 \//);
+    assert.doesNotMatch(nginx, /\/Index\/index\.html/);
+  });
+
   it("renders the Hive page from the lowercase canonical route", () => {
     const hivePage = read("pages/hive.tsx");
 

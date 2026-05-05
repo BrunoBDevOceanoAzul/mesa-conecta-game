@@ -43,6 +43,7 @@ describe("Hive shell integration", () => {
     assert.match(app, /function AuthenticatedHiveRoot/);
     assert.match(app, /PUBLIC_ROUTE_PATTERNS/);
     assert.match(app, /AUTHENTICATED_ROUTE_REDIRECTS/);
+    assert.match(app, /shouldRedirectToHive/);
     assert.match(app, /router\.replace\(nextHiveRoute\)/);
     assert.match(app, /"\/explorar": "\/hive\?f=market"/);
     assert.match(app, /"\/Billing": "\/hive\?f=market&overlay=billing"/);

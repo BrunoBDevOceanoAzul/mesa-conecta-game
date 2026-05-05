@@ -82,14 +82,16 @@ function AuthenticatedHiveRoot({ children }: { children: React.ReactNode }) {
   const isHiveRoute = isRouteMatch(router.pathname, HIVE_ROUTE_PATTERNS);
   const isPublicRoute = isRouteMatch(router.pathname, PUBLIC_ROUTE_PATTERNS);
   const nextHiveRoute = AUTHENTICATED_ROUTE_REDIRECTS[router.pathname];
+  const shouldStayOnIsolatedPublicRoute = isPublicRoute && !nextHiveRoute;
+  const shouldRedirectToHive = Boolean(!loading && user && nextHiveRoute && !isHiveRoute && !shouldStayOnIsolatedPublicRoute);
 
   useEffect(() => {
-    if (!loading && user && nextHiveRoute && !isHiveRoute) {
+    if (shouldRedirectToHive) {
       router.replace(nextHiveRoute);
     }
-  }, [isHiveRoute, loading, nextHiveRoute, router, user]);
+  }, [nextHiveRoute, router, shouldRedirectToHive]);
 
-  if (loading || !user || isPublicRoute || isHiveRoute || !nextHiveRoute) {
+  if (!shouldRedirectToHive) {
     return <>{children}</>;
   }
 

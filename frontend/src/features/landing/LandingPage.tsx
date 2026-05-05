@@ -148,7 +148,7 @@ function HeroSection() {
 
       <div className="relative z-10 text-center px-4 max-w-4xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={false}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
           className="mb-8"
@@ -157,7 +157,7 @@ function HeroSection() {
         </motion.div>
 
         <motion.h1
-          initial={{ opacity: 0, y: 30 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
           className="text-5xl md:text-7xl lg:text-8xl font-display font-black leading-none tracking-tight"
@@ -168,7 +168,7 @@ function HeroSection() {
         </motion.h1>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.4 }}
           className="mt-6 text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-2xl mx-auto leading-relaxed"
@@ -179,7 +179,7 @@ function HeroSection() {
         </motion.p>
 
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-10 flex flex-col sm:flex-row gap-4 justify-center"
@@ -202,7 +202,7 @@ function HeroSection() {
         </motion.div>
 
         <motion.div
-          initial={{ opacity: 0 }}
+          initial={false}
           animate={{ opacity: 1 }}
           transition={{ delay: 1.2 }}
           className="mt-16 animate-bounce"
@@ -235,7 +235,7 @@ function StatsSection() {
           return (
             <motion.div
               key={stat.label}
-              initial={{ opacity: 0, y: 30 }}
+              initial={false}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.15 }}
               className="text-center"
@@ -292,7 +292,7 @@ function FeaturesSection() {
     <section id="features" ref={ref} className="py-24 px-4">
       <div className="max-w-6xl mx-auto">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={false}
           animate={inView ? { opacity: 1, y: 0 } : {}}
           className="text-center mb-16"
         >
@@ -313,7 +313,7 @@ function FeaturesSection() {
             return (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 30 }}
+                initial={false}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: i * 0.1 }}
                 className="group relative p-6 rounded-2xl border border-border/50 bg-card/50 hover:bg-card hover:border-primary/30 transition-all duration-300"
@@ -349,7 +349,7 @@ function CTASection() {
   return (
     <section ref={ref} className="py-24 px-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
+        initial={false}
         animate={inView ? { opacity: 1, scale: 1 } : {}}
         className="max-w-3xl mx-auto text-center relative"
       >
