@@ -43,12 +43,37 @@ function getSupabaseClient() {
   return _supabase;
 }
 
+const noop = () => Promise.resolve({ data: { session: null }, error: null });
+const noopSync = () => ({ data: { session: null }, error: null });
+
+const mockClient = {
+  auth: {
+    onAuthStateChange: () => ({
+      data: { subscription: { unsubscribe: () => {} } },
+    }),
+    getSession: noop,
+    signOut: noop,
+    signInWithOAuth: () => Promise.resolve({ data: null, error: null }),
+  },
+  from: (_table: string) => ({
+    select: () => ({ data: null, error: null }),
+    insert: () => ({ data: null, error: null }),
+    update: () => ({ data: null, error: null }),
+    delete: () => ({ data: null, error: null }),
+  }),
+  channel: () => ({
+    on: () => ({ subscribe: () => {}, unsubscribe: () => {} }),
+    subscribe: () => {},
+  }),
+  rpc: () => Promise.resolve({ data: null, error: null }),
+};
+
 export const supabase = new Proxy({}, {
   get: (_, prop: string | symbol) => {
     if (prop === '__skipDynamic') return true;
     const client = getSupabaseClient();
     if (!client) {
-      throw new Error('Supabase client is not initialized. Ensure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY or NEXT_PUBLIC_SUPABASE_ANON_KEY are set.');
+      return (mockClient as any)[prop];
     }
     return (client as any)[prop];
   }

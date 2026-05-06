@@ -29,86 +29,97 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const initialized = useRef(false);
 
   useEffect(() => {
-    // Set up auth state listener FIRST (before getSession)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, newSession) => {
-        // Only update state, avoid async calls in the listener to prevent deadlocks
-        setSession(newSession);
-        setUser(newSession?.user ?? null);
-        setLoading(false);
+    let mounted = true;
 
-        if (event === "SIGNED_IN" && newSession?.user) {
-          const provider = newSession.user.app_metadata?.provider || "email";
-          // Use setTimeout to avoid blocking the auth state change
-          setTimeout(() => {
-            trackSignIn(newSession.user.id, provider);
-          }, 0);
+    try {
+      // Set up auth state listener FIRST
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, newSession) => {
+          if (!mounted) return;
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          setLoading(false);
 
-          if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
-          lastSeenInterval.current = setInterval(() => {
-            updateLastSeen(newSession.user.id);
-          }, 5 * 60 * 1000);
-        }
+          if (event === "SIGNED_IN" && newSession?.user) {
+            const provider = newSession.user.app_metadata?.provider || "email";
+            setTimeout(() => {
+              trackSignIn(newSession.user.id, provider);
+            }, 0);
 
-        if (event === "SIGNED_OUT") {
-          if (lastSeenInterval.current) {
-            clearInterval(lastSeenInterval.current);
-            lastSeenInterval.current = null;
-          }
-        }
-
-        if (event === "TOKEN_REFRESHED" && newSession?.user) {
-          // Session refreshed successfully — ensure heartbeat is running
-          if (!lastSeenInterval.current) {
+            if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
             lastSeenInterval.current = setInterval(() => {
               updateLastSeen(newSession.user.id);
             }, 5 * 60 * 1000);
           }
-        }
-      }
-    );
 
-    // Then get the initial session — with timeout para evitar loading travado
-    const getSessionWithTimeout = () =>
-      Promise.race([
-        supabase.auth.getSession(),
-        new Promise<never>((_, reject) =>
-          setTimeout(() => reject(new Error("Timeout getting session")), 5000)
-        ),
-      ]) as ReturnType<typeof supabase.auth.getSession>;
+          if (event === "SIGNED_OUT") {
+            if (lastSeenInterval.current) {
+              clearInterval(lastSeenInterval.current);
+              lastSeenInterval.current = null;
+            }
+          }
 
-    getSessionWithTimeout()
-      .then(({ data: { session: initSession }, error }) => {
-        if (error) {
-          console.warn("[Auth] getSession error:", error.message);
-        }
-        if (!initialized.current) {
-          setSession(initSession);
-          setUser(initSession?.user ?? null);
-          setLoading(false);
-          initialized.current = true;
-
-          if (initSession?.user) {
-            lastSeenInterval.current = setInterval(() => {
-              updateLastSeen(initSession.user.id);
-            }, 5 * 60 * 1000);
+          if (event === "TOKEN_REFRESHED" && newSession?.user) {
+            if (!lastSeenInterval.current) {
+              lastSeenInterval.current = setInterval(() => {
+                updateLastSeen(newSession.user.id);
+              }, 5 * 60 * 1000);
+            }
           }
         }
-      })
-      .catch((err) => {
-        console.warn("[Auth] getSession timeout or error:", err?.message);
-        if (!initialized.current) {
-          setSession(null);
-          setUser(null);
-          setLoading(false);
-          initialized.current = true;
-        }
-      });
+      );
 
-    return () => {
-      subscription.unsubscribe();
-      if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
-    };
+      // Then get the initial session — with timeout para evitar loading travado
+      const getSessionWithTimeout = () =>
+        Promise.race([
+          supabase.auth.getSession(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error("Timeout getting session")), 5000)
+          ),
+        ]) as ReturnType<typeof supabase.auth.getSession>;
+
+      getSessionWithTimeout()
+        .then(({ data: { session: initSession }, error }) => {
+          if (error) {
+            console.warn("[Auth] getSession error:", error.message);
+          }
+          if (!initialized.current) {
+            setSession(initSession);
+            setUser(initSession?.user ?? null);
+            setLoading(false);
+            initialized.current = true;
+
+            if (initSession?.user) {
+              lastSeenInterval.current = setInterval(() => {
+                updateLastSeen(initSession.user.id);
+              }, 5 * 60 * 1000);
+            }
+          }
+        })
+        .catch((err) => {
+          console.warn("[Auth] getSession timeout or error:", err?.message);
+          if (!initialized.current) {
+            setSession(null);
+            setUser(null);
+            setLoading(false);
+            initialized.current = true;
+          }
+        });
+
+      return () => {
+        mounted = false;
+        subscription.unsubscribe();
+        if (lastSeenInterval.current) clearInterval(lastSeenInterval.current);
+      };
+    } catch (err) {
+      console.error("[Auth] Failed to initialize auth:", err);
+      if (mounted && !initialized.current) {
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        initialized.current = true;
+      }
+    }
   }, []);
 
   const signOut = async () => {
